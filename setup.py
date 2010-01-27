@@ -4,7 +4,7 @@
 from distutils.core import setup
 
 classifiers = """\
-Development Status :: beta
+Development Status :: 4 - Beta
 Environment :: Console
 Intended Audience :: Science/Research
 Intended Audience :: Developers
@@ -25,11 +25,11 @@ setup(name='seawater',
     properties of sea water. They are a self contained library and are extremely easy to use.""",
     author='Filipe Fernandes',
     author_email='ocefpaf@gmail.com',
-    url='http://http://ocefpaf.tiddlyspot.com/',
+    url='http://ocefpaf.tiddlyspot.com/',
     packages=['seawater'],
     classifiers=filter(None, classifiers.split("\n")),
     keywords='oceanography seawater',
-    download_url = 'http://cheeseshop.python.org/packages/source/seawater.tar.gz',
+    download_url = 'http://pypi.python.org/packages/source/s/seawater/seawater-1.0-3.2.tar.gz',
     license = 'MIT',
     platforms = ['any'],
      )

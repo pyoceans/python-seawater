@@ -1,3 +1,6 @@
+DISCLAIMER
+PKG-INFO
+README
 setup.py
 seawater/__init__.py
 seawater/seawater.py
