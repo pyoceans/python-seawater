@@ -18,12 +18,12 @@ Topic :: Software Development :: Libraries :: Python Modules
 """
 
 setup(name='seawater',
-    version='1.0-3.2',
+    version='1.0.1-3.2',
     description='Seawater Libray for Python',
     long_description = """\
     This python 1.0-3.2 is a translation of the original SEAWATER 3.2 MATLAB toolkit routines for calculating the
     properties of sea water. They are a self contained library and are extremely easy to use.""",
-    author='Filipe Fernandes',
+    author='Filipe P. Fernandes',
     author_email='ocefpaf@gmail.com',
     url='http://ocefpaf.tiddlyspot.com/',
     packages=['seawater'],

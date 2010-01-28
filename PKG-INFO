@@ -1,9 +1,9 @@
 Metadata-Version: 1.0
 Name: seawater
-Version: 1.0-3.2
+Version: 1.0.1-3.2
 Summary: Seawater Libray for Python
 Home-page: http://ocefpaf.tiddlyspot.com/
-Author: Filipe Fernandes
+Author: Filipe P. Fernandes
 Author-email: ocefpaf@gmail.com
 License: MIT
 Download-URL: http://pypi.python.org/packages/source/s/seawater/seawater-1.0-3.2.tar.gz
