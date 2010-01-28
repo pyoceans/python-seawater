@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<title>Python Seawater: Codiname Jörmungandr</title>
+<style type="text/css">
+
+/*
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: html4css1.css 5196 2007-06-03 20:25:28Z wiemann $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+
+See http://docutils.sf.net/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin: 0 0 0.5em 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left {
+  clear: left }
+
+img.align-right {
+  clear: right }
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font-family: serif ;
+  font-size: 100% }
+
+pre.literal-block, pre.doctest-block {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document" id="python-seawater-codiname-j-rmungandr">
+<h1 class="title">Python Seawater: Codiname <em>Jörmungandr</em></h1>
+
+<div class="section" id="introduction">
+<h1>Introduction:</h1>
+<p>This module contains a translation of the original CSIRO Matlab package (SEAWATER-3.2) for calculating the properties of sea water.
+It consists of a self contained library and is extremely easy to use. The only requirent is NumPy.</p>
+<p>The author has no intention to do things in a &quot;pythonic-way&quot;, it is just a &quot;work around&quot; from someone that couldn't afford Matlab anymore.</p>
+<p>The package uses the formulas from Unesco's joint panel on oceanographic tables and standards, UNESCO 1981 and UNESCO 1983.</p>
+<p>The present version is 1.2, released 30 January 2010.</p>
+<p>For more information click <a class="reference external" href="http://ocefpaf.tiddlyspot.com/#python-seawater">here</a></p>
+</div>
+<div class="section" id="user-documentation">
+<h1>User documentation:</h1>
+<p>The functions are mainly polynomials, with an occasional fractional
+exponent. The functions can therefore be used traditionally for a single value or
+with NumPy for arrays. This means that they take array arguments and return an
+array of the same shape.</p>
+</div>
+<div class="section" id="original-seawater-functions">
+<h1>Original seawater functions</h1>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="10%" />
+<col width="73%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">function</th>
+<th class="head">units</th>
+<th class="head">description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>adtg(S, T, P)</td>
+<td>K / dbar</td>
+<td>Calculates adiabatic temperature gradient as per UNESCO 1983 routines.</td>
+</tr>
+<tr><td>alpha(S, PTMP, P)</td>
+<td>1 / K</td>
+<td>A function to calculate the thermal expansion coefficient.</td>
+</tr>
+<tr><td>aonb(S, PTMP, P)</td>
+<td>psu / degC</td>
+<td>Calculate alpha/beta.  See alpha and beta.</td>
+</tr>
+<tr><td>beta(S, PTMP, P)</td>
+<td>psu**-1</td>
+<td>The saline contraction coefficient as defined by T.J. McDougall.</td>
+</tr>
+<tr><td>bfrq(S, T, P, LAT)</td>
+<td>s**-2</td>
+<td>Calculates Brunt-Vaisala Frequency squared (N^2) at the mid depths.</td>
+</tr>
+<tr><td>depth(P, LAT)</td>
+<td>m</td>
+<td>Calculates depth in metres from pressure in dbars.</td>
+</tr>
+<tr><td>grav(LAT, z=0)</td>
+<td>m / s**2</td>
+<td>Calculates acceleration due to gravity as function of latitude.</td>
+</tr>
+<tr><td>cor(LAT)</td>
+<td>s**-1</td>
+<td>Calculates the Coriolis factor &quot;f&quot; defined by f = 2*Omega*Sin(lat)</td>
+</tr>
+<tr><td>c3515()</td>
+<td>mS / cm</td>
+<td>Returns conductivity at S=35 psu , T=15 C [ITPS 68] and P=0 db).</td>
+</tr>
+<tr><td>cndr(S, T, P)</td>
+<td>no units</td>
+<td>Calculates conductivity ratio from S, T, P</td>
+</tr>
+<tr><td>sals(Rt, T)</td>
+<td>psu</td>
+<td>Salinity of sea water as a function of Rt and T (PSS-78). UNESCO 1983 polynomial.</td>
+</tr>
+<tr><td>salds(Rtx, delT)</td>
+<td>no units</td>
+<td>Calculates Salinity differential dS/d(sqrt(Rt)) at constant T. UNESCO 1983 polynomial.</td>
+</tr>
+<tr><td>salrt(T)</td>
+<td>no units</td>
+<td>Equation rt(T) = C(35,T,0) / C(35,15(IPTS-68), 0) used in calculating salinity.</td>
+</tr>
+<tr><td>salt(cndr, T, P)</td>
+<td>no units</td>
+<td>Calculates Salinity from conductivity ratio. UNESCO 1983 polynomial.</td>
+</tr>
+<tr><td>salrp(R, T, P)</td>
+<td>no units</td>
+<td>Equation Rp(S,T,P) = C(S,T,P)/C(S,T,0) used in calculating salinity.</td>
+</tr>
+<tr><td>fp(S, P)</td>
+<td>degC</td>
+<td>Freezing point of Sea Water using UNESCO 1983 polynomial.</td>
+</tr>
+<tr><td>svel(S, T, P)</td>
+<td>m / s</td>
+<td>Sound Velocity in sea water using UNESCO 1983 polynomial.</td>
+</tr>
+<tr><td>pres(DEPTH, LAT)</td>
+<td>dbar</td>
+<td>Calculates pressure in dbars from depth in meters.</td>
+</tr>
+<tr><td>dist(lon, lat)</td>
+<td>m</td>
+<td>Calculate distance between two positions on globe.</td>
+</tr>
+<tr><td>satAr(S, T)</td>
+<td>ml / l</td>
+<td>Solubility (satuaration) of Argon (Ar) in sea water.</td>
+</tr>
+<tr><td>satN2(S, T)</td>
+<td>ml / l</td>
+<td>Solubility (satuaration) of Nitrogen (N2) in sea water.</td>
+</tr>
+<tr><td>satO2(S,T)</td>
+<td>ml / l</td>
+<td>Solubility (satuaration) of Oxygen (O2) in sea water.</td>
+</tr>
+<tr><td>dens0(S,T)</td>
+<td>kg / m**3</td>
+<td>Density of Sea Water at atmospheric pressure.</td>
+</tr>
+<tr><td>smow(T)</td>
+<td>kg / m**3</td>
+<td>Denisty of Standard Mean Ocean Water (Pure Water) using EOS 1980.</td>
+</tr>
+<tr><td>seck(S, T, P=0)</td>
+<td>bars</td>
+<td>Secant Bulk Modulus (K) of Sea Water using Equation of state 1980.</td>
+</tr>
+<tr><td>dens(S, T, P)</td>
+<td>kg / m**3</td>
+<td>Density of Sea Water using UNESCO 1983 (EOS 80) polynomial.</td>
+</tr>
+<tr><td>pden(S, T, P, PR=0)</td>
+<td>kg / m**3</td>
+<td>Calculates potential density of water mass relative to a reference pressure.</td>
+</tr>
+<tr><td>svan(S, T, P=0)</td>
+<td>m**3 / kg</td>
+<td>Specific Volume Anomaly.</td>
+</tr>
+<tr><td>gpan(S, T, P)</td>
+<td>m**2 s**-2</td>
+<td>Geopotential Anomaly.</td>
+</tr>
+<tr><td>gvel(ga, lon, lat)</td>
+<td>m / s</td>
+<td>Calculates geostrophic velocity given the geopotential anomaly and position of each station.</td>
+</tr>
+<tr><td>gvel2(ga, dist, lat)</td>
+<td>m / s</td>
+<td>Calculates geostrophic velocity given the geopotential anomaly and distance.</td>
+</tr>
+<tr><td>cp(S, T, P)</td>
+<td>J / (kg*K)</td>
+<td>Heat Capacity of Sea Water using UNESCO 1983 polynomial.</td>
+</tr>
+<tr><td>ptmp(S, T, P, PR=0)</td>
+<td>degC</td>
+<td>Calculates potential temperature as per UNESCO 1983 report.</td>
+</tr>
+<tr><td>temp(S, PTMP, P, PR)</td>
+<td>degC</td>
+<td>Calculates temperature from potential temperature.</td>
+</tr>
+<tr><td>swvel(lenth, depth)</td>
+<td>m / s</td>
+<td>Calculates surface wave velocity.</td>
+</tr>
+<tr><td colspan="3">extra functions</td>
+</tr>
+<tr><td>sigma(S, T, P)</td>
+<td>kg / m**3</td>
+<td>Density of Sea Water in sigma.</td>
+</tr>
+<tr><td>drhodt(S, T, P)</td>
+<td>kg /(K*m**3)</td>
+<td>Temperature derivative of density.</td>
+</tr>
+<tr><td>drhods(S, T, P)</td>
+<td>kg / m**3</td>
+<td>Salinity derivative of density.</td>
+</tr>
+<tr><td>test()</td>
+<td>--</td>
+<td>Execute test routines.</td>
+</tr>
+</tbody>
+</table>
+<p>Development Status :: 4 - Beta
+Environment :: Console
+Intended Audience :: Science/Research
+Intended Audience :: Developers
+Intended Audience :: Education
+License :: OSI Approved :: MIT License
+Operating System :: OS Independent
+Programming Language :: Python
+Topic :: Scientific/Engineering
+Topic :: Education
+Topic :: Software Development :: Libraries :: Python Modules</p>
+</div>
+</div>
+</body>
+</html>

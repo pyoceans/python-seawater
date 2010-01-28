@@ -1,6 +1,4 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 """
 seawater.py
 Translated from matlab CSIRO seawater toolbox Version 3.2

@@ -49,5 +49,5 @@ class OutOfRangeError(Exception): pass
 from seawater import *
 
 __all__     = ['seawater']
-__authors__ = ['Filipe P. A. Fernandes <ocefpaf@gmail.com>']
-__version__ = '1.0-3.2'
+__authors__ = ['Filipe Fernandes <ocefpaf@gmail.com>']
+__version__ = '1.0.2'
