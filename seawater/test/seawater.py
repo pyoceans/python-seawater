@@ -167,8 +167,8 @@ def aonb(S, PTMP, P):
     c5  =  0.512857e-12
     c6  = -0.302285e-13
     # Now calculate the thermal expansion saline contraction ratio adb
-    #m,n = S.shape #fixme
-    sm35  = S - 35.0 #* ones((m,n,))
+    #m,n = S.shape # fixme: is this needed at all ?
+    sm35  = S - 35.0 # fixme: if it is use this: * ones((m,n,))
     AONB  = polyval(c1, PTMP) + sm35 * ( polyval(c2, PTMP) \
             + polyval(c2a, P) ) \
             + sm35**2 * c3 + P * polyval(c4, PTMP) \
@@ -222,16 +222,16 @@ def beta(S, PTMP, P):
 
     # Now calaculate the thermal expansion saline contraction ratio adb
 
-    #m,n = S.shape #fixme
-    sm35  = S - 35 #* ones((m,n,))
+    #m,n = S.shape # fixme: is this needed at all?
+    sm35  = S - 35 # fixme: if it is use this: * ones((m,n,))
     BETA  = polyval(c1, PTMP) + sm35 * (polyval(c2, PTMP) + \
             polyval(c3, P) ) + c4 * (sm35**2) + \
             P * polyval(c5, PTMP) + (P**2) * polyval(c6, PTMP) \
             + c7 * (P**3)
 
     return BETA
-    
-def bfrq(S, T, P, LAT): # fixme
+
+def bfrq(S, T, P, LAT): # fixme: add option via keyword
     """
     USAGE:  bfrq, vort, p_ave = bfrq(S, T, P, LAT)
 
@@ -283,7 +283,7 @@ def bfrq(S, T, P, LAT): # fixme
     g = grav(LAT, -Z)
     f = cor(LAT)
 
-    m,n   = P.shape #fixme *check where depth increases to find dimension
+    m,n   = P.shape # fixme: check where depth increases to find dimension
     iup   = arange(0,m-1)
     ilo   = arange(1,m)
 
@@ -445,7 +445,7 @@ def c3515():
     10-01-14. Filipe Fernandes, Python translation.
     """
     return 42.914
-    
+
 def cndr(S, T, P):
     """
     USAGE:  cndr = cndr(S, T, P)
@@ -484,13 +484,14 @@ def cndr(S, T, P):
     SInc  = sals(Rx*Rx, T)
 
     # DO A NEWTON-RAPHSON ITERATION FOR INVERSE INTERPOLATION OF Rt FROM S.
-    for n in range(10): # fixme 100 ?
+    for n in range(10): # fixme: is a 100 important ?
         Rx   = Rx + (S - SInc) / salds(Rx, DT)
         SInc = sals(Rx*Rx, T)
         #try:
             #DELS = abs(SInc - S)
         #except TypeError:
         DELS = abs(SInc - S)
+        DELS = array(DELS) # fixme: any works only for array
         if (DELS.any() < 1.0E-4):
             break
 
@@ -939,8 +940,8 @@ def pres(DEPTH, LAT):
     C1      = 5.92E-3 + X**2 * 5.25E-3
     pres    = ( ( 1 - C1 ) - ( ( ( 1 - C1 )**2 ) - ( 8.84E-6 * DEPTH ) )**0.5 ) / 4.42E-6
     return pres
-    
-def dist(lon, lat): # fixme units
+
+def dist(lon, lat): # fixme: add keywords options for units
     """
     USAGE:  dist, phaseangle = dist(lon, lat)
 
@@ -987,15 +988,14 @@ def dist(lon, lat): # fixme units
     
     latrad = abs( lat * DEG2RAD )
     dep    = cos( ( latrad [ind+1] + latrad[ind] ) / 2 ) * dlon
-    dlat   = diff(lat, axis=0)
-    dist   = DEG2NM * (dlat**2 + dep**2)**0.5 # in n.miles
-    # fixme
-    #if strcmp(units,'km')   # defaults to n.miles
+    dlat   = diff( lat, axis=0 )
+    dist   = DEG2NM * ( dlat**2 + dep**2 )**0.5 # fixme: add keyword options defaults is in miles
+    #if strcmp(units,'km') # fixme: add keyword options defaults to n.miles
     dist = dist * NM2KM
     #end
 
     # CALCUALTE ANGLE TO X AXIS
-    RAD2DEG = 1/DEG2RAD
+    RAD2DEG     = 1/DEG2RAD
     phaseangle  = angle( dep + dlat * 1j ) * RAD2DEG
     return dist, phaseangle
     
@@ -1498,7 +1498,7 @@ def gpan(S, T, P):
         top = svn[0,:] * P[0,:] * db2Pascal
 
     delta_ga   = ( mean_svan * diff(P,axis=0) ) * db2Pascal
-    ga         = cumsum( vstack( ( top, delta_ga ) ),  axis=0 ) #fixme
+    ga         = cumsum( vstack( ( top, delta_ga ) ),  axis=0 ) # fixme: I do not remember why?
 
     return ga
 
@@ -1535,12 +1535,12 @@ def gvel(ga, lon, lat):
     """
     # You may replace the call to dist if you have
     # a more appropriate distance routine.
-    dista, phase = dist(lon,lat) # fixme
+    dista, phase = dist(lon,lat) # fixme: if I implement keyword for NM/KM this must be changed!
     distm = 1000.0 * dista # meters to 'km'
     m,n   = ga.shape
     f     = cor( ( lat[0:n-1] + lat[1:n] )/2 )
     lf    = f * distm
-    #LF    = lf[(ones((m,1)),:]
+    #LF    = lf[(ones((m,1)),:] # fixme: not sure why?
     vel   = -( ga[:,1:n] - ga[:,0:n-1] ) / LF
 
     return vel
@@ -1683,17 +1683,24 @@ def cp(S, T, P):
 
     S3_2 = S * (S)**0.5
 
-    del_Cpstp = [ ( ( ( ( d4 * T68 + d3 ) * T68 + d2 ) * T68 + d1 ) * T68 + d0 ) * S + \
-                ( ( e2 * T68 + e1 ) * T68 + e0 ) * S3_2 ] * P + \
-                [ ( ( ( f3 * T68 + f2 ) * T68 + f1 ) * T68 + f0 ) * S + \
-                g0 * S3_2 ] * P**2 + \
-                [ ( ( h2 * T68 + h1 ) * T68 + h0 ) * S + \
-                j1 * T68 * S3_2 ] * P**3
+    #del_Cpstp = [ ( ( ( ( d4 * T68 + d3 ) * T68 + d2 ) * T68 + d1 ) * T68 + d0 ) * S + \
+                #( ( e2 * T68 + e1 ) * T68 + e0 ) * S3_2 ] * P + \
+                #[ ( ( ( f3 * T68 + f2 ) * T68 + f1 ) * T68 + f0 ) * S + \
+                #g0 * S3_2 ] * P**2 + \
+                #[ ( ( h2 * T68 + h1 ) * T68 + h0 ) * S + \
+                #j1 * T68 * S3_2 ] * P**3
+
+    del_Cpstp = ( ( ( ( ( d4 * T68 + d3 ) * T68 + d2 ) * T68 + d1 ) * T68 + d0 ) * S + \
+                ( ( e2 * T68 + e1 ) * T68 + e0 ) * S3_2 ) * P + \
+                ( ( ( ( f3 * T68 + f2 ) * T68 + f1 ) * T68 + f0 ) * S + \
+                 g0 * S3_2 ) * P**2 + \
+                ( ( ( h2 * T68 + h1 ) * T68 + h0 ) * S + \
+                j1 * T68 * S3_2 ) * P**3
 
     cp = Cpst0 + del_Cp0t0 + del_Cpstp
 
     return cp
-    
+
 def ptmp(S, T, P, PR=0):
     """
     USAGE:  ptmp = sw_ptmp(S,T,P,PR)
@@ -1821,7 +1828,7 @@ def swvel(lenth, depth):
     MODIFICATIONS:
     10-01-14. Filipe Fernandes, Python translation.
     """
-    g = 9.8 # fixme
+    g = 9.8 # fixme: use grav function
     k = 2.0 * pi / lenth
     speed = (g * tanh(k * depth) / k)**0.5
     return speed
