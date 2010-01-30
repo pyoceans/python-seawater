@@ -6,7 +6,7 @@ Introduction:
 -------------
 
 This module contains a translation of the original CSIRO Matlab package (SEAWATER-3.2) for calculating the properties of sea water.
-It consists of a self contained library and is extremely easy to use. The only requirent is NumPy.
+It consists of a self contained library easy to use. The only requirent is NumPy.
 
 The author has no intention to do things in a "pythonic-way", it is just a "work around" from someone that couldn't afford Matlab anymore.
 
@@ -20,10 +20,7 @@ For more information click `here. <http://ocefpaf.tiddlyspot.com/#python-seawate
 User documentation:
 -------------------
 
-The functions are mainly polynomials, with an occasional fractional
-exponent. The functions can therefore be used traditionally for a single value or 
-with NumPy for arrays. This means that they take array arguments and return an
-array of the same shape.
+The functions input must be called as NumPy arrays, returning array of the same shape.
 
 Original seawater functions
 ---------------------------

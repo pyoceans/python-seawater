@@ -1,13 +1,14 @@
-Metadata-Version: 1.1
+Metadata-Version: 1.0
 Name: seawater
-Version: 1.0.2
+Version: 1.0.3
 Summary: Seawater Libray for Python
 Home-page: http://ocefpaf.tiddlyspot.com/#python-seawater
 Author: Filipe Fernandes
 Author-email: ocefpaf@gmail.com
 License: MIT
-Download-URL: http://pypi.python.org/packages/source/s/seawater/seawater-1.0.2.tar.gz
-Description: This module (version 1.0.2) is a translation of the original SEAWATER 3.2 MATLAB toolkit routines for calculating the properties of sea water. They are a self contained library and are extremely easy to use.
+Download-URL: http://pypi.python.org/packages/source/s/seawater/
+Description: This module is a translation of the original SEAWATER-3.2 MATLAB toolkit routines for calculating the properties of sea water. It consists of a self contained library and is extremely easy to use.
+        
 Keywords: oceanography seawater
 Platform: any
 Classifier: Development Status :: 4 - Beta
@@ -21,8 +22,3 @@ Classifier: Programming Language :: Python
 Classifier: Topic :: Scientific/Engineering
 Classifier: Topic :: Education
 Classifier: Topic :: Software Development :: Libraries :: Python Modules
-Requires: N
-Requires: u
-Requires: m
-Requires: P
-Requires: y
