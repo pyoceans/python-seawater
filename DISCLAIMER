@@ -189,19 +189,19 @@ What's new in this version of seawater
 (copied from matlab version for tracking purpose)
 
 19 April 2006  release 3.2 (For version 5.x and onwards of Matlab)
-********************************************************
+******************************************************************
 Corrected sign of potential vorticity in sw_bfrq.
 
 24 November 2005  release 3.1 (For version 5.x and onwards of Matlab)
-********************************************************
+*********************************************************************
 Added sw_swvel to compute surface wave velocity.
 
 12 December 2003  release 3.0 (For version 5.x and onwards of Matlab)
-********************************************************
+*********************************************************************
 Coverted code so that temperature is now ITS-90 throughout.
 
 25 June 1999  release 2.0.2 (For version 5.x of Matlab)
-********************************************************
+*******************************************************
 Coding changes to enable functions to return the same shape vector as
 the input arguments.  In previous releases, some functions returned
 column vectors for row vector input.  Also some other tidying up.
@@ -215,7 +215,7 @@ sw_satO2    New routine. Solubility of O2 in seawater
 sw_test     Updated to include tests for above
 
 April 1998  release 1.2e (For version 4.x of Matlab)
-************************
+****************************************************
 sw_alpha    Fixed bug where temp used in calculations regardless of
             whether 'temp' or 'pmpt' was passed as keyword.
 
@@ -228,7 +228,7 @@ sw_test     New Routine. Run a test on the SEAWATER routines
             and compare results with literature values
 
 94/11/15 release 1.2d
-**********************
+*********************
 sw_bfrq.m   Now also returns potential vorticity.
             Thanks to Greg Johnson (gjohnson@pmel.noaa.gov)
 
@@ -245,7 +245,7 @@ sw_aonb.m  |    previous releases of seawater.
                 ptmp with a string flag 'ptmp' see help.
 
 94/10/19 release 1.2c
-**********************
+*********************
 Added routine sw_new.m to inform of updates and new features.
 sw_bfrq.m   Fixed bug where LAT = [] was needed as argument when
             no latitude values are being passed.
@@ -258,5 +258,5 @@ sw_info.m   Updated to include a registration section.
             Requests for Report also via email to library@ml.csiro.au
 
 94/10/12 release 1.2b
-********************
+*********************
 First official release and announcement on the networks.

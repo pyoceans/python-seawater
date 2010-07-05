@@ -4,7 +4,7 @@
 from distutils.core import setup
 
 classifiers = """\
-Development Status :: 4 - Beta
+Development Status :: 5 - Production/Stable
 Environment :: Console
 Intended Audience :: Science/Research
 Intended Audience :: Developers

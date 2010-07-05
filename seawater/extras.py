@@ -5,7 +5,8 @@ def sigma():
     USAGE:  sgm = sigma(S, T, P)
 
     DESCRIPTION:
-    Density of Sea Water using UNESCO 1983 (EOS 80) polynomial.
+    Density of Sea Water using UNESCO 1983 (EOS 80) polynomial in
+    Sigma Units or dens(S,T,P) - 1000.0
 
     INPUT:  (all must have same dimensions)
     S = salinity    [psu      (PSS-78)]
@@ -29,6 +30,7 @@ def N(bvfr):
 
     DESCRIPTION:
     Calculates Brunt-Vaisala Frequency (N)
+    obs: Not the N square!!!
 
     INPUT:
     Nsqrd = frequency [s**-2]
@@ -49,7 +51,7 @@ def shear(U, V=0, P):
     USAGE:  shr = shear(U, V, P)
 
     DESCRIPTION:
-    Calculates Shear from U, V velocity section
+    Calculates Shear from velocity data.
 
     INPUT:
     U, V  = [m / s]

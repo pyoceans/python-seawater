@@ -7,11 +7,11 @@ Filipe P. A. Fernandes
 e-mail:   ocefpaf@gmail.com
 web:      http://ocefpaf.tiddlyspot.com/
 date:     14-Jan-2010
-modified: 23-Jan-2010
+modified: 05-Jun-2010
 obs:      fixme (flag's what needs attention)
           some keywords and default values are hardcoded!!!
           create docstrings
-          add shear/richnumber computation
+          shear/richnumber are in "extras"
 """
 
 # IMPORTS:

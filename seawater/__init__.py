@@ -2,7 +2,7 @@
 
 """
  Seawater -- Python functions for properties of sea water
-    Version 1.0-3.2 14 January 2010
+    Version 1.0-3.2 30 January 2010
 
  Functions:
  adtg(S, T, P)          Calculates adiabatic temperature gradient as per UNESCO 1983 routines.
