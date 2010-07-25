@@ -48,6 +48,12 @@ class OutOfRangeError(Exception): pass
 
 from seawater import *
 
+__authors__ = ['Filipe Fernandes']
+__copyright__ = "CSIRO"
+__credits__ = ["Filipe Fernandes", "Lindsay Pender","Phil Morgan"]
+__license__ = "CSIRO"
+__version__ = "1.0.3"
+__maintainer__ = "Filipe Fernandes"
+__email__ = "ocefpaf@gmail.com"
+__status__ = "Production".
 __all__     = ['seawater']
-__authors__ = ['Filipe Fernandes <ocefpaf@gmail.com>']
-__version__ = '1.0.3'
