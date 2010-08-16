@@ -33,18 +33,16 @@ def adtg(s, t, p):
     Parameters
     ----------
     s(p) : array_like
-        salinity [psu (PSS-78)]
+           salinity [psu (PSS-78)]
     t(p) : array_like
-        temperature [degree C (ITS-90)]
+           temperature [ :math:`^\\circ` C (ITS-90)]
     p : array_like
         pressure [db]. The shape of pressure can be "broadcasted"
 
     Returns
     -------
     adtg : array_like
-           adiabatic temperature gradient [degree_C/db]
-
-    AUTHOR:  Phil Morgan, Lindsay Pender (Lindsay.Pender@csiro.au)
+           adiabatic temperature gradient [ :math:`^\\circ` C db :sup:`-1` ]
 
     See Also
     --------
@@ -54,11 +52,9 @@ def adtg(s, t, p):
     -----
     Pressure broadcast feature need to be tested
 
-    .. admonition:
     Examples
     --------
-
-    data from Unesco 1983 p45
+    Data from Unesco 1983 p45
 
     >>> T = array([[ 0,  0,  0,  0,  0,  0], [10, 10, 10, 10, 10, 10], [20, 20, 20, 20, 20, 20], [30, 30, 30, 30, 30, 30], [40, 40, 40, 40, 40, 40]])
     >>> T = T / 1.00024
@@ -87,12 +83,16 @@ def adtg(s, t, p):
     and potential temperature of sea water."
     DEEP-SEA RES., 1973, Vol20,401-408.
 
+    Author
+    ------
+    Phil Morgan, Lindsay Pender (Lindsay.Pender@csiro.au)
+
     Modifications
     -------------
     99-06-25. Lindsay Pender, Fixed transpose of row vectors.
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
-    10-08-16. Filipe Fernandes, reformulated docstring.
+    10-08-16. Filipe Fernandes, Reformulated docstring.
     """
 
     T68 = 1.00024 * T
@@ -125,40 +125,64 @@ def adtg(s, t, p):
 
     return adtg
 
-def alpha(S, PTMP, P):
+def alpha(s, ptmp, p):
     """
-    USAGE:  ALPHA = alpha(S, PTMP, P)
+    Calculate the thermal expansion coefficient.
 
-    DESCRIPTION:
-    A function to calculate the thermal expansion coefficient.
+    Parameters
+    ----------
+    s : array_like
+        salinity [psu (PSS-78)]
+    ptmp : array_like
+           potential temperature [ :math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]. The shape of pressure can be "broadcasted"
 
-    INPUT:
-    S       = salinity              [psu      (PSS-78) ]
-    PTMP    = potential temperature [degree C (ITS-90)]
-    P       = pressure              [db]
+    Returns
+    -------
+    alpha : array_like
+            thermal expansion coeff ( :math:`\\alpha` ) [ :math:`^\\circ` C :sup:`-1` ]
 
-    OUTPUT:
-    ALPHA = Thermal expansion coeff (alpha) [degree_C.^-1]
+    See Also
+    --------
+    beta and aonb
 
-    AUTHOR:   N.L. Bindoff  1993, Lindsay Pender (Lindsay.Pender@csiro.au)
+    Notes
+    -----
+    Pressure broadcast feature need to be tested
 
-    REFERENCE:
+    Examples
+    --------
+    Data from McDougall 1987
+
+    >>> S = 40
+    >>> PT = 10
+    >>> P = 4000
+    >>> alpha(S, PT, P)
+    0.00025061316481624323
+
+    Reference
+    ---------
     McDougall, T.J. 1987.  "Neutral Surfaces"
     Journal of Physical Oceanography vol 17 pages 1950-1964,
 
-    CHECK VALUE:
-    See beta and aonb
+    Author
+    ------
+    N.L. Bindoff  1993, Lindsay Pender (Lindsay.Pender@csiro.au)
 
-    MODIFICATIONS:
+    Modifications
+    -------------
     93-04-22. Phil Morgan,  Help display modified to suit library
     93-04-23. Phil Morgan,  Input argument checking
     94-10-15. Phil Morgan,  Pass S,T,P and keyword for 'ptmp'
     99-06-25. Lindsay Pender, Fixed transpose of row vectors.
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
+    10-08-16. Filipe Fernandes, Reformulated docstring.
     """
-    ALPHA = aonb(S, PTMP, P ) * beta(S, PTMP, P)
-    return ALPHA
+
+    alpha = aonb(s, ptmp, p) * beta(s, ptmp, p)
+    return alpha
 
 def aonb(S, PTMP, P):
     """
@@ -169,11 +193,11 @@ def aonb(S, PTMP, P):
 
     INPUT:  (all must have same dimensions)
     S       = salinity              [psu      (PSS-78) ]
-    PTMP    = potential temperature [degree C (ITS-90)]
+    PTMP    = potential temperature [:math:`^\\circ`  C (ITS-90)]
     P       = pressure              [db]
 
     OUTPUT:
-    AONB  = alpha/beta [psu/degree_C]
+    AONB  = alpha/beta [psu/:math:`^\\circ` _C]
 
     AUTHOR:   N.L. Bindoff  1993, Lindsay Pender (Lindsay.Pender@csiro.au)
 
@@ -222,7 +246,7 @@ def beta(S, PTMP, P):
 
     INPUT:  (all must have same dimensions)
     S       = salinity              [psu      (PSS-78) ]
-    PTMP    = potential temperature [degree C (ITS-90)]
+    PTMP    = potential temperature [:math:`^\\circ`  C (ITS-90)]
     P       = pressure              [db]
 
     OUTPUT:
@@ -284,7 +308,7 @@ def bfrq(S, T, P, LAT): # fixme: add option via keyword
 
     INPUT:  (all must have same dimensions MxN)
     S   = salinity    [psu      (PSS-78) ]
-    T   = temperature [degree C (ITS-90)]
+    T   = temperature [:math:`^\\circ`  C (ITS-90)]
     P   = pressure    [db]
     LAT = Latitude in decimal degrees north [-90..+90]
             (Will use grav instead of the default g=9.8 m^2/s)
@@ -492,7 +516,7 @@ def cndr(S, T, P):
 
     INPUT:  (all must have same dimensions)
     S = salinity    [psu      (PSS-78) ]
-    T = temperature [degree C (ITS-90)]
+    T = temperature [:math:`^\\circ`  C (ITS-90)]
     P = pressure    [db]
 
     OUTPUT:
@@ -567,7 +591,7 @@ def sals(Rt, T):
 
     INPUT:
     Rt = Rt(S,T) = C(S,T,0) / C(35, T(IPTS-68), 0)
-    T  = temperature [degree C (ITS-90)]
+    T  = temperature [:math:`^\\circ`  C (ITS-90)]
 
     OUTPUT:
     S  = salinity    [psu      (PSS-78)]
@@ -627,7 +651,7 @@ def salds(Rtx, delT):
 
     INPUT: (all must have same dimensions)
     Rtx   = sqrt(Rt) where Rt defined in salt
-    delT  = T-15     [degree C (IPTS-68)]
+    delT  = T-15     [:math:`^\\circ`  C (IPTS-68)]
 
     OUTPUT:
     dS = S differential dS/d(sqrt(Rt)) at constant T.
@@ -677,7 +701,7 @@ def salrt(T):
        used in calculating salinity. UNESCO 1983 polynomial..
 
     INPUT:
-      T = temperature [degree C (ITS-90)]
+      T = temperature [:math:`^\\circ`  C (ITS-90)]
 
     OUTPUT:
       rt = conductivity ratio  [no units]
@@ -718,7 +742,7 @@ def salt(cndr, T, P):
 
     INPUT:
     cndr = Conductivity ratio     R =  C(S,T,P)/C(35,15(IPTS-68),0) [no units]
-    T    = temperature [degree C (ITS-90)]
+    T    = temperature [:math:`^\\circ`  C (ITS-90)]
     P    = pressure    [db]
 
     OUTPUT:
@@ -756,7 +780,7 @@ def salrp(R, T, P):
 
     INPUT: (All must have same shape)
     R = Conductivity ratio  R =  C(S,T,P)/C(35,15(IPTS-68),0) [no units]
-    T = temperature [degree C (ITS-90)]
+    T = temperature [:math:`^\\circ`  C (ITS-90)]
     P = pressure    [db]
 
     OUTPUT:
@@ -805,7 +829,7 @@ def fp(S, P):
     P = pressure    [db]
 
     OUTPUT:
-    fp = Freezing Point temperature [degree C (ITS-90)]
+    fp = Freezing Point temperature [:math:`^\\circ`  C (ITS-90)]
 
     AUTHOR:  Phil Morgan 93-04-20, Lindsay Pender (Lindsay.Pender@csiro.au)
 
@@ -842,7 +866,7 @@ def svel(S, T, P):
 
     INPUT:  (all must have same dimensions)
     S = salinity    [psu      (PSS-78)]
-    T = temperature [degree C (ITS-90)]
+    T = temperature [:math:`^\\circ`  C (ITS-90)]
     P = pressure    [db]
 
     OUTPUT:
@@ -1045,7 +1069,7 @@ def satAr(S, T):
 
     INPUT:  (all must have same dimensions)
     S = salinity    [psu      (PSS-78)]
-    T = temperature [degree C (ITS-90)]
+    T = temperature [:math:`^\\circ`  C (ITS-90)]
 
     OUTPUT:
     satAr = solubility of Ar  [ml/l]
@@ -1094,7 +1118,7 @@ def satN2(S, T):
 
     INPUT:  (all must have same dimensions)
     S = salinity    [psu      (PSS-78)]
-    T = temperature [degree C (ITS-90)]
+    T = temperature [:math:`^\\circ`  C (ITS-90)]
 
     OUTPUT:
     satN2 = solubility of N2  [ml/l]
@@ -1142,7 +1166,7 @@ def satO2(S,T):
 
     INPUT:  (all must have same dimensions)
     S = salinity    [psu      (PSS-78)]
-    T = temperature [degree C (ITS-68)]
+    T = temperature [:math:`^\\circ`  C (ITS-68)]
 
     OUTPUT:
     satO2 = solubility of O2  [ml/l]
@@ -1191,7 +1215,7 @@ def dens0(S,T):
 
     INPUT:  (all must have same dimensions)
     S = salinity    [psu      (PSS-78)]
-    T = temperature [degree C (ITS-90)]
+    T = temperature [:math:`^\\circ`  C (ITS-90)]
 
     OUTPUT:
     dens0 = density  [kg/m^3] of salt water with properties S,T,
@@ -1240,7 +1264,7 @@ def smow(T):
     Denisty of Standard Mean Ocean Water (Pure Water) using EOS 1980.
 
     INPUT:
-    T = temperature [degree C (ITS-90)]
+    T = temperature [:math:`^\\circ`  C (ITS-90)]
 
     OUTPUT:
     dens = density  [kg/m^3]
@@ -1282,7 +1306,7 @@ def seck(S, T, P=0):
 
     INPUT:  (all must have same dimensions)
     S = salinity    [psu      (PSS-78) ]
-    T = temperature [degree C (ITS-90)]
+    T = temperature [:math:`^\\circ`  C (ITS-90)]
     P = pressure    [db]
 
     OUTPUT:
@@ -1376,7 +1400,7 @@ def dens(S, T, P):
 
     INPUT:  (all must have same dimensions)
     S = salinity    [psu      (PSS-78)]
-    T = temperature [degree C (ITS-90)]
+    T = temperature [:math:`^\\circ`  C (ITS-90)]
     P = pressure    [db]
 
     OUTPUT:
@@ -1418,7 +1442,7 @@ def pden(S, T, P, PR=0):
 
     INPUT:  (all must have same dimensions)
     S  = salinity    [psu      (PSS-78) ]
-    T  = temperature [degree C (ITS-90)]
+    T  = temperature [:math:`^\\circ`  C (ITS-90)]
     P  = pressure    [db]
     PR = Reference pressure  [db]
          default = 0
@@ -1455,7 +1479,7 @@ def svan(S, T, P=0):
 
     INPUT:  (all must have same dimensions)
     S = salinity    [psu      (PSS-78) ]
-    T = temperature [degree C (ITS-90)]
+    T = temperature [:math:`^\\circ`  C (ITS-90)]
     P = Pressure    [db]
 
     OUTPUT:
@@ -1495,7 +1519,7 @@ def gpan(S, T, P):
 
     INPUT:  (all must have same dimensions)
     S = salinity    [psu      (PSS-78)]
-    T = temperature [degree C (ITS-90)]
+    T = temperature [:math:`^\\circ`  C (ITS-90)]
     P = Pressure    [db]
 
     OUTPUT:
@@ -1629,7 +1653,7 @@ def cp(S, T, P):
 
     INPUT:  (all must have same dimensions)
     S = salinity    [psu      (PSS-78)]
-    T = temperature [degree C (ITS-90)]
+    T = temperature [:math:`^\\circ`  C (ITS-90)]
     P = pressure    [db]
 
     OUTPUT:
@@ -1747,13 +1771,13 @@ def ptmp(S, T, P, PR=0):
 
     INPUT:  (all must have same dimensions)
     S  = salinity    [psu      (PSS-78) ]
-    T  = temperature [degree C (ITS-90)]
+    T  = temperature [:math:`^\\circ`  C (ITS-90)]
     P  = pressure    [db]
     PR = Reference pressure  [db]
          default = 0
 
     OUTPUT:
-    ptmp = Potential temperature relative to PR [degree C (ITS-90)]
+    ptmp = Potential temperature relative to PR [:math:`^\\circ`  C (ITS-90)]
 
     AUTHOR:  Phil Morgan 92-04-06, Lindsay Pender (Lindsay.Pender@csiro.au)
 
@@ -1811,12 +1835,12 @@ def temp(S, PTMP, P, PR):
 
     INPUT:  (all must have same dimensions)
     S     = salinity              [psu      (PSS-78) ]
-    PTMP  = potential temperature [degree C (ITS-90)]
+    PTMP  = potential temperature [:math:`^\\circ`  C (ITS-90)]
     P     = pressure              [db]
     PR    = Reference pressure    [db]
 
     OUTPUT:
-    temp = temperature [degree C (ITS-90)]
+    temp = temperature [:math:`^\\circ`  C (ITS-90)]
 
     AUTHOR:  Phil Morgan 92-04-06, Lindsay Pender (Lindsay.Pender@csiro.au)
 
