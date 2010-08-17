@@ -15,9 +15,7 @@ The author has no intention to do things in a "pythonic-way", it is just a "work
 
 The package uses the formulas from Unesco's joint panel on oceanographic tables and standards, UNESCO 1981 and UNESCO 1983.
 
-The present version is 1.2, released 30 January 2010.
-
-For more information click `here. <http://ocefpaf.tiddlyspot.com/#python-seawater>`_
+The present version is 1.0.4, released 17 August 2010.
 
 User documentation:
 -------------------
@@ -117,16 +115,14 @@ Extra Functions
 +---------------------+-------------+----------------------------------------------------------------------------------------------+
 """
 
-# --- Exceptions ---
-class OutOfRangeError(Exception): pass
-
 from seawater import *
+from extras import *
 
 __authors__    = ['Filipe Fernandes']
 __copyright__  = "CSIRO"
 __credits__    = ["Filipe Fernandes", "Lindsay Pender","Phil Morgan"]
 __license__    = "CSIRO"
-__version__    = "1.0.3"
+__version__    = "1.0.4"
 __maintainer__ = "Filipe Fernandes"
 __email__      = "ocefpaf@gmail.com"
 __status__     = "Production"

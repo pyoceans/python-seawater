@@ -130,8 +130,8 @@
                      [ 1553.4, 1638.0, 1719.2, 1563.2, 1647.3, 1727.8]])
     SVEL    = svel(S, T, P)
 
-# test SUBMODULES alpha beta aonb
-    submodules     = 'alpha beta'
+# test SUBMODULES alpha
+    submodules     = 'alpha'
 
     # DATA FROM MCDOUOGALL 1987
     s    = 40
@@ -140,7 +140,6 @@
     beta_lit  = 0.72088e-03
     alpha_lit = aonb_lit*beta_lit
 
-    # test ARGUMENT PASSING
     #fixme: add keywords and test here!
     # beta = beta(s,ptmp,p,'ptmp')
     # beta = beta(s,ptmp,p,'temp')
@@ -153,10 +152,6 @@
     # aonb  = aonb( s,ptmp,p,'ptmp')
     # aonb  = aonb( s,ptmp,p,'temp')
     # aonb  = aonb( s,ptmp,p)
-
-    BETA  = beta( s, PT, p)
-    ALPHA = alpha(s, PT, p)
-    AONB  = aonb( s, PT, p)
 
 # test MAIN MODULES  satO2 satN2 satAr
     module     = 'satO2 satN2 satAr'
