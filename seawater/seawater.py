@@ -95,7 +95,7 @@ def adtg(s, t, p):
     10-08-16. Filipe Fernandes, Reformulated docstring.
     """
 
-    T68 = 1.00024 * T
+    T68 = 1.00024 * t
 
     a0 =  3.5803E-5
     a1 =  8.5258E-6
@@ -118,14 +118,14 @@ def adtg(s, t, p):
     e2 = -2.1687E-16
 
     adtg = a0 + ( a1 + ( a2 + a3 * T68 ) * T68) * T68 \
-            + ( b0 + b1 * T68 ) * ( S-35 ) \
+            + ( b0 + b1 * T68 ) * ( s-35 ) \
             + ( ( c0 + ( c1 + ( c2 + c3 * T68 ) * T68 ) * T68 ) \
-            + ( d0 + d1 * T68 ) * ( S-35 ) ) * P \
-            + (  e0 + (e1 + e2 * T68) * T68 )*P*P
+            + ( d0 + d1 * T68 ) * ( s-35 ) ) * p \
+            + (  e0 + (e1 + e2 * T68) * T68 )*p*p
 
     return adtg
 
-def alpha(s, ptmp, p):
+def alpha(s, pt, p):
     """
     Calculate the thermal expansion coefficient.
 
@@ -133,7 +133,7 @@ def alpha(s, ptmp, p):
     ----------
     s : array_like
         salinity [psu (PSS-78)]
-    ptmp : array_like
+    pt : array_like
            potential temperature [ :math:`^\\circ` C (ITS-90)]
     p : array_like
         pressure [db]. The shape of pressure can be "broadcasted"
@@ -181,43 +181,66 @@ def alpha(s, ptmp, p):
     10-08-16. Filipe Fernandes, Reformulated docstring.
     """
 
-    alpha = aonb(s, ptmp, p) * beta(s, ptmp, p)
+    alpha = aonb(s, t, p) * beta(s, t, p)
     return alpha
 
-def aonb(S, PTMP, P):
+def aonb(s, t, p, pt=False):
     """
-    USAGE: AONB = aonb(S, PTMP, P)
+    Calculate :math:`\\alpha/\\beta`.
 
-    DESCRIPTION:
-    Calculate alpha/beta.  See alpha and beta.
+    Parameters
+    ----------
+    s : array_like
+        salinity [psu (PSS-78)]
+    t : array_like
+        temperature or potential temperature [:math:`^\\circ`  C (ITS-90)]
+    p : array_like
+        pressure [db]. The shape of pressure can be "broadcasted"
 
-    INPUT:  (all must have same dimensions)
-    S       = salinity              [psu      (PSS-78) ]
-    PTMP    = potential temperature [:math:`^\\circ`  C (ITS-90)]
-    P       = pressure              [db]
+    Returns
+    -------
+    aonb  = :math:`\\alpha/\\beta` [psu :math:`^\\circ` C :sup:`-1`]
 
-    OUTPUT:
-    AONB  = alpha/beta [psu/:math:`^\\circ` _C]
+    See Also
+    --------
+    alpha and beta
 
-    AUTHOR:   N.L. Bindoff  1993, Lindsay Pender (Lindsay.Pender@csiro.au)
+    Notes
+    -----
+    Pressure broadcast feature need to be tested
+    fixme: Test pt=False
 
-    REFERENCE:
+    Examples
+    --------
+    >>> s, pt, p = 40.0, 10.0, 4000
+    >>> aonb(s, pt, p)
+    0.347650567047807
+
+    Reference
+    ---------
     McDougall, T.J. 1987. "Neutral Surfaces"
     Journal of Physical Oceanography vol 17 pages 1950-1964,
 
-    CHECK VALUE:
-    aonb = 0.34763 psu C^-1 at S=40.0 psu, ptmp=10.0 C, p=4000 db
+    Author
+    ------
+    N.L. Bindoff  1993, Lindsay Pender (Lindsay.Pender@csiro.au)
 
-    MODIFICATIONS:
+    Modifications
+    -------------
     93-04-22. Phil Morgan,  Help display modified to suit library
     93-04-23. Phil Morgan,  Input argument checking
     94-10-15. Phil Morgan,  Pass S,T,P and keyword for 'ptmp'
     99-06-25. Lindsay Pender, Fixed transpose of row vectors.
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
+    10-08-16. Filipe Fernandes, Reformulated docstring.
     """
-    P    = float32(P)
-    PTMP = PTMP * 1.00024
+    # Ensure we use ptmp in calculations
+    if pt==False:
+        t = ptmp(s, t, p, 0) # now have ptmp
+
+    p = float32(p)
+    t = t * 1.00024
 
     c1  = array([-0.255019e-7, 0.298357e-5, -0.203814e-3, \
                     0.170907e-1, 0.665157e-1])
@@ -228,18 +251,20 @@ def aonb(S, PTMP, P):
     c5  =  0.512857e-12
     c6  = -0.302285e-13
     # Now calculate the thermal expansion saline contraction ratio adb
-    #m,n = S.shape # fixme: is this needed at all ?
-    sm35  = S - 35.0 # fixme: if it is use this: * ones((m,n,))
-    AONB  = polyval(c1, PTMP) + sm35 * ( polyval(c2, PTMP) \
-            + polyval(c2a, P) ) \
-            + sm35**2 * c3 + P * polyval(c4, PTMP) \
-            + c5 * (P**2) * (PTMP**2) + c6 * P**3
+    sm35  = s - 35.0
+    aonb  = polyval(c1, t) + sm35 * ( polyval(c2, t) \
+            + polyval(c2a, p) ) \
+            + sm35**2 * c3 + p * polyval(c4, t) \
+            + c5 * (p**2) * (t**2) + c6 * p**3
 
-    return AONB
+    return aonb
 
-def beta(S, PTMP, P):
+s, t, p = 40.0, 10.0, 4000.
+aonb(s, t, p)
+
+def beta(s, pt, p):
     """
-    USAGE:  BETA = beta(S, PTMP, P)
+    USAGE:  beta = beta(s, pt, p)
 
     DESCRIPTION:
     The saline contraction coefficient as defined by T.J. McDougall.
