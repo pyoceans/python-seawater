@@ -38,35 +38,6 @@ def cor(LAT):
     f       = 2 * OMEGA * sin( LAT * DEG2RAD )
     return f
 
-def c3515():
-    """
-    USAGE:  c3515 = c3515
-
-    DESCRIPTION:
-    Returns conductivity at S=35 psu , T=15 C [ITPS 68] and P=0 db).
-
-    INPUT: (none)
-
-    OUTPUT:
-    c3515  = Conductivity   [mmho/cm == mS/cm]
-
-    Author
-    ------
-    Phil Morgan 93-04-17  (morgan@ml.csiro.au)
-
-    References
-    ----------
-    R.C. Millard and K. Yang 1992.
-    "CTD Calibration and Processing Methods used by Woods Hole
-    Oceanographic Institution"  Draft April 14, 1992
-    (Personal communication)
-
-    Modifications
-    -------------
-    10-01-14. Filipe Fernandes, Python translation.
-    """
-    return 42.914
-
 def cndr(S, T, P):
     """
     USAGE:  cndr = cndr(S, T, P)

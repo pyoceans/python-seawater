@@ -26,6 +26,14 @@ from sys   import version
 # COMMON:
 DEG2RAD = pi/180
 
+"""
+Conductivity at S=35 psu , T=15 C [ITPS 68] and P=0 db) in [mmho/cm == mS/cm]
+
+Reference: R.C. Millard and K. Yang 1992. "CTD Calibration and Processing Methods used by Woods Hole Oceanographic Institution"  Draft April 14, 1992
+(Personal communication)
+"""
+C3515   = 42.914
+
 # FUNCTIONS:
 def adtg(s, t, p):
     """
