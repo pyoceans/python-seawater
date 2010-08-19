@@ -38,7 +38,7 @@ def adtg(s, t, p):
     t(p) : array_like
            temperature [ :math:`^\\circ` C (ITS-90)]
     p : array_like
-        pressure [db]. The shape of pressure can be "broadcasted"
+        pressure [db]. The shape can be "broadcasted"
 
     Returns
     -------
@@ -137,7 +137,7 @@ def alpha(s, t, p, pt=False):
     t(p) : array_like
            temperature or potential temperature [ :math:`^\\circ` C (ITS-90)]
     p : array_like
-        pressure [db]. The shape of pressure can be "broadcasted"
+        pressure [db]. The shape can be "broadcasted"
     pt : bool
          True if temperature is potential, default is False
 
@@ -196,7 +196,7 @@ def aonb(s, t, p, pt=False):
     t(p) : array_like
            temperature or potential temperature [:math:`^\\circ`  C (ITS-90)]
     p : array_like
-        pressure [db]. The shape of pressure can be "broadcasted"
+        pressure [db]. The shape can be "broadcasted"
     pt : bool
          True if temperature is potential, default is False
 
@@ -275,7 +275,7 @@ def beta(s, t, p, pt=False):
     t(p) : array_like
            temperature or potential temperature [:math:`^\\circ`  C (ITS-90)]
     p : array_like
-        pressure [db]. The shape of pressure can be "broadcasted"
+        pressure [db]. The shape can be "broadcasted"
     pt : bool
          True if temperature is potential, default is False
 
@@ -349,17 +349,17 @@ def bfrq(s, t, p, lat=None):
     t(p) : array_like
            temperature or potential temperature [:math:`^\\circ`  C (ITS-90)]
     p : array_like
-        pressure [db]. The shape of pressure can be "broadcasted"
+        pressure [db]. The shape can be "broadcasted"
 
     lat : number or array_like, optional
-        latitude in decimal degrees north [-90..+90].
-        Will grav instead of the default g = 9.8 m :sup:`2` s :sup:`-1`) and d(z) instead of d(p)
+          latitude in decimal degrees north [-90..+90].
+          Will grav instead of the default g = 9.8 m :sup:`2` s :sup:`-1`) and d(z) instead of d(p)
 
     Returns
     -------
-    bfrq : array_like
+    n2 : array_like
            Brünt-Väisälä Frequency squared (M-1xN)  [s :sup:`-2`]
-    vort : array_like
+    q : array_like
            planetary potential vorticity (M-1xN)  [ m s :sup:`-1`]
     p_ave : array_like
             mid pressure between P grid (M-1xN) [db]
@@ -367,7 +367,7 @@ def bfrq(s, t, p, lat=None):
     Examples
     --------
     TODO: add a test here
-    >>> bfrq, vort, p_ave = bfrq(s, t, p, lat)
+    >>> n2, q, p_ave = bfrq(s, t, p, lat)
 
     Notes
     -----
@@ -376,7 +376,6 @@ def bfrq(s, t, p, lat=None):
     See Also
     --------
     pden, dens
-
 
     Author
     ------
@@ -426,3 +425,122 @@ def bfrq(s, t, p, lat=None):
     q        = -f * dif_pden / ( dif_z * mid_pden )
 
     return n2, q, p_ave
+
+def depth(p, lat):
+    """
+    Calculates depth in metres from pressure in dbars.
+
+    Parameters
+    ----------
+    p : array_like
+        pressure [db].
+    lat : number or array_like
+          latitude in decimal degress north [-90..+90]. The shape can be "broadcasted"
+
+    Returns
+    -------
+    z : array_like
+        depth [metres]
+
+    Examples
+    --------
+    Unesco 1983 data p30
+
+    >>> lat = array([0, 30, 45, 90])
+    >>> p   = array([[  500,   500,   500,  500], [ 5000,  5000,  5000, 5000], [10000, 10000, 10000, 10000]])
+    >>> z = depth(p, lat)
+    array([[  496.65299239,   495.99772917,   495.3427354 ,   494.03357499],
+       [ 4915.04099112,  4908.55954332,  4902.08075214,  4889.13132561],
+       [ 9725.47087508,  9712.6530721 ,  9699.84050403,  9674.23144056]])
+
+    Notes
+    -----
+    original seawater name is dpth
+
+    Author
+    ------
+    Phil Morgan 92-04-06  (morgan@ml.csiro.au)
+
+    References
+    ----------
+    Unesco 1983. Algorithms for computation of fundamental properties of
+    seawater, 1983. _Unesco Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
+
+    Modifications
+    -------------
+    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
+    10-01-14. Filipe Fernandes, Python translation.
+    10-08-19. Filipe Fernandes, Reformulated docstring.
+    """
+
+    # Eqn 25, p26.  Unesco 1983.
+    c1 =  9.72659
+    c2 = -2.2512E-5
+    c3 =  2.279E-10
+    c4 = -1.82E-15
+
+    gam_dash = 2.184e-6
+
+    lat = abs(lat)
+    X   = sin( lat * DEG2RAD ) # convert to radians
+    X   = X * X
+
+    bot_line = 9.780318 * ( 1.0 + ( 5.2788E-3 + 2.36E-5 * X ) * X ) + \
+               gam_dash * 0.5 * p
+    top_line = ( ( ( c4 * p + c3 ) * p + c2 ) * p + c1 ) * p
+    depthm   = top_line / bot_line
+    return depthm
+
+def grav(lat, z=0):
+    """
+    Calculates acceleration due to gravity as function of latitude.
+
+    Parameters
+    ----------
+    lat : array_like
+         latitude in decimal degrees north [-90..+90].
+
+    z : number or array_like. Default z = 0
+        height in metres (+ve above sea surface, -ve below).
+
+    Returns
+    -------
+    g : array_like
+        gravity [m s :sup:`2`]
+
+    Examples
+    --------
+    >>> g = grav(lat, z=0)
+    9.8061898752053995
+
+    See Also
+    --------
+    bfrq
+
+    Author
+    ------
+    Phil Morgan 93-04-20  (morgan@ml.csiro.au)
+
+    References
+    ----------
+    Unesco 1983. Algorithms for computation of fundamental properties of
+    seawater, 1983. _Unesco Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
+
+    A.E. Gill 1982. p.597
+    "Atmosphere-Ocean Dynamics"
+    Academic Press: New York.  ISBN: 0-12-283522-0
+
+    Modifications
+    -------------
+    10-01-14. Filipe Fernandes, Python translation.
+    10-08-19. Filipe Fernandes, Reformulated docstring.
+    """
+
+    # Eqn p27.  Unesco 1983.
+    a       = 6371000. # mean radius of earth  A.E.Gill
+    lat     = abs(lat)
+    X       = sin( lat * DEG2RAD )  # convert to radians
+    sin2    = X * X
+    grav    = 9.780318 * ( 1.0 + ( 5.2788E-3 + 2.36E-5 * sin2 ) * sin2 )
+    grav    = grav / ( ( 1 + z/a )**2 )    # from A.E.Gill p.597
+    return  grav

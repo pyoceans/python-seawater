@@ -1,4 +1,4 @@
-# module     = 'ptmp'
+# TEST MODULE     = 'PTMP'
     T = array([[ 0,  0,  0,  0,  0,  0], \
             [10, 10, 10, 10, 10, 10], \
             [20, 20, 20, 20, 20, 20], \
@@ -23,7 +23,7 @@
                     [40, 38.4607, 36.9254, 40, 38.4498, 36.9023]])
     PT = ptmp(S, T, P, Pr)*1.00024
 
-# test MAIN MODULE  svan
+# TEST MAIN MODULE SVAN
     module     = 'svan'
     submodules = 'dens dens0 smow seck pden ptmp'
     # test DATA FROM: Unesco Tech. Paper in Marine Sci. No. 44, p22
@@ -34,7 +34,7 @@
                         0.0,    0.00,  607.14,  916.34])
     SVAN    = svan(s, t, p)
 
-# test MAIN MODULE salt
+# TEST MAIN MODULE SALT
     module     = 'salt'
     submodules = 'salrt salrp sals'
     # test 1 - data from Unesco 1983 p9
@@ -45,7 +45,7 @@
     UN_S = array([35, 37.245628,  27.995347])
     S    = salt(R, T, P)
 
-# test MAIN MODULE cndr
+# TEST MAIN MODULE CNDR
     module     = 'cndr'
     submodules = 'salds'
     # test 1 - data from Unesco 1983 p9
@@ -55,19 +55,7 @@
     UN_R = array([ 0.498088, 0.654990, 0.506244, 0.662975, 1.000073, 1.529967])
     R    = cndr(S, T, P)
 
-# test MAIN MODULE depth
-    module     = 'depth'
-# test DATA - matrix "pressure", vector "lat"  Unesco 1983 data p30.
-    lat = array([0, 30, 45, 90])
-    P   = array([[  500,   500,   500,  500], \
-                 [ 5000,  5000,  5000, 5000], \
-                 [10000, 10000, 10000, 10000]])
-    UN_dpth = array([[  496.65,  496.00,  495.34,  494.03], \
-                    [ 4915.04, 4908.56, 4902.08, 4889.13], \
-                    [ 9725.47, 9712.65, 9699.84, 9674.23]])
-    dpth = depth(P, lat)
-
-# test MAIN MODULE fp
+# TEST MAIN MODULE FP
     module     = 'fp'
     # test 1 - UNESCO DATA p.30
     S     = array([ [5, 10, 15, 20, 25, 30, 35, 40],
@@ -78,7 +66,7 @@
                     [-0.650, -0.919, -1.188, -1.460, -1.735, -2.014, -2.299, -2.589] ])
     FP    = fp(S, P)
 
-# test MAIN MODULE cp
+# TEST MAIN MODULE CP
     module     = 'cp'
     # test 1 -
     # DATA FROM POND AND PICKARD INTRO. DYNAMICAL OCEANOGRAPHY 2ND ED. 1986
@@ -104,7 +92,7 @@
                    [4051.2,  3966.1,  3905.9,  4003.5,  3923.9,  3868.3]])
     CP    = cp(S, T, P)
 
-# test MAIN MODULE svel
+# TEST MAIN MODULE SVEL
     module     = 'svel'
     # test 1 -
     # DATA FROM POND AND PICKARD INTRO. DYNAMICAL OCEANOGRAPHY 2ND ED. 1986
@@ -130,7 +118,7 @@
                      [ 1553.4, 1638.0, 1719.2, 1563.2, 1647.3, 1727.8]])
     SVEL    = svel(S, T, P)
 
-# test SUBMODULES alpha
+# TEST SUBMODULES ALPHA
     submodules     = 'alpha'
 
     # DATA FROM MCDOUOGALL 1987
@@ -153,7 +141,7 @@
     # aonb  = aonb( s,ptmp,p,'temp')
     # aonb  = aonb( s,ptmp,p)
 
-# test MAIN MODULES  satO2 satN2 satAr
+# TEST MAIN MODULES  SATO2 SATN2 SATAR
     module     = 'satO2 satN2 satAr'
     # Data from Weiss 1970
     T      = array([[ -1, -1],
