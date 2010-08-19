@@ -1,139 +1,19 @@
-def cor(LAT):
+def sals(rt, t):
     """
-    USAGE:  f = cor(LAT)
+    >>> s = sals(rt, t)
 
-    DESCRIPTION:
-    Calculates the Coriolis factor "f" defined by
-        f = 2*Omega*Sin(lat)  where Omega = 7.292e-5 radians/sec.
 
-    INPUT:
-    LAT = Latitude in decimal degress north [-90..+90]
-
-    OUTPUT:
-    f    = Coriolis Factor "f" [s-1]
-
-    Author
-    ------
-    Phil Morgan 93-04-20  (morgan@ml.csiro.au)
-
-    References
-    ----------
-    S. Pond & G.Pickard  2nd Edition 1986
-    Introductory Dynamical Oceanogrpahy
-    Pergamon Press Sydney.  ISBN 0-08-028728-X
-
-    A.E. Gill 1982. p.597
-    "Atmosphere-Ocean Dynamics"
-    Academic Press: New York.  ISBN: 0-12-283522-0
-
-    CALLER:  general purpose
-    CALLEE:  none
-
-    Modifications
-    -------------
-    10-01-14. Filipe Fernandes, Python translation.
-    """
-    # Eqn p27.  Unesco 1983.
-    OMEGA   = 7.292e-5   # s**-1   A.E.Gill p.597
-    f       = 2 * OMEGA * sin( LAT * DEG2RAD )
-    return f
-
-def cndr(S, T, P):
-    """
-    USAGE:  cndr = cndr(S, T, P)
-
-    DESCRIPTION:
-    Calculates conductivity ratio from S, T, P.
-
-    INPUT:  (all must have same dimensions)
-    S = salinity    [psu      (PSS-78) ]
-    T = temperature [:math:`^\\circ`  C (ITS-90)]
-    P = pressure    [db]
-
-    OUTPUT:
-    cndr = Conductivity ratio     R =  C(S,T,P)/C(35,15(IPTS-68),0) [no units]
-
-    Author
-    ------
-    Phil Morgan 93-04-21, Lindsay Pender (Lindsay.Pender@csiro.au)
-
-    References
-    ----------
-    Fofonoff, P. and Millard, R.C. Jr
-    Unesco 1983. Algorithms for computation of fundamental properties of
-    seawater, 1983. _Unesco Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
-
-    CALLER: general purpose
-    CALLEE: salds sals salrt
-
-    Modifications
-    -------------
-    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-    03-12-12. Lindsay Pender, Converted to ITS-90.
-    10-01-14. Filipe Fernandes, Python translation.
-    """
-
-    T68 = T * 1.00024
-    DT  = T68 - 15
-
-    Rx  = (S/35.0)**0.5 # first guess at Rx = sqrt(Rt)
-    SInc  = sals(Rx*Rx, T)
-
-    # DO A NEWTON-RAPHSON ITERATION FOR INVERSE INTERPOLATION OF Rt FROM S.
-    for n in range(10): # TODO: is a 100 important? changed to 10
-        Rx   = Rx + (S - SInc) / salds(Rx, DT)
-        SInc = sals(Rx*Rx, T)
-        #try:
-            #DELS = abs(SInc - S)
-        #except TypeError:
-        DELS = abs(SInc - S)
-        DELS = array(DELS) # TODO: "any" is an array method
-        if (DELS.any() < 1.0E-4):
-            break
-
-    # ONCE Rt FOUND, CORRESPONDING TO EACH (S,T) EVALUATE R
-    # eqn(4) p.8 Unesco 1983
-    d1 =  3.426e-2
-    d2 =  4.464e-4
-    d3 =  4.215e-1
-    d4 = -3.107e-3
-
-    e1 =  2.070e-5
-    e2 = -6.370e-10
-    e3 =  3.989e-15
-
-    A  = ( d3 + d4 * T68 )
-    B  = 1 + d1 * T68 + d2 * T68**2
-    C  = P * ( e1 + e2 * P + e3 * P**2 )
-
-    # eqn(6) p.9 UNESCO 1983.
-    Rt    = Rx * Rx
-    rt    = salrt(T)
-    Rtrt  = rt * Rt
-    D     = B - A * rt * Rt
-    E     = rt * Rt * A * ( B + C )
-    R     = ( abs( D**2 + 4 * E ) )**0.5 - D
-    R     = 0.5 * R/A
-    return R
-
-def sals(Rt, T):
-    """
-    USAGE:  S = sals(Rt, T)
-
-    DESCRIPTION:
     Salinity of sea water as a function of Rt and T.
     UNESCO 1983 polynomial.
 
     INPUT:
-    Rt = Rt(S,T) = C(S,T,0) / C(35, T(IPTS-68), 0)
-    T  = temperature [:math:`^\\circ`  C (ITS-90)]
+    rt = rt(s,t) = C(s,t,0) / C(35, t(IPTS-68), 0)
+    t  = temperature [:math:`^\\circ`  C (ITS-90)]
 
     OUTPUT:
-    S  = salinity    [psu      (PSS-78)]
+    s  = salinity [psu (PSS-78)]
 
-    Author
-    ------
-    Phil Morgan 93-04-17, Lindsay Pender (Lindsay.Pender@csiro.au)
+    CALLER: salt
 
     References
     ----------
@@ -141,16 +21,18 @@ def sals(Rt, T):
     Unesco 1983. Algorithms for computation of fundamental properties of
     seawater, 1983. _Unesco Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
 
-    CALLER: salt
-    CALLEE: none
+    Authors
+    -------
+    Phil Morgan 93-04-17, Lindsay Pender (Lindsay.Pender@csiro.au)
 
     Modifications
     -------------
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
     """
+
     # eqn (1) & (2) p6,7 unesco
-    del_T68 = T * 1.00024 - 15
+    del_T68 = T * T68conv - 15
 
     a0 =  0.0080
     a1 = -0.1692
@@ -182,9 +64,9 @@ def sals(Rt, T):
 
 def salds(Rtx, delT):
     """
-    USAGE:  dS = salds(Rtx,delT)
+    >>> dS = salds(Rtx,delT)
 
-    DESCRIPTION:
+
     Calculates Salinity differential dS/d(sqrt(Rt)) at constant T.
     UNESCO 1983 polynomial.
 
@@ -195,9 +77,7 @@ def salds(Rtx, delT):
     OUTPUT:
     dS = S differential dS/d(sqrt(Rt)) at constant T.
 
-    Author
-    ------
-    Phil Morgan 93-04-21, Lindsay Pender (Lindsay.Pender@csiro.au)
+    CALLER: cndr
 
     References
     ----------
@@ -205,13 +85,15 @@ def salds(Rtx, delT):
     Unesco 1983. Algorithms for computation of fundamental properties of
     seawater, 1983. _Unesco Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
 
-    CALLER: cndr
-    CALLEE: none
+    Authors
+    -------
+    Phil Morgan 93-04-21, Lindsay Pender (Lindsay.Pender@csiro.au)
 
     Modifications
     -------------
     10-01-14. Filipe Fernandes, Python translation.
     """
+
     a0 =  0.0080
     a1 = -0.1692
     a2 = 25.3851
@@ -237,9 +119,9 @@ def salds(Rtx, delT):
 
 def salrt(T):
     """
-    USAGE:  rt = salrt(T)
+    >>> rt = salrt(T)
 
-    DESCRIPTION:
+
        Equation rt(T) = C(35,T,0) / C(35,15(IPTS-68), 0)
        used in calculating salinity. UNESCO 1983 polynomial..
 
@@ -249,9 +131,7 @@ def salrt(T):
     OUTPUT:
       rt = conductivity ratio  [no units]
 
-    Author
-    ------
-    Phil Morgan 93-04-17, Lindsay Pender (Lindsay.Pender@csiro.au)
+    CALLER: salt
 
     References
     ----------
@@ -259,17 +139,19 @@ def salrt(T):
     Unesco 1983. Algorithms for computation of fundamental properties of
     seawater, 1983. _Unesco Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
 
-    CALLER: salt
-    CALLEE: none
+    Authors
+    -------
+    Phil Morgan 93-04-17, Lindsay Pender (Lindsay.Pender@csiro.au)
 
     Modifications
     -------------
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
     """
+
     #rt = rt(T) = C(35,T,0)/C(35,15,0)
     #Eqn (3) p.7 Unesco.
-    T68 = T * 1.00024
+    T68 = T * T68conv
 
     c0 =  0.6766097
     c1 =  2.00564e-2
@@ -284,7 +166,7 @@ def salt(cndr, T, P):
     """
     USAGE: S = salt(cndr, T, P)
 
-    DESCRIPTION:
+
     Calculates Salinity from conductivity ratio. UNESCO 1983 polynomial.
 
     INPUT:
@@ -295,9 +177,7 @@ def salt(cndr, T, P):
     OUTPUT:
     S    = salinity    [psu      (PSS-78)]
 
-    Author
-    ------
-    Phil Morgan 93-04-17, Lindsay Pender (Lindsay.Pender@csiro.au)
+    CALLEE: sals salrt salrp
 
     References
     ----------
@@ -305,14 +185,16 @@ def salt(cndr, T, P):
     Unesco 1983. Algorithms for computation of fundamental properties of
     seawater, 1983. _Unesco Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
 
-    CALLER: general purpose
-    CALLEE: sals salrt salrp
+    Authors
+    -------
+    Phil Morgan 93-04-17, Lindsay Pender (Lindsay.Pender@csiro.au)
 
     Modifications
     -------------
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
     """
+
     R  = cndr
     rt = salrt(T)
     Rp = salrp( R, T, P )
@@ -323,9 +205,9 @@ def salt(cndr, T, P):
 
 def salrp(R, T, P):
     """
-    USAGE:  Rp = salrp(R, T, P)
+    >>> Rp = salrp(R, T, P)
 
-    DESCRIPTION:
+
     Equation Rp(S,T,P) = C(S,T,P)/C(S,T,0) used in calculating salinity.
     UNESCO 1983 polynomial.
 
@@ -337,9 +219,7 @@ def salrp(R, T, P):
     OUTPUT:
     Rp = conductivity ratio  Rp(S,T,P) = C(S,T,P)/C(S,T,0)  [no units]
 
-    Author
-    ------
-    Phil Morgan 93-04-17, Lindsay Pender (Lindsay.Pender@csiro.au)
+    CALLER: salt
 
     References
     ----------
@@ -347,16 +227,18 @@ def salrp(R, T, P):
     Unesco 1983. Algorithms for computation of fundamental properties of
     seawater, 1983. _Unesco Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
 
-    CALLER: salt
-    CALLEE: none
+    Authors
+    -------
+    Phil Morgan 93-04-17, Lindsay Pender (Lindsay.Pender@csiro.au)
 
     Modifications
     -------------
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
     """
+
     # eqn (4) p.8 unesco.
-    T68 = T * 1.00024
+    T68 = T * T68conv
 
     d1 =  3.426e-2
     d2 =  4.464e-4
@@ -374,9 +256,9 @@ def salrp(R, T, P):
 
 def fp(S, P):
     """
-    USAGE:  fp = fp(S, P)
+    >>> fp = fp(S, P)
 
-    DESCRIPTION:
+
     Freezing point of Sea Water using UNESCO 1983 polynomial.
 
     INPUT:  (all must have same dimensions)
@@ -386,18 +268,15 @@ def fp(S, P):
     OUTPUT:
     fp = Freezing Point temperature [:math:`^\\circ`  C (ITS-90)]
 
-    Author
-    ------
-    Phil Morgan 93-04-20, Lindsay Pender (Lindsay.Pender@csiro.au)
-
     References
     ----------
     Fofonff, P. and Millard, R.C. Jr
     Unesco 1983. Algorithms for computation of fundamental properties of
     seawater, 1983. _Unesco Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
 
-    CALLER: general purpose
-    CALLEE: none
+    Authors
+    -------
+    Phil Morgan 93-04-20, Lindsay Pender (Lindsay.Pender@csiro.au)
 
     Modifications
     -------------
@@ -413,15 +292,15 @@ def fp(S, P):
     a2 = -2.154996e-4
     b  = -7.53e-4
 
-    fp = ( a0 * S + a1 * S * (S)**0.5 + a2 * S**2 + b * P ) / 1.00024
+    fp = ( a0 * S + a1 * S * (S)**0.5 + a2 * S**2 + b * P ) / T68conv
 
     return fp
 
 def svel(S, T, P):
     """
-    USAGE:  svel = svel(S, T, P)
+    >>> svel = svel(S, T, P)
 
-    DESCRIPTION:
+
     Sound Velocity in sea water using UNESCO 1983 polynomial.
 
     INPUT:  (all must have same dimensions)
@@ -432,18 +311,15 @@ def svel(S, T, P):
     OUTPUT:
     svel = sound velocity  [m/s]
 
-    Author
-    ------
-    Phil Morgan 93-04-20, Lindsay Pender (Lindsay.Pender@csiro.au)
-
     References
     ----------
     Fofonoff, P. and Millard, R.C. Jr
     Unesco 1983. Algorithms for computation of fundamental properties of
     seawater, 1983. _Unesco Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
 
-    CALLER: general purpose
-    CALLEE: none
+    Authors
+    -------
+    Phil Morgan 93-04-20, Lindsay Pender (Lindsay.Pender@csiro.au)
 
     Modifications
     -------------
@@ -451,9 +327,10 @@ def svel(S, T, P):
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
     """
+
     #UNESCO 1983. eqn.33  p.46
     P = P/10  # convert db to bars as used in UNESCO routines
-    T68 = T * 1.00024
+    T68 = T * T68conv
 
     # eqn 34 p.46
     c00 = 1402.388
@@ -532,9 +409,9 @@ def svel(S, T, P):
 
 def pres(DEPTH, LAT):
     """
-    USAGE:  pres = pres(DEPTH, LAT)
+    >>> pres = pres(DEPTH, LAT)
 
-    DESCRIPTION:
+
     Calculates pressure in dbars from depth in meters.
 
     INPUT:  (all must have same dimensions)
@@ -544,9 +421,8 @@ def pres(DEPTH, LAT):
     OUTPUT:
     pres   = Pressure    [db]
 
-    Author
-    ------
-    Phil Morgan 93-06-25  (morgan@ml.csiro.au)
+    CHECK VALUE:
+    P=7500.00 db for LAT=30 deg, depth=7321.45 meters
 
     References
     ----------
@@ -554,17 +430,16 @@ def pres(DEPTH, LAT):
     "Practical conversion of Pressure to Depth"
     Journal of Physical Oceanography, 11, 573-574
 
-    CHECK VALUE:
-    P=7500.00 db for LAT=30 deg, depth=7321.45 meters
-
-    CALLER:  general purpose
-    CALLEE:  none
+    Authors
+    -------
+    Phil Morgan 93-06-25  (morgan@ml.csiro.au)
 
     Modifications
     -------------
     99-06-25. Lindsay Pender, Fixed transpose of row vectors.
     10-01-14. Filipe Fernandes, Python translation.
     """
+
     X       = sin( abs(LAT) * DEG2RAD )  # convert to radians
     C1      = 5.92E-3 + X**2 * 5.25E-3
     pres    = ( ( 1 - C1 ) - ( ( ( 1 - C1 )**2 ) - ( 8.84E-6 * DEPTH ) )**0.5 ) / 4.42E-6
@@ -572,9 +447,9 @@ def pres(DEPTH, LAT):
 
 def dist(lon, lat): # TODO: add keywords options for units
     """
-    USAGE:  dist, phaseangle = dist(lon, lat)
+    >>> dist, phaseangle = dist(lon, lat)
 
-    DESCRIPTION:
+
     Calculate distance between two positions on globe using the "Plane
     Sailing" method.  Also uses simple geometry to calculate the bearing of
     the path between position pairs.
@@ -588,17 +463,14 @@ def dist(lon, lat): # TODO: add keywords options for units
     phaseangle  = angle of line between stations with x axis (East).
                     Range of values are -180..+180. (E=0, N=90, S=-90)
 
-    Author
-    ------
-    Phil Morgan and Steve Rintoul 92-02-10
-
     References
     ----------
     The PLANE SAILING method as descriibed in "CELESTIAL NAVIGATION" 1989 by
     Dr. P. Gormley. The Australian Antartic Division.
 
-    CALLER:   general purpose
-    CALLEE:   none
+    Authors
+    -------
+    Phil Morgan and Steve Rintoul 92-02-10
 
     Modifications
     -------------
@@ -606,6 +478,7 @@ def dist(lon, lat): # TODO: add keywords options for units
     99-06-25. Lindsay Pender, Fixed transpose of row vectors.
     10-01-14. Filipe Fernandes, Python translation.
     """
+
     DEG2MIN = 60
     DEG2NM  = 60
     NM2KM   = 1.8520    # Defined in Pond & Pickard p303.
@@ -634,9 +507,9 @@ def dist(lon, lat): # TODO: add keywords options for units
 
 def satAr(S, T):
     """
-    USAGE:  satAr = satAr(S, T)
+    >>> satAr = satAr(S, T)
 
-    DESCRIPTION:
+
     Solubility (satuaration) of Argon (Ar) in sea water.
 
     INPUT:  (all must have same dimensions)
@@ -646,18 +519,15 @@ def satAr(S, T):
     OUTPUT:
     satAr = solubility of Ar  [ml/l]
 
-    Author
-    ------
-    Phil Morgan 97-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
-
     References
     ----------
     Weiss, R. F. 1970
     "The solubility of nitrogen, oxygen and argon in water and seawater."
     Deap-Sea Research., 1970, Vol 17, pp721-735.
 
-    CALLER: general purpose
-    CALLEE:
+    Authors
+    -------
+    Phil Morgan 97-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
 
     Modifications
     -------------
@@ -667,7 +537,7 @@ def satAr(S, T):
     """
 
     # convert T to Kelvin
-    T = 273.15 + T * 1.00024
+    T = 273.15 + T * T68conv
 
     # constants for Eqn (4) of Weiss 1970
     a1 = -173.5146
@@ -688,9 +558,9 @@ def satAr(S, T):
 
 def satN2(S, T):
     """
-    USAGE:  satN2 = satN2(S, T)
+    >>> satN2 = satN2(S, T)
 
-    DESCRIPTION:
+
     Solubility (satuaration) of Nitrogen (N2) in sea water.
 
     INPUT:  (all must have same dimensions)
@@ -700,18 +570,15 @@ def satN2(S, T):
     OUTPUT:
     satN2 = solubility of N2  [ml/l]
 
-    Author
-    ------
-    Phil Morgan 97-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
-
     References
     ----------
     Weiss, R. F. 1970
     "The solubility of nitrogen, oxygen and argon in water and seawater."
     Deap-Sea Research., 1970, Vol 17, pp721-735.
 
-    CALLER: general purpose
-    CALLEE:
+    Authors
+    -------
+    Phil Morgan 97-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
 
     Modifications
     -------------
@@ -721,7 +588,7 @@ def satN2(S, T):
     """
 
     # convert T to Kelvin
-    T = 273.15 + T * 1.00024
+    T = 273.15 + T * T68conv
 
     # constants for Eqn (4) of Weiss 1970
     a1 = -172.4965
@@ -741,9 +608,9 @@ def satN2(S, T):
 
 def satO2(S,T):
     """
-    USAGE:  satO2 = _satO2(S, T)
+    >>> satO2 = _satO2(S, T)
 
-    DESCRIPTION:
+
     Solubility (satuaration) of Oxygen (O2) in sea water.
 
     INPUT:  (all must have same dimensions)
@@ -753,18 +620,15 @@ def satO2(S,T):
     OUTPUT:
     satO2 = solubility of O2  [ml/l]
 
-    Author
-    ------
-    Phil Morgan 97-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
-
     References
     ----------
     Weiss, R. F. 1970
     "The solubility of nitrogen, oxygen and argon in water and seawater."
     Deap-Sea Research., 1970, Vol 17, pp721-735.
 
-    CALLER: general purpose
-    CALLEE:
+    Authors
+    -------
+    Phil Morgan 97-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
 
     Modifications
     -------------
@@ -774,7 +638,7 @@ def satO2(S,T):
     """
 
     # convert T to Kelvin
-    T = 273.15 + T * 1.00024
+    T = 273.15 + T * T68conv
 
     # constants for Eqn (4) of Weiss 1970
     a1 = -173.4292
@@ -794,9 +658,9 @@ def satO2(S,T):
 
 def dens0(S,T):
     """
-    USAGE:  dens0 = dens0(S, T)
+    >>> dens0 = dens0(S, T)
 
-    DESCRIPTION:
+
     Density of Sea Water at atmospheric pressure using
     UNESCO 1983 (EOS 1980) polynomial.
 
@@ -808,9 +672,8 @@ def dens0(S,T):
     dens0 = density  [kg/m^3] of salt water with properties S,T,
             P=0 (0 db gauge pressure)
 
-    Author
-    ------
-    Phil Morgan 92-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
+    CALLER: dens
+    CALLEE: smow
 
     References
     ----------
@@ -821,8 +684,9 @@ def dens0(S,T):
     International one-atmosphere equation of state of seawater.
     Deep-Sea Res. 1981. Vol28A(6) pp625-629.
 
-    CALLER: general purpose, dens
-    CALLEE: smow
+    Authors
+    -------
+    Phil Morgan 92-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
 
     Modifications
     -------------
@@ -830,7 +694,7 @@ def dens0(S,T):
     10-01-14. Filipe Fernandes, Python translation.
     """
 
-    T68 = T * 1.00024
+    T68 = T * T68conv
 
     #     UNESCO 1983 eqn(13) p17
     b0 =  8.24493e-1
@@ -850,9 +714,9 @@ def dens0(S,T):
 
 def smow(T):
     """
-    USAGE:  dens = smow(T)
+    >>> dens = smow(T)
 
-    DESCRIPTION:
+
     Denisty of Standard Mean Ocean Water (Pure Water) using EOS 1980.
 
     INPUT:
@@ -860,10 +724,6 @@ def smow(T):
 
     OUTPUT:
     dens = density  [kg/m^3]
-
-    Author
-    ------
-    Phil Morgan 92-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
 
     References
     ----------
@@ -874,6 +734,10 @@ def smow(T):
     Millero, F.J & Poisson, A.
     INternational one-atmosphere equation of state for seawater.
     Deep-Sea Research Vol28A No.6. 1981 625-629.    Eqn (6)
+
+    Authors
+    -------
+    Phil Morgan 92-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
 
     Modifications
     -------------
@@ -889,15 +753,15 @@ def smow(T):
     a4 =  -1.120083e-6
     a5 =   6.536332e-9
 
-    T68  = T * 1.00024
+    T68  = T * T68conv
     dens = a0 + ( a1 + ( a2 + ( a3 + ( a4 + a5 * T68 ) * T68 ) * T68 ) * T68 ) * T68
     return dens
 
 def seck(S, T, P=0):
     """
-    USAGE:  dens = seck(S, T, P)
+    >>> dens = seck(S, T, P)
 
-    DESCRIPTION:
+
     Secant Bulk Modulus (K) of Sea Water using Equation of state 1980.
     UNESCO polynomial implementation.
 
@@ -909,9 +773,7 @@ def seck(S, T, P=0):
     OUTPUT:
     K = Secant Bulk Modulus  [bars]
 
-    Author
-    ------
-    Phil Morgan 92-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
+    CALLER: dens
 
     References
     ----------
@@ -924,8 +786,9 @@ def seck(S, T, P=0):
     International one-atmosphere equation of state of seawater.
     Deep-Sea Res. 1981. Vol28A(6) pp625-629.
 
-    CALLER: dens
-    CALLEE: none
+    Authors
+    -------
+    Phil Morgan 92-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
 
     Modifications
     -------------
@@ -936,7 +799,7 @@ def seck(S, T, P=0):
 
     # COMPUTE COMPRESSION TERMS
     P   = P/10.0 # convert from db to atmospheric pressure units
-    T68 = T * 1.00024
+    T68 = T * T68conv
 
     # Pure water terms of the secant bulk modulus at atmos pressure.
     # UNESCO eqn 19 p 18
@@ -995,9 +858,9 @@ def seck(S, T, P=0):
 
 def dens(S, T, P):
     """
-    USAGE:  dens = dens(S, T, P)
+    >>> dens = dens(S, T, P)
 
-    DESCRIPTION:
+
     Density of Sea Water using UNESCO 1983 (EOS 80) polynomial.
 
     INPUT:  (all must have same dimensions)
@@ -1008,9 +871,7 @@ def dens(S, T, P):
     OUTPUT:
     dens = density  [kg/m^3]
 
-    Author
-    ------
-    Phil Morgan 92-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
+    CALLEE: dens0 seck
 
     References
     ----------
@@ -1022,8 +883,9 @@ def dens(S, T, P):
     " A new high pressure equation of state for seawater"
     Deap-Sea Research., 1980, Vol27A, pp255-264.
 
-    CALLER: general purpose
-    CALLEE: dens0 seck
+    Authors
+    -------
+    Phil Morgan 92-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
 
     Modifications
     -------------
@@ -1041,9 +903,9 @@ def dens(S, T, P):
 
 def pden(S, T, P, PR=0):
     """
-    USAGE:  pden = pden(S, T, P, PR)
+    >>> pden = pden(S, T, P, PR)
 
-    DESCRIPTION:
+
     Calculates potential density of water mass relative to the specified
     reference pressure by pden = dens(S, ptmp, PR).
 
@@ -1057,9 +919,7 @@ def pden(S, T, P, PR=0):
     OUTPUT:
     pden = Potential denisty relative to the ref. pressure [kg/m^3]
 
-    Author
-    ------
-    Phil Morgan 1992/04/06, Lindsay Pender (Lindsay.Pender@csiro.au)
+    CALLEE:  ptmp dens
 
     References
     ----------
@@ -1067,8 +927,9 @@ def pden(S, T, P, PR=0):
     "Atmosphere-Ocean Dynamics"
     Academic Press: New York.  ISBN: 0-12-283522-0
 
-    CALLER:  general purpose
-    CALLEE:  ptmp dens
+    Authors
+    -------
+    Phil Morgan 1992/04/06, Lindsay Pender (Lindsay.Pender@csiro.au)
 
     Modifications
     -------------
@@ -1082,9 +943,9 @@ def pden(S, T, P, PR=0):
 
 def svan(S, T, P=0):
     """
-    USAGE:  svan = svan(S, T, P)
+    >>> svan = svan(S, T, P)
 
-    DESCRIPTION:
+
     Specific Volume Anomaly calculated as
     svan = 1/dens(s, t, p) - 1/dens(35, 0, p).
     Note that it is often quoted in literature as 1e8*units.
@@ -1097,9 +958,7 @@ def svan(S, T, P=0):
     OUTPUT:
     svan = Specific Volume Anomaly  [m^3 kg^-1]
 
-    Author
-    ------
-    Phil Morgan 92-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
+    CALLEE: dens
 
     References
     ----------
@@ -1112,8 +971,9 @@ def svan(S, T, P=0):
     Introductory Dynamical Oceanogrpahy
     Pergamon Press Sydney.  ISBN 0-08-028728-X
 
-    CALLER: general purpose
-    CALLEE: dens
+    Authors
+    -------
+    Phil Morgan 92-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
 
     Modifications
     -------------
@@ -1128,9 +988,9 @@ def svan(S, T, P=0):
 
 def gpan(S, T, P):
     """
-    USAGE:  gpan = gpan(S, T, P)
+    >>> gpan = gpan(S, T, P)
 
-    DESCRIPTION:
+
     Geopotential Anomaly calculated as the integral of svan from the
     the sea surface to the bottom. Thus RELATIVE TO SEA SURFACE.
 
@@ -1142,9 +1002,7 @@ def gpan(S, T, P):
     OUTPUT:
     gpan = Geopotential Anomaly  [m^3 kg^-1 Pa == m^2 s^-2 == J kg^-1]
 
-    Author
-    ------
-    Phil Morgan 92-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
+    CALLEE: svan
 
     References
     ----------
@@ -1157,8 +1015,9 @@ def gpan(S, T, P):
     Adapted method from Pond and Pickard (p76) to calc gpan rel to sea
     surface whereas P&P calculated relative to the deepest common depth.
 
-    CALLER: general purpose
-    CALLEE: svan
+    Authors
+    -------
+    Phil Morgan 92-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
 
     Modifications
     -------------
@@ -1188,9 +1047,9 @@ def gpan(S, T, P):
 
 def gvel(ga, lon, lat):
     """
-    USAGE:  vel = gvel(ga, lat, lon)
+    >>> vel = gvel(ga, lat, lon)
 
-    DESCRIPTION:
+
     Calculates geostrophic velocity given the geopotential anomaly
     and position of each station.
 
@@ -1204,9 +1063,7 @@ def gvel(ga, lon, lat):
     vel  = geostrophic velocity RELATIVE to the sea surface.
             dim(m,nstations-1)
 
-    Author
-    -----
-    Phil Morgan   1992/03/26  (morgan@ml.csiro.au)
+    CALLEE:   dist
 
     References
     ----------
@@ -1215,8 +1072,9 @@ def gvel(ga, lon, lat):
     Pergamon Press Sydney.  ISBN 0-08-028728-X
     Equation 8.9A p73  Pond & Pickard
 
-    CALLER:   general purpose
-    CALLEE:   dist
+    Authors
+    ------
+    Phil Morgan   1992/03/26  (morgan@ml.csiro.au)
 
     Modifications
     -------------
@@ -1237,9 +1095,9 @@ def gvel(ga, lon, lat):
 
 def gvel2(ga, dist, lat):
     """
-    USAGE:  vel = gvel(ga, dist, lat)
+    >>> vel = gvel(ga, dist, lat)
 
-    DESCRIPTION:
+
     Calculates geostrophic velocity given the geopotential anomaly
     and position of each station.
 
@@ -1253,10 +1111,6 @@ def gvel2(ga, dist, lat):
     vel  = geostrophic velocity RELATIVE to the sea surface.
             dim(m,nstations-1)
 
-    Author
-    ------
-    Phil Morgan   1992/03/26  (morgan@ml.csiro.au)
-
     References
     ----------
     S. Pond & G.Pickard  2nd Edition 1986
@@ -1264,12 +1118,15 @@ def gvel2(ga, dist, lat):
     Pergamon Press Sydney.  ISBN 0-08-028728-X
     Equation 8.9A p73  Pond & Pickard
 
-    CALLER:   general purpose
+    Authors
+    -------
+    Phil Morgan   1992/03/26  (morgan@ml.csiro.au)
 
     Modifications
     -------------
     10-01-14. Filipe Fernandes, Python translation.
     """
+
     distm = 1000.0 * dista # meters to 'km'
     m,n   = ga.shape
     f     = cor( ( lat[0:n-1] + lat[1:n] )/2 )
@@ -1282,7 +1139,7 @@ def cp(S, T, P):
     """
     USAGE: cp = cp(S, T, P)
 
-    DESCRIPTION:
+
     Heat Capacity of Sea Water using UNESCO 1983 polynomial.
 
     INPUT:  (all must have same dimensions)
@@ -1293,18 +1150,15 @@ def cp(S, T, P):
     OUTPUT:
     cp = Specific Heat Capacity  [J kg^-1 C^-1]
 
-    Author
-    ------
-    Phil Morgan, Lindsay Pender (Lindsay.Pender@csiro.au)
-
     References
     ----------
     Fofonff, P. and Millard, R.C. Jr
     Unesco 1983. Algorithms for computation of fundamental properties of
     seawater, 1983. _Unesco Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
 
-    CALLER: general purpose
-    CALLEE: none
+    Authors
+    -------
+    Phil Morgan, Lindsay Pender (Lindsay.Pender@csiro.au)
 
     Modifications
     -------------
@@ -1314,7 +1168,7 @@ def cp(S, T, P):
     """
 
     P = P/10 # to convert db to Bar as used in Unesco routines
-    T68 = T * 1.00024
+    T68 = T * T68conv
 
     # eqn 26 p.32
     c0 = 4217.4
@@ -1405,9 +1259,9 @@ def cp(S, T, P):
 
 def ptmp(S, T, P, PR=0):
     """
-    USAGE:  ptmp = sw_ptmp(S,T,P,PR)
+    >>> ptmp = sw_ptmp(S,T,P,PR)
 
-    DESCRIPTION:
+
     Calculates potential temperature as per UNESCO 1983 report.
 
     INPUT:  (all must have same dimensions)
@@ -1420,13 +1274,7 @@ def ptmp(S, T, P, PR=0):
     OUTPUT:
     ptmp = Potential temperature relative to PR [:math:`^\\circ`  C (ITS-90)]
 
-    Author
-    ------
-    Phil Morgan 92-04-06, Lindsay Pender (Lindsay.Pender@csiro.au)
-
-    DISCLAIMER:
-    This software is provided "as is" without warranty of any kind.
-    See the file sw_copy.m for conditions of use and licence.
+    CALLEE:  adtg
 
     References
     ----------
@@ -1440,8 +1288,9 @@ def ptmp(S, T, P, PR=0):
     and potential temperature of sea water."
     DEEP-SEA RES., 1973, Vol20,401-408.
 
-    CALLER:  general purpose
-    CALLEE:  adtg
+    Authors
+    -------
+    Phil Morgan 92-04-06, Lindsay Pender (Lindsay.Pender@csiro.au)
 
     Modifications
     -------------
@@ -1449,32 +1298,33 @@ def ptmp(S, T, P, PR=0):
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
     """
+
     # theta1
     del_P  = PR - P
     del_th = del_P * adtg(S, T, P)
-    th     = T * 1.00024 + 0.5 * del_th
+    th     = T * T68conv + 0.5 * del_th
     q      = del_th
 
     # theta2
-    del_th = del_P * adtg(S, th/1.00024, P + 0.5 * del_P )
+    del_th = del_P * adtg(S, th/T68conv, P + 0.5 * del_P )
     th     = th + ( 1 - 1/(2)**00.5 ) * ( del_th - q )
     q      = ( 2 - (2)**0.5 ) * del_th + ( -2 + 3/(2)**0.5 ) * q
 
     # theta3
-    del_th = del_P * adtg( S, th/1.00024, P + 0.5 * del_P )
+    del_th = del_P * adtg( S, th/T68conv, P + 0.5 * del_P )
     th     = th + ( 1 + 1/(2)**0.5 ) * ( del_th - q )
     q      = ( 2 + (2)**0.5 ) * del_th + ( -2 -3/(2)**0.5 ) * q
 
     # theta4
-    del_th = del_P * adtg( S, th/1.00024, P + del_P )
-    PT     = ( th + ( del_th - 2 * q ) / 6 ) / 1.00024
+    del_th = del_P * adtg( S, th/T68conv, P + del_P )
+    PT     = ( th + ( del_th - 2 * q ) / 6 ) / T68conv
     return PT
 
 def temp(S, PTMP, P, PR):
     """
-    USAGE:  temp = temp(S, PTMP, P, PR)
+    >>> temp = temp(S, PTMP, P, PR)
 
-    DESCRIPTION:
+
     Calculates temperature from potential temperature at the reference
     pressure PR and in-situ pressure P.
 
@@ -1487,9 +1337,7 @@ def temp(S, PTMP, P, PR):
     OUTPUT:
     temp = temperature [:math:`^\\circ`  C (ITS-90)]
 
-    Author
-    ------
-    Phil Morgan 92-04-06, Lindsay Pender (Lindsay.Pender@csiro.au)
+    CALLEE:  ptmp
 
     References
     ----------
@@ -1503,14 +1351,16 @@ def temp(S, PTMP, P, PR):
     and potential temperature of sea water."
     DEEP-SEA RES., 1973, Vol20,401-408.
 
-    CALLER:  general purpose
-    CALLEE:  ptmp
+    Authors
+    -------
+    Phil Morgan 92-04-06, Lindsay Pender (Lindsay.Pender@csiro.au)
 
     Modifications
     -------------
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
     """
+
     # CARRY OUT INVERSE CALCULATION BY SWAPPING P0 & PR
     T = ptmp(S, PTMP, PR, P);
 
@@ -1518,30 +1368,26 @@ def temp(S, PTMP, P, PR):
 
 def swvel(lenth, depth):
     """
-    USAGE:  speed = swvel(lenth, depth)
+    >>> speed = swvel(lenth, depth)
 
-    DESCRIPTION:
     Calculates surface wave velocity.
 
-    INPUT:  (all must have same dimensions)
     lenth = wave length
     depth = water depth [metres]
 
     OUTPUT:
     speed   = Surface wave speed (m/s)
 
-    Author
+    Authors
     ------
     Lindsay Pender 2005
-
-    CALLER:  general purpose
-    CALLEE:  none
 
     Modifications
     -------------
     10-01-14. Filipe Fernandes, Python translation.
     """
-    g = 9.8 # TODO: use grav function
+
+    # TODO: use grav function
     k = 2.0 * pi / lenth
     speed = (g * tanh(k * depth) / k)**0.5
     return speed

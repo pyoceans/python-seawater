@@ -24,15 +24,39 @@ from time  import asctime, localtime
 from sys   import version
 
 # COMMON:
-DEG2RAD = pi/180
-
+T68conv  = T68conv
+"""The International Practical Temperature Scale of 1968 (IPTS-68)
+:math:`T68  = 1.00024 * T90`
+this linear transformation is accurate within 0.5 m C for conversion between IPTS-68 and ITS-90 over the oceanographic temperature range (Saunders,et al 1991).
 """
-Conductivity at S=35 psu , T=15 C [ITPS 68] and P=0 db) in [mmho/cm == mS/cm]
 
-Reference: R.C. Millard and K. Yang 1992. "CTD Calibration and Processing Methods used by Woods Hole Oceanographic Institution"  Draft April 14, 1992
-(Personal communication)
+DEG2RAD = pi/180.
 """
+0.017453292519943295
+"""
+
+OMEGA   = 7.292e-5
+"""
+A.E.Gill p.597
+..:math:
+  \Omega = \frac{2*\\pi}{\\textrm{sidereal day}}
+
+1 sidereal day = 23.9344696 hours
+units : radians/sec
+"""
+
 C3515   = 42.914
+"""
+Conductivity at S=35 psu , T=15 C [ITPS 68] and P=0 db)
+units : mmho cm :sup:`-1` == mS cm :sup:`-1`
+
+Reference: R.C. Millard and K. Yang 1992. "CTD Calibration and Processing Methods used by Woods Hole Oceanographic Institution"  Draft April 14, 1992 (Personal communication)
+"""
+
+g = 9.8
+"""
+acceleration of gravity in m s :sup:`2`
+"""
 
 # FUNCTIONS:
 def adtg(s, t, p):
@@ -66,7 +90,7 @@ def adtg(s, t, p):
     Data from Unesco 1983 p45
 
     >>> t = array([[ 0,  0,  0,  0,  0,  0], [10, 10, 10, 10, 10, 10], [20, 20, 20, 20, 20, 20], [30, 30, 30, 30, 30, 30], [40, 40, 40, 40, 40, 40]])
-    >>> t = t / 1.00024
+    >>> t = t / T68conv
     >>> s = array([[25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35]])
     >>> p = array([[0, 5000, 10000, 0, 5000, 10000], [0, 5000, 10000, 0, 5000, 10000], [0, 5000, 10000, 0, 5000, 10000], [0, 5000, 10000, 0, 5000, 10000], [0, 5000, 10000, 0, 5000, 10000]])
     >>> adtg(s, t, p)
@@ -92,8 +116,8 @@ def adtg(s, t, p):
     and potential temperature of sea water."
     DEEP-SEA RES., 1973, Vol20,401-408.
 
-    Author
-    ------
+    Authors
+    -------
     Phil Morgan, Lindsay Pender (Lindsay.Pender@csiro.au)
 
     Modifications
@@ -104,7 +128,7 @@ def adtg(s, t, p):
     10-08-16. Filipe Fernandes, Reformulated docstring.
     """
 
-    T68 = 1.00024 * t
+    T68 = T68conv * t
 
     a0 =  3.5803E-5
     a1 =  8.5258E-6
@@ -175,8 +199,8 @@ def alpha(s, t, p, pt=False):
     McDougall, T.J. 1987.  "Neutral Surfaces"
     Journal of Physical Oceanography vol 17 pages 1950-1964,
 
-    Author
-    ------
+    Authors
+    -------
     N.L. Bindoff  1993, Lindsay Pender (Lindsay.Pender@csiro.au)
 
     Modifications
@@ -233,8 +257,8 @@ def aonb(s, t, p, pt=False):
     McDougall, T.J. 1987. "Neutral Surfaces"
     Journal of Physical Oceanography vol 17 pages 1950-1964,
 
-    Author
-    ------
+    Authors
+    -------
     N.L. Bindoff  1993, Lindsay Pender (Lindsay.Pender@csiro.au)
 
     Modifications
@@ -253,7 +277,7 @@ def aonb(s, t, p, pt=False):
         t = ptmp(s, t, p, 0) # now we have ptmp
 
     p = float32(p)
-    t = t * 1.00024
+    t = t * T68conv
 
     c1  = array([-0.255019e-7, 0.298357e-5, -0.203814e-3, \
                     0.170907e-1, 0.665157e-1])
@@ -303,8 +327,8 @@ def beta(s, t, p, pt=False):
     Pressure broadcast feature need to be tested
     TODO: Test pt=False for alpha, beta and aonb
 
-    Author
-    ------
+    Authors
+    -------
     N.L. Bindoff  1993, Lindsay Pender (Lindsay.pender@csiro.au)
 
     Reference
@@ -324,7 +348,7 @@ def beta(s, t, p, pt=False):
     """
 
     p = float32(p)
-    t = t * 1.00024
+    t = t * T68conv
 
     c1 = array([-0.415613e-9, 0.555579e-7, -0.301985e-5, 0.785567e-3])
     c2 = array([0.788212e-8, -0.356603e-6])
@@ -380,16 +404,11 @@ def bfrq(s, t, p, lat=None):
     Notes
     -----
     TODO: Pressure broadcast feature need to be tested
+    The value of gravity is a global constant
 
     See Also
     --------
     pden, dens
-
-    Author
-    ------
-    Phil Morgan 93-06-24, Lindsay Pender (Lindsay.Pender@csiro.au)
-    Greg Johnson (gjohnson@pmel.noaa.gov)
-    added potential vorticity calculation
 
     References
     ----------
@@ -399,7 +418,13 @@ def bfrq(s, t, p, lat=None):
 
     Jackett, D.R. and McDougall, T.J. 1994.
     Minimal adjustment of hydrographic properties to achieve static
-    stability.  submitted J.Atmos.Ocean.Tech.
+    stability. Aubmitted J.Atmos.Ocean.Tech.
+
+    Authors
+    -------
+    Phil Morgan 93-06-24, Lindsay Pender (Lindsay.Pender@csiro.au)
+    Greg Johnson (gjohnson@pmel.noaa.gov)
+    added potential vorticity calculation
 
     Modifications
     -------------
@@ -415,7 +440,6 @@ def bfrq(s, t, p, lat=None):
         f = cor(lat)
     else: # TODO: test this if logic
         z = p
-        g = 9.8
         f = NaN
 
     m,n   = p.shape # TODO: check where depth increases to automagically find which dimension to operate
@@ -465,14 +489,14 @@ def depth(p, lat):
     -----
     original seawater name is dpth
 
-    Author
-    ------
-    Phil Morgan 92-04-06  (morgan@ml.csiro.au)
-
     References
     ----------
     Unesco 1983. Algorithms for computation of fundamental properties of
     seawater, 1983. _Unesco Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
+
+    Authors
+    -------
+    Phil Morgan 92-04-06  (morgan@ml.csiro.au)
 
     Modifications
     -------------
@@ -525,10 +549,6 @@ def grav(lat, z=0):
     --------
     bfrq
 
-    Author
-    ------
-    Phil Morgan 93-04-20  (morgan@ml.csiro.au)
-
     References
     ----------
     Unesco 1983. Algorithms for computation of fundamental properties of
@@ -537,6 +557,10 @@ def grav(lat, z=0):
     A.E. Gill 1982. p.597
     "Atmosphere-Ocean Dynamics"
     Academic Press: New York.  ISBN: 0-12-283522-0
+
+    Authors
+    -------
+    Phil Morgan 93-04-20  (morgan@ml.csiro.au)
 
     Modifications
     -------------
@@ -552,3 +576,172 @@ def grav(lat, z=0):
     grav    = 9.780318 * ( 1.0 + ( 5.2788E-3 + 2.36E-5 * sin2 ) * sin2 )
     grav    = grav / ( ( 1 + z/a )**2 )    # from A.E.Gill p.597
     return  grav
+
+def cor(lat):
+    """
+    Calculates the Coriolis factor :math:`f` defined by:
+    ..:math:
+        f = 2*\\Omega*\\sin(lat)
+
+    where :math:`\\Omega = \frac{2*\\pi}{\\textrm{sidereal day}} = 7.292e-5` radians/sec. 1 sidereal day = 23.9344696 hours
+
+    Parameters
+    ----------
+    lat : array_like
+          latitude in decimal degrees north [-90..+90].
+
+    Returns
+    -------
+    f : array_like
+        Coriolis factor [s :sup:`-1`]
+
+    Examples
+    --------
+    >>> f = cor(45)
+    0.00010312445296824608
+
+    Notes
+    -----
+    The value of Omega is a global constant
+
+    See Also
+    --------
+    TODO: inertial period
+
+    References
+    ----------
+    S. Pond & G.Pickard  2nd Edition 1986
+    Introductory Dynamical Oceanogrpahy
+    Pergamon Press Sydney.  ISBN 0-08-028728-X
+
+    A.E. Gill 1982. p.597
+    "Atmosphere-Ocean Dynamics"
+    Academic Press: New York.  ISBN: 0-12-283522-0
+
+    Authors
+    -------
+    Phil Morgan 93-04-20  (morgan@ml.csiro.au)
+
+    Modifications
+    -------------
+    10-01-14. Filipe Fernandes, Python translation.
+    """
+
+    # Eqn p27.  Unesco 1983.
+    f = 2 * OMEGA * sin( lat * DEG2RAD )
+    return f
+
+def cndr(s, t, p):
+    """
+    Calculates conductivity ratio from S, T, P.
+
+    Parameters
+    ----------
+    s(p) : array_like
+           salinity [psu (PSS-78)]
+    t(p) : array_like
+           temperature [ :math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]. The shape can be "broadcasted"
+
+    Returns
+    -------
+    cndr : array_like
+           conductivity ratio. R = C(s,t,p)/C(35,15(IPTS-68),0) [no units]
+
+    Examples
+    --------
+    Data from Unesco 1983 p9
+    >>> t    = array([0, 10, 0, 10, 10, 30]) / T68conv
+    >>> p    = array([0, 0, 1000, 1000, 0, 0])
+    >>> s    = array([25, 25, 25, 25, 40, 40])
+    >>> rt   = cndr(s, t, p)
+    array([0.49800825, 0.65499015, 0.50624434, 0.66297496, 1.00007311, 1.52996697])
+
+    See Also
+    --------
+    salds, sals and salrt
+
+    Notes
+    -----
+    TODO: Pressure broadcast feature need to be tested
+
+    References
+    ----------
+    Fofonoff, P. and Millard, R.C. Jr
+    Unesco 1983. Algorithms for computation of fundamental properties of
+    seawater, 1983. _Unesco Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
+
+    Authors
+    -------
+    Phil Morgan 93-04-21, Lindsay Pender (Lindsay.Pender@csiro.au)
+
+    Modifications
+    -------------
+    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
+    03-12-12. Lindsay Pender, Converted to ITS-90.
+    10-01-14. Filipe Fernandes, Python translation.
+    """
+
+    T68 = t * T68conv
+    DT  = T68 - 15
+
+    Rx  = (s/35.0)**0.5 # first guess at Rx = sqrt(Rt)
+    SInc  = sals(Rx*Rx, t)
+
+    # DO A NEWTON-RAPHSON ITERATION FOR INVERSE INTERPOLATION OF Rt FROM S.
+    for n in range(100): # TODO: is a 100 important? changed to 10?
+        Rx   = Rx + (s - SInc) / salds(Rx, DT)
+        SInc = sals(Rx*Rx, t)
+        DELS = abs(SInc - s)
+        DELS = array(DELS) # TODO: "any" is an array method
+        if (DELS.any() < 1.0E-4):
+            break
+    """ original matlab TODO: implement this above and check the difference
+    for i = 1:ms
+    for j = 1:ns
+        ---------------------------------------------------------------------
+        DO A NEWTON-RAPHSON ITERATION FOR INVERSE INTERPOLATION OF Rt FROM S.
+        ---------------------------------------------------------------------
+        S_loop   = S(i,j) # S in the loop
+        T_loop   = T(i,j) # T in the loop
+        Rx_loop  = sqrt(S_loop/35.0) #first guess at Rx = sqrt(Rt)
+        SInc     = sals(Rx_loop*Rx_loop, T_loop) # S INCrement (guess) from Rx
+        iloop    = 0
+        end_loop = 0
+        while ~end_loop:
+                Rx_loop = Rx_loop + (S_loop - SInc) / salds(Rx_loop, T_loop - 15)
+        SInc    = sals(Rx_loop * Rx_loop, T_loop)
+        iloop   = iloop + 1
+        dels    = abs(SInc-S_loop)
+        if (dels>1.0e-4 & iloop<10) :
+            end_loop = 0
+        else:
+            end_loop = 1
+
+        Rx(i,j) = Rx_loop
+    """
+    # ONCE Rt FOUND, CORRESPONDING TO EACH (S,T) EVALUATE R
+    # eqn(4) p.8 Unesco 1983
+    d1 =  3.426e-2
+    d2 =  4.464e-4
+    d3 =  4.215e-1
+    d4 = -3.107e-3
+
+    e1 =  2.070e-5
+    e2 = -6.370e-10
+    e3 =  3.989e-15
+
+    A  = ( d3 + d4 * T68 )
+    B  = 1 + d1 * T68 + d2 * T68**2
+    C  = P * ( e1 + e2 * p + e3 * P**2 )
+
+    # eqn(6) p.9 UNESCO 1983.
+    Rt    = Rx * Rx
+    rt    = salrt(t)
+    Rtrt  = rt * Rt
+    D     = B - A * rt * Rt
+    E     = rt * Rt * A * ( B + C )
+    r     = ( abs( D**2 + 4 * E ) )**0.5 - D
+    r     = 0.5 * R/A
+    return r
