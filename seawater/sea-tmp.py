@@ -1,315 +1,23 @@
-def sals(rt, t):
+def svel(s, t, p):
     """
-    >>> s = sals(rt, t)
-
-
-    Salinity of sea water as a function of Rt and T.
-    UNESCO 1983 polynomial.
-
-    INPUT:
-    rt = rt(s,t) = C(s,t,0) / C(35, t(IPTS-68), 0)
-    t  = temperature [:math:`^\\circ`  C (ITS-90)]
-
-    OUTPUT:
-    s  = salinity [psu (PSS-78)]
-
-    CALLER: salt
-
-    References
-    ----------
-    Fofonoff, P. and Millard, R.C. Jr
-    Unesco 1983. Algorithms for computation of fundamental properties of
-    seawater, 1983. _Unesco Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
-
-    Authors
-    -------
-    Phil Morgan 93-04-17, Lindsay Pender (Lindsay.Pender@csiro.au)
-
-    Modifications
-    -------------
-    03-12-12. Lindsay Pender, Converted to ITS-90.
-    10-01-14. Filipe Fernandes, Python translation.
-    """
-
-    # eqn (1) & (2) p6,7 unesco
-    del_T68 = T * T68conv - 15
-
-    a0 =  0.0080
-    a1 = -0.1692
-    a2 = 25.3851
-    a3 = 14.0941
-    a4 = -7.0261
-    a5 =  2.7081
-
-    b0 =  0.0005
-    b1 = -0.0056
-    b2 = -0.0066
-    b3 = -0.0375
-    b4 =  0.0636
-    b5 = -0.0144
-
-    k  =  0.0162
-
-    Rtx   = (Rt)**0.5
-    del_S = ( del_T68 / ( 1 + k * del_T68 ) ) * \
-            ( b0 + ( b1 + ( b2 + ( b3 + ( b4 + b5 * Rtx ) \
-            * Rtx ) * Rtx ) * Rtx ) * Rtx)
-
-    S = a0 + ( a1 + ( a2 + ( a3 + ( a4 + a5 * Rtx) * \
-               Rtx) * Rtx ) * Rtx ) * Rtx
-
-    S = S + del_S
-
-    return S
-
-def salds(Rtx, delT):
-    """
-    >>> dS = salds(Rtx,delT)
-
-
-    Calculates Salinity differential dS/d(sqrt(Rt)) at constant T.
-    UNESCO 1983 polynomial.
-
-    INPUT: (all must have same dimensions)
-    Rtx   = sqrt(Rt) where Rt defined in salt
-    delT  = T-15     [:math:`^\\circ`  C (IPTS-68)]
-
-    OUTPUT:
-    dS = S differential dS/d(sqrt(Rt)) at constant T.
-
-    CALLER: cndr
-
-    References
-    ----------
-    Fofonoff, P. and Millard, R.C. Jr
-    Unesco 1983. Algorithms for computation of fundamental properties of
-    seawater, 1983. _Unesco Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
-
-    Authors
-    -------
-    Phil Morgan 93-04-21, Lindsay Pender (Lindsay.Pender@csiro.au)
-
-    Modifications
-    -------------
-    10-01-14. Filipe Fernandes, Python translation.
-    """
-
-    a0 =  0.0080
-    a1 = -0.1692
-    a2 = 25.3851
-    a3 = 14.0941
-    a4 = -7.0261
-    a5 =  2.7081
-
-    b0 =  0.0005
-    b1 = -0.0056
-    b2 = -0.0066
-    b3 = -0.0375
-    b4 =  0.0636
-    b5 = -0.0144
-
-    k  =  0.0162
-
-    dS =  a1 + ( 2 * a2 + ( 3 * a3 + ( 4 * a4 + 5 * a5 * Rtx ) * Rtx ) \
-          * Rtx ) * Rtx + ( delT / ( 1 + k * delT ) ) * \
-          ( b1 + ( 2 * b2 + ( 3 * b3 + ( 4 * b4 + 5 * b5 * Rtx ) \
-          * Rtx ) * Rtx) * Rtx)
-
-    return dS
-
-def salrt(T):
-    """
-    >>> rt = salrt(T)
-
-
-       Equation rt(T) = C(35,T,0) / C(35,15(IPTS-68), 0)
-       used in calculating salinity. UNESCO 1983 polynomial..
-
-    INPUT:
-      T = temperature [:math:`^\\circ`  C (ITS-90)]
-
-    OUTPUT:
-      rt = conductivity ratio  [no units]
-
-    CALLER: salt
-
-    References
-    ----------
-    Fofonoff, P. and Millard, R.C. Jr
-    Unesco 1983. Algorithms for computation of fundamental properties of
-    seawater, 1983. _Unesco Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
-
-    Authors
-    -------
-    Phil Morgan 93-04-17, Lindsay Pender (Lindsay.Pender@csiro.au)
-
-    Modifications
-    -------------
-    03-12-12. Lindsay Pender, Converted to ITS-90.
-    10-01-14. Filipe Fernandes, Python translation.
-    """
-
-    #rt = rt(T) = C(35,T,0)/C(35,15,0)
-    #Eqn (3) p.7 Unesco.
-    T68 = T * T68conv
-
-    c0 =  0.6766097
-    c1 =  2.00564e-2
-    c2 =  1.104259e-4
-    c3 = -6.9698e-7
-    c4 =  1.0031e-9
-
-    rt = c0 + ( c1 + ( c2 + ( c3 + c4 * T68) * T68) * T68 ) * T68
-    return rt
-
-def salt(cndr, T, P):
-    """
-    USAGE: S = salt(cndr, T, P)
-
-
-    Calculates Salinity from conductivity ratio. UNESCO 1983 polynomial.
-
-    INPUT:
-    cndr = Conductivity ratio     R =  C(S,T,P)/C(35,15(IPTS-68),0) [no units]
-    T    = temperature [:math:`^\\circ`  C (ITS-90)]
-    P    = pressure    [db]
-
-    OUTPUT:
-    S    = salinity    [psu      (PSS-78)]
-
-    CALLEE: sals salrt salrp
-
-    References
-    ----------
-    Fofonoff, P. and Millard, R.C. Jr
-    Unesco 1983. Algorithms for computation of fundamental properties of
-    seawater, 1983. _Unesco Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
-
-    Authors
-    -------
-    Phil Morgan 93-04-17, Lindsay Pender (Lindsay.Pender@csiro.au)
-
-    Modifications
-    -------------
-    03-12-12. Lindsay Pender, Converted to ITS-90.
-    10-01-14. Filipe Fernandes, Python translation.
-    """
-
-    R  = cndr
-    rt = salrt(T)
-    Rp = salrp( R, T, P )
-    Rt = R / ( Rp * rt )
-    S  = sals( Rt, T )
-
-    return S
-
-def salrp(R, T, P):
-    """
-    >>> Rp = salrp(R, T, P)
-
-
-    Equation Rp(S,T,P) = C(S,T,P)/C(S,T,0) used in calculating salinity.
-    UNESCO 1983 polynomial.
-
-    INPUT: (All must have same shape)
-    R = Conductivity ratio  R =  C(S,T,P)/C(35,15(IPTS-68),0) [no units]
-    T = temperature [:math:`^\\circ`  C (ITS-90)]
-    P = pressure    [db]
-
-    OUTPUT:
-    Rp = conductivity ratio  Rp(S,T,P) = C(S,T,P)/C(S,T,0)  [no units]
-
-    CALLER: salt
-
-    References
-    ----------
-    Fofonoff, P. and Millard, R.C. Jr
-    Unesco 1983. Algorithms for computation of fundamental properties of
-    seawater, 1983. _Unesco Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
-
-    Authors
-    -------
-    Phil Morgan 93-04-17, Lindsay Pender (Lindsay.Pender@csiro.au)
-
-    Modifications
-    -------------
-    03-12-12. Lindsay Pender, Converted to ITS-90.
-    10-01-14. Filipe Fernandes, Python translation.
-    """
-
-    # eqn (4) p.8 unesco.
-    T68 = T * T68conv
-
-    d1 =  3.426e-2
-    d2 =  4.464e-4
-    d3 =  4.215e-1
-    d4 = -3.107e-3
-
-    e1 =  2.070e-5
-    e2 = -6.370e-10
-    e3 =  3.989e-15
-
-    Rp = 1 + ( P * ( e1 + e2 * P + e3 * P**2 ) ) \
-         / ( 1 + d1 * T68 + d2 * T68**2 + ( d3 + d4 * T68 ) * R)
-
-    return Rp
-
-def fp(S, P):
-    """
-    >>> fp = fp(S, P)
-
-
-    Freezing point of Sea Water using UNESCO 1983 polynomial.
-
-    INPUT:  (all must have same dimensions)
-    S = salinity    [psu      (PSS-78)]
-    P = pressure    [db]
-
-    OUTPUT:
-    fp = Freezing Point temperature [:math:`^\\circ`  C (ITS-90)]
-
-    References
-    ----------
-    Fofonff, P. and Millard, R.C. Jr
-    Unesco 1983. Algorithms for computation of fundamental properties of
-    seawater, 1983. _Unesco Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
-
-    Authors
-    -------
-    Phil Morgan 93-04-20, Lindsay Pender (Lindsay.Pender@csiro.au)
-
-    Modifications
-    -------------
-    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-    03-12-12. Lindsay Pender, Converted to ITS-90.
-    10-01-14. Filipe Fernandes, Python translation.
-    """
-
-    #P = P/10; # to convert db to Bar as used in Unesco routines
-    # eqn  p.29
-    a0 = -0.0575
-    a1 =  1.710523e-3
-    a2 = -2.154996e-4
-    b  = -7.53e-4
-
-    fp = ( a0 * S + a1 * S * (S)**0.5 + a2 * S**2 + b * P ) / T68conv
-
-    return fp
-
-def svel(S, T, P):
-    """
-    >>> svel = svel(S, T, P)
-
-
     Sound Velocity in sea water using UNESCO 1983 polynomial.
 
-    INPUT:  (all must have same dimensions)
-    S = salinity    [psu      (PSS-78)]
-    T = temperature [:math:`^\\circ`  C (ITS-90)]
-    P = pressure    [db]
+    Parameters
+    ----------
+    s(p) : array_like
+           salinity [psu (PSS-78)]
+    t(p) : array_like
+           temperature [:math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]. The shape can be "broadcasted"
 
-    OUTPUT:
-    svel = sound velocity  [m/s]
+    Returns
+    -------
+    svel : array_like
+           sound velocity  [m/s]
+
+    Examples
+    --------
 
     References
     ----------
@@ -326,6 +34,7 @@ def svel(S, T, P):
     99-06-25. Lindsay Pender, Fixed transpose of row vectors.
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
+    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
     #UNESCO 1983. eqn.33  p.46
@@ -407,19 +116,24 @@ def svel(S, T, P):
 
     return svel
 
-def pres(DEPTH, LAT):
+def pres(depth, lat):
     """
-    >>> pres = pres(DEPTH, LAT)
-
-
     Calculates pressure in dbars from depth in meters.
 
-    INPUT:  (all must have same dimensions)
-    depth = depth [metres]
-    lat   = Latitude in decimal degress north [-90..+90]
+    Parameters
+    ----------
+    depth : array_like
+            depth [metres]
+    lat : array_like
+          latitude in decimal degress north [-90..+90]
 
-    OUTPUT:
-    pres   = Pressure    [db]
+    Returns
+    -------
+    pres : array_like
+           pressure [db]
+
+    Examples
+    --------
 
     CHECK VALUE:
     P=7500.00 db for LAT=30 deg, depth=7321.45 meters
@@ -438,30 +152,36 @@ def pres(DEPTH, LAT):
     -------------
     99-06-25. Lindsay Pender, Fixed transpose of row vectors.
     10-01-14. Filipe Fernandes, Python translation.
+    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
-    X       = sin( abs(LAT) * DEG2RAD )  # convert to radians
+    X       = np.sin( abs(LAT) * DEG2RAD )  # convert to radians
     C1      = 5.92E-3 + X**2 * 5.25E-3
     pres    = ( ( 1 - C1 ) - ( ( ( 1 - C1 )**2 ) - ( 8.84E-6 * DEPTH ) )**0.5 ) / 4.42E-6
     return pres
 
 def dist(lon, lat): # TODO: add keywords options for units
     """
-    >>> dist, phaseangle = dist(lon, lat)
-
-
     Calculate distance between two positions on globe using the "Plane
     Sailing" method.  Also uses simple geometry to calculate the bearing of
     the path between position pairs.
 
-    INPUT:
-    lon      = decimal degrees (+ve E, -ve W) [-180..+180]
-    lat      = decimal degrees (+ve N, -ve S) [- 90.. +90]
+    Parameters
+    ----------
+    lon : array_like
+          decimal degrees (+ve E, -ve W) [-180..+180]
+    lat : array_like
+          decimal degrees (+ve N, -ve S) [- 90.. +90]
 
-    OUTPUT:
-    dist        = distance between positions in units
-    phaseangle  = angle of line between stations with x axis (East).
-                    Range of values are -180..+180. (E=0, N=90, S=-90)
+    Returns
+    -------
+    dist : array_like
+           distance between positions in units
+    phaseangle : array_like
+                 angle of line between stations with x axis (East). Range of values are -180..+180. (E=0, N=90, S=-90)
+
+    Examples
+    --------
 
     References
     ----------
@@ -477,6 +197,7 @@ def dist(lon, lat): # TODO: add keywords options for units
     99-06-25. Lindsay Pender, Function name change from distance to sw_dist.
     99-06-25. Lindsay Pender, Fixed transpose of row vectors.
     10-01-14. Filipe Fernandes, Python translation.
+    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
     DEG2MIN = 60
@@ -484,16 +205,16 @@ def dist(lon, lat): # TODO: add keywords options for units
     NM2KM   = 1.8520    # Defined in Pond & Pickard p303.
 
     npositions = max(lat.shape)
-    ind = arange( 0, npositions-1, 1) # index to first of position pairs
+    ind = np.arange( 0, npositions-1, 1) # index to first of position pairs
 
-    dlon = diff(lon, axis=0)
+    dlon = np.diff(lon, axis=0)
     if any( abs(dlon) > 180 ):
         flag = abs(dlon) > 180
-        dlon[flag] = -sign( dlon[flag] ) * ( 360 - abs( dlon[flag] ) )
+        dlon[flag] = -np.sign( dlon[flag] ) * ( 360 - abs( dlon[flag] ) )
 
     latrad = abs( lat * DEG2RAD )
-    dep    = cos( ( latrad [ind+1] + latrad[ind] ) / 2 ) * dlon
-    dlat   = diff( lat, axis=0 )
+    dep    = np.cos( ( latrad [ind+1] + latrad[ind] ) / 2 ) * dlon
+    dlat   = np.diff( lat, axis=0 )
     dist   = DEG2NM * ( dlat**2 + dep**2 )**0.5
     # TODO: add keyword options defaults is in miles
     #if strcmp(units,'km') # TODO: add keyword options defaults to n.miles
@@ -502,22 +223,27 @@ def dist(lon, lat): # TODO: add keywords options for units
 
     # CALCUALTE ANGLE TO X AXIS
     RAD2DEG     = 1/DEG2RAD
-    phaseangle  = angle( dep + dlat * 1j ) * RAD2DEG
+    phaseangle  = np.angle( dep + dlat * 1j ) * RAD2DEG
     return dist, phaseangle
 
-def satAr(S, T):
+def satAr(s, t):
     """
-    >>> satAr = satAr(S, T)
-
-
     Solubility (satuaration) of Argon (Ar) in sea water.
 
-    INPUT:  (all must have same dimensions)
-    S = salinity    [psu      (PSS-78)]
-    T = temperature [:math:`^\\circ`  C (ITS-90)]
+    Parameters
+    ----------
+    s : array_like
+        salinity [psu (PSS-78)]
+    t : array_like
+        temperature [:math:`^\\circ` C (ITS-90)]
 
-    OUTPUT:
-    satAr = solubility of Ar  [ml/l]
+    Returns
+    -------
+    satAr : array_like
+            solubility of Ar  [ml/l]
+
+    Examples
+    --------
 
     References
     ----------
@@ -534,6 +260,7 @@ def satAr(S, T):
     99-06-25. Lindsay Pender, Fixed transpose of row vectors.
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
+    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
     # convert T to Kelvin
@@ -549,26 +276,31 @@ def satAr(S, T):
     b3 =   -0.0017729
 
     # Eqn (4) of Weiss 1970
-    lnC = a1 + a2 * ( 100/T ) + a3 * log( T/100 ) + a4 * ( T/100 ) + \
+    lnC = a1 + a2 * ( 100/T ) + a3 * np.log( T/100 ) + a4 * ( T/100 ) + \
           S * ( b1 + b2 * ( T/100 ) + b3 * ( ( T/100 )**2) )
 
-    c = exp(lnC)
+    c = np.exp(lnC)
 
     return c
 
-def satN2(S, T):
+def satN2(s, t):
     """
-    >>> satN2 = satN2(S, T)
-
-
     Solubility (satuaration) of Nitrogen (N2) in sea water.
 
-    INPUT:  (all must have same dimensions)
-    S = salinity    [psu      (PSS-78)]
-    T = temperature [:math:`^\\circ`  C (ITS-90)]
+    Parameters
+    ----------
+    s : array_like
+        salinity [psu (PSS-78)]
+    t : array_like
+        temperature [:math:`^\\circ` C (ITS-90)]
 
-    OUTPUT:
-    satN2 = solubility of N2  [ml/l]
+    Returns
+    -------
+    satN2 : array_like
+            solubility of N2  [ml/l]
+
+    Examples
+    --------
 
     References
     ----------
@@ -585,6 +317,7 @@ def satN2(S, T):
     99-06-25. Lindsay Pender, Fixed transpose of row vectors.
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
+    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
     # convert T to Kelvin
@@ -600,25 +333,30 @@ def satN2(S, T):
     b3 =   -0.0034861
 
     # Eqn (4) of Weiss 1970
-    lnC = a1 + a2 * ( 100/T ) + a3 * log( T/100 ) + a4 * ( T/100 ) + \
+    lnC = a1 + a2 * ( 100/T ) + a3 * np.log( T/100 ) + a4 * ( T/100 ) + \
           S * ( b1 + b2 * ( T/100 ) + b3 * ( ( T/100 )**2 ) )
 
-    c = exp(lnC)
+    c = np.exp(lnC)
     return c
 
-def satO2(S,T):
+def satO2(s, t):
     """
-    >>> satO2 = _satO2(S, T)
-
-
     Solubility (satuaration) of Oxygen (O2) in sea water.
 
-    INPUT:  (all must have same dimensions)
-    S = salinity    [psu      (PSS-78)]
-    T = temperature [:math:`^\\circ`  C (ITS-68)]
+    Parameters
+    ----------
+    s : array_like
+        salinity [psu (PSS-78)]
+    t : array_like
+        temperature [:math:`^\\circ` C (ITS-68)]
 
-    OUTPUT:
-    satO2 = solubility of O2  [ml/l]
+    Returns
+    -------
+    satO2 : array_like
+            solubility of O2  [ml/l]
+
+    Examples
+    --------
 
     References
     ----------
@@ -635,6 +373,7 @@ def satO2(S,T):
     99-06-25. Lindsay Pender, Fixed transpose of row vectors.
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
+    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
     # convert T to Kelvin
@@ -650,30 +389,39 @@ def satO2(S,T):
     b3 =   -0.0017000
 
     # Eqn (4) of Weiss 1970
-    lnC = a1 + a2 * ( 100/T ) + a3 * log( T/100 ) + a4 * ( T/100 ) + \
+    lnC = a1 + a2 * ( 100/T ) + a3 * np.log( T/100 ) + a4 * ( T/100 ) + \
           S * ( b1 + b2 * ( T/100 ) + b3 * ( ( T/100 )**2 ) )
 
-    c = exp(lnC)
+    c = np.exp(lnC)
     return c
 
-def dens0(S,T):
+def dens0(s, t):
     """
-    >>> dens0 = dens0(S, T)
-
-
     Density of Sea Water at atmospheric pressure using
     UNESCO 1983 (EOS 1980) polynomial.
 
-    INPUT:  (all must have same dimensions)
-    S = salinity    [psu      (PSS-78)]
-    T = temperature [:math:`^\\circ`  C (ITS-90)]
+    Parameters
+    ----------
+    s : array_like
+        salinity [psu (PSS-78)]
+    t : array_like
+        temperature [:math:`^\\circ` C (ITS-90)]
 
-    OUTPUT:
-    dens0 = density  [kg/m^3] of salt water with properties S,T,
-            P=0 (0 db gauge pressure)
+    Returns
+    -------
+    dens0 : array_like
+            density  [kg m :sup:`3`] of salt water with properties (s, t, p=0) 0 db gauge pressure
 
-    CALLER: dens
-    CALLEE: smow
+    See Also
+    --------
+    dens, smow
+
+    Notes
+    -----
+    None
+
+    Examples
+    --------
 
     References
     ----------
@@ -692,6 +440,7 @@ def dens0(S,T):
     -------------
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
+    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
     T68 = T * T68conv
@@ -712,18 +461,22 @@ def dens0(S,T):
     S + ( c0 + ( c1 + c2 * T68 ) * T68 ) * S * (S)**0.5 + d0 * S**2
     return dens
 
-def smow(T):
+def smow(t):
     """
-    >>> dens = smow(T)
-
-
     Denisty of Standard Mean Ocean Water (Pure Water) using EOS 1980.
 
-    INPUT:
-    T = temperature [:math:`^\\circ`  C (ITS-90)]
+    Parameters
+    ----------
+    t : array_like
+        temperature [:math:`^\\circ` C (ITS-90)]
 
-    OUTPUT:
-    dens = density  [kg/m^3]
+    Returns
+    -------
+    dens : array_like
+           density  [kg m :sup:`3`]
+
+    Examples
+    --------
 
     References
     ----------
@@ -744,6 +497,7 @@ def smow(T):
     99-06-25. Lindsay Pender, Fixed transpose of row vectors.
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
+    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
     a0 = 999.842594
@@ -757,23 +511,35 @@ def smow(T):
     dens = a0 + ( a1 + ( a2 + ( a3 + ( a4 + a5 * T68 ) * T68 ) * T68 ) * T68 ) * T68
     return dens
 
-def seck(S, T, P=0):
+def seck(s, t, p=0):
     """
-    >>> dens = seck(S, T, P)
-
-
     Secant Bulk Modulus (K) of Sea Water using Equation of state 1980.
     UNESCO polynomial implementation.
 
-    INPUT:  (all must have same dimensions)
-    S = salinity    [psu      (PSS-78) ]
-    T = temperature [:math:`^\\circ`  C (ITS-90)]
-    P = pressure    [db]
+    Parameters
+    ----------
+    s(p) : array_like
+           salinity [psu (PSS-78)]
+    t(p) : array_like
+           temperature [:math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]. The shape can be "broadcasted"
 
-    OUTPUT:
-    K = Secant Bulk Modulus  [bars]
+    Returns
+    -------
+    k : array_like
+        secant bulk modulus  [bars]
 
-    CALLER: dens
+    See Also
+    --------
+    dens
+
+    Notes
+    -----
+    None
+
+    Examples
+    --------
 
     References
     ----------
@@ -795,6 +561,7 @@ def seck(S, T, P=0):
     99-06-25. Lindsay Pender, Fixed transpose of row vectors.
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
+    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
     # COMPUTE COMPRESSION TERMS
@@ -856,22 +623,34 @@ def seck(S, T, P=0):
     K = K0 + ( A + B * P ) * P # eqn 15
     return K
 
-def dens(S, T, P):
+def dens(s, t, p):
     """
-    >>> dens = dens(S, T, P)
-
-
     Density of Sea Water using UNESCO 1983 (EOS 80) polynomial.
 
-    INPUT:  (all must have same dimensions)
-    S = salinity    [psu      (PSS-78)]
-    T = temperature [:math:`^\\circ`  C (ITS-90)]`
-    P = pressure    [db]
+    Parameters
+    ----------
+    s(p) : array_like
+           salinity [psu (PSS-78)]
+    t(p) : array_like
+           temperature [:math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]. The shape can be "broadcasted"
 
-    OUTPUT:
-    dens = density  [kg/m^3]
+    Returns
+    -------
+    dens : array_like
+           density  [kg m :sup:`3`]
 
-    CALLEE: dens0 seck
+    See Also
+    --------
+    dens0, seck
+
+    Notes
+    -----
+    None
+
+    Examples
+    --------
 
     References
     ----------
@@ -892,6 +671,7 @@ def dens(S, T, P):
     99-06-25. Lindsay Pender, Fixed transpose of row vectors.
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
+    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
     #UNESCO 1983. eqn.7  p.15
@@ -901,25 +681,37 @@ def dens(S, T, P):
     dens   = densP0 / ( 1-P / K )
     return dens
 
-def pden(S, T, P, PR=0):
+def pden(s, t, p, pr=0):
     """
-    >>> pden = pden(S, T, P, PR)
-
-
     Calculates potential density of water mass relative to the specified
     reference pressure by pden = dens(S, ptmp, PR).
 
-    INPUT:  (all must have same dimensions)
-    S  = salinity    [psu      (PSS-78) ]
-    T  = temperature [:math:`^\\circ`  C (ITS-90)]
-    P  = pressure    [db]
-    PR = Reference pressure  [db]
-         default = 0
+    Parameters
+    ----------
+    s(p) : array_like
+           salinity [psu (PSS-78)]
+    t(p) : array_like
+           temperature [:math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]. The shape can be "broadcasted"
+    pr : number
+         reference pressure [db], default = 0
 
-    OUTPUT:
-    pden = Potential denisty relative to the ref. pressure [kg/m^3]
+    Returns
+    -------
+    pden : array_like
+           potential denisty relative to the ref. pressure [kg m :sup:3]
 
-    CALLEE:  ptmp dens
+    See Also
+    --------
+    ptmp, dens
+
+    Notes
+    -----
+    None
+
+    Examples
+    --------
 
     References
     ----------
@@ -935,30 +727,43 @@ def pden(S, T, P, PR=0):
     -------------
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
+    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
     PT   = ptmp(S, T, P, PR)
     pden = dens(S, PT, PR)
     return pden
 
-def svan(S, T, P=0):
+def svan(s, t, p=0):
     """
-    >>> svan = svan(S, T, P)
-
-
     Specific Volume Anomaly calculated as
     svan = 1/dens(s, t, p) - 1/dens(35, 0, p).
     Note that it is often quoted in literature as 1e8*units.
 
-    INPUT:  (all must have same dimensions)
-    S = salinity    [psu      (PSS-78) ]
-    T = temperature [:math:`^\\circ`  C (ITS-90)]
-    P = Pressure    [db]
+    Parameters
+    ----------
+    s(p) : array_like
+           salinity [psu (PSS-78)]
+    t(p) : array_like
+           temperature [:math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]. The shape can be "broadcasted"
 
-    OUTPUT:
-    svan = Specific Volume Anomaly  [m^3 kg^-1]
+    Returns
+    -------
+    svan : array_like
+           specific volume anomaly  [m :sup:`3` kg :sup:`-1`]
 
-    CALLEE: dens
+    See Also
+    --------
+    dens
+
+    Notes
+    -----
+    None
+
+    Examples
+    --------
 
     References
     ----------
@@ -980,29 +785,42 @@ def svan(S, T, P=0):
     99-06-25. Lindsay Pender, Fixed transpose of row vectors.
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
+    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
     svan = 1/dens( S, T, P ) - 1/dens( 35, 0.0, P )
 
     return svan
 
-def gpan(S, T, P):
+def gpan(s, t, p):
     """
-    >>> gpan = gpan(S, T, P)
-
-
     Geopotential Anomaly calculated as the integral of svan from the
     the sea surface to the bottom. Thus RELATIVE TO SEA SURFACE.
 
-    INPUT:  (all must have same dimensions)
-    S = salinity    [psu      (PSS-78)]
-    T = temperature [:math:`^\\circ`  C (ITS-90)]
-    P = Pressure    [db]
+    Parameters
+    ----------
+    s(p) : array_like
+           salinity [psu (PSS-78)]
+    t(p) : array_like
+           temperature [:math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]. The shape can be "broadcasted"
 
-    OUTPUT:
-    gpan = Geopotential Anomaly  [m^3 kg^-1 Pa == m^2 s^-2 == J kg^-1]
+    Returns
+    -------
+    gpan : array_like
+           geopotential anomaly [m :sup:`3` kg :sup:`-1` Pa == m  :sup:`2` s :sup:`-2` == J kg :sup:`-1`]
 
-    CALLEE: svan
+    See Also
+    --------
+    svan
+
+    Notes
+    -----
+    None
+
+    Examples
+    --------
 
     References
     ----------
@@ -1023,6 +841,7 @@ def gpan(S, T, P):
     -------------
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
+    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
     db2Pascal  = 1e4
@@ -1040,30 +859,44 @@ def gpan(S, T, P):
     else:
         top = svn[0,:] * P[0,:] * db2Pascal
 
-    delta_ga   = ( mean_svan * diff(P,axis=0) ) * db2Pascal
-    ga         = cumsum( vstack( ( top, delta_ga ) ),  axis=0 ) # TODO: I do not remember why?
+    delta_ga   = ( mean_svan * np.diff(P,axis=0) ) * db2Pascal
+    ga         = np.cumsum( np.vstack( ( top, delta_ga ) ),  axis=0 ) # TODO: I do not remember why?
 
     return ga
 
 def gvel(ga, lon, lat):
     """
-    >>> vel = gvel(ga, lat, lon)
-
-
     Calculates geostrophic velocity given the geopotential anomaly
     and position of each station.
 
-    INPUT:
-    ga   = geopotential anomaly relative to the sea surface.
-            dim(mxnstations)
-    lon  = longitude of each station (+ve = E, -ve = W) [-180..+180]
-    lat  = latitude  of each station (+ve = N, -ve = S) [ -90.. +90]
+    Parameters
+    ----------
+    ga : array_like
+         geopotential anomaly relative to the sea surface.
+    lon : array_like
+          longitude of each station (+ve = E, -ve = W) [-180..+180]
+    lat : array_like
+          latitude  of each station (+ve = N, -ve = S) [ -90.. +90]
 
-    OUTPUT:
-    vel  = geostrophic velocity RELATIVE to the sea surface.
-            dim(m,nstations-1)
+    Returns
+    -------
+    vel : array_like
+           geostrophic velocity RELATIVE to the sea surface.
 
-    CALLEE:   dist
+    See Also
+    --------
+    dist
+
+    Notes
+    -----
+    None
+
+    Examples
+    --------
+
+    Notes
+    -----
+    TODO: dim(m,nstations-1), example were it is not relative to the surface.
 
     References
     ----------
@@ -1079,6 +912,7 @@ def gvel(ga, lon, lat):
     Modifications
     -------------
     10-01-14. Filipe Fernandes, Python translation.
+    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
     # You may replace the call to dist if you have
@@ -1095,21 +929,29 @@ def gvel(ga, lon, lat):
 
 def gvel2(ga, dist, lat):
     """
-    >>> vel = gvel(ga, dist, lat)
-
-
     Calculates geostrophic velocity given the geopotential anomaly
     and position of each station.
 
-    INPUT:
-    ga   = geopotential anomaly relative to the sea surface.
-            dim(mxnstations)
-    dist = distance between stations, in kilometers
-    lat  = lat to use for constant f determination
+    Parameters
+    ----------
+    ga : array_like
+         geopotential anomaly relative to the sea surface.
+    dist : array_like
+           distance between stations, in kilometers
+    lat : array_like
+          lat to use for constant f determination
 
-    OUTPUT:
-    vel  = geostrophic velocity RELATIVE to the sea surface.
-            dim(m,nstations-1)
+    Returns
+    -------
+    vel : array_like
+          geostrophic velocity RELATIVE to the sea surface.
+
+    Examples
+    --------
+
+    Notes
+    -----
+    TODO: dim(m,nstations-1), example were it is not relative to the surface. Maybe this version can be an option for the above.
 
     References
     ----------
@@ -1125,6 +967,7 @@ def gvel2(ga, dist, lat):
     Modifications
     -------------
     10-01-14. Filipe Fernandes, Python translation.
+    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
     distm = 1000.0 * dista # meters to 'km'
@@ -1135,20 +978,26 @@ def gvel2(ga, dist, lat):
 
     return vel
 
-def cp(S, T, P):
+def cp(s, t, p):
     """
-    USAGE: cp = cp(S, T, P)
-
-
     Heat Capacity of Sea Water using UNESCO 1983 polynomial.
 
-    INPUT:  (all must have same dimensions)
-    S = salinity    [psu      (PSS-78)]
-    T = temperature [:math:`^\\circ`  C (ITS-90)]
-    P = pressure    [db]
+    Parameters
+    ----------
+    s(p) : array_like
+           salinity [psu (PSS-78)]
+    t(p) : array_like
+           temperature [:math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]. The shape can be "broadcasted"
 
-    OUTPUT:
-    cp = Specific Heat Capacity  [J kg^-1 C^-1]
+    Returns
+    -------
+    cp : array_like
+         specific heat capacity [J kg :sup:`-1` C :sup:`-1`]
+
+    Examples
+    --------
 
     References
     ----------
@@ -1165,6 +1014,7 @@ def cp(S, T, P):
     99-06-25. Lindsay Pender, Fixed transpose of row vectors.
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
+    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
     P = P/10 # to convert db to Bar as used in Unesco routines
@@ -1257,24 +1107,36 @@ def cp(S, T, P):
 
     return cp
 
-def ptmp(S, T, P, PR=0):
+def ptmp(s, t, p, pr=0):
     """
-    >>> ptmp = sw_ptmp(S,T,P,PR)
-
-
     Calculates potential temperature as per UNESCO 1983 report.
 
-    INPUT:  (all must have same dimensions)
-    S  = salinity    [psu      (PSS-78) ]
-    T  = temperature [:math:`^\\circ`  C (ITS-90)]
-    P  = pressure    [db]
-    PR = Reference pressure  [db]
-         default = 0
+    Parameters
+    ----------
+    s(p) : array_like
+           salinity [psu (PSS-78)]
+    t(p) : array_like
+           temperature [:math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]. The shape can be "broadcasted"
+    pr : array_like
+        reference pressure [db], default = 0
 
-    OUTPUT:
-    ptmp = Potential temperature relative to PR [:math:`^\\circ`  C (ITS-90)]
+    Returns
+    -------
+    pt : array_like
+         potential temperature relative to PR [:math:`^\\circ` C (ITS-90)]
 
-    CALLEE:  adtg
+    See Also
+    --------
+    adtg
+
+    Notes
+    -----
+    None
+
+    Examples
+    --------
 
     References
     ----------
@@ -1297,6 +1159,7 @@ def ptmp(S, T, P, PR=0):
     99-06-25. Lindsay Pender, Fixed transpose of row vectors.
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
+    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
     # theta1
@@ -1320,24 +1183,37 @@ def ptmp(S, T, P, PR=0):
     PT     = ( th + ( del_th - 2 * q ) / 6 ) / T68conv
     return PT
 
-def temp(S, PTMP, P, PR):
+def temp(s, pt, p, pr):
     """
-    >>> temp = temp(S, PTMP, P, PR)
-
-
     Calculates temperature from potential temperature at the reference
     pressure PR and in-situ pressure P.
 
-    INPUT:  (all must have same dimensions)
-    S     = salinity              [psu      (PSS-78) ]
-    PTMP  = potential temperature [:math:`^\\circ`  C (ITS-90)]
-    P     = pressure              [db]
-    PR    = Reference pressure    [db]
+    Parameters
+    ----------
+    s(p) : array_like
+        salinity [psu (PSS-78)]
+    pt(p) : array_like
+         potential temperature [:math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]. The shape can be "broadcasted"
+    pr : array_like
+         reference pressure [db]
 
-    OUTPUT:
-    temp = temperature [:math:`^\\circ`  C (ITS-90)]
+    Returns
+    -------
+    temp : array_like
+           temperature [:math:`^\\circ` C (ITS-90)]
 
-    CALLEE:  ptmp
+    See Also
+    --------
+    ptmp
+
+    Notes
+    -----
+    None
+
+    Examples
+    --------
 
     References
     ----------
@@ -1359,6 +1235,7 @@ def temp(S, PTMP, P, PR):
     -------------
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
+    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
     # CARRY OUT INVERSE CALCULATION BY SWAPPING P0 & PR
@@ -1368,15 +1245,20 @@ def temp(S, PTMP, P, PR):
 
 def swvel(lenth, depth):
     """
-    >>> speed = swvel(lenth, depth)
-
     Calculates surface wave velocity.
 
-    lenth = wave length
-    depth = water depth [metres]
+    lenth : array_like
+            wave length
+    depth : array_like
+            water depth [metres]
 
-    OUTPUT:
-    speed   = Surface wave speed (m/s)
+    Returns
+    -------
+    speed : array_like
+            surface wave speed [m s :sup:`-1`]
+
+    Examples
+    --------
 
     Authors
     ------
@@ -1385,9 +1267,11 @@ def swvel(lenth, depth):
     Modifications
     -------------
     10-01-14. Filipe Fernandes, Python translation.
+    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
     # TODO: use grav function
-    k = 2.0 * pi / lenth
-    speed = (g * tanh(k * depth) / k)**0.5
+    # TODO: incorporate my wave routine
+    k = 2.0 * np.pi / lenth
+    speed = (g * np.tanh(k * depth) / k)**0.5
     return speed
