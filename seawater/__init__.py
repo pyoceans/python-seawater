@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 ===============
 Python Seawater
@@ -113,7 +111,7 @@ Extra Functions
 +---------------------+-------------+----------------------------------------------------------------------------------------------+
 """
 
-import numpy as mp
+import numpy as np
 # TODO: only used on the test routine
 from os    import uname
 from time  import asctime, localtime
@@ -129,7 +127,7 @@ Translated from matlab CSIRO seawater toolbox Version 3.2
 Filipe P. A. Fernandes
 e-mail:   ocefpaf@gmail.com
 web:      http://ocefpaf.tiddlyspot.com/
-date:     14-Jan-2010
+created:     14-Jan-2010
 modified: 17-Aug-2010
 obs:      flag: TODO
 """
