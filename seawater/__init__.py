@@ -111,7 +111,6 @@ Extra Functions
 +---------------------+-------------+----------------------------------------------------------------------------------------------+
 """
 
-import numpy as np
 # TODO: only used on the test routine
 from os    import uname
 from time  import asctime, localtime
@@ -131,42 +130,6 @@ created:     14-Jan-2010
 modified: 17-Aug-2010
 obs:      flag: TODO
 """
-
-# CONSTANTS:
-
-"""
-The International Practical Temperature Scale of 1968 (IPTS-68)
-#:math:`T68  = 1.00024 * T90`
-this linear transformation is accurate within 0.5 m C for conversion between IPTS-68 and ITS-90 over the oceanographic temperature range (Saunders,et al 1991).
-"""
-T68conv  = 1.00024
-
-"""
-0.017453292519943295
-"""
-DEG2RAD = np.pi/180.
-
-"""
-A.E.Gill p.597
-..:math:
-  \Omega = \frac{2*\\pi}{\\textrm{sidereal day}}
-
-1 sidereal day = 23.9344696 hours
-units : radians/sec
-"""
-OMEGA   = 7.292e-5
-
-"""
-Conductivity at S=35 psu , T=15 C [ITPS 68] and P=0 db)
-units : mmho cm :sup:`-1` == mS cm :sup:`-1`
-Reference: R.C. Millard and K. Yang 1992. "CTD Calibration and Processing Methods used by Woods Hole Oceanographic Institution"  Draft April 14, 1992 (Personal communication)
-"""
-C3515   = 42.914
-
-"""
-acceleration of gravity in m s :sup:`2`
-"""
-g = 9.8
 
 __authors__    = ['Filipe Fernandes']
 __copyright__  = "CSIRO"

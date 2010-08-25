@@ -1,4 +1,39 @@
-# -*- coding: utf-8 -*-
+# encoding: utf-8
+
+"""
+The International Practical Temperature Scale of 1968 (IPTS-68)
+#:math:`T68  = 1.00024 * T90`
+this linear transformation is accurate within 0.5 m C for conversion between IPTS-68 and ITS-90 over the oceanographic temperature range (Saunders,et al 1991).
+"""
+T68conv  = 1.00024
+
+"""
+0.017453292519943295
+"""
+from numpy import pi
+DEG2RAD = pi/180.
+
+"""
+A.E.Gill p.597
+..:math:
+  \Omega = \frac{2*\\pi}{\\textrm{sidereal day}}
+
+1 sidereal day = 23.9344696 hours
+units : radians/sec
+"""
+OMEGA   = 7.292e-5
+
+"""
+Conductivity at S=35 psu , T=15 C [ITPS 68] and P=0 db)
+units : mmho cm :sup:`-1` == mS cm :sup:`-1`
+Reference: R.C. Millard and K. Yang 1992. "CTD Calibration and Processing Methods used by Woods Hole Oceanographic Institution"  Draft April 14, 1992 (Personal communication)
+"""
+C3515   = 42.914
+
+"""
+acceleration of gravity in m s :sup:`2`
+"""
+g = 9.8
 
 def adtg(s, t, p):
     """
@@ -24,32 +59,30 @@ def adtg(s, t, p):
 
     Notes
     -----
-    None
-
-    Notes
-    -----
     TODO: Pressure broadcast feature need to be tested
 
     Examples
     --------
     Data from Unesco 1983 p45
+
     >>> import numpy as np
+    >>> import seawater as sw
     >>> from seawater import T68conv
     >>> t = np.array([[ 0,  0,  0,  0,  0,  0], [10, 10, 10, 10, 10, 10], [20, 20, 20, 20, 20, 20], [30, 30, 30, 30, 30, 30], [40, 40, 40, 40, 40, 40]])
     >>> t = t / T68conv
     >>> s = np.array([[25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35]])
     >>> p = np.array([[0, 5000, 10000, 0, 5000, 10000], [0, 5000, 10000, 0, 5000, 10000], [0, 5000, 10000, 0, 5000, 10000], [0, 5000, 10000, 0, 5000, 10000], [0, 5000, 10000, 0, 5000, 10000]])
     >>> sw.adtg(s, t, p)
-     array([[ 1.68710000e-05, 1.04700000e-04, 1.69426000e-04,
-              3.58030000e-05, 1.17956500e-04, 1.77007000e-04],
-            [ 1.00213255e-04, 1.60972016e-04, 2.06883149e-04,
-              1.14904937e-04, 1.71376482e-04, 2.13000398e-04],
-            [ 1.73853488e-04, 2.13558726e-04, 2.44501964e-04,
-              1.84304853e-04, 2.21111157e-04, 2.49155462e-04],
-            [ 2.41768241e-04, 2.64801063e-04, 2.82987774e-04,
-              2.47979289e-04, 2.69501460e-04, 2.86177520e-04],
-            [ 3.07934056e-04, 3.17039963e-04, 3.23045906e-04,
-              3.09904786e-04, 3.18888326e-04, 3.24771901e-04]])
+    array([[  1.68710000e-05,   1.04700000e-04,   1.69426000e-04,
+              3.58030000e-05,   1.17956500e-04,   1.77007000e-04],
+           [  1.00194580e-04,   1.60959050e-04,   2.06874170e-04,
+              1.14887280e-04,   1.71364200e-04,   2.12991770e-04],
+           [  1.73819840e-04,   2.13534000e-04,   2.44483760e-04,
+              1.84273240e-04,   2.21087800e-04,   2.49137960e-04],
+           [  2.41720460e-04,   2.64764100e-04,   2.82959590e-04,
+              2.47934560e-04,   2.69466550e-04,   2.86150390e-04],
+           [  3.07870120e-04,   3.16988600e-04,   3.23006480e-04,
+              3.09844920e-04,   3.18839700e-04,   3.24733880e-04]])
 
     References
     ----------
@@ -135,7 +168,7 @@ def alpha(s, t, p, pt=False):
     Examples
     --------
     Data from McDougall 1987
-
+    >>> import seawater as sw
     >>> s, pt, p = 40., 10., 4000.
     >>> sw.alpha(s, pt, p)
     0.00025061316481624323
@@ -194,6 +227,7 @@ def aonb(s, t, p, pt=False):
 
     Examples
     --------
+    >>> import seawater as sw
     >>> s, pt, p = 40.0, 10.0, 4000
     >>> sw.aonb(s, pt, p)
     0.347650567047807
@@ -264,6 +298,7 @@ def beta(s, t, p, pt=False):
 
     Examples
     --------
+    >>> import seawater as sw
     >>> s, pt, p = 40.0, 10.0, 4000
     >>> sw.beta(s,pt,p)
     0.00072087661741618932
@@ -359,6 +394,7 @@ def bfrq(s, t, p, lat=None):
     Examples
     --------
     TODO: add a test here
+    >>> import seawater as sw
     >>> n2, q, p_ave = sw.bfrq(s, t, p, lat)
 
     References
@@ -429,6 +465,7 @@ def depth(p, lat):
     --------
     Unesco 1983 data p30
 
+    >>> import seawater as sw
     >>> lat = np.array([0, 30, 45, 90])
     >>> p   = np.array([[  500,   500,   500,  500], [ 5000,  5000,  5000, 5000], [10000, 10000, 10000, 10000]])
     >>> sw.depth(p, lat)
@@ -501,6 +538,7 @@ def grav(lat, z=0):
 
     Examples
     --------
+    >>> import seawater as sw
     >>> sw.grav(lat, z=0)
     9.8061898752053995
 
@@ -567,6 +605,7 @@ def cor(lat):
 
     Examples
     --------
+    >>> import seawater as sw
     >>> sw.cor(45)
     0.00010312445296824608
 
@@ -628,6 +667,7 @@ def cndr(s, t, p):
     --------
     Data from Unesco 1983 p9
 
+    >>> import seawater as sw
     >>> t    = np.array([0, 10, 0, 10, 10, 30]) / T68conv
     >>> p    = np.array([0, 0, 1000, 1000, 0, 0])
     >>> s    = np.array([25, 25, 25, 25, 40, 40])
@@ -748,6 +788,7 @@ def sals(rt, t):
     --------
     Data from Unesco 1983 p9
 
+    >>> import seawater as sw
     >>> t    = np.array([15, 20, 5]) / T68conv
     >>> rt   = np.array([  1, 1.0568875, 0.81705885])
     >>> sw.sals(rt,t)
@@ -828,7 +869,9 @@ def salds(rtx, delt):
 
     Examples
     --------
-    Sata from Unesco 1983 p9
+    Data from Unesco 1983 p9
+
+    >>> import seawater as sw
     >>> delt = np.array([15, 20, 5]) / T68conv  - 15
     >>> rtx  = np.array([  1, 1.0568875, 0.81705885])**0.5
     >>> sw.salds(rtx, delt)
@@ -903,6 +946,7 @@ def salrt(t):
     --------
     Data from Unesco 1983 p9
 
+    >>> import seawater as sw
     >>> t = np.array([15, 20, 5]) / T68conv
     >>> sw.saltrt(t)
     array([ 1.,  1.11649272,  0.77956585])
@@ -966,6 +1010,7 @@ def salt(r, t, p):
     --------
     Data from Unesco 1983 p9
 
+    >>> import seawater as sw
     >>> r = np.array([1, 1.2, 0.65])
     >>> t = np.array([15, 20, 5]) / T68conv
     >>> p = np.array([0, 2000, 1500])
@@ -1028,6 +1073,8 @@ def salrp(r, t, p):
 
     Examples
     --------
+
+    >>> import seawater as sw
     >>> r = np.array([1, 1.2, 0.65])
     >>> t = np.array([15, 20, 5]) / T68conv
     >>> p = np.array([0, 2000, 1500])
@@ -1096,6 +1143,7 @@ def fp(s, p):
     --------
     UNESCO DATA p.30
 
+    >>> import seawater as sw
     >>> s = np.array([[5, 10, 15, 20, 25, 30, 35, 40], [5, 10, 15, 20, 25, 30, 35, 40]])
     >>> p = np.array([[ 0, 0, 0, 0, 0, 0, 0, 0], [500, 500, 500, 500, 500, 500, 500, 500]])
     >>> sw.fp(s, p)
@@ -1130,7 +1178,6 @@ def fp(s, p):
 
     return fp
 
-    """ TODO: BREAK"""
 def svel(s, t, p):
     """
     Sound Velocity in sea water using UNESCO 1983 polynomial.
@@ -1149,8 +1196,37 @@ def svel(s, t, p):
     svel : array_like
            sound velocity  [m/s]
 
+
+    See Also
+    --------
+    None
+
+    Notes
+    -----
+    TODO: Pressure broadcast feature need to be tested
+    TODO: Add equation to docstring
+
     Examples
     --------
+    Data from Pond and Pickard Intro. Dynamical Oceanography 2nd ed. 1986
+
+    >>> import numpy as np
+    >>> import seawater as sw
+    >>> from seawater import T68conv
+    t = np.array([[  0,  0,  0,  0,  0,  0], [ 10, 10, 10, 10, 10, 10], [ 20, 20, 20, 20, 20, 20], [ 30, 30, 30, 30, 30, 30], [ 40, 40, 40, 40, 40, 40]]) / T68conv
+    s = np.array([[ 25, 25, 25, 35, 35, 35], [ 25, 25, 25, 35, 35, 35], [ 25, 25, 25, 35, 35, 35], [ 25, 25, 25, 35, 35, 35], [ 25, 25, 25, 35, 35, 35]])
+    p = np.array([[ 0, 5000, 10000, 0, 5000, 10000], [ 0, 5000, 10000, 0, 5000, 10000], [ 0, 5000, 10000, 0, 5000, 10000], [ 0, 5000, 10000, 0, 5000, 10000], [ 0, 5000, 10000, 0, 5000, 10000]])
+    sw.svel(s, t, p)
+    array([[ 1435.789875  ,  1520.358725  ,  1610.4074    ,  1449.13882813,
+         1533.96863705,  1623.15007097],
+       [ 1477.68316464,  1561.30635914,  1647.39267114,  1489.82233602,
+         1573.40946928,  1658.99115504],
+       [ 1510.31388348,  1593.59671798,  1676.80967748,  1521.4619731 ,
+         1604.4762822 ,  1687.18305631],
+       [ 1535.21434752,  1618.95631952,  1700.60547902,  1545.59485539,
+         1628.97322783,  1710.06294277],
+       [ 1553.44506636,  1638.02522336,  1719.15088536,  1563.20925247,
+         1647.29949576,  1727.83176404]])
 
     References
     ----------
@@ -1167,12 +1243,12 @@ def svel(s, t, p):
     99-06-25. Lindsay Pender, Fixed transpose of row vectors.
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
-    10-08-19. Filipe Fernandes, Reformulated docstring.
+    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    #UNESCO 1983. eqn.33  p.46
-    P = P/10  # convert db to bars as used in UNESCO routines
-    T68 = T * T68conv
+    # UNESCO 1983. eqn.33  p.46
+    p = p/10  # convert db to bars as used in UNESCO routines
+    T68 = t * T68conv
 
     # eqn 34 p.46
     c00 = 1402.388
@@ -1198,9 +1274,9 @@ def svel(s, t, p):
     c31 =  3.8504e-10
     c32 = -2.3643e-12
 
-    Cw  = ( ( ( ( c32 * T68 + c31 ) * T68 + c30 ) * P + \
-          ( ( ( ( c24 * T68 + c23 ) * T68 + c22 ) * T68 + c21 ) * T68 + c20 ) ) * P + \
-          ( ( ( ( c14 * T68 + c13 ) * T68 + c12 ) * T68 + c11 ) * T68 + c10 ) ) * P + \
+    Cw  = ( ( ( ( c32 * T68 + c31 ) * T68 + c30 ) * p + \
+          ( ( ( ( c24 * T68 + c23 ) * T68 + c22 ) * T68 + c21 ) * T68 + c20 ) ) * p + \
+          ( ( ( ( c14 * T68 + c13 ) * T68 + c12 ) * T68 + c11 ) * T68 + c10 ) ) * p + \
           ( ( ( ( c05 * T68 + c04 ) * T68 + c03 ) * T68 + c02 ) * T68 + c01 ) * T68 + c00
 
     # eqn 35. p.47
@@ -1225,9 +1301,9 @@ def svel(s, t, p):
     a31 =  6.649e-12
     a32 = -3.389e-13
 
-    A = ( ( ( ( a32 * T68 + a31 ) * T68 + a30 ) * P + \
-        ( ( ( a23 * T68 + a22 ) * T68 + a21 ) * T68 + a20 ) ) * P + \
-        ( ( ( ( a14 * T68 + a13 ) * T68 + a12 ) * T68 + a11 ) * T68 + a10 ) ) * P + \
+    A = ( ( ( ( a32 * T68 + a31 ) * T68 + a30 ) * p + \
+        ( ( ( a23 * T68 + a22 ) * T68 + a21 ) * T68 + a20 ) ) * p + \
+        ( ( ( ( a14 * T68 + a13 ) * T68 + a12 ) * T68 + a11 ) * T68 + a10 ) ) * p + \
         ( ( ( a04 * T68 + a03 ) * T68 + a02 ) * T68 + a01 ) * T68 + a00
 
     # eqn 36 p.47
@@ -1236,18 +1312,20 @@ def svel(s, t, p):
     b10 =  7.3637e-5
     b11 =  1.7945e-7
 
-    B = b00 + b01 * T68 + ( b10 + b11 * T68) * P
+    B = b00 + b01 * T68 + ( b10 + b11 * T68) * p
 
     # eqn 37 p.47
     d00 =  1.727e-3
     d10 = -7.9836e-6
 
-    D = d00 + d10 * P
+    D = d00 + d10 * p
 
     # eqn 33 p.46
-    svel = Cw + A * S + B * S * (S)**0.5 + D * S**2
+    svel = Cw + A * s + B * s * (s)**0.5 + D * s**2
 
     return svel
+
+""" TODO: WRITE DOCSTRING"""
 
 def pres(depth, lat):
     """
@@ -1267,6 +1345,7 @@ def pres(depth, lat):
 
     Examples
     --------
+    >>> import seawater as sw
 
     CHECK VALUE:
     P=7500.00 db for LAT=30 deg, depth=7321.45 meters
@@ -1315,6 +1394,7 @@ def dist(lon, lat): # TODO: add keywords options for units
 
     Examples
     --------
+    >>> import seawater as sw
 
     References
     ----------
@@ -1377,6 +1457,7 @@ def satAr(s, t):
 
     Examples
     --------
+    >>> import seawater as sw
 
     References
     ----------
@@ -1434,6 +1515,7 @@ def satN2(s, t):
 
     Examples
     --------
+    >>> import seawater as sw
 
     References
     ----------
@@ -1490,6 +1572,7 @@ def satO2(s, t):
 
     Examples
     --------
+    >>> import seawater as sw
 
     References
     ----------
@@ -1555,6 +1638,7 @@ def dens0(s, t):
 
     Examples
     --------
+    >>> import seawater as sw
 
     References
     ----------
@@ -1610,6 +1694,7 @@ def smow(t):
 
     Examples
     --------
+    >>> import seawater as sw
 
     References
     ----------
@@ -1673,6 +1758,7 @@ def seck(s, t, p=0):
 
     Examples
     --------
+    >>> import seawater as sw
 
     References
     ----------
@@ -1784,6 +1870,7 @@ def dens(s, t, p):
 
     Examples
     --------
+    >>> import seawater as sw
 
     References
     ----------
@@ -1845,6 +1932,7 @@ def pden(s, t, p, pr=0):
 
     Examples
     --------
+    >>> import seawater as sw
 
     References
     ----------
@@ -1897,6 +1985,7 @@ def svan(s, t, p=0):
 
     Examples
     --------
+    >>> import seawater as sw
 
     References
     ----------
@@ -1954,6 +2043,7 @@ def gpan(s, t, p):
 
     Examples
     --------
+    >>> import seawater as sw
 
     References
     ----------
@@ -2026,6 +2116,7 @@ def gvel(ga, lon, lat):
 
     Examples
     --------
+    >>> import seawater as sw
 
     Notes
     -----
@@ -2081,6 +2172,7 @@ def gvel2(ga, dist, lat):
 
     Examples
     --------
+    >>> import seawater as sw
 
     Notes
     -----
@@ -2131,6 +2223,7 @@ def cp(s, t, p):
 
     Examples
     --------
+    >>> import seawater as sw
 
     References
     ----------
@@ -2270,6 +2363,7 @@ def ptmp(s, t, p, pr=0):
 
     Examples
     --------
+    >>> import seawater as sw
 
     References
     ----------
@@ -2347,6 +2441,7 @@ def temp(s, pt, p, pr):
 
     Examples
     --------
+    >>> import seawater as sw
 
     References
     ----------
@@ -2392,6 +2487,7 @@ def swvel(lenth, depth):
 
     Examples
     --------
+    >>> import seawater as sw
 
     Authors
     ------
@@ -2408,3 +2504,8 @@ def swvel(lenth, depth):
     k = 2.0 * np.pi / lenth
     speed = (g * np.tanh(k * depth) / k)**0.5
     return speed
+
+##TODO:
+#if __name__ == '__main__':
+    #import doctest
+    #doctest.testmod()
