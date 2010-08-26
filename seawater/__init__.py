@@ -111,11 +111,6 @@ Extra Functions
 +---------------------+-------------+----------------------------------------------------------------------------------------------+
 """
 
-# TODO: only used on the test routine
-from os    import uname
-from time  import asctime, localtime
-from sys   import version
-
 from seawater import *
 from extras import *
 
@@ -142,3 +137,8 @@ __maintainer__ = "Filipe Fernandes"
 __email__      = "ocefpaf@gmail.com"
 __status__     = "Production"
 __all__        = ['seawater']
+
+##TODO:
+#if __name__ == '__main__':
+    #import doctest
+    #doctest.testmod()
