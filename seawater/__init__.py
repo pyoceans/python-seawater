@@ -119,6 +119,8 @@ from sys   import version
 from seawater import *
 from extras import *
 
+#TODO: make all numpy arrays automatic like pylab
+
 """
 seawater.py
 Translated from matlab CSIRO seawater toolbox Version 3.2
