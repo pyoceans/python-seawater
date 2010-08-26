@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# TODO: only used on the test routine
+# only used on the test routine
 from os    import uname
 from time  import asctime, localtime
 from sys   import version
@@ -9,78 +9,169 @@ from sys   import version
 from seawater import *
 import numpy as np
 
-def sigmat(S, T, P):
+def sigma_t(s, t, p):
     """
-    USAGE:  sgmt = sigmat(S, T, P)
+   :math:`\\sigma_{t}` is the remainder of subtracting 1000 kg m :sup:`-3` from the density of a sea water sample at atmospheric pressure.
 
-    DESCRIPTION:
-    Sigma-T is the remainder of subtracting 1000 kg m**-3 from the density of a sea water sample at atmospheric pressure
+    Parameters
+    ----------
+    s(p) : array_like
+           salinity [psu (PSS-78)]
+    t(p) : array_like
+           temperature [:math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]. The shape can be "broadcasted"
 
+    Returns
+    -------
+    sgmt : array_like
+           density  [kg m :sup:`3`]
+
+    See Also
+    --------
+    dens, sigmatheta
+
+    Notes
+    -----
     Density of Sea Water using UNESCO 1983 (EOS 80) polynomial.
 
-    INPUT:  (all must have same dimensions)
-    S = salinity    [psu      (PSS-78)]
-    T = temperature [degree C (ITS-90)]
-    P = pressure    [db]
+    Examples
+    --------
+    Data from Unesco Tech. Paper in Marine Sci. No. 44, p22
 
-    OUTPUT:
-    sgmt = density  [kg / m**3]
+    >>> import numpy as np
+    >>> import seawater.extras as swe
+    >>> s = np.array([0, 0, 0, 0, 35, 35, 35, 35])
+    >>> t = np.array([0, 0, 30, 30, 0, 0, 30, 30]) / T68conv
+    >>> p = np.array([0, 10000, 0, 10000, 0, 10000, 0, 10000])
+    >>> swe.sigma_t(s, t, p)
+    array([ -0.157406  ,  45.33710972,  -4.34886626,  36.03148891,
+            28.10633141,  70.95838408,  21.72863949,  60.55058771])
 
-    AUTHOR:  Filipe Fernandes, 2010
+    References
+    ----------
+    Fofonoff, P. and Millard, R.C. Jr. UNESCO 1983. Algorithms for computation of fundamental properties of seawater, 1983. _UNESCO Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
 
-    MODIFICATIONS:
+    Millero, F.J., Chen, C.T., Bradshaw, A., and Schleicher, K. " A new high pressure equation of state for seawater" Deap-Sea Research., 1980, Vol27A, pp255-264.
+
+    Authors
+    -------
+    Filipe Fernandes, 2010
+
+    Modifications
+    -------------
     10-01-26. Filipe Fernandes, first version.
+
     """
-    sgmt = dens(S, T, P) - 1000.0
+    sgmt = dens(s, t, p) - 1000.0
     return sgmt
 
-def sigmatheta(S, T, P):
+def sigmatheta(s, t, p, pr=0):
     """
-    USAGE:  sgmte = sigmatheta(S, T, P)
+    :math:`\\sigma_{\\theta}` is a measure of the density of ocean water where the quantity :math:`\\sigma_{t}` is calculated using the potential temperature (:math:`\\theta`) rather than the in situ temperature and potential density of water mass relative to the specified reference pressure.
 
-    DESCRIPTION:
-    Sigma-Theta is a measure of the density of ocean water where the quantity sigma-t is calculated using the potential temperature (theta) rather than the in situ temperature
+    Parameters
+    ----------
+    s(p) : array_like
+           salinity [psu (PSS-78)]
+    t(p) : array_like
+           temperature [:math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]. The shape can be "broadcasted"
+    pr : number
+         reference pressure [db], default = 0
 
+    Returns
+    -------
+    sgmte : array_like
+           density  [kg m :sup:`3`]
+
+    See Also
+    --------
+    dens, sigma_t
+
+    Notes
+    -----
     Density of Sea Water using UNESCO 1983 (EOS 80) polynomial.
 
-    INPUT:  (all must have same dimensions)
-    S = salinity    [psu      (PSS-78)]
-    T = temperature [degree C (ITS-90)]
-    P = pressure    [db]
+    Examples
+    --------
+    Data from Unesco Tech. Paper in Marine Sci. No. 44, p22
 
-    OUTPUT:
-    sgmte = density  [kg / m**3]
+    >>> import numpy as np
+    >>> import seawater.extras as swe
+    >>> s = np.array([0, 0, 0, 0, 35, 35, 35, 35])
+    >>> t = np.array([0, 0, 30, 30, 0, 0, 30, 30]) / T68conv
+    >>> p = np.array([0, 10000, 0, 10000, 0, 10000, 0, 10000])
+    >>> swe.sigmatheta(s, t, p)
+    array([ -0.157406  ,  45.33710972,  -4.34886626,  36.03148891,
+            28.10633141,  70.95838408,  21.72863949,  60.55058771])
 
-    AUTHOR:  Filipe Fernandes, 2010
+    References
+    ----------
+    Fofonoff, P. and Millard, R.C. Jr. UNESCO 1983. Algorithms for computation of fundamental properties of seawater, 1983. _UNESCO Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
 
-    MODIFICATIONS:
+    Millero, F.J., Chen, C.T., Bradshaw, A., and Schleicher, K. " A new high pressure equation of state for seawater" Deap-Sea Research., 1980, Vol27A, pp255-264.
+
+    Authors
+    -------
+    Filipe Fernandes, 2010
+
+    Modifications
+    -------------
     10-01-26. Filipe Fernandes, first version.
+
     """
-    sgmte = pden(S, T, P) - 1000.0
+    sgmte = pden(s, t, p, pr) - 1000.0
     return sgmte
 
 def N(bvfr2):
     """
-    USAGE:  bvfr = N(Nsqrd)
-
-    DESCRIPTION:
     Buoyancy frequency is the frequency with which a parcel or particle of fluid displaced a small vertical distance from its equilibrium position in a stable environment will oscillate. It will oscillate in simple harmonic motion with an angular frequency defined by
 
-                -g      d(pdens)
-         N =  ( ----- x -------- )**1/2
-                pdens     d(z)
+    .. math::
+    N = \\left(\\frac{-g}{\\sigma_{\\theta}} \\frac{d\\sigma_{\\theta}}{dz}\\right)^{2}
 
-    INPUT:
-    Nsqrd = frequency [s**-2]
 
-    OUTPUT:
-    Nsqrd = frequency [s**-1]
+    Parameters
+    ----------
+    n2 : array_like
+           Brünt-Väisälä Frequency squared [s :sup:`-2`]
 
-    AUTHOR:  Filipe Fernandes, 2010
+    Returns
+    -------
+    n : array_like
+           Brünt-Väisälä Frequency not-squared [s :sup:`-1`]
 
-    MODIFICATIONS:
-    10-01-28. Filipe Fernandes, first version.
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import seawater.extras as swe
+    >>> import seawater as sw
+    >>> s = np.array([[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]])
+    >>> t = np.repeat(15, s.size).reshape(s.shape)
+    >>> p = np.array([0, 250, 500, 1000])
+    >>> lat = np.array([30,32,35])
+    >>> swe.N(sw.bfrq(s, t, p, lat)[0])
+    array([[ 0.02124956,  0.02125302,  0.02125843],
+           [ 0.02110919,  0.02111263,  0.02111801],
+           [ 0.00860812,  0.00860952,  0.00861171]])
+
+    References
+    ----------
+    A.E. Gill 1982. p.54  eqn 3.7.15. "Atmosphere-Ocean Dynamics" Academic Press: New York. ISBN: 0-12-283522-0
+
+    Jackett, D.R. and McDougall, T.J. 1994. Minimal adjustment of hydrographic properties to achieve static stability. Aubmitted J.Atmos.Ocean.Tech.
+
+    Authors
+    -------
+    Filipe Fernandes, 2010
+
+    Modifications
+    -------------
+    10-01-26. Filipe Fernandes, first version.
     """
+
     bvfr  = np.sqrt( np.abs( bvfr2 ) ) * np.sign( bvfr2 )
     return bvfr
 

@@ -420,7 +420,6 @@ def bfrq(s, t, p, lat=None):
 
     Examples
     --------
-    TODO: add a test here
     >>> import numpy as np
     >>> import seawater as sw
     >>> s = np.array([[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]])
