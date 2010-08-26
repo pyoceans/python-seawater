@@ -113,6 +113,7 @@ Extra Functions
 
 from seawater import *
 from extras import *
+from test import *
 
 #TODO: make all numpy arrays automatic like pylab
 

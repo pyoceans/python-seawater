@@ -1,0 +1,311 @@
+# -*- coding: utf-8 -*-
+
+import seawater as sw
+import numpy as np
+
+def sigma_t(s, t, p):
+    """
+   :math:`\\sigma_{t}` is the remainder of subtracting 1000 kg m :sup:`-3` from the density of a sea water sample at atmospheric pressure.
+
+    Parameters
+    ----------
+    s(p) : array_like
+           salinity [psu (PSS-78)]
+    t(p) : array_like
+           temperature [:math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]. The shape can be "broadcasted"
+
+    Returns
+    -------
+    sgmt : array_like
+           density  [kg m :sup:`3`]
+
+    See Also
+    --------
+    dens, sigmatheta
+
+    Notes
+    -----
+    Density of Sea Water using UNESCO 1983 (EOS 80) polynomial.
+
+    Examples
+    --------
+    Data from Unesco Tech. Paper in Marine Sci. No. 44, p22
+
+    >>> import numpy as np
+    >>> import seawater.extras as swe
+    >>> s = np.array([0, 0, 0, 0, 35, 35, 35, 35])
+    >>> t = np.array([0, 0, 30, 30, 0, 0, 30, 30]) / T68conv
+    >>> p = np.array([0, 10000, 0, 10000, 0, 10000, 0, 10000])
+    >>> swe.sigma_t(s, t, p)
+    array([ -0.157406  ,  45.33710972,  -4.34886626,  36.03148891,
+            28.10633141,  70.95838408,  21.72863949,  60.55058771])
+
+    References
+    ----------
+    Fofonoff, P. and Millard, R.C. Jr. UNESCO 1983. Algorithms for computation of fundamental properties of seawater, 1983. _UNESCO Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
+
+    Millero, F.J., Chen, C.T., Bradshaw, A., and Schleicher, K. " A new high pressure equation of state for seawater" Deap-Sea Research., 1980, Vol27A, pp255-264.
+
+    Authors
+    -------
+    Filipe Fernandes, 2010
+
+    Modifications
+    -------------
+    10-01-26. Filipe Fernandes, first version.
+
+    """
+    sgmt = sw.dens(s, t, p) - 1000.0
+    return sgmt
+
+def sigmatheta(s, t, p, pr=0):
+    """
+    :math:`\\sigma_{\\theta}` is a measure of the density of ocean water where the quantity :math:`\\sigma_{t}` is calculated using the potential temperature (:math:`\\theta`) rather than the in situ temperature and potential density of water mass relative to the specified reference pressure.
+
+    Parameters
+    ----------
+    s(p) : array_like
+           salinity [psu (PSS-78)]
+    t(p) : array_like
+           temperature [:math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]. The shape can be "broadcasted"
+    pr : number
+         reference pressure [db], default = 0
+
+    Returns
+    -------
+    sgmte : array_like
+           density  [kg m :sup:`3`]
+
+    See Also
+    --------
+    dens, sigma_t
+
+    Notes
+    -----
+    Density of Sea Water using UNESCO 1983 (EOS 80) polynomial.
+
+    Examples
+    --------
+    Data from Unesco Tech. Paper in Marine Sci. No. 44, p22
+
+    >>> import numpy as np
+    >>> import seawater.extras as swe
+    >>> s = np.array([0, 0, 0, 0, 35, 35, 35, 35])
+    >>> t = np.array([0, 0, 30, 30, 0, 0, 30, 30]) / T68conv
+    >>> p = np.array([0, 10000, 0, 10000, 0, 10000, 0, 10000])
+    >>> swe.sigmatheta(s, t, p)
+    array([ -0.157406  ,  45.33710972,  -4.34886626,  36.03148891,
+            28.10633141,  70.95838408,  21.72863949,  60.55058771])
+
+    References
+    ----------
+    Fofonoff, P. and Millard, R.C. Jr. UNESCO 1983. Algorithms for computation of fundamental properties of seawater, 1983. _UNESCO Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
+
+    Millero, F.J., Chen, C.T., Bradshaw, A., and Schleicher, K. " A new high pressure equation of state for seawater" Deap-Sea Research., 1980, Vol27A, pp255-264.
+
+    Authors
+    -------
+    Filipe Fernandes, 2010
+
+    Modifications
+    -------------
+    10-01-26. Filipe Fernandes, first version.
+
+    """
+    sgmte = sw.pden(s, t, p, pr) - 1000.0
+    return sgmte
+
+def N(bvfr2):
+    """
+    Buoyancy frequency is the frequency with which a parcel or particle of fluid displaced a small vertical distance from its equilibrium position in a stable environment will oscillate. It will oscillate in simple harmonic motion with an angular frequency defined by
+
+    .. math::
+        N = \\left(\\frac{-g}{\\sigma_{\\theta}} \\frac{d\\sigma_{\\theta}}{dz}\\right)^{2}
+
+
+    Parameters
+    ----------
+    n2 : array_like
+           Brünt-Väisälä Frequency squared [s :sup:`-2`]
+
+    Returns
+    -------
+    n : array_like
+           Brünt-Väisälä Frequency not-squared [s :sup:`-1`]
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import seawater.extras as swe
+    >>> import seawater as sw
+    >>> s = np.array([[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]])
+    >>> t = np.repeat(15, s.size).reshape(s.shape)
+    >>> p = np.array([0, 250, 500, 1000])
+    >>> lat = np.array([30,32,35])
+    >>> swe.N(sw.bfrq(s, t, p, lat)[0])
+    array([[ 0.02124956,  0.02125302,  0.02125843],
+           [ 0.02110919,  0.02111263,  0.02111801],
+           [ 0.00860812,  0.00860952,  0.00861171]])
+
+    References
+    ----------
+    A.E. Gill 1982. p.54  eqn 3.7.15. "Atmosphere-Ocean Dynamics" Academic Press: New York. ISBN: 0-12-283522-0
+
+    Jackett, D.R. and McDougall, T.J. 1994. Minimal adjustment of hydrographic properties to achieve static stability. Aubmitted J.Atmos.Ocean.Tech.
+
+    Authors
+    -------
+    Filipe Fernandes, 2010
+
+    Modifications
+    -------------
+    10-01-26. Filipe Fernandes, first version.
+    """
+
+    bvfr  = np.sqrt( np.abs( bvfr2 ) ) * np.sign( bvfr2 )
+    return bvfr
+
+def shear(p, u, v=0):
+    """
+    Calculates the vertical shear for u, v velocity section.
+
+    .. math::
+        \\textrm{shear} = \\frac{\\partial (u^2 + v^2)^{0.5}}{\partial z}
+
+    Parameters
+    ----------
+    p : array_like
+        pressure [db]. The shape can be "broadcasted"
+    u(p) : array_like
+           Eastward velocity [m s :sup:`-1`]
+    v(p) : array_like
+           Northward velocity [m s :sup:`-1`]
+
+    Returns
+    -------
+    shr : array_like
+          frequency [s**-1]
+    p_ave : array_like
+            mid pressure between p grid (M-1xN)  [db]
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    TODO check where depth increases to find dimension
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import seawater as sw
+    >>> swe.shear(p, u, v)
+    TODO
+
+    AUTHOR:  Filipe Fernandes, 2010
+
+    MODIFICATIONS:
+    10-01-28. Filipe Fernandes, first version.
+    """
+
+    m,n      = p.shape
+    iup      = np.arange(0,m-1)
+    ilo      = np.arange(1,m)
+    p_ave    = ( p[iup,:] + p[ilo,:] )/2.
+    vel      = np.sqrt( u**2 + v**2 )
+    diff_vel = np.diff( vel, axis=0 )
+    diff_z   = np.diff(   p, axis=0 ) # TODO to Z ?
+    shr      = diff_vel / diff_z
+
+    return shr, p_ave
+
+def richnumb(n, s):
+    """
+    Calculates  the ratio of buoyancy to inertial forces which measures the stability of a fluid layer.
+    this functions computes the gradient Richardson number in the form of:
+
+    .. math::
+        Ri = \\frac{N^2}{S^2}
+
+    Representing a dimensionless number that expresses the ratio of the energy extracted by buoyancy forces to the energy gained from the shear of the large-scale velocity field.
+
+    Parameters
+    ----------
+    n : array_like
+        Brünt-Väisälä [s :sup:`-1`]
+    shr : array_like
+          shear [s :sup:`-1`]
+
+    Returns
+    -------
+    ri : array_like
+         non-dimensional
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import seawater.extras as swe
+    >>> import seawater as sw
+    >>> s = np.array([[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]])
+    >>> t = np.repeat(15, s.size).reshape(s.shape)
+    >>> p = np.array([0, 250, 500, 1000])
+    >>> lat = np.array([30,32,35])
+    >>> n = swe.N(sw.bfrq(s, t, p, lat)[0])
+    >>> swe.richnumb(n, s)
+    TODO
+
+    Authors
+    -------
+    Filipe Fernandes, 2010
+
+    Modifications
+    -------------
+    10-01-26. Filipe Fernandes, first version.
+    """
+
+    n2 = n**2 * np.sign(n)
+    s2 = s**2
+    ri = n2 / s2
+    return ri
+
+def inertial_period(lat):
+    """
+    Calculate the inertial period as:
+
+    .. math::
+        Ti = \\frac{2\\pi}/f = \\frac{T_{sd}}{2\\sin\\phi}
+
+    Parameters
+    ----------
+    lat : array_like
+          latitude in decimal degress north [-90..+90]
+
+    Returns
+    -------
+    Ti : array_like
+         period in hours
+
+    Examples
+    --------
+    >>> import seawater.extras as swe
+    >>> lat = 30
+    swe.intertialfrq(lat)
+    23.934849862785651
+
+    Authors
+    -------
+    Filipe Fernandes, 2010
+
+    Modifications
+    -------------
+    10-01-26. Filipe Fernandes, first version.
+    """
+
+    Ti = 2*np.pi / sw.cor(lat)/3600
+
+    return Ti
