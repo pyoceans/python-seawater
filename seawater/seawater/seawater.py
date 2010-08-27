@@ -3,55 +3,61 @@
 import numpy as np
 import sys
 
-"""
-The International Practical Temperature Scale of 1968 (IPTS-68)
-#:math:`T68  = 1.00024 * T90`
-this linear transformation is accurate within 0.5 m C for conversion between IPTS-68 and ITS-90 over the oceanographic temperature range (Saunders,et al 1991).
-"""
 T68conv = 1.00024
+"""
+The International Practical Temperature Scale of 1968 (IPTS-68) need to be correct to the ITS-90. This linear transformation is accurate within 0.5 m C for conversion between IPTS-68 and ITS-90 over the oceanographic temperature range [Saunders,et al 1991]
+:math:`T68  = 1.00024 * T90`
+"""
 
+DEG2RAD = np.pi/180.
 """
 0.017453292519943295
 """
-DEG2RAD = np.pi/180.
 
+OMEGA = 7.292e-5
 """
 A.E.Gill p.597
-..:math:
-  \Omega = \frac{2*\\pi}{\\textrm{sidereal day}}
-
+:math:`\\Omega = \\frac{2*\\pi}{\\textrm{sidereal day}}`
 1 sidereal day = 23.9344696 hours
 units : radians/sec
 """
-OMEGA = 7.292e-5
 
+C3515 = 42.914
 """
 Conductivity at S=35 psu , T=15 C [ITPS 68] and P=0 db)
 units : mmho cm :sup:`-1` == mS cm :sup:`-1`
-Reference: R.C. Millard and K. Yang 1992. "CTD Calibration and Processing Methods used by Woods Hole Oceanographic Institution"  Draft April 14, 1992 (Personal communication)
+Reference: R.C. Millard and K. Yang 1992. "CTD Calibration and Processing Methods used by Woods Hole Oceanographic Institution" Draft April 14, 1992 (Personal communication)
 """
-C3515 = 42.914
 
-"""
-acceleration of gravity in m s :sup:`2`
-"""
+
 g = 9.8
-
-""" Used by sw.dist
-nautical miles to kilometers is
-defined in Pond & Pickard p303
 """
+Acceleration of gravity in m s :sup:`2`
+used by sw.swvel
+"""
+
 NM2KM   = 1.8520
 DEG2MIN = 60
 DEG2NM  = 60
-
-""" Used by solubility functions
 """
+Used by sw.dist nautical miles to kilometers is defined in Pond & Pickard p303
+"""
+
 Kelvin = 273.15
-
-""" Decibar to pascal
 """
+Used by solubility functions
+"""
+
 db2Pascal  = 1e4
+"""
+Decibar to pascal
+"""
+
+
+"""
+Seawater functions
+The docstrings are in a "numpy-like" format
+"""
 
 def adtg(s, t, p):
     """
@@ -203,9 +209,9 @@ def alpha(s, t, p, pt=False):
 
     Modifications
     -------------
-    93-04-22. Phil Morgan,  Help display modified to suit library
-    93-04-23. Phil Morgan,  Input argument checking
-    94-10-15. Phil Morgan,  Pass S,T,P and keyword for 'ptmp'
+    93-04-22. Phil Morgan, Help display modified to suit library
+    93-04-23. Phil Morgan, Input argument checking
+    94-10-15. Phil Morgan, Pass S,T,P and keyword for 'ptmp'
     99-06-25. Lindsay Pender, Fixed transpose of row vectors.
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
@@ -264,9 +270,9 @@ def aonb(s, t, p, pt=False):
 
     Modifications
     -------------
-    93-04-22. Phil Morgan,  Help display modified to suit library
-    93-04-23. Phil Morgan,  Input argument checking
-    94-10-15. Phil Morgan,  Pass S,T,P and keyword for 'ptmp'
+    93-04-22. Phil Morgan, Help display modified to suit library
+    93-04-23. Phil Morgan, Input argument checking
+    94-10-15. Phil Morgan, Pass S,T,P and keyword for 'ptmp'
     99-06-25. Lindsay Pender, Fixed transpose of row vectors.
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
@@ -288,6 +294,7 @@ def aonb(s, t, p, pt=False):
     c4  = np.array([0.791325e-8, -0.933746e-6, 0.380374e-4])
     c5  =  0.512857e-12
     c6  = -0.302285e-13
+
     # Now calculate the thermal expansion saline contraction ratio adb
     sm35  = s - 35.0
     aonb  = np.polyval(c1, t) + sm35 * ( np.polyval(c2, t) \
@@ -315,7 +322,7 @@ def beta(s, t, p, pt=False):
     Returns
     -------
     beta : array_like
-           saline Contraction Coefficient  [psu :sup:`-1`]
+           saline Contraction Coefficient [psu :sup:`-1`]
 
     Examples
     --------
@@ -333,7 +340,7 @@ def beta(s, t, p, pt=False):
 
     Authors
     -------
-    N.L. Bindoff  1993, Lindsay Pender (Lindsay.pender@csiro.au)
+    N.L. Bindoff 1993, Lindsay Pender (Lindsay.pender@csiro.au)
 
     Reference
     ---------
@@ -342,9 +349,9 @@ def beta(s, t, p, pt=False):
 
     Modifications
     -------------
-    93-04-22. Phil Morgan,  Help display modified to suit library
-    93-04-23. Phil Morgan,  Input argument checking
-    94-10-15. Phil Morgan,  Pass S,T,P and keyword for 'ptmp'
+    93-04-22. Phil Morgan, Help display modified to suit library
+    93-04-23. Phil Morgan, Input argument checking
+    94-10-15. Phil Morgan, Pass S,T,P and keyword for 'ptmp'
     99-06-25. Lindsay Pender, Fixed transpose of row vectors.
     03-12-12. Lindsay Pender, Converted to ITS-90.
     10-01-14. Filipe Fernandes, Python translation.
@@ -463,7 +470,7 @@ def bfrq(s, t, p, lat=None):
         z = depth(p, lat)
         g = grav(lat, -z) # note that grav expects height as argument
         f = cor(lat)
-    else: # TODO: test this if logic
+    else: # TODO: test this "if" logic
         z = p
         f = NaN
 
@@ -613,12 +620,10 @@ def cor(lat):
     """
     Calculates the Coriolis factor :math:`f` defined by:
 
-
     .. math::
         f = 2 \\Omega \\sin(lat)
 
     where:
-
 
     .. math::
         \\Omega = \\frac{2 \\pi}{\\textrm{sidereal day}} = 7.292e^{-5} \\textrm{ radians sec}^{-1}
@@ -654,17 +659,17 @@ def cor(lat):
 
     References
     ----------
-    S. Pond & G.Pickard  2nd Edition 1986
+    S. Pond & G.Pickard 2nd Edition 1986
     Introductory Dynamical Oceanogrpahy
-    Pergamon Press Sydney.  ISBN 0-08-028728-X
+    Pergamon Press Sydney. ISBN 0-08-028728-X
 
     A.E. Gill 1982. p.597
     "Atmosphere-Ocean Dynamics"
-    Academic Press: New York.  ISBN: 0-12-283522-0
+    Academic Press: New York. ISBN: 0-12-283522-0
 
     Authors
     -------
-    Phil Morgan 93-04-20  (morgan@ml.csiro.au)
+    Phil Morgan 93-04-20 (morgan@ml.csiro.au)
 
     Modifications
     -------------
@@ -742,7 +747,7 @@ def cndr(s, t, p):
     Rx  = (s/35.0)**0.5 # first guess at Rx = sqrt(Rt)
     SInc  = sals(Rx*Rx, t)
 
-    # DO A NEWTON-RAPHSON ITERATION FOR INVERSE INTERPOLATION OF Rt FROM S.
+    # Do a Newton-Raphson iteration for inverse interpolation of rt from s.
     for n in range(100): # TODO: is a 100 important? changed to 10?
         Rx   = Rx + (s - SInc) / salds(Rx, DT)
         SInc = sals(Rx*Rx, t)
@@ -1209,6 +1214,7 @@ def fp(s, p):
     10-01-14. Filipe Fernandes, Python translation.
     10-08-19. Filipe Fernandes, Reformulated docstring.
     """
+
     #TODO: P = P/10; # to convert db to Bar as used in UNESCO routines (was commented in the original)
 
     # eqn  p.29
@@ -1403,8 +1409,7 @@ def pres(depth, lat):
 
     References
     ----------
-    Saunders, P.M. 1981
-    "Practical conversion of Pressure to Depth"
+    Saunders, P.M. 1981. "Practical conversion of Pressure to Depth"
     Journal of Physical Oceanography, 11, 573-574
 
     Authors
@@ -1426,7 +1431,7 @@ def pres(depth, lat):
 def dist(lon, lat, units='km'):
     """
     Calculate distance between two positions on globe using the "Plane
-    Sailing" method.  Also uses simple geometry to calculate the bearing of
+    Sailing" method. Also uses simple geometry to calculate the bearing of
     the path between position pairs.
 
     Parameters
@@ -1451,9 +1456,11 @@ def dist(lon, lat, units='km'):
 
     Notes
     -----
-    Usually used to creat a distance vector to plot hydrographic data. However, pay attention to the phaseangle to aviod apples and oranges!
+    Usually used to creat a distance vector to plot hydrographic data.
+    However, pay attention to the phaseangle to aviod apples and oranges!
 
-    Also not that the input order for the matlab version is lat,lon (alphabetic order), while this version is lon,lat (geometric order).
+    Also not that the input order for the matlab version is lat,lon (alphabetic order),
+    while this version is lon,lat (geometric order).
 
     Examples
     --------
@@ -1785,8 +1792,7 @@ def dens0(s, t):
     UNESCO 1983. Algorithms for computation of fundamental properties of
     seawater, 1983. _UNESCO Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
 
-    Millero, F.J. and  Poisson, A.
-    International one-atmosphere equation of state of seawater.
+    Millero, F.J. and  Poisson, A. International one-atmosphere equation of state of seawater.
     Deep-Sea Res. 1981. Vol28A(6) pp625-629.
 
     Authors
@@ -2186,7 +2192,7 @@ def svan(s, t, p=0):
     Fofonoff, N.P. and Millard, R.C. Jr
     UNESCO 1983. Algorithms for computation of fundamental properties of
     seawater, 1983. _UNESCO Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
-    #Eqn (9) p.15.
+    Eqn (9) p.15.
 
     S. Pond & G.Pickard  2nd Edition 1986. Introductory Dynamical Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
 
@@ -2233,6 +2239,8 @@ def gpan(s, t, p):
 
     Notes
     -----
+    Adapted method from Pond and Pickard (p76) to calc gpan relative to sea surface whereas P&P calculated relative to the deepest common depth.
+    Note that older literature may use units of "dynamic decimeter" for above.
     TODO: example with values that make some sense
     TODO: pass axis as argument
 
@@ -2254,10 +2262,6 @@ def gpan(s, t, p):
     References
     ----------
     S. Pond & G.Pickard  2nd Edition 1986. Introductory Dynamical Oceanogrpahy Pergamon Press Sydney. ISBN 0-08-028728-X
-
-    Note that older literature may use units of "dynamic decimeter" for above.
-
-    Adapted method from Pond and Pickard (p76) to calc gpan relative to sea surface whereas P&P calculated relative to the deepest common depth.
 
     Authors
     -------

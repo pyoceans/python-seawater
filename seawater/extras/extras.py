@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import seawater as sw
+import seawater.seawater as sw
 import numpy as np
+from seawater.seawater import T68conv
 
 def sigma_t(s, t, p):
     """
@@ -34,6 +35,8 @@ def sigma_t(s, t, p):
     Data from Unesco Tech. Paper in Marine Sci. No. 44, p22
 
     >>> import numpy as np
+    >>> import seawater.seawater as sw
+    >>> from seawater.seawater import T68conv
     >>> import seawater.extras as swe
     >>> s = np.array([0, 0, 0, 0, 35, 35, 35, 35])
     >>> t = np.array([0, 0, 30, 30, 0, 0, 30, 30]) / T68conv
@@ -94,18 +97,19 @@ def sigmatheta(s, t, p, pr=0):
 
     >>> import numpy as np
     >>> import seawater.extras as swe
+    >>> from seawater.seawater import T68conv
     >>> s = np.array([0, 0, 0, 0, 35, 35, 35, 35])
     >>> t = np.array([0, 0, 30, 30, 0, 0, 30, 30]) / T68conv
     >>> p = np.array([0, 10000, 0, 10000, 0, 10000, 0, 10000])
     >>> swe.sigmatheta(s, t, p)
-    array([ -0.157406  ,  45.33710972,  -4.34886626,  36.03148891,
-            28.10633141,  70.95838408,  21.72863949,  60.55058771])
+    array([ -0.157406  ,  -0.20476006,  -4.34886626,  -3.63884068,
+            28.10633141,  28.15738545,  21.72863949,  22.59634627])
 
     References
     ----------
     Fofonoff, P. and Millard, R.C. Jr. UNESCO 1983. Algorithms for computation of fundamental properties of seawater, 1983. _UNESCO Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
 
-    Millero, F.J., Chen, C.T., Bradshaw, A., and Schleicher, K. " A new high pressure equation of state for seawater" Deap-Sea Research., 1980, Vol27A, pp255-264.
+    Millero, F.J., Chen, C.T., Bradshaw, A., and Schleicher, K. "A new high pressure equation of state for seawater" Deap-Sea Research., 1980, Vol27A, pp255-264.
 
     Authors
     -------
@@ -140,8 +144,8 @@ def N(bvfr2):
     Examples
     --------
     >>> import numpy as np
+    >>> import seawater.seawater as sw
     >>> import seawater.extras as swe
-    >>> import seawater as sw
     >>> s = np.array([[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]])
     >>> t = np.repeat(15, s.size).reshape(s.shape)
     >>> p = np.array([0, 250, 500, 1000])
@@ -188,7 +192,7 @@ def shear(p, u, v=0):
     Returns
     -------
     shr : array_like
-          frequency [s**-1]
+          frequency [s :sup:`-1`]
     p_ave : array_like
             mid pressure between p grid (M-1xN)  [db]
 
@@ -203,15 +207,23 @@ def shear(p, u, v=0):
     Examples
     --------
     >>> import numpy as np
-    >>> import seawater as sw
-    >>> swe.shear(p, u, v)
-    TODO
+    >>> import seawater.seawater as sw
+    >>> import seawater.extras as swe
+    >>> p = np.array([0, 250, 500, 1000])
+    >>> vel = np.array([[0.5, 0.5, 0.5], [0.15, 0.15, 0.15], [0.03, 0.03, .03],[0.,0.,0.]])
+    >>> swe.shear(p, vel)[0]
+    array([[ -1.40000000e-03,  -1.40000000e-03,  -1.40000000e-03],
+           [ -4.80000000e-04,  -4.80000000e-04,  -4.80000000e-04],
+           [ -6.00000000e-05,  -6.00000000e-05,  -6.00000000e-05]])
 
     AUTHOR:  Filipe Fernandes, 2010
 
     MODIFICATIONS:
     10-01-28. Filipe Fernandes, first version.
     """
+    # if pressure is a vector make it a array of the same size as t/s
+    if p.ndim == 1:
+        p = np.repeat(p[np.newaxis,:], u.shape[1], axis=1).reshape(u.shape)
 
     m,n      = p.shape
     iup      = np.arange(0,m-1)
@@ -248,16 +260,21 @@ def richnumb(n, s):
 
     Examples
     --------
+    TODO: check the example and add real values
     >>> import numpy as np
     >>> import seawater.extras as swe
-    >>> import seawater as sw
-    >>> s = np.array([[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]])
-    >>> t = np.repeat(15, s.size).reshape(s.shape)
-    >>> p = np.array([0, 250, 500, 1000])
+    >>> import seawater.seawater as sw
+    >>> s   = np.array([[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]])
+    >>> t   = np.repeat(15, s.size).reshape(s.shape)
+    >>> p   = np.array([0, 250, 500, 1000])
     >>> lat = np.array([30,32,35])
-    >>> n = swe.N(sw.bfrq(s, t, p, lat)[0])
+    >>> n   = swe.N(sw.bfrq(s, t, p, lat)[0])
+    >>> vel = np.array([[0.5, 0.5, 0.5], [0.15, 0.15, 0.15], [0.03, 0.03, .03],[0.,0.,0.]])
+    >>> s   = swe.shear(p, vel)[0]
     >>> swe.richnumb(n, s)
-    TODO
+    array([[   230.37941215,    230.45444299,    230.57181258],
+           [  1934.01949759,   1934.64933431,   1935.63457818],
+           [ 20583.24410868,  20589.94661835,  20600.43125069]])
 
     Authors
     -------
@@ -294,7 +311,7 @@ def inertial_period(lat):
     --------
     >>> import seawater.extras as swe
     >>> lat = 30
-    swe.intertialfrq(lat)
+    >>> swe.inertial_period(lat)
     23.934849862785651
 
     Authors
