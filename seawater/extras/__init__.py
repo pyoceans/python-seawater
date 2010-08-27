@@ -1,22 +1,23 @@
-"""
-extras
+# -*- coding: utf-8 -*-
 
-Filipe P. A. Fernandes
-e-mail:   ocefpaf@gmail.com
-web:      http://ocefpaf.tiddlyspot.com/
-created:  14-Jan-2010
-modified: 17-Aug-2010
-obs:
+"""
+seawater.extras
+===============
+
+Just some extra handy functions to complement the origininal seawater.
 """
 
 from extras import *
 
-__authors__    = ['Filipe Fernandes']
-__copyright__  = "left"
+__authors__    = ["Filipe Fernandes"]
+__copyright__  = ["left"]
 __credits__    = ["Filipe Fernandes"]
-__license__    = "BSD"
-__version__    = "1.0.4"
-__maintainer__ = "Filipe Fernandes"
-__email__      = "ocefpaf@gmail.com"
-__status__     = "Production"
+__license__    = ["BSD"]
+__version__    = ["1.0.4"]
+__maintainer__ = ["Filipe Fernandes"]
+__email__      = ["ocefpaf@gmail.com"]
+__status__     = ["Production"]
 __all__        = ['extras']
+__web__        = ['http://ocefpaf.tiddlyspot.com/']
+__created__    = ["14-Jan-2010"]
+__modified__   = ["17-Aug-2010"]

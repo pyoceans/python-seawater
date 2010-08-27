@@ -1,9 +1,0 @@
-DISCLAIMER
-MANIFEST
-PKG-INFO
-README
-README.html
-setup.py
-seawater/__init__.py
-seawater/seawater.py
-seawater/test/test.py

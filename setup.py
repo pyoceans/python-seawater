@@ -9,7 +9,7 @@ Environment :: Console
 Intended Audience :: Science/Research
 Intended Audience :: Developers
 Intended Audience :: Education
-License :: OSI Approved :: MIT License 
+License :: OSI Approved :: MIT License
 Operating System :: OS Independent
 Programming Language :: Python
 Topic :: Scientific/Engineering
@@ -30,6 +30,7 @@ This module is a translation of the original SEAWATER-3.2 MATLAB toolkit routine
 """,
       download_url     = 'http://pypi.python.org/packages/source/s/seawater/',
       packages         = ['seawater'],
+      packages         = ['seawater', 'seawater.seawater','seawater.extras', 'seawater.test']
       classifiers      = filter(None, classifiers.split("\n")),
       platforms        = ['any'],
       license          = 'MIT',

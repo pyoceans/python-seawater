@@ -1,5 +1,0 @@
-include DISCLAIMER
-include PKG-INFO
-include README
-include setup.py
-include seawater/*.py

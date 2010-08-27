@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import seawater.seawater as sw
 import numpy as np
+import seawater.seawater as sw
 from seawater.seawater import T68conv
 
 def sigma_t(s, t, p):

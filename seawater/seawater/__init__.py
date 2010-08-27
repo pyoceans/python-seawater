@@ -1,23 +1,91 @@
 """
-seawater
-Translated from matlab CSIRO seawater toolbox Version 3.2
+Original seawater functions
+===========================
 
-Filipe P. A. Fernandes
-e-mail:   ocefpaf@gmail.com
-web:      http://ocefpaf.tiddlyspot.com/
-created:  14-Jan-2010
-modified: 17-Aug-2010
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| function            |  units      |  description                                                                                 |
++=====================+=============+==============================================================================================+
+| adtg(s, t, p)       | K / dbar    | Calculates adiabatic temperature gradient as per UNESCO 1983 routines.                       |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| alpha(s, t, p)      | 1 / K       | A function to calculate the thermal expansion coefficient.                                   |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| aonb(s, t, p)       | psu / degC  | Calculate alpha/beta.  See alpha and beta.                                                   |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| beta(s, t, p)       | psu**-1     | The saline contraction coefficient as defined by T.J. McDougall.                             |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| bfrq(s, t, p, lat)  | s**-2       | Calculates Brunt-Vaisala Frequency squared (N^2) at the mid depths.                          |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| depth(p, lat)       | m           | Calculates depth in metres from pressure in dbars.                                           |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| grav(lat, z=0)      | m / s**2    | Calculates acceleration due to gravity as function of latitude.                              |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| cor(lat)            | s**-1       | Calculates the Coriolis factor "f" defined by f = 2*Omega*Sin(lat)                           |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| cndr(s, t, p)       | no units    | Calculates conductivity ratio from S, T, P                                                   |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| sals(rt, t)         | psu         | Salinity of sea water as a function of Rt and T (PSS-78). UNESCO 1983 polynomial.            |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| salds(rtx, delt)    | no units    | Calculates Salinity differential dS/d(sqrt(Rt)) at constant T. UNESCO 1983 polynomial.       |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| salrt(t)            | no units    | Equation rt(T) = C(35,T,0) / C(35,15(IPTS-68), 0) used in calculating salinity.              |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| salt(cndr, t, p)    | no units    | Calculates Salinity from conductivity ratio. UNESCO 1983 polynomial.                         |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| salrp(r, t, p)      | no units    | Equation Rp(S,T,P) = C(S,T,P)/C(S,T,0) used in calculating salinity.                         |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| fp(s, p)            | degC        | Freezing point of Sea Water using UNESCO 1983 polynomial.                                    |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| svel(s, t, p)       | m / s       | Sound Velocity in sea water using UNESCO 1983 polynomial.                                    |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| pres(depth, lat)    | dbar        | Calculates pressure in dbars from depth in meters.                                           |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| dist(lon, lat)      | m           | Calculate distance between two positions on globe.                                           |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| satAr(s, t)         | ml / l      | Solubility (satuaration) of Argon (Ar) in sea water.                                         |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| satN2(s, t)         | ml / l      | Solubility (satuaration) of Nitrogen (N2) in sea water.                                      |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| satO2(s, t)         | ml / l      | Solubility (satuaration) of Oxygen (O2) in sea water.                                        |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| dens0(s, t)         | kg / m**3   | Density of Sea Water at atmospheric pressure.                                                |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| smow(t)             | kg / m**3   | Denisty of Standard Mean Ocean Water (Pure Water) using EOS 1980.                            |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| seck(s, t, p=0)     | bars        | Secant Bulk Modulus (K) of Sea Water using Equation of state 1980.                           |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| dens(s, t, p)       | kg / m**3   | Density of Sea Water using UNESCO 1983 (EOS 80) polynomial.                                  |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| pden(s, t, p, pr=0) | kg / m**3   | Calculates potential density of water mass relative to a reference pressure.                 |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| svan(s, t, p=0)     | m**3 / kg   | Specific Volume Anomaly.                                                                     |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| gpan(s, t, p)       | m**2 s**-2  | Geopotential Anomaly.                                                                        |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| gvel(ga, lon, lat)  | m / s       | Calculates geostrophic velocity given the geopotential anomaly and position of each station. |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| gvel2(ga, dist, lat)| m / s       | Calculates geostrophic velocity given the geopotential anomaly and distance.                 |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| cp(s, t, p)         | J / (kg*K)  | Heat Capacity of Sea Water using UNESCO 1983 polynomial.                                     |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| ptmp(s, t, p, pr=0) | degC        | Calculates potential temperature as per UNESCO 1983 report.                                  |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| temp(s, pt, p, pr)  | degC        | Calculates temperature from potential temperature.                                           |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
+| swvel(lenth, depth) | m / s       | Calculates surface wave velocity.                                                            |
++---------------------+-------------+----------------------------------------------------------------------------------------------+
 """
-
 
 from seawater import *
 
 __authors__    = ['Filipe Fernandes']
-__copyright__  = "CSIRO"
+__copyright__  = ["CSIRO"]
 __credits__    = ["Filipe Fernandes", "Lindsay Pender","Phil Morgan"]
-__license__    = "CSIRO"
-__version__    = "1.0.4"
-__maintainer__ = "Filipe Fernandes"
-__email__      = "ocefpaf@gmail.com"
-__status__     = "Production"
+__license__    = ["CSIRO"]
+__version__    = ["1.0.4"]
+__maintainer__ = ["Filipe Fernandes"]
+__email__      = ["ocefpaf@gmail.com"]
+__status__     = ["Production"]
 __all__        = ['seawater']
+__web__        = ['http://ocefpaf.tiddlyspot.com/']
+__created__    = ["14-Jan-2010"]
+__modified__   = ["17-Aug-2010"]
