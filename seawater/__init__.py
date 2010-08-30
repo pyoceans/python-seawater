@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 Python Seawater
 ===============
@@ -20,14 +22,13 @@ __version__    = ["1.0.4"]
 __maintainer__ = ["Filipe Fernandes"]
 __email__      = ["ocefpaf@gmail.com"]
 __status__     = ["Production"]
-__all__        = ["seawater","extras","test"]
+__all__        = ["seawater","csiro","extras"]
 __obs__        = ["Translated from matlab CSIRO seawater toolbox Version 3.2"]
 __web__        = ['http://ocefpaf.tiddlyspot.com/']
 __created__    = ["14-Jan-2010"]
 __modified__   = ["17-Aug-2010"]
 
-import seawater
-import test
+import csiro
 import extras
 
 #TODO:

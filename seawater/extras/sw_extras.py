@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
 
+"""
+Extra seawater functions
+===========================
+"""
+
 import numpy as np
-import seawater.seawater as sw
-from seawater.seawater import T68conv
+import seawater.csiro as sw
+from seawater.csiro import T68conv
 
 def sigma_t(s, t, p):
     """
-   :math:`\\sigma_{t}` is the remainder of subtracting 1000 kg m :sup:`-3` from the density of a sea water sample at atmospheric pressure.
+    :math:`\\sigma_{t}` is the remainder of subtracting 1000 kg m :sup:`-3` from the density of a sea water sample at atmospheric pressure.
 
     Parameters
     ----------
@@ -35,9 +40,9 @@ def sigma_t(s, t, p):
     Data from Unesco Tech. Paper in Marine Sci. No. 44, p22
 
     >>> import numpy as np
-    >>> import seawater.seawater as sw
-    >>> from seawater.seawater import T68conv
-    >>> import seawater.extras as swe
+    >>> import seawater.csiro as sw
+    >>> from seawater.csiro import T68conv
+    >>> import seawater.extras.sw_extras as swe
     >>> s = np.array([0, 0, 0, 0, 35, 35, 35, 35])
     >>> t = np.array([0, 0, 30, 30, 0, 0, 30, 30]) / T68conv
     >>> p = np.array([0, 10000, 0, 10000, 0, 10000, 0, 10000])
@@ -47,19 +52,14 @@ def sigma_t(s, t, p):
 
     References
     ----------
-    Fofonoff, P. and Millard, R.C. Jr. UNESCO 1983. Algorithms for computation of fundamental properties of seawater, 1983. _UNESCO Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://www.scor-int.org/Publications.htm
 
-    Millero, F.J., Chen, C.T., Bradshaw, A., and Schleicher, K. " A new high pressure equation of state for seawater" Deap-Sea Research., 1980, Vol27A, pp255-264.
+    .. [2] Millero, F.J., Chen, C.T., Bradshaw, A., and Schleicher, K. A new high pressure equation of state for seawater. Deap-Sea Research., 1980, Vol27A, pp255-264. doi:10.1016/0198-0149(80)90016-3
 
-    Authors
-    -------
-    Filipe Fernandes, 2010
-
-    Modifications
-    -------------
-    10-01-26. Filipe Fernandes, first version.
-
+    Modifications: Filipe Fernandes, 2010
+                   10-01-26. Filipe Fernandes, first version.
     """
+
     sgmt = sw.dens(s, t, p) - 1000.0
     return sgmt
 
@@ -96,8 +96,8 @@ def sigmatheta(s, t, p, pr=0):
     Data from Unesco Tech. Paper in Marine Sci. No. 44, p22
 
     >>> import numpy as np
-    >>> import seawater.extras as swe
-    >>> from seawater.seawater import T68conv
+    >>> import seawater.extras.sw_extras as swe
+    >>> from seawater.csiro import T68conv
     >>> s = np.array([0, 0, 0, 0, 35, 35, 35, 35])
     >>> t = np.array([0, 0, 30, 30, 0, 0, 30, 30]) / T68conv
     >>> p = np.array([0, 10000, 0, 10000, 0, 10000, 0, 10000])
@@ -107,19 +107,14 @@ def sigmatheta(s, t, p, pr=0):
 
     References
     ----------
-    Fofonoff, P. and Millard, R.C. Jr. UNESCO 1983. Algorithms for computation of fundamental properties of seawater, 1983. _UNESCO Tech. Pap. in Mar. Sci._, No. 44, 53 pp.
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://www.scor-int.org/Publications.htm
 
-    Millero, F.J., Chen, C.T., Bradshaw, A., and Schleicher, K. "A new high pressure equation of state for seawater" Deap-Sea Research., 1980, Vol27A, pp255-264.
+    .. [2] Millero, F.J., Chen, C.T., Bradshaw, A., and Schleicher, K. A new high pressure equation of state for seawater. Deap-Sea Research., 1980, Vol27A, pp255-264. doi:10.1016/0198-0149(80)90016-3
 
-    Authors
-    -------
-    Filipe Fernandes, 2010
-
-    Modifications
-    -------------
-    10-01-26. Filipe Fernandes, first version.
-
+    Modifications: Filipe Fernandes, 2010
+                   10-01-26. Filipe Fernandes, first version.
     """
+
     sgmte = sw.pden(s, t, p, pr) - 1000.0
     return sgmte
 
@@ -127,25 +122,23 @@ def N(bvfr2):
     """
     Buoyancy frequency is the frequency with which a parcel or particle of fluid displaced a small vertical distance from its equilibrium position in a stable environment will oscillate. It will oscillate in simple harmonic motion with an angular frequency defined by
 
-    .. math::
-        N = \\left(\\frac{-g}{\\sigma_{\\theta}} \\frac{d\\sigma_{\\theta}}{dz}\\right)^{2}
-
+    .. math:: N = \\left(\\frac{-g}{\\sigma_{\\theta}} \\frac{d\\sigma_{\\theta}}{dz}\\right)^{2}
 
     Parameters
     ----------
     n2 : array_like
-           Brünt-Väisälä Frequency squared [s :sup:`-2`]
+         Brünt-Väisälä Frequency squared [s :sup:`-2`]
 
     Returns
     -------
     n : array_like
-           Brünt-Väisälä Frequency not-squared [s :sup:`-1`]
+        Brünt-Väisälä Frequency not-squared [s :sup:`-1`]
 
     Examples
     --------
     >>> import numpy as np
-    >>> import seawater.seawater as sw
-    >>> import seawater.extras as swe
+    >>> import seawater.csiro as sw
+    >>> import seawater.extras.sw_extras as swe
     >>> s = np.array([[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]])
     >>> t = np.repeat(15, s.size).reshape(s.shape)
     >>> p = np.array([0, 250, 500, 1000])
@@ -157,17 +150,12 @@ def N(bvfr2):
 
     References
     ----------
-    A.E. Gill 1982. p.54  eqn 3.7.15. "Atmosphere-Ocean Dynamics" Academic Press: New York. ISBN: 0-12-283522-0
+    .. [1] A.E. Gill 1982. p.54  eqn 3.7.15 "Atmosphere-Ocean Dynamics" Academic Press: New York. ISBN: 0-12-283522-0
 
-    Jackett, D.R. and McDougall, T.J. 1994. Minimal adjustment of hydrographic properties to achieve static stability. Aubmitted J.Atmos.Ocean.Tech.
+    .. [2] Jackett, David R., Trevor J. Mcdougall, 1995: Minimal Adjustment of Hydrographic Profiles to Achieve Static Stability. J. Atmos. Oceanic Technol., 12, 381-389. doi: 10.1175/1520-0426(1995)012<0381:MAOHPT>2.0.CO;2
 
-    Authors
-    -------
-    Filipe Fernandes, 2010
-
-    Modifications
-    -------------
-    10-01-26. Filipe Fernandes, first version.
+    Modifications: Filipe Fernandes, 2010
+                   10-01-26. Filipe Fernandes, first version.
     """
 
     bvfr  = np.sqrt( np.abs( bvfr2 ) ) * np.sign( bvfr2 )
@@ -207,8 +195,8 @@ def shear(p, u, v=0):
     Examples
     --------
     >>> import numpy as np
-    >>> import seawater.seawater as sw
-    >>> import seawater.extras as swe
+    >>> import seawater.csiro as sw
+    >>> import seawater.extras.sw_extras as swe
     >>> p = np.array([0, 250, 500, 1000])
     >>> vel = np.array([[0.5, 0.5, 0.5], [0.15, 0.15, 0.15], [0.03, 0.03, .03],[0.,0.,0.]])
     >>> swe.shear(p, vel)[0]
@@ -262,8 +250,8 @@ def richnumb(n, s):
     --------
     TODO: check the example and add real values
     >>> import numpy as np
-    >>> import seawater.extras as swe
-    >>> import seawater.seawater as sw
+    >>> import seawater.extras.sw_extras as swe
+    >>> import seawater.csiro as sw
     >>> s   = np.array([[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]])
     >>> t   = np.repeat(15, s.size).reshape(s.shape)
     >>> p   = np.array([0, 250, 500, 1000])
@@ -276,13 +264,8 @@ def richnumb(n, s):
            [  1934.01949759,   1934.64933431,   1935.63457818],
            [ 20583.24410868,  20589.94661835,  20600.43125069]])
 
-    Authors
-    -------
-    Filipe Fernandes, 2010
-
-    Modifications
-    -------------
-    10-01-26. Filipe Fernandes, first version.
+    Modifications: Filipe Fernandes, 2010
+                   10-01-26. Filipe Fernandes, first version.
     """
 
     n2 = n**2 * np.sign(n)
@@ -295,7 +278,7 @@ def inertial_period(lat):
     Calculate the inertial period as:
 
     .. math::
-        Ti = \\frac{2\\pi}/f = \\frac{T_{sd}}{2\\sin\\phi}
+        Ti = \\frac{2\\pi}{f} = \\frac{T_{sd}}{2\\sin\\phi}
 
     Parameters
     ----------
@@ -309,18 +292,13 @@ def inertial_period(lat):
 
     Examples
     --------
-    >>> import seawater.extras as swe
+    >>> import seawater.extras.sw_extras as swe
     >>> lat = 30
     >>> swe.inertial_period(lat)
     23.934849862785651
 
-    Authors
-    -------
-    Filipe Fernandes, 2010
-
-    Modifications
-    -------------
-    10-01-26. Filipe Fernandes, first version.
+    Modifications: Filipe Fernandes, 2010
+                   10-01-26. Filipe Fernandes, first version.
     """
 
     Ti = 2*np.pi / sw.cor(lat)/3600
