@@ -32,7 +32,7 @@ Extras Functions
 This page contains the Extras Package documentation.
 
 The :mod:`sw_extras` package
--------------------------
+----------------------------
 
 .. automodule:: seawater.extras.sw_extras
     :members:
