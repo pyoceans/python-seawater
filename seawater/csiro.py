@@ -458,7 +458,7 @@ def bfrq(s, t, p, lat=None):
         f = cor(lat)
     else: # TODO: test this "if" logic
         z = p
-        f = NaN
+        f = np.nan
 
     m,n   = p.shape # TODO: check where depth increases to automagically find which dimension to operate
     iup   = np.arange(0, m-1)
@@ -749,7 +749,7 @@ def cndr(s, t, p):
     # eqn(6) p.9 UNESCO 1983.
     Rt    = Rx * Rx
     rt    = salrt(t)
-    Rtrt  = rt * Rt
+    #Rtrt  = rt * Rt # TODO: unused in the code, but present in the original
     D     = B - A * rt * Rt
     E     = rt * Rt * A * ( B + C )
     r     = ( abs( D**2 + 4 * E ) )**0.5 - D
@@ -875,14 +875,14 @@ def salds(rtx, delt):
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
-    a0 =  0.0080
+    #a0 =  0.0080 #TODO: unused in the code, but present in the original
     a1 = -0.1692
     a2 = 25.3851
     a3 = 14.0941
     a4 = -7.0261
     a5 =  2.7081
 
-    b0 =  0.0005
+    #b0 =  0.0005 #TODO: unused in the code, but present in the original
     b1 = -0.0056
     b2 = -0.0066
     b3 = -0.0375
@@ -2627,7 +2627,7 @@ def test(fileout):
     R    = np.array([  1,       1.2,       0.65]) # cndr = R
     T    = np.array([ 15,        20,          5]) / 1.00024
     P    = np.array([  0,      2000,       1500])
-    Rt   = np.array([  1, 1.0568875, 0.81705885])
+    #Rt   = np.array([  1, 1.0568875, 0.81705885]) #TODO: unused in the code, but present in the original
     UN_S = np.array([35, 37.245628,  27.995347])
 
     S    = sw.salt(R, T, P)

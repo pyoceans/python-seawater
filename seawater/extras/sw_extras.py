@@ -7,7 +7,6 @@ Extra seawater functions
 
 import numpy as np
 import seawater.csiro as sw
-from seawater.csiro import T68conv
 
 def sigma_t(s, t, p):
     """
