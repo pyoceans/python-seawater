@@ -303,3 +303,78 @@ def inertial_period(lat):
     Ti = 2*np.pi / sw.cor(lat)/3600
 
     return Ti
+
+
+def get_wavenum(T, h, L, thetao, Ho):
+
+    """
+    Solves the wave dispersion relationship
+
+    .. math::
+        \Omega = ...
+
+    Parameters
+    ----------
+    T : array_like
+        Wave period in seconds
+    TODO: h -> meters
+    TODO: L -> meters
+    TODO: thetao
+    TODO: Ho
+
+    Returns
+    -------
+    omega : array_like
+            Wave frequency
+    TODO: hoLo, hoL, Lo, L, k, T, Co, C, Cg, G, Ks, Kr, theta, H
+
+    Examples
+    --------
+    >>> import seawater.extras.sw_extras as swe
+    >>> TODO: use [hoLo,hoL,Lo,L,k,omega,T,Co,C,Cg,G,Ks,Kr,theta, H]= get_wavenum(T,h,L,thetao, Ho)
+
+    Modifications: Filipe Fernandes, 2010
+                   10-01-26. Filipe Fernandes, first version.
+    """
+
+    if isnan(L)
+        omega = 2*pi/T
+        Lo    = (g.*T.^2)./2./pi;
+        # returns wavenumber of the gravity wave dispersion relation using newtons method
+        k = omega / sqrt(g) # the initial guess will be the shallow water wavenumber
+        f = g *k*tanh(k*h) - omega**2
+
+        while max(abs(f))>1e-10
+            dfdk = g*k*h*( sech(k*h) )**2 + g*tanh(k*h)
+            k    = k - f/dfdk
+            f    = g*k*tanh(k*h) - omega**2
+
+        L = 2*pi/k
+    else
+        Lo    = L/tanh(2*pi*h/L)
+        k     = 2*pi/L
+        T     = sqrt(2*pi*Lo/g)
+        omega = 2*pi/T
+
+    hoL   = h/L
+    hoLo  = h/Lo
+    C     = omega/k
+    Co    = Lo/T
+    G     = 2*k*h/sinh(2*k*h)
+    n     = (1+G)/2
+    Cg    = n*C
+    Ks    = sqrt( 1/(1+G) / tanh(k*h) )
+
+    if isnan(thetao)
+        theta = NaN
+        Kr    = NaN
+    else
+        theta = asin(C/Co * sin(thetao*pi/180) ) * 180/pi
+        Kr = sqrt( cos(thetao*pi/180) / cos(theta*pi/180) )
+
+    if isnan(Ho)
+        H = NaN
+    else
+        H = Ho*Ks*Kr
+
+    return hoLo, hoL, Lo, L, k, omega, T, Co, C, Cg, G, Ks, Kr, theta, H
