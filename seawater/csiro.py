@@ -405,7 +405,7 @@ def bfrq(s, t, p, lat=None):
     Returns
     -------
     n2 : array_like
-           Brünt-Väisälä Frequency squared (M-1xN)  [s :sup:`-2`]
+           Brünt-Väisälä Frequency squared (M-1xN)  [rad s :sup:`-2`]
     q : array_like
            planetary potential vorticity (M-1xN)  [ m s :sup:`-1`]
     p_ave : array_like
