@@ -48,9 +48,9 @@ References
 """
 
 
-g = 9.8
+gdef = 9.8
 """
-Acceleration of gravity [m s :sup:`2`] used by sw.swvel.
+Acceleration of gravity [m s :sup:`2`] used by sw.swvel and bfrq without lat info.
 """
 
 DEG2MIN = 60
@@ -448,10 +448,11 @@ def bfrq(s, t, p, lat=None):
                    10-08-17. Filipe Fernandes, Reformulated docstring.
     """
 
-    # if pressure is a vector make it a array of the same size as t/s
-    if p.ndim == 1:
-        p = np.repeat(p[np.newaxis,:], t.shape[1], axis=1).reshape(t.shape)
+    #TODO: Check S and T have length at least of 2
 
+    # if pressure is a vector and t-s aren't 'make it a array of the same size as t-s
+    if p.ndim == 1 and t.ndim != 1:
+        p = np.repeat(p[np.newaxis,:], t.shape[1], axis=1).reshape(t.shape)
     if lat is not None:
         z = depth(p, lat)
         g = grav(lat, -z) # note that grav expects height as argument
@@ -459,10 +460,11 @@ def bfrq(s, t, p, lat=None):
     else: # TODO: test this "if" logic
         z = p
         f = np.nan
+        g = gdef*np.ones(p.shape)
 
-    m,n   = p.shape # TODO: check where depth increases to automagically find which dimension to operate
-    iup   = np.arange(0, m-1)
-    ilo   = np.arange(1, m)
+    m   = p.shape[0] # TODO: check where depth increases to automagically find which dimension to operate
+    iup = np.arange(0, m-1)
+    ilo = np.arange(1, m)
 
     p_ave    = ( p[iup,:] + p[ilo,:] )/2.
     pden_up  = pden( s[iup,:], t[iup,:], p[iup,:], p_ave )
@@ -2493,7 +2495,7 @@ def swvel(lenth, depth):
     """
 
     k = 2.0 * np.pi / lenth
-    speed = (g * np.tanh(k * depth) / k)**0.5
+    speed = (gdef * np.tanh(k * depth) / k)**0.5
     return speed
 
 def test(fileout):
