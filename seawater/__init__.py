@@ -11,14 +11,14 @@ The author has no intention to do things in a "pythonic-way", it is just a "work
 
 The package uses the formulas from Unesco's joint panel on oceanographic tables and standards, UNESCO 1981 and UNESCO 1983.
 
-The present version is 1.0.4, released 23 August 2010.
+The present version is 1.0.5, released 23 August 2010.
 """
 
 __authors__    = ['Filipe Fernandes']
 __copyright__  = ["CSIRO"]
 __credits__    = ["Filipe Fernandes", "Lindsay Pender","Phil Morgan"]
 __license__    = ["CSIRO"]
-__version__    = ["1.0.4"]
+__version__    = ["1.0.5"]
 __maintainer__ = ["Filipe Fernandes"]
 __email__      = ["ocefpaf@gmail.com"]
 __status__     = ["Production"]

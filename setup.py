@@ -18,7 +18,7 @@ Topic :: Software Development :: Libraries :: Python Modules
 """
 
 setup(name             = 'seawater',
-      version          = '1.0.4',
+      version          = '1.0.5',
       author           = 'Filipe Fernandes',
       author_email     = 'ocefpaf@gmail.com',
       maintainer       = 'Filipe Fernandes',

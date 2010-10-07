@@ -304,6 +304,46 @@ def inertial_period(lat):
 
     return Ti
 
+def Tn(N):
+    """
+    Stratifitcation period is the inverse of the Bouyancy frequency, defined by
+
+    .. math:: Tn = \\frac{2\\pi}{N}
+
+    Parameters
+    ----------
+    N : array_like
+         Brünt-Väisälä Frequency [s :sup:`-1`]
+
+    Returns
+    -------
+    Tn : array_like
+        Brünt-Väisälä Period [s]
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import seawater.csiro as sw
+    >>> import seawater.extras.sw_extras as swe
+    >>> s = np.array([[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]])
+    >>> t = np.repeat(15, s.size).reshape(s.shape)
+    >>> p = np.array([0, 250, 500, 1000])
+    >>> lat = np.array([30,32,35])
+    >>> swe.Tn( swe.N( sw.bfrq(s, t, p, lat)[0] ) )
+    array([[ 295.68548089,  295.63734267,  295.56208791],
+           [ 297.6515901 ,  297.60313502,  297.52738493],
+           [ 729.91402019,  729.79520847,  729.60946944]])
+
+    References
+    ----------
+    .. [1] TODO: Pickard
+
+    Modifications: Filipe Fernandes, 2010
+                   10-10-06. Filipe Fernandes, first version.
+    """
+
+    Tn = 2*np.pi / N
+    return Tn
 
 #def get_wavenum(T, h, L, thetao, Ho):
 
