@@ -5,6 +5,8 @@ Constants used
 ==============
 """
 
+#TODO: make all numpy arrays automatic like pylab using asarray
+
 import numpy as np
 # only used on the test routine
 from os    import uname
@@ -20,11 +22,6 @@ The International Practical Temperature Scale of 1968 (IPTS-68) need to be corre
 References
 ----------
 .. [1] Saunders, P. M., 1991: The International Temperature Scale of 1990, ITS-90. WOCE Newsletter, No. 10, WOCE International Project Office, Southampton, United Kingdom, 10.
-"""
-
-DEG2RAD = np.pi/180.
-"""
-:math:`\\frac{\\pi}{180}` = 0.017453292519943295
 """
 
 OMEGA = 7.292e-5
@@ -529,7 +526,7 @@ def depth(p, lat):
     gam_dash = 2.184e-6
 
     lat = abs(lat)
-    X   = np.sin( lat * DEG2RAD ) # convert to radians
+    X   = np.sin( np.deg2rad(lat) )
     X   = X * X
 
     bot_line = 9.780318 * ( 1.0 + ( 5.2788E-3 + 2.36E-5 * X ) * X ) + \
@@ -584,7 +581,7 @@ def grav(lat, z=0):
     # Eqn p27.  UNESCO 1983.
     a       = 6371000. # mean radius of earth  A.E.Gill
     lat     = abs(lat)
-    X       = np.sin( lat * DEG2RAD )  # convert to radians
+    X       = np.sin( np.deg2rad(lat) )
     sin2    = X * X
     grav    = 9.780318 * ( 1.0 + ( 5.2788E-3 + 2.36E-5 * sin2 ) * sin2 )
     grav    = grav / ( ( 1 + z/a )**2 )    # from A.E.Gill p.597
@@ -639,7 +636,7 @@ def cor(lat):
     """
 
     # Eqn p27.  UNESCO 1983.
-    f = 2 * OMEGA * np.sin( lat * DEG2RAD )
+    f = 2 * OMEGA * np.sin( np.deg2rad(lat) )
     return f
 
 def cndr(s, t, p):
@@ -1322,7 +1319,7 @@ def pres(depth, lat):
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    X       = np.sin( abs(lat) * DEG2RAD )  # convert to radians
+    X       = np.sin( abs( np.deg2rad(lat) ) )
     C1      = 5.92E-3 + X**2 * 5.25E-3
     pres    = ( ( 1 - C1 ) - ( ( ( 1 - C1 )**2 ) - ( 8.84E-6 * depth ) )**0.5 ) / 4.42E-6
     return pres
@@ -1403,7 +1400,7 @@ def dist(lon, lat, units='km'):
         flag = abs(dlon) > 180
         dlon[flag] = -np.sign( dlon[flag] ) * ( 360 - abs( dlon[flag] ) )
 
-    latrad = abs( lat * DEG2RAD )
+    latrad = abs( np.deg2rad(lat) )
     dep    = np.cos( ( latrad [ind+1] + latrad[ind] ) / 2 ) * dlon
     dlat   = np.diff( lat, axis=0 )
     dist   = DEG2NM * ( dlat**2 + dep**2 )**0.5
@@ -1412,8 +1409,7 @@ def dist(lon, lat, units='km'):
         dist = dist * NM2KM
 
     # Calcualte angle to x axis
-    RAD2DEG     = 1/DEG2RAD
-    phaseangle  = np.angle( dep + dlat * 1j ) * RAD2DEG
+    phaseangle  = np.rad2deg( np.angle( dep + dlat * 1j ) )
     return dist, phaseangle
 
 def satAr(s, t):

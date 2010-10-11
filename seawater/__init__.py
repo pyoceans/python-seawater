@@ -35,5 +35,3 @@ import extras
 #if __name__ == '__main__':
     #import doctest
     #doctest.testmod()
-
-#TODO: make all numpy arrays automatic like pylab
