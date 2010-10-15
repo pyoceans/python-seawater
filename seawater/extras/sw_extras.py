@@ -345,6 +345,9 @@ def Tn(N):
     Tn = 2*np.pi / N
     return Tn
 
+def mlife():
+    print 42
+
 #def get_wavenum(T, h, L, thetao, Ho):
 
     #"""
