@@ -9,7 +9,8 @@ Constants used
 
 import numpy as np
 # only used on the test routine
-from os    import uname
+#from os    import uname
+from platform import uname
 from time  import asctime, localtime
 from sys   import version
 
@@ -2562,7 +2563,7 @@ def test(fileout):
                     [30, 28.7512, 27.4353, 30, 28.7231, 27.3851], \
                     [40, 38.4607, 36.9254, 40, 38.4498, 36.9023]])
 
-    PT = sw.ptmp(S, T, P, Pr)*1.00024
+    PT = ptmp(S, T, P, Pr)*1.00024
 
     # DISPLAY RESULTS
     print >>f, ''
@@ -2598,7 +2599,7 @@ def test(fileout):
     UN_svan = np.array([2749.54, 2288.61, 3170.58, 3147.85, \
                         0.0,    0.00,  607.14,  916.34])
 
-    SVAN    = sw.svan(s, t, p)
+    SVAN    = svan(s, t, p)
 
     # DISPLAY RESULTS
     print >>f, ''
@@ -2628,7 +2629,7 @@ def test(fileout):
     #Rt   = np.array([  1, 1.0568875, 0.81705885]) #TODO: unused in the code, but present in the original
     UN_S = np.array([35, 37.245628,  27.995347])
 
-    S    = sw.salt(R, T, P)
+    S    = salt(R, T, P)
 
     # DISPLAY RESULTS
     print >>f, ''
@@ -2657,7 +2658,7 @@ def test(fileout):
     P    = np.array([        0,        0,     1000,     1000,        0,       0])
     S    = np.array([       25,       25,       25,       25,       40,       40])
     UN_R = np.array([ 0.498088, 0.654990, 0.506244, 0.662975, 1.000073, 1.529967])
-    R    = sw.cndr(S, T, P)
+    R    = cndr(S, T, P)
 
     # DISPLAY RESULTS
     print >>f, ''
@@ -2690,7 +2691,7 @@ def test(fileout):
                     [ 4915.04, 4908.56, 4902.08, 4889.13], \
                     [ 9725.47, 9712.65, 9699.84, 9674.23]])
 
-    dpth = sw.depth(P, lat)
+    dpth = depth(P, lat)
 
     # DISPLAY RESULTS
     print >>f, ''
@@ -2726,7 +2727,7 @@ def test(fileout):
     UN_fp = np.array([ [-0.274, -0.542, -0.812, -1.083, -1.358, -1.638, -1.922, -2.212],
                     [-0.650, -0.919, -1.188, -1.460, -1.735, -2.014, -2.299, -2.589] ])
 
-    FP    = sw.fp(S, P)
+    FP    = fp(S, P)
 
     # DISPLAY RESULTS
     print >>f, ''
@@ -2777,7 +2778,7 @@ def test(fileout):
                    [4049.1,  3952.0,  3883.0,  4000.7,  3909.2,  3844.3],
                    [4051.2,  3966.1,  3905.9,  4003.5,  3923.9,  3868.3]])
 
-    CP    = sw.cp(S, T, P)
+    CP    = cp(S, T, P)
 
     # DISPLAY RESULTS
     print >>f, ''
@@ -2828,7 +2829,7 @@ def test(fileout):
                      [ 1535.2, 1619.0, 1700.6, 1545.6, 1629.0, 1710.1],
                      [ 1553.4, 1638.0, 1719.2, 1563.2, 1647.3, 1727.8]])
 
-    SVEL    = sw.svel(S, T, P)
+    SVEL    = svel(S, T, P)
 
     # DISPLAY RESULTS
     print >>f, ''
@@ -2862,9 +2863,9 @@ def test(fileout):
     aonb_lit  = 0.34763
     alpha_lit = aonb_lit*beta_lit
 
-    BETA  = sw.beta( s, PT, p, pt=True)
-    ALPHA = sw.alpha(s, PT, p, pt=True)
-    AONB  = sw.aonb( s, PT, p, pt=True)
+    BETA  = beta( s, PT, p, pt=True)
+    ALPHA = alpha(s, PT, p, pt=True)
+    AONB  = aonb( s, PT, p, pt=True)
 
     # DISPLAY RESULTS
     print >>f, ''
@@ -2923,9 +2924,9 @@ def test(fileout):
                      [ 0.2766, 0.2457],
                      [ 0.1986, 0.1794]])
 
-    O2     = sw.satO2(S, T)
-    N2     = sw.satN2(S, T)
-    Ar     = sw.satAr(S, T)
+    O2     = satO2(S, T)
+    N2     = satN2(S, T)
+    Ar     = satAr(S, T)
 
     # DISPLAY RESULTS
     print >>f, ''
