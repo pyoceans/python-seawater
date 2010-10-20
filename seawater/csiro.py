@@ -25,15 +25,18 @@ References
 .. [1] Saunders, P. M., 1991: The International Temperature Scale of 1990, ITS-90. WOCE Newsletter, No. 10, WOCE International Project Office, Southampton, United Kingdom, 10.
 """
 
-OMEGA = 7.292e-5
+OMEGA = 7.292115e-5
 """
 :math:`\\Omega = \\frac{2\\pi}{\\textrm{sidereal day}}` = 7.292e-5.radians sec :sup:`-1`
 
 1 sidereal day = 23.9344696 hours
 
+Changed to a more precise value at Groten 2004
+
 References
 ----------
 .. [1] A.E. Gill 1982. p.54  eqn 3.7.15 "Atmosphere-Ocean Dynamics" Academic Press: New York. ISBN: 0-12-283522-0. page: 597
+.. [2] Groten, E., 2004: Fundamental Parameters and Current (2004) Best Estimates of the Parameters of Common Relevance to Astronomy, Geodesy, and Geodynamics. Journal of Geodesy, 77, pp. 724-797.
 """
 
 C3515 = 42.914
