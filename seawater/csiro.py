@@ -709,28 +709,32 @@ def cndr(s, t, p):
             break
     """ original matlab TODO: implement this above and check the difference
     for i = 1:ms
-    for j = 1:ns
-        ---------------------------------------------------------------------
-        DO A NEWTON-RAPHSON ITERATION FOR INVERSE INTERPOLATION OF Rt FROM S.
-        ---------------------------------------------------------------------
-        S_loop   = S(i,j) # S in the loop
-        T_loop   = T(i,j) # T in the loop
-        Rx_loop  = sqrt(S_loop/35.0) #first guess at Rx = sqrt(Rt)
-        SInc     = sals(Rx_loop*Rx_loop, T_loop) # S INCrement (guess) from Rx
-        iloop    = 0
-        end_loop = 0
-        while ~end_loop:
-                Rx_loop = Rx_loop + (S_loop - SInc) / salds(Rx_loop, T_loop - 15)
-        SInc    = sals(Rx_loop * Rx_loop, T_loop)
-        iloop   = iloop + 1
-        dels    = abs(SInc-S_loop)
-        if (dels>1.0e-4 & iloop<10) :
+        for j = 1:ns
+            %---------------------------------------------------------------------
+            % DO A NEWTON-RAPHSON ITERATION FOR INVERSE INTERPOLATION OF Rt FROM S.
+            %---------------------------------------------------------------------
+            S_loop  = S(i,j) % S in the loop
+            T_loop  = T(i,j) % T in the loop
+            Rx_loop = sqrt(S_loop/35.0)                % first guess at Rx = sqrt(Rt)
+            SInc    = sw_sals(Rx_loop.*Rx_loop,T_loop) % S INCrement (guess) from Rx
+            iloop    = 0
             end_loop = 0
-        else:
-            end_loop = 1
-
-        Rx(i,j) = Rx_loop
+            while ~end_loop
+                Rx_loop = Rx_loop + (S_loop - SInc) ./ sw_salds(Rx_loop,T_loop/1.00024 - 15)
+                SInc    = sw_sals(Rx_loop.*Rx_loop,T_loop)
+                iloop   = iloop + 1
+                dels    = abs(SInc-S_loop)
+                if (dels>1.0e-10 & iloop<100)
+                    end_loop = 0
+                else
+                    end_loop = 1
+                end %if
+            end %while
+            Rx(i,j) = Rx_loop
+        end %for j
+    end %for i
     """
+
     # ONCE Rt FOUND, CORRESPONDING TO EACH (S,T) EVALUATE R
     # eqn(4) p.8 UNESCO 1983
     d1 =  3.426e-2
