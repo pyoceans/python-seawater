@@ -18,7 +18,7 @@ __authors__    = ['Filipe Fernandes']
 __copyright__  = ["CSIRO"]
 __credits__    = ["Filipe Fernandes", "Lindsay Pender","Phil Morgan"]
 __license__    = ["CSIRO"]
-__version__    = ["1.0.5"]
+__version__    = ["1.0.6"]
 __maintainer__ = ["Filipe Fernandes"]
 __email__      = ["ocefpaf@gmail.com"]
 __status__     = ["Production"]
@@ -26,7 +26,7 @@ __all__        = ["seawater","csiro","extras"]
 __obs__        = ["Translated from matlab CSIRO seawater toolbox Version 3.2"]
 __web__        = ['http://ocefpaf.tiddlyspot.com/']
 __created__    = ["14-Jan-2010"]
-__modified__   = ["17-Aug-2010"]
+__modified__   = ["24-Nov-2010"]
 
 import csiro
 import extras

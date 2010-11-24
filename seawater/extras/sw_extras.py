@@ -38,13 +38,11 @@ def sigma_t(s, t, p):
     --------
     Data from Unesco Tech. Paper in Marine Sci. No. 44, p22
 
-    >>> import numpy as np
     >>> import seawater.csiro as sw
-    >>> from seawater.csiro import T68conv
     >>> import seawater.extras.sw_extras as swe
-    >>> s = np.array([0, 0, 0, 0, 35, 35, 35, 35])
-    >>> t = np.array([0, 0, 30, 30, 0, 0, 30, 30]) / T68conv
-    >>> p = np.array([0, 10000, 0, 10000, 0, 10000, 0, 10000])
+    >>> s = [0, 0, 0, 0, 35, 35, 35, 35]
+    >>> t = sw.T90conv([0, 0, 30, 30, 0, 0, 30, 30])
+    >>> p = [0, 10000, 0, 10000, 0, 10000, 0, 10000]
     >>> swe.sigma_t(s, t, p)
     array([ -0.157406  ,  45.33710972,  -4.34886626,  36.03148891,
             28.10633141,  70.95838408,  21.72863949,  60.55058771])
@@ -58,6 +56,8 @@ def sigma_t(s, t, p):
     Modifications: Filipe Fernandes, 2010
                    10-01-26. Filipe Fernandes, first version.
     """
+    # Convert input to numpy arrays
+    s = np.asarray(s); t = np.asarray(t); p = np.asarray(p)
 
     sgmt = sw.dens(s, t, p) - 1000.0
     return sgmt
@@ -94,12 +94,11 @@ def sigmatheta(s, t, p, pr=0):
     --------
     Data from Unesco Tech. Paper in Marine Sci. No. 44, p22
 
-    >>> import numpy as np
     >>> import seawater.extras.sw_extras as swe
-    >>> from seawater.csiro import T68conv
-    >>> s = np.array([0, 0, 0, 0, 35, 35, 35, 35])
-    >>> t = np.array([0, 0, 30, 30, 0, 0, 30, 30]) / T68conv
-    >>> p = np.array([0, 10000, 0, 10000, 0, 10000, 0, 10000])
+    >>> import seawater.csiro as sw
+    >>> s = [0, 0, 0, 0, 35, 35, 35, 35]
+    >>> t = sw.T90conv([0, 0, 30, 30, 0, 0, 30, 30])
+    >>> p = [0, 10000, 0, 10000, 0, 10000, 0, 10000]
     >>> swe.sigmatheta(s, t, p)
     array([ -0.157406  ,  -0.20476006,  -4.34886626,  -3.63884068,
             28.10633141,  28.15738545,  21.72863949,  22.59634627])
@@ -113,6 +112,9 @@ def sigmatheta(s, t, p, pr=0):
     Modifications: Filipe Fernandes, 2010
                    10-01-26. Filipe Fernandes, first version.
     """
+    # Convert input to numpy arrays
+    s = np.asarray(s); t = np.asarray(t); p = np.asarray(p)
+    pr = np.asarray(pr)
 
     sgmte = sw.pden(s, t, p, pr) - 1000.0
     return sgmte
@@ -136,12 +138,11 @@ def N(bvfr2):
     Examples
     --------
     >>> import numpy as np
-    >>> import seawater.csiro as sw
     >>> import seawater.extras.sw_extras as swe
     >>> s = np.array([[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]])
     >>> t = np.repeat(15, s.size).reshape(s.shape)
-    >>> p = np.array([0, 250, 500, 1000])
-    >>> lat = np.array([30,32,35])
+    >>> p = [0, 250, 500, 1000]
+    >>> lat = [30,32,35]
     >>> swe.N(sw.bfrq(s, t, p, lat)[0])
     array([[ 0.02124956,  0.02125302,  0.02125843],
            [ 0.02110919,  0.02111263,  0.02111801],
@@ -156,6 +157,9 @@ def N(bvfr2):
     Modifications: Filipe Fernandes, 2010
                    10-01-26. Filipe Fernandes, first version.
     """
+
+    # Convert input to numpy arrays
+    bvfr2 = np.asarray(bvfr2)
 
     bvfr  = np.sqrt( np.abs( bvfr2 ) ) * np.sign( bvfr2 )
     return bvfr
@@ -193,11 +197,9 @@ def shear(p, u, v=0):
 
     Examples
     --------
-    >>> import numpy as np
-    >>> import seawater.csiro as sw
     >>> import seawater.extras.sw_extras as swe
-    >>> p = np.array([0, 250, 500, 1000])
-    >>> vel = np.array([[0.5, 0.5, 0.5], [0.15, 0.15, 0.15], [0.03, 0.03, .03],[0.,0.,0.]])
+    >>> p = [0, 250, 500, 1000]
+    >>> vel = [[0.5, 0.5, 0.5], [0.15, 0.15, 0.15], [0.03, 0.03, .03],[0.,0.,0.]]
     >>> swe.shear(p, vel)[0]
     array([[ -1.40000000e-03,  -1.40000000e-03,  -1.40000000e-03],
            [ -4.80000000e-04,  -4.80000000e-04,  -4.80000000e-04],
@@ -208,6 +210,9 @@ def shear(p, u, v=0):
     MODIFICATIONS:
     10-01-28. Filipe Fernandes, first version.
     """
+    # Convert input to numpy arrays
+    p = np.asarray(p); u = np.asarray(u); v = np.asarray(v)
+
     # if pressure is a vector make it a array of the same size as t/s
     if p.ndim == 1:
         p = np.repeat(p[np.newaxis,:], u.shape[1], axis=1).reshape(u.shape)
@@ -248,15 +253,16 @@ def richnumb(n, s):
     Examples
     --------
     TODO: check the example and add real values
+
     >>> import numpy as np
     >>> import seawater.extras.sw_extras as swe
     >>> import seawater.csiro as sw
     >>> s   = np.array([[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]])
     >>> t   = np.repeat(15, s.size).reshape(s.shape)
-    >>> p   = np.array([0, 250, 500, 1000])
-    >>> lat = np.array([30,32,35])
+    >>> p   = [0, 250, 500, 1000]
+    >>> lat = [30, 32, 35]
     >>> n   = swe.N(sw.bfrq(s, t, p, lat)[0])
-    >>> vel = np.array([[0.5, 0.5, 0.5], [0.15, 0.15, 0.15], [0.03, 0.03, .03],[0.,0.,0.]])
+    >>> vel = [[0.5, 0.5, 0.5], [0.15, 0.15, 0.15], [0.03, 0.03, .03],[0.,0.,0.]]
     >>> s   = swe.shear(p, vel)[0]
     >>> swe.richnumb(n, s)
     array([[   230.37941215,    230.45444299,    230.57181258],
@@ -266,6 +272,8 @@ def richnumb(n, s):
     Modifications: Filipe Fernandes, 2010
                    10-01-26. Filipe Fernandes, first version.
     """
+    # Convert input to numpy arrays
+    n = np.asarray(n); s = np.asarray(s)
 
     n2 = n**2 * np.sign(n)
     s2 = s**2
@@ -287,24 +295,26 @@ def inertial_period(lat):
     Returns
     -------
     Ti : array_like
-         period in hours
+         period in seconds
 
     Examples
     --------
     >>> import seawater.extras.sw_extras as swe
     >>> lat = 30
-    >>> swe.inertial_period(lat)
-    23.934849862785651
+    >>> swe.inertial_period(lat)/3600
+    23.934472399219292
 
     Modifications: Filipe Fernandes, 2010
                    10-01-26. Filipe Fernandes, first version.
     """
+    # Convert input to numpy arrays
+    lat = np.asarray(lat)
 
-    Ti = 2*np.pi / sw.cor(lat)/3600
+    Ti = 2 * np.pi / sw.cor(lat)
 
     return Ti
 
-def Tn(N):
+def strat_period(N):
     """
     Stratifitcation period is the inverse of the Bouyancy frequency, defined by
 
@@ -327,9 +337,9 @@ def Tn(N):
     >>> import seawater.extras.sw_extras as swe
     >>> s = np.array([[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]])
     >>> t = np.repeat(15, s.size).reshape(s.shape)
-    >>> p = np.array([0, 250, 500, 1000])
-    >>> lat = np.array([30,32,35])
-    >>> swe.Tn( swe.N( sw.bfrq(s, t, p, lat)[0] ) )
+    >>> p = [0, 250, 500, 1000]
+    >>> lat = [30,32,35]
+    >>> swe.strat_period( swe.N( sw.bfrq(s, t, p, lat)[0] ) )
     array([[ 295.68548089,  295.63734267,  295.56208791],
            [ 297.6515901 ,  297.60313502,  297.52738493],
            [ 729.91402019,  729.79520847,  729.60946944]])
@@ -341,83 +351,110 @@ def Tn(N):
     Modifications: Filipe Fernandes, 2010
                    10-10-06. Filipe Fernandes, first version.
     """
+    # Convert input to numpy arrays
+    N = np.asarray(N)
 
-    Tn = 2*np.pi / N
+    Tn = 2 * np.pi / N
     return Tn
 
+def visc(s, t, p):
+    """
+    Calculates kinematic viscosity of sea-water.
+
+    Parameters
+    ----------
+    s(p) : array_like
+           salinity [psu (PSS-78)]
+    t(p) : array_like
+           temperature [:math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]. The shape can be "broadcasted"
+
+    Returns
+    -------
+    visw : array_like
+           [m :sup: `2` s :sup: `-1`]
+
+    See Also
+    --------
+    visc_air from airsea toolbox
+
+    Notes
+    -----
+    From matlab airsea
+
+    Examples
+    --------
+    >>> import seawater.extras.sw_extras as swe
+    >>> swe.visc(40, 40, 1000)
+    8.2001924966338036e-07
+
+    References
+    ----------
+    .. [1] Dan Kelley's fit to Knauss's TABLE II-8.
+    """
+    # Convert input to numpy arrays
+    s = np.asarray(s); t = np.asarray(t); p = np.asarray(p)
+
+    viscw = 1e-4 * (17.91 - 0.5381 * t + 0.00694 * t**2 + 0.02305*s ) / sw.dens(s, t, p);
+    return viscw
+
+def tcond(s, t, p):
+    """
+    Calculates thermal conductivity of sea-water.
+
+    Parameters
+    ----------
+    s(p) : array_like
+           salinity [psu (PSS-78)]
+    t(p) : array_like
+           temperature [:math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]. The shape can be "broadcasted"
+
+    Returns
+    -------
+    therm : array_like
+           thermal conductivity [W m :sup: `-1` K :sup: `-1`]
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    From matlab airsea
+
+    Examples
+    --------
+    >>> import seawater.extras.sw_extras as swe
+    >>> swe.tcond(35, 20, 0)
+    0.5972445569999999
+
+    References
+    ----------
+    .. [1] Caldwell's DSR 21:131-137 (1974)  eq. 9
+    .. [2] Catelli et al.'s DSR 21:311-3179(1974)  eq. 5
+    """
+
+    """
+    Castelli's option
+    tcond = 100*(5.5286e-3+3.4025e-8*P+1.8364e-5*T-3.3058e-9*T.^3); # [W/m/K]
+    tcond = tcond # [W/m/K]
+    """
+
+    # Convert input to numpy arrays
+    s = np.asarray(s); t = np.asarray(t); p = np.asarray(p)
+
+    # 1) Caldwell's option # 2 - simplified formula, accurate to 0.5% (eqn. 9) in [cal/cm/C/sec]
+    therm = 0.001365 * ( 1 + 0.003 * t - 1.025e-5 * t ** 2 + 0.0653 * ( 1e-4 * p ) - 0.00029 * s )
+    therm = therm * 418.4 # [cal/cm/C/sec] ->[W/m/K]
+    return therm
+
 def mlife():
+    """
+    >>> import seawater.extras.sw_extras as swe
+    >>> swe.mlife()
+    42
+    """
     print 42
-
-#def get_wavenum(T, h, L, thetao, Ho):
-
-    #"""
-    #Solves the wave dispersion relationship
-
-    #.. math::
-        #\Omega = ...
-
-    #Parameters
-    #----------
-    #T : array_like
-        #Wave period in seconds
-    #TODO: h -> meters
-    #TODO: L -> meters
-    #TODO: thetao
-    #TODO: Ho
-
-    #Returns
-    #-------
-    #omega : array_like
-            #Wave frequency
-    #TODO: hoLo, hoL, Lo, L, k, T, Co, C, Cg, G, Ks, Kr, theta, H
-
-    #Examples
-    #--------
-    #>>> import seawater.extras.sw_extras as swe
-    #>>> TODO: use [hoLo,hoL,Lo,L,k,omega,T,Co,C,Cg,G,Ks,Kr,theta, H]= get_wavenum(T,h,L,thetao, Ho)
-
-    #Modifications: Filipe Fernandes, 2010
-                   #10-01-26. Filipe Fernandes, first version.
-    #"""
-
-    #if isnan(L)
-        #omega = 2*pi/T
-        #Lo    = (g.*T.^2)./2./pi;
-        ## returns wavenumber of the gravity wave dispersion relation using newtons method
-        #k = omega / sqrt(g) # the initial guess will be the shallow water wavenumber
-        #f = g *k*tanh(k*h) - omega**2
-
-        #while max(abs(f))>1e-10
-            #dfdk = g*k*h*( sech(k*h) )**2 + g*tanh(k*h)
-            #k    = k - f/dfdk
-            #f    = g*k*tanh(k*h) - omega**2
-
-        #L = 2*pi/k
-    #else
-        #Lo    = L/tanh(2*pi*h/L)
-        #k     = 2*pi/L
-        #T     = sqrt(2*pi*Lo/g)
-        #omega = 2*pi/T
-
-    #hoL   = h/L
-    #hoLo  = h/Lo
-    #C     = omega/k
-    #Co    = Lo/T
-    #G     = 2*k*h/sinh(2*k*h)
-    #n     = (1+G)/2
-    #Cg    = n*C
-    #Ks    = sqrt( 1/(1+G) / tanh(k*h) )
-
-    #if isnan(thetao)
-        #theta = NaN
-        #Kr    = NaN
-    #else
-        #theta = asin(C/Co * sin(thetao*pi/180) ) * 180/pi
-        #Kr = sqrt( cos(thetao*pi/180) / cos(theta*pi/180) )
-
-    #if isnan(Ho)
-        #H = NaN
-    #else
-        #H = Ho*Ks*Kr
-
-    #return hoLo, hoL, Lo, L, k, omega, T, Co, C, Cg, G, Ks, Kr, theta, H

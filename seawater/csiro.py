@@ -5,25 +5,12 @@ Constants used
 ==============
 """
 
-#TODO: make all numpy arrays automatic like pylab using asarray
-
 import numpy as np
 # only used on the test routine
 #from os    import uname
 from platform import uname
 from time  import asctime, localtime
 from sys   import version
-
-T68conv = 1.00024
-"""
-:math:`T68  = 1.00024 \\times T90`
-
-The International Practical Temperature Scale of 1968 (IPTS-68) need to be correct to the ITS-90. This linear transformation is accurate within 0.5 :math:`^\\circ` C for conversion between IPTS-68 and ITS-90 over the oceanographic temperature range.
-
-References
-----------
-.. [1] Saunders, P. M., 1991: The International Temperature Scale of 1990, ITS-90. WOCE Newsletter, No. 10, WOCE International Project Office, Southampton, United Kingdom, 10.
-"""
 
 OMEGA = 7.292115e-5
 """
@@ -81,6 +68,96 @@ Original seawater functions
 ===========================
 """
 
+def T68conv(t):
+    """
+    Convert ITS-90 temperature to IPTS-68
+
+    :math:`T68  = T90 * 1.00024`
+
+    Parameters
+    ----------
+    t : array_like
+           temperature [:math:`^\\circ` C (ITS-90)]
+
+    Returns
+    -------
+    t : array_like
+           temperature [:math:`^\\circ` C (IPTS-68)]
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    The International Practical Temperature Scale of 1968 (IPTS-68) need to be correct to the ITS-90.
+    This linear transformation is accurate within 0.5 :math:`^\\circ` C for conversion between IPTS-68 and ITS-90 over the oceanographic temperature range.
+
+    Examples
+    --------
+    >>> import seawater.csiro as sw
+    >>> sw.T68conv(19.995201151723585)
+    20.0
+
+    References
+    ----------
+    .. [1] Saunders, P. M., 1991: The International Temperature Scale of 1990, ITS-90. WOCE Newsletter, No. 10, WOCE International Project Office, Southampton, United Kingdom, 10.
+
+    Modifications: Filipe Fernandes, 2010
+                   10-11-24. Filipe Fernandes, first version.
+
+    """
+    # Convert input to numpy arrays
+    t = np.asarray(t)
+
+    T68 = t * 1.00024
+    return T68
+
+def T90conv(t):
+    """
+    Convert IPTS-68 temperature to ITS-90
+
+    :math:`T90 = T68 / 1.00024 `
+
+    Parameters
+    ----------
+    t : array_like
+           temperature [:math:`^\\circ` C (IPTS-68)]
+
+    Returns
+    -------
+    t : array_like
+           temperature [:math:`^\\circ` C (ITS-90)]
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    The International Practical Temperature Scale of 1968 (IPTS-68) need to be correct to the ITS-90.
+    This linear transformation is accurate within 0.5 :math:`^\\circ` C for conversion between IPTS-68 and ITS-90 over the oceanographic temperature range.
+
+    Examples
+    --------
+    >>> import seawater.csiro as sw
+    >>> sw.T90conv(20.004799999999999)
+    20.0
+
+    References
+    ----------
+    .. [1] Saunders, P. M., 1991: The International Temperature Scale of 1990, ITS-90. WOCE Newsletter, No. 10, WOCE International Project Office, Southampton, United Kingdom, 10.
+
+    Modifications: Filipe Fernandes, 2010
+                   10-11-24. Filipe Fernandes, first version.
+
+    """
+    # Convert input to numpy arrays
+    t = np.asarray(t)
+
+    T90 = t / 1.00024
+    return T90
+
 def adtg(s, t, p):
     """
     Calculates adiabatic temperature gradient as per UNESCO 1983 routines.
@@ -111,13 +188,10 @@ def adtg(s, t, p):
     --------
     Data from UNESCO 1983 p45
 
-    >>> import numpy as np
     >>> import seawater.csiro as sw
-    >>> from seawater.csiro import T68conv
-    >>> t = np.array([[ 0,  0,  0,  0,  0,  0], [10, 10, 10, 10, 10, 10], [20, 20, 20, 20, 20, 20], [30, 30, 30, 30, 30, 30], [40, 40, 40, 40, 40, 40]])
-    >>> t = t / T68conv
-    >>> s = np.array([[25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35]])
-    >>> p = np.array([[0, 5000, 10000, 0, 5000, 10000], [0, 5000, 10000, 0, 5000, 10000], [0, 5000, 10000, 0, 5000, 10000], [0, 5000, 10000, 0, 5000, 10000], [0, 5000, 10000, 0, 5000, 10000]])
+    >>> t = sw.T90conv([[ 0,  0,  0,  0,  0,  0], [10, 10, 10, 10, 10, 10], [20, 20, 20, 20, 20, 20], [30, 30, 30, 30, 30, 30], [40, 40, 40, 40, 40, 40]])
+    >>> s = [[25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35]]
+    >>> p = [0, 5000, 10000, 0, 5000, 10000]
     >>> sw.adtg(s, t, p)
     array([[  1.68710000e-05,   1.04700000e-04,   1.69426000e-04,
               3.58030000e-05,   1.17956500e-04,   1.77007000e-04],
@@ -142,8 +216,10 @@ def adtg(s, t, p):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-16. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    s = np.asarray(s); t = np.asarray(t); p = np.asarray(p)
 
-    T68 = T68conv * t
+    T68 = T68conv(t)
 
     a0 =  3.5803E-5
     a1 =  8.5258E-6
@@ -206,7 +282,7 @@ def alpha(s, t, p, pt=False):
     Data from McDougall 1987
 
     >>> import seawater.csiro as sw
-    >>> s, t, p = 40., 10., 4000.
+    >>> s, t, p = 40, 10, 4000
     >>> sw.alpha(s, t, p, pt=True)
     0.00025061316481624323
 
@@ -223,6 +299,10 @@ def alpha(s, t, p, pt=False):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-16. Filipe Fernandes, Reformulated docstring.
     """
+
+    # Convert input to numpy arrays
+    s = np.asarray(s); t = np.asarray(t); p = np.asarray(p)
+    pt = np.asarray(pt)
 
     alpha = aonb(s, t, p, pt) * beta(s, t, p, pt)
     return alpha
@@ -262,7 +342,7 @@ def aonb(s, t, p, pt=False):
     Data from McDouogall 1987
 
     >>> import seawater.csiro as sw
-    >>> s, t, p = 40.0, 10.0, 4000
+    >>> s, t, p = 40, 10, 4000
     >>> sw.aonb(s, t, p, pt=True)
     0.347650567047807
 
@@ -281,11 +361,15 @@ def aonb(s, t, p, pt=False):
     """
 
     # Ensure we use ptmp in calculations
+    # Convert input to numpy arrays
+    s = np.asarray(s); t = np.asarray(t); p = np.asarray(p)
+    pt = np.asarray(pt)
+
     if pt==False:
         t = ptmp(s, t, p, 0) # now we have ptmp
 
     p = np.float32(p)
-    t = t * T68conv
+    t = T68conv(t)
 
     c1  = np.array([-0.255019e-7, 0.298357e-5, -0.203814e-3, \
                     0.170907e-1, 0.665157e-1])
@@ -330,7 +414,7 @@ def beta(s, t, p, pt=False):
     Data from McDouogall 1987
 
     >>> import seawater.csiro as sw
-    >>> s, t, p = 40.0, 10.0, 4000
+    >>> s, t, p = 40, 10, 4000
     >>> sw.beta(s, t, p, pt=True)
     0.00072087661741618932
 
@@ -353,13 +437,16 @@ def beta(s, t, p, pt=False):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-16. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    s = np.asarray(s); t = np.asarray(t); p = np.asarray(p)
+    pt = np.asarray(pt)
 
     # Ensure we use ptmp in calculations
     if pt==False:
         t = ptmp(s, t, p, 0) # now we have ptmp
 
     p = np.float32(p)
-    t = t * T68conv
+    t = T68conv(t)
 
     c1 = np.array([-0.415613e-9, 0.555579e-7, -0.301985e-5, 0.785567e-3])
     c2 = np.array([0.788212e-8, -0.356603e-6])
@@ -428,8 +515,8 @@ def bfrq(s, t, p, lat=None):
     >>> import seawater.csiro as sw
     >>> s = np.array([[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]])
     >>> t = np.repeat(15, s.size).reshape(s.shape)
-    >>> p = np.array([0, 250, 500, 1000])
-    >>> lat = np.array([30,32,35])
+    >>> p = [0, 250, 500, 1000]
+    >>> lat = [30,32,35]
     >>> sw.bfrq(s, t, p, lat)[0]
     array([[  4.51543648e-04,   4.51690708e-04,   4.51920753e-04],
            [  4.45598092e-04,   4.45743207e-04,   4.45970207e-04],
@@ -450,6 +537,9 @@ def bfrq(s, t, p, lat=None):
     """
 
     #TODO: Check S and T have length at least of 2
+    # Convert input to numpy arrays
+    s = np.asarray(s); t = np.asarray(t); p = np.asarray(p)
+    lat = np.asarray(lat)
 
     # if pressure is a vector and t-s aren't 'make it a array of the same size as t-s
     if p.ndim == 1 and t.ndim != 1:
@@ -500,8 +590,8 @@ def depth(p, lat):
     UNESCO 1983 data p30
 
     >>> import seawater.csiro as sw
-    >>> lat = np.array([0, 30, 45, 90])
-    >>> p   = np.array([[  500,   500,   500,  500], [ 5000,  5000,  5000, 5000], [10000, 10000, 10000, 10000]])
+    >>> lat = [0, 30, 45, 90]
+    >>> p   = [[  500,   500,   500,  500], [ 5000,  5000,  5000, 5000], [10000, 10000, 10000, 10000]]
     >>> sw.depth(p, lat)
     array([[  496.65299239,   495.99772917,   495.3427354 ,   494.03357499],
            [ 4915.04099112,  4908.55954332,  4902.08075214,  4889.13132561],
@@ -520,6 +610,8 @@ def depth(p, lat):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    p = np.asarray(p); lat = np.asarray(lat)
 
     # Eqn 25, p26.  UNESCO 1983.
     c1 =  9.72659
@@ -567,8 +659,7 @@ def grav(lat, z=0):
     Examples
     --------
     >>> import seawater.csiro as sw
-    >>> lat = 45.
-    >>> sw.grav(lat, z=0)
+    >>> sw.grav(45, z=0)
     9.8061898752053995
 
     References
@@ -581,6 +672,8 @@ def grav(lat, z=0):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    lat = np.asarray(lat); z = np.asarray(z)
 
     # Eqn p27.  UNESCO 1983.
     a       = 6371000. # mean radius of earth  A.E.Gill
@@ -626,7 +719,7 @@ def cor(lat):
     --------
     >>> import seawater.csiro as sw
     >>> sw.cor(45)
-    0.00010312445296824608
+    0.00010312607931384281
 
     References
     ----------
@@ -638,6 +731,8 @@ def cor(lat):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    lat = np.asarray(lat)
 
     # Eqn p27.  UNESCO 1983.
     f = 2 * OMEGA * np.sin( np.deg2rad(lat) )
@@ -674,9 +769,9 @@ def cndr(s, t, p):
     Data from UNESCO 1983 p9
 
     >>> import seawater.csiro as sw
-    >>> t    = np.array([0, 10, 0, 10, 10, 30]) / T68conv
-    >>> p    = np.array([0, 0, 1000, 1000, 0, 0])
-    >>> s    = np.array([25, 25, 25, 25, 40, 40])
+    >>> t = sw.T90conv([0, 10, 0, 10, 10, 30])
+    >>> p    = [0, 0, 1000, 1000, 0, 0]
+    >>> s    = [25, 25, 25, 25, 40, 40]
     >>> sw.cndr(s, t, p)
     array([ 0.49800825,  0.65499015,  0.50624434,  0.66297496,  1.00007311,
             1.52996697])
@@ -695,8 +790,10 @@ def cndr(s, t, p):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    s = np.asarray(s); t = np.asarray(t); p = np.asarray(p)
 
-    T68 = t * T68conv
+    T68 = T68conv(t)
     DT  = T68 - 15
 
     Rx  = (s/35.0)**0.5 # first guess at Rx = sqrt(Rt)
@@ -793,9 +890,9 @@ def sals(rt, t):
     Data from UNESCO 1983 p9
 
     >>> import seawater.csiro as sw
-    >>> t    = np.array([15, 20, 5]) / T68conv
-    >>> rt   = np.array([  1, 1.0568875, 0.81705885])
-    >>> sw.sals(rt,t)
+    >>> t = T90conv([15, 20, 5])
+    >>> rt   = [  1, 1.0568875, 0.81705885]
+    >>> sw.sals(rt, t)
     array([ 35.        ,  37.24562718,  27.99534701])
 
     References
@@ -807,9 +904,11 @@ def sals(rt, t):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    rt = np.asarray(rt); t = np.asarray(t)
 
     # eqn (1) & (2) p6,7 unesco
-    del_T68 = t * T68conv - 15
+    del_T68 = T68conv(t) - 15
 
     a0 =  0.0080
     a1 = -0.1692
@@ -867,8 +966,9 @@ def salds(rtx, delt):
     --------
     Data from UNESCO 1983 p9
 
+    >>> import numpy as np
     >>> import seawater.csiro as sw
-    >>> delt = np.array([15, 20, 5]) / T68conv  - 15
+    >>> delt = T90conv([15, 20, 5])  - 15
     >>> rtx  = np.array([  1, 1.0568875, 0.81705885])**0.5
     >>> sw.salds(rtx, delt)
     array([ 78.31921607,  81.5689307 ,  68.19023687])
@@ -881,6 +981,8 @@ def salds(rtx, delt):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    rtx = np.asarray(rtx); delt = np.asarray(delt)
 
     #a0 =  0.0080 #TODO: unused in the code, but present in the original
     a1 = -0.1692
@@ -936,7 +1038,7 @@ def salrt(t):
     Data from UNESCO 1983 p9
 
     >>> import seawater.csiro as sw
-    >>> t = np.array([15, 20, 5]) / T68conv
+    >>> t = T90conv([15, 20, 5])
     >>> sw.salrt(t)
     array([ 1.        ,  1.11649272,  0.77956585])
 
@@ -949,9 +1051,11 @@ def salrt(t):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    t = np.asarray(t)
 
     #Eqn (3) p.7 UNESCO.
-    T68 = t * T68conv
+    T68 = T68conv(t)
 
     c0 =  0.6766097
     c1 =  2.00564e-2
@@ -993,9 +1097,9 @@ def salt(r, t, p):
     Data from UNESCO 1983 p9
 
     >>> import seawater.csiro as sw
-    >>> r = np.array([1, 1.2, 0.65])
-    >>> t = np.array([15, 20, 5]) / T68conv
-    >>> p = np.array([0, 2000, 1500])
+    >>> r = [1, 1.2, 0.65]
+    >>> t = sw.T90conv([15, 20, 5])
+    >>> p = [0, 2000, 1500]
     >>> sw.salt(r, t, p)
     array([ 34.99999992,  37.24562765,  27.99534693])
 
@@ -1008,6 +1112,8 @@ def salt(r, t, p):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    r = np.asarray(r); t = np.asarray(t); p = np.asarray(p)
 
     rt = salrt(t)
     rp = salrp(r, t, p )
@@ -1050,9 +1156,9 @@ def salrp(r, t, p):
     --------
 
     >>> import seawater.csiro as sw
-    >>> r = np.array([1, 1.2, 0.65])
-    >>> t = np.array([15, 20, 5]) / T68conv
-    >>> p = np.array([0, 2000, 1500])
+    >>> r = [1, 1.2, 0.65]
+    >>> t = T90conv([15, 20, 5])
+    >>> p = [0, 2000, 1500]
     >>> sw.salrp(r, t, p)
     array([ 1.        ,  1.01694294,  1.02048638])
 
@@ -1065,9 +1171,11 @@ def salrp(r, t, p):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    r = np.asarray(r); t = np.asarray(t); p = np.asarray(p)
 
     # eqn (4) p.8 unesco.
-    T68 = t * T68conv
+    T68 = T68conv(t)
 
     d1 =  3.426e-2
     d2 =  4.464e-4
@@ -1112,8 +1220,8 @@ def fp(s, p):
     UNESCO DATA p.30
 
     >>> import seawater.csiro as sw
-    >>> s = np.array([[5, 10, 15, 20, 25, 30, 35, 40], [5, 10, 15, 20, 25, 30, 35, 40]])
-    >>> p = np.array([[ 0, 0, 0, 0, 0, 0, 0, 0], [500, 500, 500, 500, 500, 500, 500, 500]])
+    >>> s = [[5, 10, 15, 20, 25, 30, 35, 40], [5, 10, 15, 20, 25, 30, 35, 40]]
+    >>> p = [[ 0, 0, 0, 0, 0, 0, 0, 0], [500, 500, 500, 500, 500, 500, 500, 500]]
     >>> sw.fp(s, p)
     array([[-0.27369757, -0.54232831, -0.81142026, -1.0829461 , -1.35804594,
             -1.63748903, -1.9218401 , -2.2115367 ],
@@ -1130,6 +1238,9 @@ def fp(s, p):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    s = np.asarray(s); p = np.asarray(p)
+
 
     #TODO: P = P/10; # to convert db to Bar as used in UNESCO routines (was commented in the original)
 
@@ -1139,7 +1250,7 @@ def fp(s, p):
     a2 = -2.154996e-4
     b  = -7.53e-4
 
-    fp = ( a0 * s + a1 * s * (s)**0.5 + a2 * s**2 + b * p ) / T68conv
+    fp = T90conv( a0 * s + a1 * s * (s)**0.5 + a2 * s**2 + b * p )
 
     return fp
 
@@ -1176,12 +1287,10 @@ def svel(s, t, p):
     --------
     Data from Pond and Pickard Intro. Dynamical Oceanography 2nd ed. 1986
 
-    >>> import numpy as np
     >>> import seawater.csiro as sw
-    >>> from seawater.csiro import T68conv
-    >>> t = np.array([[  0,  0,  0,  0,  0,  0], [ 10, 10, 10, 10, 10, 10], [ 20, 20, 20, 20, 20, 20], [ 30, 30, 30, 30, 30, 30], [ 40, 40, 40, 40, 40, 40]]) / T68conv
-    >>> s = np.array([[ 25, 25, 25, 35, 35, 35], [ 25, 25, 25, 35, 35, 35], [ 25, 25, 25, 35, 35, 35], [ 25, 25, 25, 35, 35, 35], [ 25, 25, 25, 35, 35, 35]])
-    >>> p = np.array([[ 0, 5000, 10000, 0, 5000, 10000], [ 0, 5000, 10000, 0, 5000, 10000], [ 0, 5000, 10000, 0, 5000, 10000], [ 0, 5000, 10000, 0, 5000, 10000], [ 0, 5000, 10000, 0, 5000, 10000]])
+    >>> t = T90conv([[  0,  0,  0,  0,  0,  0], [ 10, 10, 10, 10, 10, 10], [ 20, 20, 20, 20, 20, 20], [ 30, 30, 30, 30, 30, 30], [ 40, 40, 40, 40, 40, 40]])
+    >>> s = [[ 25, 25, 25, 35, 35, 35], [ 25, 25, 25, 35, 35, 35], [ 25, 25, 25, 35, 35, 35], [ 25, 25, 25, 35, 35, 35], [ 25, 25, 25, 35, 35, 35]]
+    >>> p = [ 0, 5000, 10000, 0, 5000, 10000]
     >>> sw.svel(s, t, p)
     array([[ 1435.789875  ,  1520.358725  ,  1610.4074    ,  1449.13882813,
              1533.96863705,  1623.15007097],
@@ -1204,10 +1313,12 @@ def svel(s, t, p):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    s = np.asarray(s); t = np.asarray(t); p = np.asarray(p)
 
     # UNESCO 1983. eqn.33  p.46
     p = p/10  # convert db to bars as used in UNESCO routines
-    T68 = t * T68conv
+    T68 = T68conv(t)
 
     # eqn 34 p.46
     c00 = 1402.388
@@ -1326,6 +1437,8 @@ def pres(depth, lat):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    depth = np.asarray(depth); lat = np.asarray(lat)
 
     X       = np.sin( abs( np.deg2rad(lat) ) )
     C1      = 5.92E-3 + X**2 * 5.25E-3
@@ -1367,17 +1480,16 @@ def dist(lon, lat, units='km'):
 
     Examples
     --------
-    >>> import numpy as np
     >>> import seawater.csiro as sw
-    >>> lon = np.array([35, 35])
-    >>> lat = np.array([41, 40])
+    >>> lon = [35, 35]
+    >>> lat = [41, 40]
     >>> sw.dist(lon, lat)
     (array([ 111.12]), array([-90.]))
 
     Create a distance vector
 
     >>> lon = np.arange(30,40,1)
-    >>> lat = np.array(35)
+    >>> lat = 35
     >>> np.cumsum(np.append(0, sw.dist(lon, lat, units='km')[0]))
     array([   0.        ,   91.02417516,  182.04835032,  273.07252548,
             364.09670065,  455.12087581,  546.14505097,  637.16922613,
@@ -1393,6 +1505,8 @@ def dist(lon, lat, units='km'):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    lon = np.asarray(lon); lat = np.asarray(lat)
 
     if lat.size == 1:
         lat = np.repeat(lat, lon.size)
@@ -1448,11 +1562,9 @@ def satAr(s, t):
     --------
     Data from Weiss 1970
 
-    >>> import numpy
     >>> import seawater.csiro as sw
-    >>> from seawater.csiro import T68conv
-    >>> t = np.array([[ -1, -1], [ 10, 10], [ 20, 20], [ 40, 40]]) / T68conv
-    >>> s = np.array([[ 20, 40], [ 20, 40], [ 20, 40], [ 20, 40]])
+    >>> t = T90conv([[ -1, -1], [ 10, 10], [ 20, 20], [ 40, 40]])
+    >>> s = [[ 20, 40], [ 20, 40], [ 20, 40], [ 20, 40]]
     >>> sw.satAr(s, t)
     array([[ 0.4455784 ,  0.38766011],
            [ 0.33970659,  0.29887756],
@@ -1469,9 +1581,11 @@ def satAr(s, t):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    s = np.asarray(s); t = np.asarray(t)
 
     # convert T to Kelvin
-    t = Kelvin + t * T68conv
+    t = Kelvin + T68conv(t)
 
     # constants for Eqn (4) of Weiss 1970
     a1 = -173.5146
@@ -1518,11 +1632,9 @@ def satN2(s, t):
     --------
     Data from Weiss 1970
 
-    >>> import numpy
     >>> import seawater.csiro as sw
-    >>> from seawater.csiro import T68conv
-    >>> t = np.array([[ -1, -1], [ 10, 10], [ 20, 20], [ 40, 40]]) / T68conv
-    >>> s = np.array([[ 20, 40], [ 20, 40], [ 20, 40], [ 20, 40]])
+    >>> t = T90conv([[ -1, -1], [ 10, 10], [ 20, 20], [ 40, 40]])
+    >>> s = [[ 20, 40], [ 20, 40], [ 20, 40], [ 20, 40]]
     >>> sw.satN2(s, t)
     array([[ 16.27952432,  14.00784526],
            [ 12.64036196,  11.01277257],
@@ -1540,9 +1652,11 @@ def satN2(s, t):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    s = np.asarray(s); t = np.asarray(t)
 
     # convert T to Kelvin
-    t = Kelvin + t * T68conv
+    t = Kelvin + T68conv(t)
 
     # constants for Eqn (4) of Weiss 1970
     a1 = -172.4965
@@ -1584,11 +1698,9 @@ def satO2(s, t):
     --------
     Data from Weiss 1970
 
-    >>> import numpy
     >>> import seawater.csiro as sw
-    >>> from seawater.csiro import T68conv
-    >>> t = np.array([[ -1, -1], [ 10, 10], [ 20, 20], [ 40, 40]]) / T68conv
-    >>> s = np.array([[ 20, 40], [ 20, 40], [ 20, 40], [ 20, 40]])
+    >>> t = T90conv([[ -1, -1], [ 10, 10], [ 20, 20], [ 40, 40]])
+    >>> s = [[ 20, 40], [ 20, 40], [ 20, 40], [ 20, 40]]
     >>> sw.satO2(s, t)
     array([[ 9.162056  ,  7.98404249],
            [ 6.95007741,  6.12101928],
@@ -1605,9 +1717,11 @@ def satO2(s, t):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    s = np.asarray(s); t = np.asarray(t)
 
     # convert T to Kelvin
-    t = Kelvin + t * T68conv
+    t = Kelvin + T68conv(t)
 
     # constants for Eqn (4) of Weiss 1970
     a1 = -173.4292
@@ -1653,10 +1767,9 @@ def dens0(s, t):
     --------
     Data from UNESCO Tech. Paper in Marine Sci. No. 44, p22
 
-    >>> import numpy as np
     >>> import seawater.csiro as sw
-    >>> s = np.array([0, 0, 0, 0, 35, 35, 35, 35])
-    >>> t = np.array([0, 0, 30, 30, 0, 0, 30, 30]) / T68conv
+    >>> s = [0, 0, 0, 0, 35, 35, 35, 35]
+    >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
     >>> sw.dens0(s, t)
     array([  999.842594  ,   999.842594  ,   995.65113374,   995.65113374,
             1028.10633141,  1028.10633141,  1021.72863949,  1021.72863949])
@@ -1672,8 +1785,10 @@ def dens0(s, t):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    s = np.asarray(s); t = np.asarray(t)
 
-    T68 = t * T68conv
+    T68 = T68conv(t)
 
     # UNESCO 1983 eqn(13) p17
     b0 =  8.24493e-1
@@ -1717,9 +1832,8 @@ def smow(t):
     --------
     Data from UNESCO Tech. Paper in Marine Sci. No. 44, p22
 
-    >>> import numpy as np
     >>> import seawater.csiro as sw
-    >>> t = np.array([0, 0, 30, 30, 0, 0, 30, 30]) / T68conv
+    >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
     >>> sw.smow(t)
     array([ 999.842594  ,  999.842594  ,  995.65113374,  995.65113374,
             999.842594  ,  999.842594  ,  995.65113374,  995.65113374])
@@ -1736,6 +1850,8 @@ def smow(t):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    t = np.asarray(t)
 
     a0 = 999.842594
     a1 =   6.793952e-2
@@ -1744,7 +1860,7 @@ def smow(t):
     a4 =  -1.120083e-6
     a5 =   6.536332e-9
 
-    T68  = t * T68conv
+    T68  = T68conv(t)
     dens = a0 + ( a1 + ( a2 + ( a3 + ( a4 + a5 * T68 ) * T68 ) * T68 ) * T68 ) * T68
     return dens
 
@@ -1778,11 +1894,10 @@ def seck(s, t, p=0):
     --------
     Data from Unesco Tech. Paper in Marine Sci. No. 44, p22
 
-    >>> import numpy as np
     >>> import seawater.csiro as sw
-    >>> s = np.array([0, 0, 0, 0, 35, 35, 35, 35])
-    >>> t = np.array([0, 0, 30, 30, 0, 0, 30, 30]) / T68conv
-    >>> p = np.array([0, 10000, 0, 10000, 0, 10000, 0, 10000])
+    >>> s = [0, 0, 0, 0, 35, 35, 35, 35]
+    >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
+    >>> p = [0, 10000, 0, 10000, 0, 10000, 0, 10000]
     >>> sw.seck(s, t, p)
     array([ 19652.21      ,  22977.2115    ,  22336.0044572 ,  25656.8196222 ,
             21582.27006823,  24991.99729129,  23924.21823158,  27318.32472464])
@@ -1799,10 +1914,12 @@ def seck(s, t, p=0):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    s = np.asarray(s); t = np.asarray(t); p = np.asarray(p)
 
     # Compute compression terms
     p   = p/10.0 # convert from db to atmospheric pressure units
-    T68 = t * T68conv
+    T68 = T68conv(t)
 
     # Pure water terms of the secant bulk modulus at atmos pressure.
     # UNESCO eqn 19 p 18
@@ -1889,11 +2006,10 @@ def dens(s, t, p):
     --------
     Data from Unesco Tech. Paper in Marine Sci. No. 44, p22
 
-    >>> import numpy as np
     >>> import seawater.csiro as sw
-    >>> s = np.array([0, 0, 0, 0, 35, 35, 35, 35])
-    >>> t = np.array([0, 0, 30, 30, 0, 0, 30, 30]) / T68conv
-    >>> p = np.array([0, 10000, 0, 10000, 0, 10000, 0, 10000])
+    >>> s = [0, 0, 0, 0, 35, 35, 35, 35]
+    >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
+    >>> p = [0, 10000, 0, 10000, 0, 10000, 0, 10000]
     >>> sw.dens(s, t, p)
     array([  999.842594  ,  1045.33710972,   995.65113374,  1036.03148891,
             1028.10633141,  1070.95838408,  1021.72863949,  1060.55058771])
@@ -1910,6 +2026,8 @@ def dens(s, t, p):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    s = np.asarray(s); t = np.asarray(t); p = np.asarray(p)
 
     # UNESCO 1983. eqn.7  p.15
     densP0 = dens0(s, t)
@@ -1950,11 +2068,10 @@ def pden(s, t, p, pr=0):
     --------
     Data from Unesco Tech. Paper in Marine Sci. No. 44, p22
 
-    >>> import numpy as np
     >>> import seawater.csiro as sw
-    >>> s = np.array([0, 0, 0, 0, 35, 35, 35, 35])
-    >>> t = np.array([0, 0, 30, 30, 0, 0, 30, 30]) / T68conv
-    >>> p = np.array([0, 10000, 0, 10000, 0, 10000, 0, 10000])
+    >>> s = [0, 0, 0, 0, 35, 35, 35, 35]
+    >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
+    >>> p = [0, 10000, 0, 10000, 0, 10000, 0, 10000]
     >>> sw.pden(s, t, p)
     array([  999.842594  ,   999.79523994,   995.65113374,   996.36115932,
             1028.10633141,  1028.15738545,  1021.72863949,  1022.59634627])
@@ -1974,6 +2091,9 @@ def pden(s, t, p, pr=0):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    s = np.asarray(s); t = np.asarray(t); p = np.asarray(p)
+    pr = np.asarray(pr)
 
     pt   = ptmp(s, t, p, pr)
     pden = dens(s, pt, pr)
@@ -2011,11 +2131,10 @@ def svan(s, t, p=0):
     --------
     Data from Unesco Tech. Paper in Marine Sci. No. 44, p22
 
-    >>> import numpy as np
     >>> import seawater.csiro as sw
-    >>> s = np.array([0, 0, 0, 0, 35, 35, 35, 35])
-    >>> t = np.array([0, 0, 30, 30, 0, 0, 30, 30]) / T68conv
-    >>> p = np.array([0, 10000, 0, 10000, 0, 10000, 0, 10000])
+    >>> s = [0, 0, 0, 0, 35, 35, 35, 35]
+    >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
+    >>> p = ([0, 10000, 0, 10000, 0, 10000, 0, 10000])
     >>> sw.svan(s, t, p)
     array([  2.74953924e-05,   2.28860986e-05,   3.17058231e-05,
              3.14785290e-05,   0.00000000e+00,   0.00000000e+00,
@@ -2033,6 +2152,8 @@ def svan(s, t, p=0):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    s = np.asarray(s); t = np.asarray(t); p = np.asarray(p)
 
     svan = 1/dens( s, t, p ) - 1/dens( 35, 0.0, p )
     return svan
@@ -2079,7 +2200,7 @@ def gpan(s, t, p):
     >>> import seawater.csiro as sw
     >>> s = np.array([[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]])
     >>> t = np.repeat(15, s.size).reshape(s.shape)
-    >>> p = np.array([0, 250, 500, 1000])
+    >>> p = [0, 250, 500, 1000]
     >>> sw.gpan(s, t, p)
     array([[   0.        ,    0.        ,    0.        ],
            [  56.35465209,   56.35465209,   56.35465209],
@@ -2095,6 +2216,9 @@ def gpan(s, t, p):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    s = np.asarray(s); t = np.asarray(t); p = np.asarray(p)
+
 
     if t.ndim == 1:
         print "need at least to profiles to compute geopotential anomaly"
@@ -2151,18 +2275,18 @@ def gvel(ga, distm, lat):
     --------
     >>> import numpy as np
     >>> import seawater.csiro as sw
-    >>> lon = np.array([30,30,30])
-    >>> lat = np.array([30,32,35])
+    >>> lon = [30, 30, 30]
+    >>> lat = [30, 32, 35]
     >>> s = np.array([[0, 1, 2], [15, 16, 17], [30, 31, 32],[35,35,35]])
     >>> t = np.repeat(15, s.size).reshape(s.shape)
-    >>> p = np.array([0, 250, 500, 1000])
+    >>> p = [0, 250, 500, 1000]
     >>> ga = sw.gpan(s,t,p)
     >>> distm = 1000.0 * sw.dist(lon, lat, units='km')[0]
     >>> sw.gvel(ga, distm, lat)
     array([[-0.        , -0.        ],
-           [ 0.11385857,  0.07154328],
-           [ 0.22436908,  0.14112984],
-           [ 0.33366938,  0.20996603]])
+           [ 0.11385677,  0.07154215],
+           [ 0.22436555,  0.14112761],
+           [ 0.33366412,  0.20996272]])
 
 
     References
@@ -2173,6 +2297,8 @@ def gvel(ga, distm, lat):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    ga = np.asarray(ga); distm = np.asarray(distm); lat = np.asarray(lat)
 
     f     = cor( ( lat[0:-1] + lat[1:] )/2 )
     lf    = f * distm
@@ -2210,12 +2336,10 @@ def cp(s, t, p):
     --------
     Data from Pond and Pickard Intro. Dynamical Oceanography 2nd ed. 1986
 
-    >>> import numpy as np
     >>> import seawater.csiro as sw
-    >>> from seawater.csiro import T68conv
-    >>> t = np.array([[0, 0, 0, 0, 0, 0], [10, 10, 10, 10, 10, 10], [20, 20, 20, 20, 20, 20], [30, 30, 30, 30, 30, 30], [40, 40, 40, 40, 40, 40]]) / T68conv
-    >>> s = np.array([[25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35]])
-    >>> p = np.array([[0, 5000, 10000, 0, 5000, 10000], [0, 5000, 10000, 0, 5000, 10000], [0, 5000, 10000, 0, 5000, 10000], [0, 5000, 10000, 0, 5000, 10000], [0, 5000, 10000, 0, 5000, 10000]])
+    >>> t = T90conv([[0, 0, 0, 0, 0, 0], [10, 10, 10, 10, 10, 10], [20, 20, 20, 20, 20, 20], [30, 30, 30, 30, 30, 30], [40, 40, 40, 40, 40, 40]])
+    >>> s = [[25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35]]
+    >>> p = [0, 5000, 10000, 0, 5000, 10000]
     >>> sw.cp(s, t, p)
     array([[ 4048.4405375 ,  3896.25585   ,  3807.7330375 ,  3986.53309476,
              3849.26094605,  3769.11791286],
@@ -2238,9 +2362,11 @@ def cp(s, t, p):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    s = np.asarray(s); t = np.asarray(t); p = np.asarray(p)
 
     p = p/10. # to convert [db] to [bar] as used in UNESCO routines
-    T68 = t * T68conv
+    T68 = T68conv(t)
 
     # eqn 26 p.32
     c0 = 4217.4
@@ -2359,13 +2485,11 @@ def ptmp(s, t, p, pr=0):
 
     Examples
     --------
-    >>> import numpy as np
     >>> import seawater.csiro as sw
-    >>> from seawater.csiro import T68conv
-    >>> t = np.array([[0, 0, 0, 0, 0, 0], [10, 10, 10, 10, 10, 10], [20, 20, 20, 20, 20, 20], [30, 30, 30, 30, 30, 30], [40, 40, 40, 40, 40, 40]]) / T68conv
-    >>> s = np.array([[25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35],  [25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35]])
-    >>> p = np.array([[0, 5000, 10000, 0, 5000, 10000], [0, 5000, 10000, 0, 5000, 10000], [0, 5000, 10000, 0, 5000, 10000], [0, 5000, 10000, 0, 5000, 10000], [0, 5000, 10000, 0, 5000, 10000]])
-    >>> sw.ptmp(s, t, p, pr=0) * T68conv
+    >>> t = T90conv([[0, 0, 0, 0, 0, 0], [10, 10, 10, 10, 10, 10], [20, 20, 20, 20, 20, 20], [30, 30, 30, 30, 30, 30], [40, 40, 40, 40, 40, 40]])
+    >>> s = [[25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35],  [25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35], [25, 25, 25, 35, 35, 35]]
+    >>> p = [0, 5000, 10000, 0, 5000, 10000]
+    >>> sw.T68conv(sw.ptmp(s, t, p, pr=0))
     array([[  0.        ,  -0.30614418,  -0.96669485,   0.        ,
              -0.3855565 ,  -1.09741136],
            [ 10.        ,   9.35306331,   8.46840949,  10.        ,
@@ -2389,26 +2513,29 @@ def ptmp(s, t, p, pr=0):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    s = np.asarray(s); t = np.asarray(t); p = np.asarray(p)
+    pr = np.asarray(pr)
 
     # theta1
     del_P  = pr - p
     del_th = del_P * adtg(s, t, p)
-    th     = t * T68conv + 0.5 * del_th
+    th     = T68conv(t) + 0.5 * del_th
     q      = del_th
 
     # theta2
-    del_th = del_P * adtg(s, th/T68conv, p + 0.5 * del_P )
+    del_th = del_P * adtg(s, T90conv(th), p + 0.5 * del_P )
     th     = th + ( 1 - 1/(2)**00.5 ) * ( del_th - q )
     q      = ( 2 - (2)**0.5 ) * del_th + ( -2 + 3/(2)**0.5 ) * q
 
     # theta3
-    del_th = del_P * adtg( s, th/T68conv, p + 0.5 * del_P )
+    del_th = del_P * adtg( s, T90conv(th), p + 0.5 * del_P )
     th     = th + ( 1 + 1/(2)**0.5 ) * ( del_th - q )
     q      = ( 2 + (2)**0.5 ) * del_th + ( -2 -3/(2)**0.5 ) * q
 
     # theta4
-    del_th = del_P * adtg( s, th/T68conv, p + del_P )
-    pt     = ( th + ( del_th - 2 * q ) / 6 ) / T68conv
+    del_th = del_P * adtg( s, T90conv(th), p + del_P )
+    pt     = T90conv( th + ( del_th - 2 * q ) / 6 )
     return pt
 
 def temp(s, pt, p, pr=0):
@@ -2441,9 +2568,7 @@ def temp(s, pt, p, pr=0):
 
     Examples
     --------
-    >>> import numpy as np
     >>> import seawater.csiro as sw
-    >>> from seawater.csiro import T68conv
     >>> s, t, p = 35, 15, 100
     >>> sw.temp(s, sw.ptmp(s, t, p), p)
     15.0
@@ -2459,13 +2584,16 @@ def temp(s, pt, p, pr=0):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    s = np.asarray(s); pt = np.asarray(pt); p = np.asarray(p)
+    pr = np.asarray(pr)
 
     # Carry out inverse calculation by swapping p0 & pr
     t = ptmp(s, pt, pr, p);
 
     return t
 
-def swvel(lenth, depth):
+def swvel(length, depth):
     """
     Calculates surface wave velocity.
 
@@ -2490,15 +2618,17 @@ def swvel(lenth, depth):
     Examples
     --------
     >>> import seawater.csiro as sw
-    >>> sw.swvel(10,100)
+    >>> sw.swvel(10, 100)
     3.9493270848342941
 
     Modifications: Lindsay Pender 2005
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
+    # Convert input to numpy arrays
+    lenth = np.asarray(length); depth = np.asarray(depth)
 
-    k = 2.0 * np.pi / lenth
+    k = 2.0 * np.pi / length
     speed = (gdef * np.tanh(k * depth) / k)**0.5
     return speed
 
