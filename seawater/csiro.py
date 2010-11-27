@@ -12,6 +12,9 @@ from platform import uname
 from time  import asctime, localtime
 from sys   import version
 
+a = 6371000.
+""" mean radius of earth  A.E.Gill """
+
 OMEGA = 7.292115e-5
 """
 :math:`\\Omega = \\frac{2\\pi}{\\textrm{sidereal day}}` = 7.292e-5.radians sec :sup:`-1`
@@ -676,7 +679,6 @@ def grav(lat, z=0):
     lat = np.asarray(lat); z = np.asarray(z)
 
     # Eqn p27.  UNESCO 1983.
-    a       = 6371000. # mean radius of earth  A.E.Gill
     lat     = abs(lat)
     X       = np.sin( np.deg2rad(lat) )
     sin2    = X * X
@@ -709,7 +711,7 @@ def cor(lat):
 
     See Also
     --------
-    TODO: inertial period
+    inertial_period
 
     Notes
     -----

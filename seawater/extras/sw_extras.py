@@ -280,6 +280,56 @@ def richnumb(n, s):
     ri = n2 / s2
     return ri
 
+def cor_beta(lat):
+    """
+    Calculates the Coriolis :math:`\\beta` factor defined by:
+
+    .. math::
+        beta = 2 \\Omega \\cos(lat)
+
+    where:
+
+    .. math::
+        \\Omega = \\frac{2 \\pi}{\\textrm{sidereal day}} = 7.292e^{-5} \\textrm{ radians sec}^{-1}
+
+    Parameters
+    ----------
+    lat : array_like
+          latitude in decimal degrees north [-90..+90].
+
+    Returns
+    -------
+    beta : array_like
+        Beta Coriolis [s :sup:`-1`]
+
+    See Also
+    --------
+    sw.cor
+
+    Notes
+    -----
+    TODO
+
+    Examples
+    --------
+    >>> import seawater.extras.sw_extras as swe
+    >>> swe.cor_beta(0)
+    2.2891586878041123e-11
+
+    References
+    ----------
+    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical Oceanogrpahy Pergamon Press Sydney. ISBN 0-08-028728-X
+
+    .. [2] A.E. Gill 1982. p.54  eqn 3.7.15 "Atmosphere-Ocean Dynamics" Academic Press: New York. ISBN: 0-12-283522-0
+    """
+
+    # Convert input to numpy arrays
+    lat = np.asarray(lat)
+
+    beta = 2 * sw.OMEGA * np.cos(lat)/ sw.a
+
+    return beta
+
 def inertial_period(lat):
     """
     Calculate the inertial period as:
