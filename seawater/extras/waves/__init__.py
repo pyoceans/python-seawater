@@ -30,16 +30,26 @@ class Waves():
             Wave frequency
     TODO: hoLo, hoL, Lo, L, k, T, Co, C, Cg, G, Ks, Kr, theta, H
 
+    Notes
+    -----
+    Compare values with:
+    http://www.coastal.udel.edu/faculty/rad/wavetheory.html
+
     Examples
     --------
     >>> from seawater.extras.waves import Waves
     >>> Waves(h=10, T=5, L=None)
+
+    References
+    ----------
+    TODO
 
     Modifications: Filipe Fernandes, 2010
                 10-01-26. Filipe Fernandes, first version.
     """
 
     def __init__(self, h, T=None, L=None, thetao=None, Ho=None, lat=None):
+        # TODO: add h=None for deep water waves
         self.h      = np.asarray(     h, dtype=np.float32)
         self.T      = np.asarray(     T, dtype=np.float32)
         self.L      = np.asarray(     L, dtype=np.float32)
@@ -58,6 +68,8 @@ class Waves():
             self.Lo    = (g * self.T**2) / 2 / np.pi
             # returns wavenumber of the gravity wave dispersion relation using newtons method
             self.k = self.omega / np.sqrt(g) # the initial guess will be the shallow water wavenumber
+            # TODO: May change to : self.k = self.w**2 / ( g * np.sqrt(
+            # self.w**2 * self.h / g ) )
             f = g * self.k * np.tanh( self.k * self.h ) - self.omega**2
 
             while np.abs(f.max()) > 1e-10:
