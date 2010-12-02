@@ -1,0 +1,20 @@
+sphinx-build -b html -d _build/doctrees   . _build/html
+Running Sphinx v1.0.2
+loading pickled environment... not yet created
+building [html]: targets for 1 source files that are out of date
+updating environment: 1 added, 0 changed, 0 removed
+reading sources... [100%] index
+
+looking for now-outdated files... none found
+pickling environment... done
+checking consistency... done
+preparing documents... done
+writing output... [100%] index
+
+writing additional files... genindex py-modindex np-modindex search
+copying static files... done
+dumping search index... done
+dumping object inventory... done
+build succeeded, 22 warnings.
+
+Build finished. The HTML pages are in _build/html.
