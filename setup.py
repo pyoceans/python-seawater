@@ -18,7 +18,7 @@ Topic :: Software Development :: Libraries :: Python Modules
 """
 
 setup(name             = 'seawater',
-      version          = '1.0.5',
+      version          = '1.0.6',
       author           = 'Filipe Fernandes',
       author_email     = 'ocefpaf@gmail.com',
       maintainer       = 'Filipe Fernandes',
@@ -29,7 +29,7 @@ setup(name             = 'seawater',
 This module is a translation of the original SEAWATER-3.2 MATLAB toolkit routines for calculating the properties of sea water. It consists of a self contained library and is extremely easy to use.
 """,
       download_url     = 'http://pypi.python.org/packages/source/s/seawater/',
-      packages         = ['seawater', 'seawater.extras'], #FIXME
+      packages         = ['seawater', 'seawater.sw_extras', 'seawater.sw_extras.waves'], 
       classifiers      = filter(None, classifiers.split("\n")),
       platforms        = 'any',
       license          = 'MIT',

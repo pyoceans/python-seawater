@@ -692,7 +692,7 @@ def cor(lat):
     where:
 
     .. math::
-        \\Omega = \\frac{2 \\pi}{\\textrm{sidereal day}} = 7.292e^{-5} \\textrm{ radians sec}^{-1}
+        \\Omega = \\frac{2 \\pi}{\\textrm{sidereal day}} = 7.2921150e^{-5} \\textrm{ radians sec}^{-1}
 
 
     Parameters
@@ -724,6 +724,7 @@ def cor(lat):
     .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical Oceanogrpahy Pergamon Press Sydney. ISBN 0-08-028728-X
 
     .. [2] A.E. Gill 1982. p.54  eqn 3.7.15 "Atmosphere-Ocean Dynamics" Academic Press: New York. ISBN: 0-12-283522-0
+    .. [3] Groten, E., 2004: Fundamental Parameters and Current (2004) Best Estimates of the Parameters of Common Relevance to Astronomy, Geodesy, and Geodynamics. Journal of Geodesy, 77, pp. 724-797.
 
     Modifications: Phil Morgan 93-04-20 (morgan@ml.csiro.au)
                    10-01-14. Filipe Fernandes, Python translation.
