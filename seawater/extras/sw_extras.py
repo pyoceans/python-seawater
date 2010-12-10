@@ -7,6 +7,7 @@ Extra seawater functions
 
 import numpy as np
 import seawater.csiro as sw
+from seawater import constants as cte
 
 def sigma_t(s, t, p):
     """
@@ -325,7 +326,7 @@ def cor_beta(lat):
     # Convert input to numpy arrays
     lat = np.asarray(lat)
 
-    beta = 2 * sw.OMEGA * np.cos(lat)/ sw.a
+    beta = 2 * cte.OMEGA * np.cos(lat)/ cte.a
 
     return beta
 

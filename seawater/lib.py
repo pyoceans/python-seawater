@@ -438,7 +438,7 @@ def  _infunnel(SA, CT, p):
     SA, CT, p = np.asarray(SA), np.asarray(CT), np.asarray(p)
 
     in_funnel = np.ones( SA.shape )
-    Inan = ( np.isnan(SA) | np.isnan(CT) | np.isnan(p) )
+    Inan = np.nonzero( np.isnan(SA) | np.isnan(CT) | np.isnan(p) )
 
     Ifunnel = (p > 8000) | (SA < 0) | (SA > 42.2) | \
         ( CT < ( -0.3595467 - 0.0553734 * SA ) ) | \
@@ -448,6 +448,6 @@ def  _infunnel(SA, CT, p):
         ( (p > 5500) & ( CT > 12.0 ) )
 
     Ifunnel = (Ifunnel == False) # reverse True <-> False
-    Ifunnel[Inan] = np.NaN; # TEST
+    Ifunnel[Inan] = False; # TODO: Nans will become False, change to mask array
 
     return Ifunnel
