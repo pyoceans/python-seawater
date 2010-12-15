@@ -60,3 +60,6 @@ gamma = 2.26e-7
 """
 TODO: define Gamma
 """
+
+M_S = 0.0314038218
+"""mole-weighted average atomic weight of the elements of sea salt, in units of kg mol :sup:`-1` """

@@ -12,8 +12,8 @@ class Waves():
 
     Parameters
     ----------
-    h : array_like
-        Water depth [m]
+    h : array_like, str
+        Water depth [m] or 'deep', 'shallow' as keywords
     T : array_like
         Wave period [s]
     L : array_like
@@ -48,15 +48,21 @@ class Waves():
     """
 
     def __init__(self, h, T=None, L=None, thetao=None, Ho=None, lat=None):
-        # TODO: add h=None for deep water waves
-        self.h      = np.asarray(     h, dtype=np.float32)
-        self.T      = np.asarray(     T, dtype=np.float32)
-        self.L      = np.asarray(     L, dtype=np.float32)
-        self.Ho     = np.asarray(    Ho, dtype=np.float32)
-        self.lat    = np.asarray(   lat, dtype=np.float32)
-        self.thetao = np.asarray(thetao, dtype=np.float32)
+        self.T = np.asarray( T, dtype=np.float32 )
+        self.L = np.asarray( L, dtype=np.float32 )
+        self.Ho = np.asarray( Ho, dtype=np.float32 )
+        self.lat = np.asarray( lat, dtype=np.float32 )
+        self.thetao = np.asarray( thetao, dtype=np.float32 )
 
-        #TODO: print if wave is shallow/deep/intemediary
+        if isinstance(h, str):
+            if L is not None:
+                if h == 'deep':
+                    self.h = self.L/2.
+                elif h == 'shallow':
+                    self.h = self.L * 0.05
+        else:
+            self.h = np.asarray( h, dtype=np.float32 )
+
         if lat is None:
             g = 9.81 # default gravity
         else:
@@ -77,6 +83,11 @@ class Waves():
                 f    = g * self.k * np.tanh( self.k * self.h ) - self.omega**2 #FIXME
 
             self.L = 2 * np.pi / self.k
+            if isinstance(h, str):
+                if h == 'deep':
+                    self.h = self.L/2.
+                elif h == 'shallow':
+                    self.h = self.L * 0.05
         else:
             self.Lo    = self.L / np.tanh( 2 * np.pi * self.h / self.L )
             self.k     = 2 * np.pi / self.L
@@ -87,10 +98,10 @@ class Waves():
         self.hoLo  = self.h / self.Lo
         self.C     = self.omega / self.k # or L / T
         self.Co    = self.Lo / self.T
-        self.G     = 2 * self.k * h / np.sinh( 2 * self.k * h )
+        self.G     = 2 * self.k * self.h / np.sinh( 2 * self.k * self.h )
         self.n     = ( 1 + self.G ) / 2
         self.Cg    = self.n * self.C
-        self.Ks    = np.sqrt( 1 / ( 1 + self.G ) / np.tanh( self.k * h ) )
+        self.Ks    = np.sqrt( 1 / ( 1 + self.G ) / np.tanh( self.k * self.h ) )
 
         if thetao is None:
             self.theta = np.NaN

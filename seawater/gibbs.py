@@ -27,7 +27,18 @@ def  z_from_p(p, lat):
 
     Examples
     --------
-    TODO
+    >>> import seawater.gibbs as gsw
+    >>> p = [0., 15., 100., 550., 1500., 2000., 3000., 5000., 10000.]
+    >>> lat = 32.
+    >>> gsw.z_from_p(p, lat)
+    array([   -0.        ,   -14.89499448,   -99.27948265,  -545.44412444,
+           -1484.209721  , -1976.61994868, -2958.05761312, -4907.87772419,
+           -9712.16369644])
+    >>> lat = [0., 15., 20., 35., 42., 63., 77., 85., 90.]
+    >>> gsw.z_from_p(p, lat)
+    array([   -0.        ,   -14.9118282 ,   -99.36544813,  -545.30528098,
+           -1482.90095076, -1971.26442738, -2947.61650675, -4889.44474273,
+           -9675.31755921])
 
     Notes
     -----
@@ -50,8 +61,8 @@ def  z_from_p(p, lat):
     X     = np.sin( np.deg2rad(lat) )
     sin2  = X**2
     B     = 9.780327 * ( 1.0 + ( 5.2792e-3 + ( 2.32e-5 * sin2 ) ) * sin2 )
-    A     = -0.5 * gamma * B
-    C     = _enthalpy_SSO_0_CT25(p)
+    A     = -0.5 * cte.gamma * B
+    C     = lib._enthalpy_SSO_0_CT25(p)
     z     = -2 * C / ( B + np.sqrt( B**2 - 4 * A * C ) )
 
     return z
@@ -82,7 +93,15 @@ def grav(lat, p=0):
 
     Examples
     --------
-    TODO
+    >>> import seawater.gibbs as gsw
+    >>> lat = [0., 15., 20., 35., 42., 63., 77., 85., 90.]
+    >>> gsw.grav(lat)
+    array([ 9.780327  ,  9.78378673,  9.78636994,  9.79733807,  9.80349012,
+            9.82146051,  9.82955107,  9.83179057,  9.83218621])
+    >>> p = [0., 15., 100., 550., 1500., 2000., 3000., 5000., 10000.]
+    >>> gsw.grav(lat, p)
+    array([ 9.780327  ,  9.7838197 ,  9.78658971,  9.79854548,  9.80677561,
+            9.82583603,  9.83609914,  9.84265484,  9.85368548])
 
     References
     ----------
@@ -102,7 +121,7 @@ def grav(lat, p=0):
     sin2 = X**2
     gs = 9.780327 * ( 1.0 + ( 5.2792e-3 + ( 2.32e-5 * sin2 ) ) * sin2)
     z = z_from_p(p, lat)
-    grav = gs * (1 - gamma * z) # z is the height corresponding to p
+    grav = gs * (1 - cte.gamma * z) # z is the height corresponding to p
     return grav
 
 def molality(SA):
@@ -132,7 +151,8 @@ def molality(SA):
     >>> import seawater.gibbs as gsw
     >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
     >>> gsw.molality(SA)
-    TODO
+    array([[ 1.78214644,  0.98484303,  0.32164907,  0.64986241],
+           [ 0.32164907,         nan,  0.48492271,  0.25680047]])
 
     References
     ----------
@@ -146,11 +166,63 @@ def molality(SA):
     # Convert input to numpy arrays
     SA = np.asarray(SA)
 
-    M_S = 0.0314038218 # mole-weighted average atomic weight of the elements of sea salt, in units of kg mol :sup:`-1`
-
     Isalty = (SA >= 0).nonzero()
     molality = np.ones( SA.shape )*np.nan
     # molality of seawater in mol kg :sup:`-1`
-    molality[Isalty] = SA[Isalty] / (M_S * ( 1000 - SA[Isalty] ) )
+    molality[Isalty] = SA[Isalty] / (cte.M_S * ( 1000 - SA[Isalty] ) )
 
     return molality
+
+def ionic_strength(SA):
+    """
+    Calculates the ionic strength of seawater.
+
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+
+    Returns
+    -------
+    ionic_strength : array_like
+        ionic strength of seawater [mol kg :sup:`-1`]
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    TODO
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+    >>> gsw.ionic_strength(SA)
+    array([[ 1.10964439,  0.61320749,  0.20027315,  0.40463351],
+           [ 0.20027315,         nan,  0.30193465,  0.1598955 ]])
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp.  Available from http://www.TEOS-10.org
+    see Table L.1 of this TEOS-10 Manual.
+
+    .. [2] Millero, F. J., R. Feistel, D. G. Wright, and T. J. McDougall, 2008: The composition of Standard Seawater and the definition of the Reference-Composition Salinity Scale, Deep-Sea Res. I, 55, 50-72. see Eqns. (5.9) and (5.12) of this paper.
+
+    Modifications:
+    2010-09-28. Trevor McDougall & Paul Barker
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    # Convert input to numpy arrays
+    SA = np.asarray(SA)
+
+    Z_2 = 1.2452898 # the valence factor of sea salt
+
+
+    molal = molality(SA) # molality of seawater in mol kg
+
+    ionic_strength = 0.5*Z_2*molal
+
+    return ionic_strength

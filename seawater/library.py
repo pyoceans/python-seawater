@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+from seawater import constants as cte
+import gzip # FIXME: zlib for windows? or FTB?
+
 try:
     import cPickle as pickle
 except:
     import pickle
-
-import gzip
 
 """
 Sea presure is absolute pressure - 10.1325 dbar (or minus atmospheric pressure)
@@ -137,7 +138,7 @@ def  _enthalpy_SSO_0_CT25(p):
 
     part = ( a0 * b2 - a1 * b1) / (b2 * (B - A) )
 
-    enthalpy_SSO_0_CT25 = db2Pascal * ( ( a1 / (2*b2) ) * np.log( 1 + p * ( 2 * b1 + b2 * p ) / b0 ) + part * np.log( 1 + ( b2 * p * (B - A) ) / (A * (B + b2 * p ) ) ) )
+    enthalpy_SSO_0_CT25 = cte.db2Pascal * ( ( a1 / (2*b2) ) * np.log( 1 + p * ( 2 * b1 + b2 * p ) / b0 ) + part * np.log( 1 + ( b2 * p * (B - A) ) / (A * (B + b2 * p ) ) ) )
 
     return enthalpy_SSO_0_CT25
 
