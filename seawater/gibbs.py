@@ -2,6 +2,7 @@
 
 import numpy as np
 from seawater import constants as cte
+from seawater import library as lib
 
 def  z_from_p(p, lat):
     """
@@ -103,3 +104,53 @@ def grav(lat, p=0):
     z = z_from_p(p, lat)
     grav = gs * (1 - gamma * z) # z is the height corresponding to p
     return grav
+
+def molality(SA):
+    """
+    Calculates the molality of seawater.
+
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+
+    Returns
+    -------
+    molality : array_like
+        seawater molality [mol kg :sup:`-1`]
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    TODO
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+    >>> gsw.molality(SA)
+    TODO
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. Available from http://www.TEOS-10.org. Appendix D of this TEOS-10 Manual.
+
+    Modifications:
+    2010-09-28. Trevor McDougall & Paul Barker
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    # Convert input to numpy arrays
+    SA = np.asarray(SA)
+
+    M_S = 0.0314038218 # mole-weighted average atomic weight of the elements of sea salt, in units of kg mol :sup:`-1`
+
+    Isalty = (SA >= 0).nonzero()
+    molality = np.ones( SA.shape )*np.nan
+    # molality of seawater in mol kg :sup:`-1`
+    molality[Isalty] = SA[Isalty] / (M_S * ( 1000 - SA[Isalty] ) )
+
+    return molality

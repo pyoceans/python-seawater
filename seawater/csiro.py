@@ -13,8 +13,7 @@ from sys   import version
 Original seawater functions
 ===========================
 """
-
-def T68conv(t):
+def T68conv(T90):
     """
     Convert ITS-90 temperature to IPTS-68
 
@@ -54,25 +53,29 @@ def T68conv(t):
 
     """
     # Convert input to numpy arrays
-    t = np.asarray(t)
+    T90 = np.asarray(T90)
 
-    T68 = t * 1.00024
+    T68 = T90 * 1.00024
     return T68
 
-def T90conv(t):
+def T90conv(t, t_type='T68'):
     """
-    Convert IPTS-68 temperature to ITS-90
+    Convert IPTS-68 or IPTS-48 to temperature to ITS-90
 
     :math:`T90 = T68 / 1.00024 `
+
+    :math:`T90 = T48 - (4.4e-6) * T48 * (100-T48) ) / 1.00024`
 
     Parameters
     ----------
     t : array_like
-           temperature [:math:`^\\circ` C (IPTS-68)]
+           temperature [:math:`^\\circ` C (IPTS-68) or (IPTS-48)]
+    t_type : string, optional
+            'T68' (default) or 'T48'
 
     Returns
     -------
-    t : array_like
+    T90 : array_like
            temperature [:math:`^\\circ` C (ITS-90)]
 
     See Also
@@ -89,19 +92,30 @@ def T90conv(t):
     >>> import seawater.csiro as sw
     >>> sw.T90conv(20.004799999999999)
     20.0
+    >>> sw.T90conv(20., t_type='T48')
+    19.988162840918179
 
     References
     ----------
     .. [1] Saunders, P. M., 1991: The International Temperature Scale of 1990, ITS-90. WOCE Newsletter, No. 10, WOCE International Project Office, Southampton, United Kingdom, 10.
 
+    .. [2] International Temperature Scales of 1948, 1968 and 1990, an ICES note, available from http://www.ices.dk/ocean/procedures/its.htm
+
     Modifications: Filipe Fernandes, 2010
-                   10-11-24. Filipe Fernandes, first version.
+                   2010-11-24. Filipe Fernandes, first version.
+                   2010-12-24. Filipe Fernandes, added T48.
 
     """
     # Convert input to numpy arrays
     t = np.asarray(t)
 
-    T90 = t / 1.00024
+    if t_type == 'T68':
+        T90 = t / 1.00024
+    elif t_type == 'T48':
+        T90 = (t - 4.4e-6 * t * (100 - t) ) / 1.00024
+    else:
+        print "add a proper error here" #FIXME
+
     return T90
 
 def adtg(s, t, p):
