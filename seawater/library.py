@@ -301,8 +301,10 @@ def  _SP_from_SA_Baltic(SA, lon, lat):
     ----------
     .. [1] Feistel, R., S. Weinreben, H. Wolf, S. Seitz, P. Spitzer, B. Adel, G. Nausch, B. Schneider and D. G. Wright, 2010c: Density and Absolute Salinity of the Baltic Sea 2006-2009.  Ocean Science, 6, 3-24.
     http://www.ocean-sci.net/6/3/2010/os-6-3-2010.pdf
+
     .. [2] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp.
     Available from http://www.TEOS-10.org
+
     .. [3] McDougall, T.J., D.R. Jackett and F.J. Millero, 2010: An algorithm for estimating Absolute Salinity in the global ocean. Submitted to Ocean Science. A preliminary version is available at Ocean Sci. Discuss., 6, 215-242.
     http://www.ocean-sci-discuss.net/6/215/2009/osd-6-215-2009-print.pdf
 
@@ -370,8 +372,9 @@ def  _SA_from_SP_Baltic(SP, lon, lat):
     ----------
     .. [1] Feistel, R., S. Weinreben, H. Wolf, S. Seitz, P. Spitzer, B. Adel, G. Nausch, B. Schneider and D. G. Wright, 2010c: Density and Absolute Salinity of the Baltic Sea 2006-2009.  Ocean Science, 6, 3-24.
     http://www.ocean-sci.net/6/3/2010/os-6-3-2010.pdf
+
     .. [2] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp.
-    Available from http://www.TEOS-10.org
+
     .. [3] McDougall, T.J., D.R. Jackett and F.J. Millero, 2010: An algorithm for estimating Absolute Salinity in the global ocean. Submitted to Ocean Science. A preliminary version is available at Ocean Sci. Discuss., 6, 215-242.
     http://www.ocean-sci-discuss.net/6/215/2009/osd-6-215-2009-print.pdf
 
@@ -1059,205 +1062,6 @@ def  _dsa_add_mean(dsa):
 
     return delta_SA
 
-#def  _delta_SA(p, lon, lat):
-    #"""
-    #Calculates the Absolute Salinity anomaly, SA - SR, in the open ocean by spatially interpolating the global reference data set of delta_SA to the location of the seawater sample.
-
-    #Parameters
-    #----------
-    #p : array_like
-        #pressure [db]
-    #lon : array_like
-          #decimal degrees east [0..+360] or [-180..+180]
-    #lat : array_like
-          #decimal degrees (+ve N, -ve S) [-90..+90]
-
-    #Returns
-    #-------
-    #delta_SA : array_like
-               #Absolute Salinity anomaly [g kg :sup::`-1`]
-    #in_ocean : False, if [lon, lat] are a long way from the ocean
-               #True, [lon, lat] are in the ocean.
-
-    #See Also
-    #--------
-    #TODO
-
-    #Notes
-    #-----
-    #The Absolute Salinity Anomaly in the Baltic Sea is evaluated separately, since it is a function of Practical Salinity, not of space.   The present function returns a delta_SA of zero for data in the Baltic Sea.  The correct way of calculating Absolute Salinity in the Baltic Sea is by calling _SA_from_SP.
-
-    #The in_ocean flag is only set when the observation is well and truly on dry land; often the warning flag is not set until one is several hundred kilometres inland from the coast.
-
-    #Examples
-    #--------
-    #TODO
-
-    #References
-    #----------
-    #.. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp.
-    #Available from http://www.TEOS-10.org
-    #.. [2] McDougall, T.J., D.R. Jackett and F.J. Millero, 2010: An algorithm for estimating Absolute Salinity in the global ocean.  Submitted to Ocean Science. A preliminary version is available at Ocean Sci. Discuss., 6, 215-242.
-    #http://www.ocean-sci-discuss.net/6/215/2009/osd-6-215-2009-print.pdf
-
-    #Modifications:
-    #2010-07-23. David Jackett, Paul Barker and Trevor McDougall
-    #2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
-    #"""
-
-    ## Convert input to numpy arrays
-    #p = np.asarray(p), np.asarray(lon), np.asarray(lat)
-
-    #restore the object
-    #data = pickle.load( gzip.open('gsw_data_v2_0.pklz','rb') )
-
-    #data = pickle.load( open('gsw_data_v2_0.pkl', 'rb') )
-    #delta_SA_ref = data['delta_SA_ref']
-    #lats_ref = data['lats_ref']
-    #longs_ref = data['longs_ref']
-    #p_ref = data['p_ref']
-    #ndepth_ref = data['ndepth_ref']
-
-    #nx = len(longs_ref)
-    #ny = len(lats_ref)
-    #nz = len(p_ref)
-    #n0 = len(p)
-
-    #dlongs_ref = longs_ref[1] - longs_ref[0]
-    #dlats_ref = lats_ref[1] - lats_ref[0]
-
-    #indsx0 = np.floor( 1 + (nx-1) * (lon - longs_ref[0] ) / (longs_ref[nx]- longs_ref[0] ) )
-    ##indsx0 = indsx0(:) #FIXME: need to flat it?
-    #inds = np.nonzero(indsx0 == nx)
-    #indsx0[inds] = nx - 1
-
-    #indsy0 = np.floor( 1 + (ny-1) * ( lat - lats_ref[0] ) / ( lats_ref[ny]- lats_ref[0] ) )
-    ##indsy0 = indsy0(:) #FIXME: need to flat it?
-    #inds = np.nonzero(indsy0 == ny)
-    #indsy0[inds] = ny - 1
-
-    #indsz0 = np.sum( np.ones(nz) * p >= p_ref * np.ones(n0) #FIXME: will break matlab matrix mult
-    ##indsz0 = indsz0(:) #adjust in the vertical FIXME
-
-    #indsn1 = sub2ind([ny,nx],indsy0,indsx0);        % casts containing data
-    #indsn2 = sub2ind([ny,nx],indsy0,indsx0+1);
-    #indsn3 = sub2ind([ny,nx],indsy0+1,indsx0+1);
-    #indsn4 = sub2ind([ny,nx],indsy0+1,indsx0);
-
-    #nmax = max([ndepth_ref(indsn1)';ndepth_ref(indsn2)';ndepth_ref(indsn3)';ndepth_ref(indsn4)']);
-
-    #inds1 = find(indsz0(:)' > nmax);                % casts deeper than GK maximum
-
-    #p(inds1) = p_ref(nmax(inds1));                  % have reset p here so have to reset indsz0
-
-    #indsz0 = sum(ones(nz,1)*p(:)' >= p_ref(:)*ones(1,n0));
-    #indsz0 = indsz0(:);
-    #inds = find(indsz0 == nz);
-    #indsz0(inds) = nz - 1;
-
-    #inds0 = sub2ind([nz,ny,nx],indsz0,indsy0,indsx0);
-
-    #data_indices = [indsx0,indsy0,indsz0,inds0];
-    #data_inds = data_indices(:,3);
-
-    #r1 = (long(:) - longs_ref(indsx0))./(longs_ref(indsx0+1) - longs_ref(indsx0));
-    #s1 = (lat(:) - lats_ref(indsy0))./(lats_ref(indsy0+1) - lats_ref(indsy0));
-    #t1 = (p(:) - p_ref(indsz0))./(p_ref(indsz0+1) - p_ref(indsz0));
-
-    #nksum = 0;
-    #no_levels_missing = 0;
-
-    #sa_upper = nan(size(data_inds));
-    #sa_lower = nan(size(data_inds));
-    #delta_SA = nan(size(data_inds));
-    #in_ocean = ones(size(delta_SA));
-
-    #for k = 1:nz-1
-
-        #inds_k = find(indsz0 == k);
-        #nk = length(inds_k);
-
-        #if nk>0
-            #nksum = nksum+nk;
-            #indsx = indsx0(inds_k);
-            #indsy = indsy0(inds_k);
-            #indsz = k*ones(size(indsx));
-            #inds_di = find(data_inds == k);             % level k interpolation
-            #dsa = nan(4,n0);
-            #inds1 = sub2ind([nz,ny,nx], indsz, indsy, indsx);
-            #dsa(1,inds_k) = delta_SA_ref(inds1);
-            #inds2 = sub2ind([nz,ny,nx], indsz, indsy, indsx+1);
-            #dsa(2,inds_k) = delta_SA_ref(inds2);                % inds0 + ny*nz
-            #inds3 = sub2ind([nz,ny,nx], indsz, indsy+1, indsx+1);
-            #dsa(3,inds_k) = delta_SA_ref(inds3);           % inds0 + ny*nz + nz
-            #inds4 = sub2ind([nz ny,nx], indsz, indsy+1, indsx);
-            #dsa(4,inds_k) = delta_SA_ref(inds4);                   % inds0 + nz
-
-            #inds = find(260<=long(:) & long(:)<=295.217 & ...
-                #0<=lat(:) & lat(:)<=19.55 & indsz0(:)==k);
-            #if ~isempty(inds)
-                #dsa(:,inds) = gsw_dsa_add_barrier(dsa(:,inds),long(inds), ...
-                    #lat(inds),longs_ref(indsx0(inds)),lats_ref(indsy0(inds)),dlongs_ref,dlats_ref);
-            #end
-
-            #inds = find(isnan(sum(dsa))' & indsz0==k);
-            #if ~isempty(inds)
-                #dsa(:,inds) = gsw_dsa_add_mean(dsa(:,inds));
-            #end
-
-            #sa_upper(inds_di) = (1-s1(inds_di)).*(dsa(1,inds_k)' + ...
-                #r1(inds_di).*(dsa(2,inds_k)'-dsa(1,inds_k)')) + ...
-                #s1(inds_di).*(dsa(4,inds_k)' + ...
-                #r1(inds_di).*(dsa(3,inds_k)'-dsa(4,inds_k)'));  % level k+1 interpolation
-
-            #dsa = nan(4,n0);
-            #inds1 = sub2ind([nz,ny,nx], indsz+1, indsy, indsx);
-            #dsa(1,inds_k) = delta_SA_ref(inds1);
-            #inds2 = sub2ind([nz,ny,nx], indsz+1, indsy, indsx+1);
-            #dsa(2,inds_k) = delta_SA_ref(inds2);                % inds1 + ny*nz
-            #inds3 = sub2ind([nz,ny,nx], indsz+1, indsy+1, indsx+1);
-            #dsa(3,inds_k) = delta_SA_ref(inds3);           % inds1 + ny*nz + nz
-            #inds4 = sub2ind([nz ny,nx], indsz+1, indsy+1, indsx);
-            #dsa(4,inds_k) = delta_SA_ref(inds4);                   % inds1 + nz
-
-            #inds = find(260<=long(:) & long(:)<=295.217 & ...
-                #0<=lat(:) & lat(:)<=19.55 & indsz0(:)==k);
-            #if ~isempty(inds)
-                #dsa(:,inds) = gsw_dsa_add_barrier(dsa(:,inds),long(inds), ...
-                    #lat(inds),longs_ref(indsx0(inds)),lats_ref(indsy0(inds)),dlongs_ref,dlats_ref);
-            #end
-
-            #inds = find(isnan(sum(dsa))' & indsz0==k);
-
-            #if ~isempty(inds)
-                #dsa(:,inds) = gsw_dsa_add_mean(dsa(:,inds));
-            #end
-
-            #sa_lower(inds_di) = (1-s1(inds_di)).*(dsa(1,inds_k)' + ...
-                #r1(inds_di).*(dsa(2,inds_k)'-dsa(1,inds_k)')) + ...
-                #s1(inds_di).*(dsa(4,inds_k)' + ...
-                #r1(inds_di).*(dsa(3,inds_k)'-dsa(4,inds_k)'));
-
-            #inds_different = find(isfinite(sa_upper(inds_di)) & isnan(sa_lower(inds_di)));
-
-            #if ~isempty(inds_different)
-                #sa_lower(inds_di(inds_different)) = sa_upper(inds_di(inds_different));
-            #end
-
-            #delta_SA(inds_di) = sa_upper(inds_di) + t1(inds_di).*(sa_lower(inds_di) - sa_upper(inds_di));
-
-        #else
-            #no_levels_missing = no_levels_missing + 1;
-        #end
-    #end
-
-    #inds = find(~isfinite(delta_SA));
-    #delta_SA(inds) = 0;
-
-    #in_ocean(inds) = 0;
-
-    #returns delta_SA, in_ocean
-
 #def  _interp_McD_Klocker(spycnl, A='gn'):
     #"""
     #Interpolates the reference cast with respect to the interpolating variable "spycnl". This reference cast is located at (188 E, 4 N) from the reference data set which underlies the Jackett & McDougall (1997) Neutral Density computer code.
@@ -1382,9 +1186,229 @@ def  _dsa_add_mean(dsa):
 
     #return SA_iref_cast, CT_iref_cast, p_iref_cast
 
-#def sub2ind(shape, I, J, row_major=True):
-    #if row_major:
-        #ind = (I % shape[0]) * shape[1] + (J % shape[1])
-    #else:
-        #ind = (J % shape[1]) * shape[0] + (I % shape[0])
-    #return ind
+def sub2ind(shape, I, J, row_major=True):
+    if row_major:
+        ind = (I % shape[0]) * shape[1] + (J % shape[1])
+    else:
+        ind = (J % shape[1]) * shape[0] + (I % shape[0])
+    return ind
+
+def  _delta_SA(p, lon, lat):
+    """
+    Calculates the Absolute Salinity anomaly, SA - SR, in the open ocean by spatially interpolating the global reference data set of delta_SA to the location of the seawater sample.
+
+    Parameters
+    ----------
+    p : array_like
+        pressure [db]
+    lon : array_like
+          decimal degrees east [0..+360] or [-180..+180]
+    lat : array_like
+          decimal degrees (+ve N, -ve S) [-90..+90]
+
+    Returns
+    -------
+    delta_SA : array_like
+               Absolute Salinity anomaly [g kg :sup::`-1`]
+    in_ocean : False, if [lon, lat] are a long way from the ocean
+               True, [lon, lat] are in the ocean.
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    The Absolute Salinity Anomaly in the Baltic Sea is evaluated separately, since it is a function of Practical Salinity, not of space. The present function returns a delta_SA of zero for data in the Baltic Sea. The correct way of calculating Absolute Salinity in the Baltic Sea is by calling _SA_from_SP.
+
+    The in_ocean flag is only set when the observation is well and truly on dry land; often the warning flag is not set until one is several hundred kilometres inland from the coast.
+
+    Examples
+    --------
+    TODO
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp.
+
+    .. [2] McDougall, T.J., D.R. Jackett and F.J. Millero, 2010: An algorithm for estimating Absolute Salinity in the global ocean.  Submitted to Ocean Science. A preliminary version is available at Ocean Sci. Discuss., 6, 215-242.
+    http://www.ocean-sci-discuss.net/6/215/2009/osd-6-215-2009-print.pdf
+
+    Modifications:
+    2010-07-23. David Jackett, Paul Barker and Trevor McDougall
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    # Convert input to numpy arrays
+    p = np.asarray(p), np.asarray(lon), np.asarray(lat)
+
+    data = pickle.load( gzip.open('gsw_data_v2_0.pklz','rb') )
+
+    data = pickle.load( open('gsw_data_v2_0.pkl', 'rb') )
+    delta_SA_ref = data['delta_SA_ref']
+    lats_ref = data['lats_ref']
+    longs_ref = data['longs_ref']
+    p_ref = data['p_ref']
+    ndepth_ref = data['ndepth_ref']
+
+    nx = np.array( len(longs_ref), dtype=float )
+    ny = np.array( len(lats_ref), dtype=float )
+    nz = np.array( len(p_ref), dtype=float )
+    n0 = np.array( len(p), dtype=float )
+
+    dlongs_ref = longs_ref[1] - longs_ref[0]
+    dlats_ref = lats_ref[1] - lats_ref[0]
+
+    indsx0 = np.floor( 1 + (nx-1) * (lon - longs_ref[0] ) / (longs_ref[nx-1]- longs_ref[0] ) )
+    indsx0[indsx0 == nx] = nx - 1
+
+    indsy0 = np.floor( 1 + (ny-1) * ( lat - lats_ref[0] ) / ( lats_ref[ny-1]- lats_ref[0] ) )
+    indsy0[indsy0 == ny] = ny - 1
+
+    indsz0 = np.sum( np.ones(nz) * p >= p_ref * np.ones(n0)) #FIXME: will break matlab matrix mult
+
+    indsn1 = sub2ind([ny,nx], indsy0, indsx0, row_major=False) # casts containing data
+    indsn2 = sub2ind([ny,nx], indsy0, indsx0+1);
+    indsn3 = sub2ind([ny,nx], indsy0+1, indsx0+1);
+    indsn4 = sub2ind([ny,nx], indsy0+1, indsx0);
+
+    nmax = max([ndepth_ref(indsn1); ndepth_ref(indsn2); ndepth_ref(indsn3); ndepth_ref(indsn4)])
+
+    inds1 = find(indsz0(:) > nmax) # casts deeper than GK maximum
+
+    p(inds1) = p_ref(nmax(inds1)) # have reset p here so have to reset indsz0
+
+    indsz0 = sum(ones(nz,1)*p(:)' >= p_ref(:)*ones(1,n0));
+    indsz0 = indsz0(:);
+    inds = find(indsz0 == nz);
+    indsz0(inds) = nz - 1;
+
+    inds0 = sub2ind([nz,ny,nx],indsz0,indsy0,indsx0);
+
+    data_indices = [indsx0,indsy0,indsz0,inds0];
+    data_inds = data_indices(:,3);
+
+    r1 = (long(:) - longs_ref(indsx0))./(longs_ref(indsx0+1) - longs_ref(indsx0));
+    s1 = (lat(:) - lats_ref(indsy0))./(lats_ref(indsy0+1) - lats_ref(indsy0));
+    t1 = (p(:) - p_ref(indsz0))./(p_ref(indsz0+1) - p_ref(indsz0));
+
+    nksum = 0;
+    no_levels_missing = 0;
+
+    sa_upper = nan(size(data_inds));
+    sa_lower = nan(size(data_inds));
+    delta_SA = nan(size(data_inds));
+    in_ocean = ones(size(delta_SA));
+
+    for k = 1:nz-1
+
+        inds_k = find(indsz0 == k);
+        nk = length(inds_k);
+
+        if nk>0
+            nksum = nksum+nk;
+            indsx = indsx0(inds_k);
+            indsy = indsy0(inds_k);
+            indsz = k*ones(size(indsx));
+            inds_di = find(data_inds == k);             % level k interpolation
+            dsa = nan(4,n0);
+            inds1 = sub2ind([nz,ny,nx], indsz, indsy, indsx);
+            dsa(1,inds_k) = delta_SA_ref(inds1);
+            inds2 = sub2ind([nz,ny,nx], indsz, indsy, indsx+1);
+            dsa(2,inds_k) = delta_SA_ref(inds2);                % inds0 + ny*nz
+            inds3 = sub2ind([nz,ny,nx], indsz, indsy+1, indsx+1);
+            dsa(3,inds_k) = delta_SA_ref(inds3);           % inds0 + ny*nz + nz
+            inds4 = sub2ind([nz ny,nx], indsz, indsy+1, indsx);
+            dsa(4,inds_k) = delta_SA_ref(inds4);                   % inds0 + nz
+
+            inds = find(260<=long(:) & long(:)<=295.217 & ...
+                0<=lat(:) & lat(:)<=19.55 & indsz0(:)==k);
+            if ~isempty(inds)
+                dsa(:,inds) = gsw_dsa_add_barrier(dsa(:,inds),long(inds), ...
+                    lat(inds),longs_ref(indsx0(inds)),lats_ref(indsy0(inds)),dlongs_ref,dlats_ref);
+            end
+
+            inds = find(isnan(sum(dsa))' & indsz0==k);
+            if ~isempty(inds)
+                dsa(:,inds) = gsw_dsa_add_mean(dsa(:,inds));
+            end
+
+            sa_upper(inds_di) = (1-s1(inds_di)).*(dsa(1,inds_k)' + ...
+                r1(inds_di).*(dsa(2,inds_k)'-dsa(1,inds_k)')) + ...
+                s1(inds_di).*(dsa(4,inds_k)' + ...
+                r1(inds_di).*(dsa(3,inds_k)'-dsa(4,inds_k)'));  % level k+1 interpolation
+
+            dsa = nan(4,n0);
+            inds1 = sub2ind([nz,ny,nx], indsz+1, indsy, indsx);
+            dsa(1,inds_k) = delta_SA_ref(inds1);
+            inds2 = sub2ind([nz,ny,nx], indsz+1, indsy, indsx+1);
+            dsa(2,inds_k) = delta_SA_ref(inds2);                % inds1 + ny*nz
+            inds3 = sub2ind([nz,ny,nx], indsz+1, indsy+1, indsx+1);
+            dsa(3,inds_k) = delta_SA_ref(inds3);           % inds1 + ny*nz + nz
+            inds4 = sub2ind([nz ny,nx], indsz+1, indsy+1, indsx);
+            dsa(4,inds_k) = delta_SA_ref(inds4);                   % inds1 + nz
+
+            inds = find(260<=long(:) & long(:)<=295.217 & ...
+                0<=lat(:) & lat(:)<=19.55 & indsz0(:)==k);
+            if ~isempty(inds)
+                dsa(:,inds) = gsw_dsa_add_barrier(dsa(:,inds),long(inds), ...
+                    lat(inds),longs_ref(indsx0(inds)),lats_ref(indsy0(inds)),dlongs_ref,dlats_ref);
+            end
+
+            inds = find(isnan(sum(dsa))' & indsz0==k);
+
+            if ~isempty(inds)
+                dsa(:,inds) = gsw_dsa_add_mean(dsa(:,inds));
+            end
+
+            sa_lower(inds_di) = (1-s1(inds_di)).*(dsa(1,inds_k)' + ...
+                r1(inds_di).*(dsa(2,inds_k)'-dsa(1,inds_k)')) + ...
+                s1(inds_di).*(dsa(4,inds_k)' + ...
+                r1(inds_di).*(dsa(3,inds_k)'-dsa(4,inds_k)'));
+
+            inds_different = find(isfinite(sa_upper(inds_di)) & isnan(sa_lower(inds_di)));
+
+            if ~isempty(inds_different)
+                sa_lower(inds_di(inds_different)) = sa_upper(inds_di(inds_different));
+            end
+
+            delta_SA(inds_di) = sa_upper(inds_di) + t1(inds_di).*(sa_lower(inds_di) - sa_upper(inds_di));
+
+        else
+            no_levels_missing = no_levels_missing + 1;
+        end
+    end
+
+    inds = find(~isfinite(delta_SA));
+    delta_SA(inds) = 0;
+
+    in_ocean(inds) = 0;
+
+    returns delta_SA, in_ocean
+
+
+""" test _delta_SA """
+try:
+    import cPickle as pickle
+except:
+    import pickle
+
+import seawater.gibbs as gsw
+import seawater.csiro as sw
+
+""" FIXME: temporary solution until SA is OK"""
+import scipy.io as sio
+#SA_chck_cast = sio.loadmat('SA_chck_cast.mat', squeeze_me=True)['SA_chck_cast']
+
+""" load test data """
+class Dict2Struc(object):
+    """ all the variables from a dict in a "matlab-like-structure" """
+    def __init__(self, adict):
+        self.__dict__.update(adict)
+
+data = pickle.load( open('gsw_cv.pkl','rb') )
+gsw_cv = Dict2Struc(data) # then type dat.<tab> to navigate through your variables
+
+p, lon, lat = np.asarray(gsw_cv.p_chck_cast), np.asarray(gsw_cv.long_chck_cast), np.asarray(gsw_cv.lat_chck_cast)
+
+_delta_SA(p, lon, lat)

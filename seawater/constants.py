@@ -56,6 +56,7 @@ db2Pascal = 1e4
 Decibar to pascal
 """
 
+#--- only for gsw
 gamma = 2.26e-7
 """
 TODO: define Gamma
@@ -63,3 +64,9 @@ TODO: define Gamma
 
 M_S = 0.0314038218
 """mole-weighted average atomic weight of the elements of sea salt, in units of kg mol :sup:`-1` """
+
+cp0 = 3991.86795711963
+""" FIXME: from Eqn. (3.3.3) of IOC et al. (2010). """
+
+SSO = 35.16504
+""" from section 2.4 of IOC et al. (2010) """
