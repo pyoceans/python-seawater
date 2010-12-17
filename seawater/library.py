@@ -1267,148 +1267,148 @@ def  _delta_SA(p, lon, lat):
 
     indsz0 = np.sum( np.ones(nz) * p >= p_ref * np.ones(n0)) #FIXME: will break matlab matrix mult
 
-    indsn1 = sub2ind([ny,nx], indsy0, indsx0, row_major=False) # casts containing data
-    indsn2 = sub2ind([ny,nx], indsy0, indsx0+1);
-    indsn3 = sub2ind([ny,nx], indsy0+1, indsx0+1);
-    indsn4 = sub2ind([ny,nx], indsy0+1, indsx0);
+    #indsn1 = sub2ind([ny,nx], indsy0, indsx0, row_major=False) # casts containing data
+    #indsn2 = sub2ind([ny,nx], indsy0, indsx0+1);
+    #indsn3 = sub2ind([ny,nx], indsy0+1, indsx0+1);
+    #indsn4 = sub2ind([ny,nx], indsy0+1, indsx0);
 
-    nmax = max([ndepth_ref(indsn1); ndepth_ref(indsn2); ndepth_ref(indsn3); ndepth_ref(indsn4)])
+    #nmax = max([ndepth_ref(indsn1); ndepth_ref(indsn2); ndepth_ref(indsn3); ndepth_ref(indsn4)])
 
-    inds1 = find(indsz0(:) > nmax) # casts deeper than GK maximum
+    #inds1 = find(indsz0(:) > nmax) # casts deeper than GK maximum
 
-    p(inds1) = p_ref(nmax(inds1)) # have reset p here so have to reset indsz0
+    #p(inds1) = p_ref(nmax(inds1)) # have reset p here so have to reset indsz0
 
-    indsz0 = sum(ones(nz,1)*p(:)' >= p_ref(:)*ones(1,n0));
-    indsz0 = indsz0(:);
-    inds = find(indsz0 == nz);
-    indsz0(inds) = nz - 1;
+    #indsz0 = sum(ones(nz,1)*p(:)' >= p_ref(:)*ones(1,n0));
+    #indsz0 = indsz0(:);
+    #inds = find(indsz0 == nz);
+    #indsz0(inds) = nz - 1;
 
-    inds0 = sub2ind([nz,ny,nx],indsz0,indsy0,indsx0);
+    #inds0 = sub2ind([nz,ny,nx],indsz0,indsy0,indsx0);
 
-    data_indices = [indsx0,indsy0,indsz0,inds0];
-    data_inds = data_indices(:,3);
+    #data_indices = [indsx0,indsy0,indsz0,inds0];
+    #data_inds = data_indices(:,3);
 
-    r1 = (long(:) - longs_ref(indsx0))./(longs_ref(indsx0+1) - longs_ref(indsx0));
-    s1 = (lat(:) - lats_ref(indsy0))./(lats_ref(indsy0+1) - lats_ref(indsy0));
-    t1 = (p(:) - p_ref(indsz0))./(p_ref(indsz0+1) - p_ref(indsz0));
+    #r1 = (long(:) - longs_ref(indsx0))./(longs_ref(indsx0+1) - longs_ref(indsx0));
+    #s1 = (lat(:) - lats_ref(indsy0))./(lats_ref(indsy0+1) - lats_ref(indsy0));
+    #t1 = (p(:) - p_ref(indsz0))./(p_ref(indsz0+1) - p_ref(indsz0));
 
-    nksum = 0;
-    no_levels_missing = 0;
+    #nksum = 0;
+    #no_levels_missing = 0;
 
-    sa_upper = nan(size(data_inds));
-    sa_lower = nan(size(data_inds));
-    delta_SA = nan(size(data_inds));
-    in_ocean = ones(size(delta_SA));
+    #sa_upper = nan(size(data_inds));
+    #sa_lower = nan(size(data_inds));
+    #delta_SA = nan(size(data_inds));
+    #in_ocean = ones(size(delta_SA));
 
-    for k = 1:nz-1
+    #for k = 1:nz-1
 
-        inds_k = find(indsz0 == k);
-        nk = length(inds_k);
+        #inds_k = find(indsz0 == k);
+        #nk = length(inds_k);
 
-        if nk>0
-            nksum = nksum+nk;
-            indsx = indsx0(inds_k);
-            indsy = indsy0(inds_k);
-            indsz = k*ones(size(indsx));
-            inds_di = find(data_inds == k);             % level k interpolation
-            dsa = nan(4,n0);
-            inds1 = sub2ind([nz,ny,nx], indsz, indsy, indsx);
-            dsa(1,inds_k) = delta_SA_ref(inds1);
-            inds2 = sub2ind([nz,ny,nx], indsz, indsy, indsx+1);
-            dsa(2,inds_k) = delta_SA_ref(inds2);                % inds0 + ny*nz
-            inds3 = sub2ind([nz,ny,nx], indsz, indsy+1, indsx+1);
-            dsa(3,inds_k) = delta_SA_ref(inds3);           % inds0 + ny*nz + nz
-            inds4 = sub2ind([nz ny,nx], indsz, indsy+1, indsx);
-            dsa(4,inds_k) = delta_SA_ref(inds4);                   % inds0 + nz
+        #if nk>0
+            #nksum = nksum+nk;
+            #indsx = indsx0(inds_k);
+            #indsy = indsy0(inds_k);
+            #indsz = k*ones(size(indsx));
+            #inds_di = find(data_inds == k);             % level k interpolation
+            #dsa = nan(4,n0);
+            #inds1 = sub2ind([nz,ny,nx], indsz, indsy, indsx);
+            #dsa(1,inds_k) = delta_SA_ref(inds1);
+            #inds2 = sub2ind([nz,ny,nx], indsz, indsy, indsx+1);
+            #dsa(2,inds_k) = delta_SA_ref(inds2);                % inds0 + ny*nz
+            #inds3 = sub2ind([nz,ny,nx], indsz, indsy+1, indsx+1);
+            #dsa(3,inds_k) = delta_SA_ref(inds3);           % inds0 + ny*nz + nz
+            #inds4 = sub2ind([nz ny,nx], indsz, indsy+1, indsx);
+            #dsa(4,inds_k) = delta_SA_ref(inds4);                   % inds0 + nz
 
-            inds = find(260<=long(:) & long(:)<=295.217 & ...
-                0<=lat(:) & lat(:)<=19.55 & indsz0(:)==k);
-            if ~isempty(inds)
-                dsa(:,inds) = gsw_dsa_add_barrier(dsa(:,inds),long(inds), ...
-                    lat(inds),longs_ref(indsx0(inds)),lats_ref(indsy0(inds)),dlongs_ref,dlats_ref);
-            end
+            #inds = find(260<=long(:) & long(:)<=295.217 & ...
+                #0<=lat(:) & lat(:)<=19.55 & indsz0(:)==k);
+            #if ~isempty(inds)
+                #dsa(:,inds) = gsw_dsa_add_barrier(dsa(:,inds),long(inds), ...
+                    #lat(inds),longs_ref(indsx0(inds)),lats_ref(indsy0(inds)),dlongs_ref,dlats_ref);
+            #end
 
-            inds = find(isnan(sum(dsa))' & indsz0==k);
-            if ~isempty(inds)
-                dsa(:,inds) = gsw_dsa_add_mean(dsa(:,inds));
-            end
+            #inds = find(isnan(sum(dsa))' & indsz0==k);
+            #if ~isempty(inds)
+                #dsa(:,inds) = gsw_dsa_add_mean(dsa(:,inds));
+            #end
 
-            sa_upper(inds_di) = (1-s1(inds_di)).*(dsa(1,inds_k)' + ...
-                r1(inds_di).*(dsa(2,inds_k)'-dsa(1,inds_k)')) + ...
-                s1(inds_di).*(dsa(4,inds_k)' + ...
-                r1(inds_di).*(dsa(3,inds_k)'-dsa(4,inds_k)'));  % level k+1 interpolation
+            #sa_upper(inds_di) = (1-s1(inds_di)).*(dsa(1,inds_k)' + ...
+                #r1(inds_di).*(dsa(2,inds_k)'-dsa(1,inds_k)')) + ...
+                #s1(inds_di).*(dsa(4,inds_k)' + ...
+                #r1(inds_di).*(dsa(3,inds_k)'-dsa(4,inds_k)'));  % level k+1 interpolation
 
-            dsa = nan(4,n0);
-            inds1 = sub2ind([nz,ny,nx], indsz+1, indsy, indsx);
-            dsa(1,inds_k) = delta_SA_ref(inds1);
-            inds2 = sub2ind([nz,ny,nx], indsz+1, indsy, indsx+1);
-            dsa(2,inds_k) = delta_SA_ref(inds2);                % inds1 + ny*nz
-            inds3 = sub2ind([nz,ny,nx], indsz+1, indsy+1, indsx+1);
-            dsa(3,inds_k) = delta_SA_ref(inds3);           % inds1 + ny*nz + nz
-            inds4 = sub2ind([nz ny,nx], indsz+1, indsy+1, indsx);
-            dsa(4,inds_k) = delta_SA_ref(inds4);                   % inds1 + nz
+            #dsa = nan(4,n0);
+            #inds1 = sub2ind([nz,ny,nx], indsz+1, indsy, indsx);
+            #dsa(1,inds_k) = delta_SA_ref(inds1);
+            #inds2 = sub2ind([nz,ny,nx], indsz+1, indsy, indsx+1);
+            #dsa(2,inds_k) = delta_SA_ref(inds2);                % inds1 + ny*nz
+            #inds3 = sub2ind([nz,ny,nx], indsz+1, indsy+1, indsx+1);
+            #dsa(3,inds_k) = delta_SA_ref(inds3);           % inds1 + ny*nz + nz
+            #inds4 = sub2ind([nz ny,nx], indsz+1, indsy+1, indsx);
+            #dsa(4,inds_k) = delta_SA_ref(inds4);                   % inds1 + nz
 
-            inds = find(260<=long(:) & long(:)<=295.217 & ...
-                0<=lat(:) & lat(:)<=19.55 & indsz0(:)==k);
-            if ~isempty(inds)
-                dsa(:,inds) = gsw_dsa_add_barrier(dsa(:,inds),long(inds), ...
-                    lat(inds),longs_ref(indsx0(inds)),lats_ref(indsy0(inds)),dlongs_ref,dlats_ref);
-            end
+            #inds = find(260<=long(:) & long(:)<=295.217 & ...
+                #0<=lat(:) & lat(:)<=19.55 & indsz0(:)==k);
+            #if ~isempty(inds)
+                #dsa(:,inds) = gsw_dsa_add_barrier(dsa(:,inds),long(inds), ...
+                    #lat(inds),longs_ref(indsx0(inds)),lats_ref(indsy0(inds)),dlongs_ref,dlats_ref);
+            #end
 
-            inds = find(isnan(sum(dsa))' & indsz0==k);
+            #inds = find(isnan(sum(dsa))' & indsz0==k);
 
-            if ~isempty(inds)
-                dsa(:,inds) = gsw_dsa_add_mean(dsa(:,inds));
-            end
+            #if ~isempty(inds)
+                #dsa(:,inds) = gsw_dsa_add_mean(dsa(:,inds));
+            #end
 
-            sa_lower(inds_di) = (1-s1(inds_di)).*(dsa(1,inds_k)' + ...
-                r1(inds_di).*(dsa(2,inds_k)'-dsa(1,inds_k)')) + ...
-                s1(inds_di).*(dsa(4,inds_k)' + ...
-                r1(inds_di).*(dsa(3,inds_k)'-dsa(4,inds_k)'));
+            #sa_lower(inds_di) = (1-s1(inds_di)).*(dsa(1,inds_k)' + ...
+                #r1(inds_di).*(dsa(2,inds_k)'-dsa(1,inds_k)')) + ...
+                #s1(inds_di).*(dsa(4,inds_k)' + ...
+                #r1(inds_di).*(dsa(3,inds_k)'-dsa(4,inds_k)'));
 
-            inds_different = find(isfinite(sa_upper(inds_di)) & isnan(sa_lower(inds_di)));
+            #inds_different = find(isfinite(sa_upper(inds_di)) & isnan(sa_lower(inds_di)));
 
-            if ~isempty(inds_different)
-                sa_lower(inds_di(inds_different)) = sa_upper(inds_di(inds_different));
-            end
+            #if ~isempty(inds_different)
+                #sa_lower(inds_di(inds_different)) = sa_upper(inds_di(inds_different));
+            #end
 
-            delta_SA(inds_di) = sa_upper(inds_di) + t1(inds_di).*(sa_lower(inds_di) - sa_upper(inds_di));
+            #delta_SA(inds_di) = sa_upper(inds_di) + t1(inds_di).*(sa_lower(inds_di) - sa_upper(inds_di));
 
-        else
-            no_levels_missing = no_levels_missing + 1;
-        end
-    end
+        #else
+            #no_levels_missing = no_levels_missing + 1;
+        #end
+    #end
 
-    inds = find(~isfinite(delta_SA));
-    delta_SA(inds) = 0;
+    #inds = find(~isfinite(delta_SA));
+    #delta_SA(inds) = 0;
 
-    in_ocean(inds) = 0;
+    #in_ocean(inds) = 0;
 
-    returns delta_SA, in_ocean
+    #returns delta_SA, in_ocean
 
 
-""" test _delta_SA """
-try:
-    import cPickle as pickle
-except:
-    import pickle
+#""" test _delta_SA """
+#try:
+    #import cPickle as pickle
+#except:
+    #import pickle
 
-import seawater.gibbs as gsw
-import seawater.csiro as sw
+#import seawater.gibbs as gsw
+#import seawater.csiro as sw
 
-""" FIXME: temporary solution until SA is OK"""
-import scipy.io as sio
-#SA_chck_cast = sio.loadmat('SA_chck_cast.mat', squeeze_me=True)['SA_chck_cast']
+#""" FIXME: temporary solution until SA is OK"""
+#import scipy.io as sio
+##SA_chck_cast = sio.loadmat('SA_chck_cast.mat', squeeze_me=True)['SA_chck_cast']
 
-""" load test data """
-class Dict2Struc(object):
-    """ all the variables from a dict in a "matlab-like-structure" """
-    def __init__(self, adict):
-        self.__dict__.update(adict)
+#""" load test data """
+#class Dict2Struc(object):
+    #""" all the variables from a dict in a "matlab-like-structure" """
+    #def __init__(self, adict):
+        #self.__dict__.update(adict)
 
-data = pickle.load( open('gsw_cv.pkl','rb') )
-gsw_cv = Dict2Struc(data) # then type dat.<tab> to navigate through your variables
+#data = pickle.load( open('gsw_cv.pkl','rb') )
+#gsw_cv = Dict2Struc(data) # then type dat.<tab> to navigate through your variables
 
-p, lon, lat = np.asarray(gsw_cv.p_chck_cast), np.asarray(gsw_cv.long_chck_cast), np.asarray(gsw_cv.lat_chck_cast)
+#p, lon, lat = np.asarray(gsw_cv.p_chck_cast), np.asarray(gsw_cv.long_chck_cast), np.asarray(gsw_cv.lat_chck_cast)
 
-_delta_SA(p, lon, lat)
+#_delta_SA(p, lon, lat)

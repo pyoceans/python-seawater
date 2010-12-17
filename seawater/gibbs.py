@@ -926,7 +926,7 @@ def SA_from_SP(SP, p, lon, lat):
 
 def check_dim(prop1, prop2):
     """
-    Broadcast prop1 to the size of pop2 if they mismatch in either row or column or if prop1 is a scalar.
+    Broadcast prop1 to the shape prop2. Prop1 can be scalar, row equal or column equal to prop2.
     """
     if prop1.ndim == 1:
         prop1 = prop1.flatten()
@@ -934,10 +934,12 @@ def check_dim(prop1, prop2):
     if (prop1.ndim == 1) & (prop1.size == 1):
         prop1 = prop1 * np.ones( prop2.shape )
     elif (prop1.ndim == 1) & (prop2.ndim != 1):
-        if prop1.size == prop2.shape[0]:
-            prop1 = np.repeat(prop1[np.newaxis,:], prop2.shape[1], axis=1).reshape(prop2.shape)
-        elif prop1.size == prop2.shape[1]:
-            prop1 = np.repeat(prop1[np.newaxis,:], prop2.shape[0], axis=0).reshape(prop2.shape)
+        if prop1.size == prop2.shape[1]:
+            prop1 = prop1 * np.ones(prop2.shape)
+            #prop1 = np.repeat(prop1[np.newaxis,:], prop2.shape[1], axis=1).reshape(prop2.shape)
+        elif prop1.size == prop2.shape[0]:
+            prop1 = prop1[:,np.newaxis] * np.ones(prop2.shape)
+            #prop1 = np.repeat(prop1[np.newaxis,:], prop2.shape[0], axis=0).reshape(prop2.shape)
         else:
             print "add a proper error msg"
 
