@@ -449,7 +449,7 @@ def  _infunnel(SA, CT, p):
     SA, CT, p = np.asarray(SA), np.asarray(CT), np.asarray(p)
 
     in_funnel = np.ones( SA.shape )
-    Inan = np.nonzero( np.isnan(SA) | np.isnan(CT) | np.isnan(p) )
+    Inan = np.where( np.isnan(SA) | np.isnan(CT) | np.isnan(p) )
 
     Ifunnel = (p > 8000) | (SA < 0) | (SA > 42.2) | \
         ( CT < ( -0.3595467 - 0.0553734 * SA ) ) | \
@@ -656,7 +656,7 @@ def _gibbs(ns, nt, npr, SA, t, p):
         z * ( -860.764303783977 + z * ( 337.409530269367 + \
         z * ( -178.314556207638 + ( 44.2040358308 - 7.92001547211682 * z ) * z ) ) ) ) ) )
 
-        inds = (x>0).nonzero()
+        inds = np.where(x>0)
         if inds[0].size != 0:  # FIXME: wierd, there must be a better way...
             g08[inds] = g08[inds] + x2[inds] * ( 5812.81456626732 + 851.226734946706 * y[inds] ) * np.log( x[inds] )
 
@@ -684,7 +684,7 @@ def _gibbs(ns, nt, npr, SA, t, p):
         z * ( -1721.528607567954 + z * ( 674.819060538734 + \
         z * ( -356.629112415276 + ( 88.4080716616 - 15.84003094423364 * z ) * z ) ) ) ) )
 
-        inds = (x>0).nonzero()
+        inds = np.where(x>0)
         if inds[0].size != 0:  # FIXME: wierd, there must be a better way...
             g08[inds] = g08[inds] + ( 11625.62913253464 + 1702.453469893412 * y[inds] ) * np.log( x[inds] )
 
@@ -720,7 +720,7 @@ def _gibbs(ns, nt, npr, SA, t, p):
         z * ( -1721.528607567954 + z * ( 674.819060538734 + \
         z * ( -356.629112415276 + ( 88.4080716616 - 15.84003094423364 * z ) * z ) ) ) ) )
 
-        inds = (x>0).nonzero()
+        inds = np.where(x>0)
         if inds[0].size != 0:  # FIXME: wierd, there must be a better way...
             g08[inds] = g08[inds] + 851.226734946706 * x2[inds] * np.log( x[inds] )
 
@@ -773,7 +773,7 @@ def _gibbs(ns, nt, npr, SA, t, p):
         z * ( -3443.057215135908 + z * ( 1349.638121077468 + \
         z * ( -713.258224830552 + ( 176.8161433232 - 31.68006188846728 * z ) * z ) ) ) )
 
-        inds = (x>0).nonzero()
+        inds = np.where(x>0)
         if inds[0].size != 0:  # FIXME: wierd, there must be a better way...
             g08[inds] = g08[inds] + 1702.453469893412 * np.log( x[inds] )
 
@@ -835,7 +835,7 @@ def _gibbs(ns, nt, npr, SA, t, p):
         180.142097805543 * z ) + \
         z * ( -219.1676534131548 + ( -16.32775915649044 - 120.7020447884644 * z ) * z ) )
 
-        inds = (x>0).nonzero()
+        inds = np.where(x>0)
         if inds[0].size != 0:  # FIXME: wierd, there must be a better way...
             g08[inds] = g08[inds] + ( -7296.43987145382 + z[inds] * ( 598.378809221703 + \
             z[inds] * ( -156.8822727844005 + ( 204.1334828179377 - 10.23755797323846 * z[inds] ) * z[inds] ) ) + \
@@ -989,17 +989,17 @@ def  _dsa_add_barrier(dsa, lon, lat, longs_ref, lats_ref, dlongs_ref, dlats_ref)
         else:
             above_line[2] = False
 
-        inds = np.nonzero( above_line != above_line0 ) # indices of different sides of CA line
+        inds = np.where( above_line != above_line0 ) # indices of different sides of CA line
         dsa[inds,k0] = np.nan
 
     dsa_mean = dsa.mean()
-    inds_nan = np.nonzero( np.isnan( dsa_mean ) )
+    inds_nan = np.where( np.isnan( dsa_mean ) )
     no_nan = len(inds_nan)
 
     for kk in range(0,no_nan):
         col = inds_nan[kk]
-        inds_kk = np.nonzero( np.isnan( dsa[:,col] ) )
-        Inn = np.nonzero( ~np.isnan( dsa[:,col] ) )
+        inds_kk = np.where( np.isnan( dsa[:,col] ) )
+        Inn = np.where( ~np.isnan( dsa[:,col] ) )
         if Inn.size == 0:
             dsa[inds_kk,col] = dsa[Inn,col].mean()
 
@@ -1048,13 +1048,13 @@ def  _dsa_add_mean(dsa):
 
     #FIXME: there must be a better way
     dsa_mean = dsa.mean() #FIXME: should be nanmean here in the original...
-    inds_nan = np.nonzero( np.isnan(dsa_mean) )
+    inds_nan = np.where( np.isnan(dsa_mean) )
     no_nan = len(inds_nan)
 
     for kk in range(0, no_nan):
         col = inds_nan[kk]
-        inds_kk = np.nonzero( np.isnan( dsa[:,col] ) )
-        Inn = np.nonzero(~np.isnan( dsa[:,col] ) )
+        inds_kk = np.where( np.isnan( dsa[:,col] ) )
+        Inn = np.where(~np.isnan( dsa[:,col] ) )
         if Inn.size == 0:
             dsa[inds_kk, col] = dsa[Inn,col].mean()
 
@@ -1116,7 +1116,7 @@ def  _dsa_add_mean(dsa):
 
     #min_spycnl_ref_cast, Imin_spycnl_ref_cast = spycnl_ref_cast.min(), spycnl_ref_cast.argmin()
 
-    #Ishallow = np.nonzero( spycnl <= min_spycnl_ref_cast ) # Set equal to the shallowest bottle.
+    #Ishallow = np.where( spycnl <= min_spycnl_ref_cast ) # Set equal to the shallowest bottle.
 
     #SA_iref_cast[Ishallow] = SA_ref_cast[Imin_spycnl_ref_cast]
     #CT_iref_cast[Ishallow] = CT_ref_cast[Imin_spycnl_ref_cast]
@@ -1124,13 +1124,13 @@ def  _dsa_add_mean(dsa):
 
     #max_spycnl_ref_cast, Imax_spycnl_ref_cast = spycnl_ref_cast.max(), spycnl_ref_cast.argmax()
 
-    #Ideep = np.nonzero( spycnl >= max_spycnl_ref_cast ) # Set equal to the deepest bottle.
+    #Ideep = np.where( spycnl >= max_spycnl_ref_cast ) # Set equal to the deepest bottle.
 
     #SA_iref_cast[Ideep] = SA_ref_cast[Imax_spycnl_ref_cast]
     #CT_iref_cast[Ideep] = CT_ref_cast[Imax_spycnl_ref_cast]
     #p_iref_cast[Ideep] = p_ref_cast[Imax_spycnl_ref_cast]
 
-    #I = np.nonzero(spycnl >= 21.805 & spycnl <= 28.3614)
+    #I = np.where(spycnl >= 21.805 & spycnl <= 28.3614)
 
     #xi = spycnl[I]
     #x = spycnl_ref_cast

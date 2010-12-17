@@ -170,7 +170,7 @@ def molality(SA):
     # Convert input to numpy arrays
     SA = np.asarray(SA)
 
-    Isalty = (SA >= 0).nonzero()
+    Isalty = np.where(SA >= 0)
     molality = np.ones( SA.shape )*np.nan
     # molality of seawater in mol kg :sup:`-1`
     molality[Isalty] = SA[Isalty] / (cte.M_S * ( 1000 - SA[Isalty] ) )
@@ -424,8 +424,8 @@ def CT_from_pt(SA, pt):
     >>> gsw.CT_from_pt(SA, pt)
     array([[  4.75807226e+00,   1.51169032e+01,   2.28191712e+01,
               3.27053824e+01],
-          [  1.55805693e+01,   1.52844796e-02,   2.57405705e+01,
-             2.91013409e+01]])
+           [  1.55805693e+01,   1.52844796e-02,   2.57405705e+01,
+              2.91013409e+01]])
 
     References
     ----------
@@ -514,7 +514,10 @@ def pt0_from_t(SA, t, p):
     >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
     >>> p = 900
     >>> gsw.pt0_from_t(SA, t, p)
-    TODO
+    array([[  4.89971486e+00,   1.48664023e+01,   2.18420392e+01,
+              3.17741959e+01],
+           [  1.48891940e+01,   2.95267636e-02,   2.48187231e+01,
+              2.78058513e+01]])
 
     References
     ----------
@@ -594,7 +597,9 @@ def CT_from_t(SA, t, p):
     >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
     >>> p = 900
     >>> gsw.CT_from_t(SA, t, p)
-    TODO
+    array([[  4.66028901,  14.98237022,  22.6558658 ,  32.47483113],
+           [ 15.46594688,   0.04649395,  25.55437701,  28.90014276]])
+
 
     References
     ----------
@@ -877,8 +882,7 @@ def SA_from_SP(SP, p, lon, lat):
     >>> import seawater.gibbs as gsw
     >>> SP = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
     >>> p = [[0., 500., 1500., 2000.], [0., 500., 1500., 2000.]]
-    >>> gsw.
-    TODO
+    >>> gsw.SA_from_SP
 
 
     TODO
@@ -907,7 +911,7 @@ def SA_from_SP(SP, p, lon, lat):
 
     SP[SP < 0] = 0
 
-    inds = np.isfinite(SP).nonzero()
+    inds = np.where( np.isfinite(SP) )
 
     SA = np.nan * np.zeros( SP.shape )
     dSA = SA
@@ -918,7 +922,7 @@ def SA_from_SP(SP, p, lon, lat):
 
     SA_baltic[inds] = lib._SA_from_SP_Baltic( SP[inds], lon[inds], lat[inds] )
 
-    indsbaltic = ( ~np.isnan( SA_baltic[inds] ) ).nonzero()
+    indsbaltic = np.where( ~np.isnan( SA_baltic[inds] ) )
 
     SA[inds[indsbaltic]] = SA_baltic[inds[indsbaltic]]
 
