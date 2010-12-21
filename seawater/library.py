@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 from seawater import constants as cte
-import gzip # FIXME: zlib for windows? or FTB?
+#import gzip # FIXME: zlib for windows? or FTB?
 from __future__ import division
 
 try:
@@ -1249,19 +1249,13 @@ def  _delta_SA(p, lon, lat):
     # Convert input to numpy arrays
     p, lon, lat = np.asarray(p), np.asarray(lon), np.asarray(lat)
 
-    data = pickle.load( gzip.open('gsw_data_v2_0.pklz','rb') )
+    data = pickle.load( open('gsw_data_v2_0.pkl','rb') )
 
-    data = pickle.load( open('gsw_data_v2_0.pkl', 'rb') )
     delta_SA_ref = data['delta_SA_ref']
     lats_ref = data['lats_ref']
     longs_ref = data['longs_ref']
     p_ref = data['p_ref']
     ndepth_ref = data['ndepth_ref']
-
-    #nx = len(longs_ref)
-    #ny = len(lats_ref)
-    #nz = len(p_ref)
-    #n0 = len(p)
 
     dlongs_ref = longs_ref[1] - longs_ref[0]
     dlats_ref = lats_ref[1] - lats_ref[0]
@@ -1337,7 +1331,7 @@ def  _delta_SA(p, lon, lat):
 
             inds = np.where( (260. <= lon) & (lon <= 295.217) & (0. <= lat) & (lat <= 19.55) & (indsz0 == k) )
 
-            if inds[0] !=0: #FIXME: test case when this is True
+            if inds[0].size !=0: #FIXME: test case when this is True
                 dsa[:,inds] = _dsa_add_barrier( dsa[:,inds], lon[inds], \
                 lat[inds], longs_ref[indsx0[inds]], lats_ref[indsy0[inds]], dlongs_ref, dlats_ref)
 
@@ -1430,7 +1424,6 @@ def  _delta_SA(p, lon, lat):
 import scipy.io as sio
 import numpy as np
 from seawater import constants as cte
-import gzip # FIXME: zlib for windows? or FTB?
 
 try:
     import cPickle as pickle
