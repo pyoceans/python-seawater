@@ -882,7 +882,12 @@ def SA_from_SP(SP, p, lon, lat):
     >>> import seawater.gibbs as gsw
     >>> SP = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
     >>> p = [[0., 500., 1500., 2000.], [0., 500., 1500., 2000.]]
-    >>> gsw.SA_from_SP
+    >>> lon, lat = -69., 42.
+    >>> gsw.SA_from_SP(SP, p, lon, lat)[0]
+    array([[  5.32510274e+01,   3.01448066e+01,   1.00503768e+01,
+              2.00980483e+01],
+           [  1.00482640e+01,   3.34377888e-03,   1.50739539e+01,
+              8.04146315e+00]])
 
 
     TODO
@@ -903,26 +908,28 @@ def SA_from_SP(SP, p, lon, lat):
     # Convert input to numpy arrays
     SP, p, lon, lat = np.asarray(SP), np.asarray(p), np.asarray(lon), np.asarray(lat)
 
-    #TODO: maybe make this check a function?
     p = check_dim(p, SP)
-    lat = check_dim(p, SP)
-    lon = check_dim(p, SP)
+    lat = check_dim(lat, SP)
+    lon = check_dim(lon, SP)
 
+    lon[lon < 0] = lon[lon < 0] + 360.
 
     SP[SP < 0] = 0
 
-    inds = np.where( np.isfinite(SP) )
+    inds = np.isfinite(SP)
 
     SA = np.nan * np.zeros( SP.shape )
-    dSA = SA
-    in_ocean = SA #FIXME
+    dSA = np.nan * np.zeros( SP.shape )
+    SA_baltic = np.nan * np.zeros( SP.shape )
+    in_ocean = np.nan * np.zeros( SP.shape ) #FIXME: change to boolean
 
     dSA[inds], in_ocean[inds] = lib._delta_SA( p[inds], lon[inds], lat[inds] )
     SA[inds] = ( 35.16504 / 35 ) * SP[inds] + dSA[inds]
 
-    SA_baltic[inds] = lib._SA_from_SP_Baltic( SP[inds], lon[inds], lat[inds] )
+    #inds = np.where(inds.flatten('F'))
+    SA_baltic = lib._SA_from_SP_Baltic( SP[inds], lon[inds], lat[inds] )
 
-    indsbaltic = np.where( ~np.isnan( SA_baltic[inds] ) )
+    indsbaltic = ~np.isnan(SA_baltic)
 
     SA[inds[indsbaltic]] = SA_baltic[inds[indsbaltic]]
 
@@ -931,6 +938,7 @@ def SA_from_SP(SP, p, lon, lat):
 def check_dim(prop1, prop2):
     """
     Broadcast prop1 to the shape prop2. Prop1 can be scalar, row equal or column equal to prop2.
+    TODO: Needs lots of improvement and cleanups...
     """
     if prop1.ndim == 1:
         prop1 = prop1.flatten()
@@ -947,5 +955,43 @@ def check_dim(prop1, prop2):
         else:
             print "add a proper error msg"
 
+    if prop1.ndim == 0:
+        prop1 = prop1 * np.ones(prop2.shape)
+
     prop1.dtype = 'float64' # FIXME: somehow lon is been loaded as uint8
     return prop1
+
+#lon = [20.]
+#lat = [59.]
+#p = [20., 30., 40., 50., 76., 101.]
+#SP = [6.810767, 7.034835, 7.262911, 7.482537, 9.060422, 10.279548]
+#SA_from_SP(SP, p, lon, lat)
+#SA
+  #right         wrong
+ #6.91295306    6.84288269
+ #7.13752067    7.06800726
+ #7.36610522    7.29715874
+ #7.58622092    7.51782037
+ #9.16762415    9.10314577
+#10.38946846    10.32802047
+
+""" FIXME: temporary solution until SA is OK"""
+#import scipy.io as sio
+#SA_chck_cast = sio.loadmat('SA_chck_cast.mat', squeeze_me=True)['SA_chck_cast']
+try:
+    import cPickle as pickle
+except:
+    import pickle
+
+""" load test data """
+class Dict2Struc(object):
+    """ all the variables from a dict in a "matlab-like-structure" """
+    def __init__(self, adict):
+        self.__dict__.update(adict)
+
+data = pickle.load( open('gsw_cv.pkl','rb') )
+gsw_cv = Dict2Struc(data) # then type dat.<tab> to navigate through your variables
+SP = gsw_cv.SP_chck_cast
+p = gsw_cv.p_chck_cast
+lon = gsw_cv.long_chck_cast
+lat  = gsw_cv.lat_chck_cast

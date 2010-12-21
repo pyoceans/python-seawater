@@ -1,15 +1,14 @@
-try:
-    import cPickle as pickle
-except:
-    import pickle
-
 import seawater.gibbs as gsw
 import seawater.csiro as sw
 import numpy as np
 
 """ FIXME: temporary solution until SA is OK"""
-import scipy.io as sio
-SA_chck_cast = sio.loadmat('SA_chck_cast.mat', squeeze_me=True)['SA_chck_cast']
+#import scipy.io as sio
+#SA_chck_cast = sio.loadmat('SA_chck_cast.mat', squeeze_me=True)['SA_chck_cast']
+try:
+    import cPickle as pickle
+except:
+    import pickle
 
 """ load test data """
 class Dict2Struc(object):
@@ -19,6 +18,16 @@ class Dict2Struc(object):
 
 data = pickle.load( open('gsw_cv.pkl','rb') )
 gsw_cv = Dict2Struc(data) # then type dat.<tab> to navigate through your variables
+
+""" SA_from_SP """
+#TODO: Fails for 2 columns, probably the sub2ind logic fails?
+SA_chck_cast = gsw.SA_from_SP(gsw_cv.SP_chck_cast, gsw_cv.p_chck_cast, gsw_cv.long_chck_cast, gsw_cv.lat_chck_cast)[0]
+ISA_from_SP = np.where( (gsw_cv.SA_from_SP - SA_chck_cast) >= gsw_cv.SA_from_SP_ca)
+
+if ISA_from_SP[0].size != 0:
+    print "SA_from_SP:   Failed. Note that this will cause many other programmes in the GSW toolbox to fail"
+else:
+    print "SA_from_SP:   Passed"
 
 """ z_from_p """
 z_from_p = gsw.z_from_p(gsw_cv.p_chck_cast, gsw_cv.lat_chck_cast)
@@ -38,16 +47,6 @@ if Igrav[0].size != 0:
 else:
     print "grav:   Passed"
 
-
-#""" SA_from_SP """
-##TODO:
-#SA_chck_cast = gsw.SA_from_SP(gsw_cv.SP_chck_cast, gsw_cv.p_chck_cast, gsw_cv.long_chck_cast, gsw_cv.lat_chck_cast)
-#ISA_from_SP = np.where( (gsw_cv.SA_from_SP - SA_chck_cast) >= gsw_cv.SA_from_SP_ca)
-
-#if ISA_from_SP[0].size != 0:
-    #print "SA_from_SP:   Failed. Note that this will cause many other programmes in the GSW toolbox to fail"
-#else:
-    #print "SA_from_SP:   Passed"
 
 """ molality """
 molality = gsw.molality(SA_chck_cast)

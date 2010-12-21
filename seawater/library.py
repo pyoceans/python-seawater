@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
+from __future__ import division
 import numpy as np
 from seawater import constants as cte
 #import gzip # FIXME: zlib for windows? or FTB?
-from __future__ import division
 
 try:
     import cPickle as pickle
@@ -391,16 +391,17 @@ def  _SA_from_SP_Baltic(SP, lon, lat):
     yb1, yb2, yb3 = 50., 59., 69.
 
     inds = (xb2 < lon) & (lon < xb1a) & (yb1 < lat) & (lat < yb3)
-
+    #inds_itrp = np.where( ((xb2 < lon) & (lon < xb1a) & (yb1 < lat) & (lat < yb3)).flatten('F') )[0]
     SA_baltic = np.ones( SP.shape )*np.nan
 
-    if np.any(inds):
+    if inds_itrp.size != 0:
         xx_left = np.interp( lat[inds], [yb1,yb2,yb3], [xb1,xb2,xb3])
         xx_right = np.interp( lat[inds], [yb1,yb3], [xb1a,xb3a] )
-        inds1 = (xx_left <= lon[inds]) & (lon[inds] <= xx_right)
+        inds1 = np.where( (xx_left <= lon.flatten('F')[inds_itrp]) & (lon.flatten('F')[inds_itrp] <= xx_right) )[0]
 
-        SA_baltic[inds[inds1]] = ( ( 35.16504 - 0.087 ) / 35 ) * SP[inds[inds1]] + 0.087
-        SA_baltic = np.reshape( SA_baltic, lon.shape )
+        #SA_baltic.flatten('F')[inds[inds1]] = ( ( 35.16504 - 0.087 ) / 35 ) * SP.flatten('F')[inds[inds1]] + 0.087
+        SA_baltic[inds_bool[inds1]] = ( ( 35.16504 - 0.087 ) / 35 ) * SP[inds_bool[inds1]] + 0.087
+        #SA_baltic = np.reshape( SA_baltic, lon.shape )
 
     return SA_baltic
 
@@ -990,17 +991,17 @@ def  _dsa_add_barrier(dsa, lon, lat, longs_ref, lats_ref, dlongs_ref, dlats_ref)
         else:
             above_line[2] = False
 
-        inds = np.where( above_line != above_line0 ) # indices of different sides of CA line
+        inds = np.where( above_line != above_line0 )[0] # indices of different sides of CA line
         dsa[inds,k0] = np.nan
 
     dsa_mean = dsa.mean()
-    inds_nan = np.where( np.isnan( dsa_mean ) )
+    inds_nan = np.where( np.isnan( dsa_mean ) )[0]
     no_nan = len(inds_nan)
 
     for kk in range(0,no_nan):
         col = inds_nan[kk]
-        inds_kk = np.where( np.isnan( dsa[:,col] ) )
-        Inn = np.where( ~np.isnan( dsa[:,col] ) )
+        inds_kk = np.where( np.isnan( dsa[:,col] ) )[0]
+        Inn = np.where( ~np.isnan( dsa[:,col] ) )[0]
         if Inn.size == 0:
             dsa[inds_kk,col] = dsa[Inn,col].mean()
 
@@ -1048,15 +1049,15 @@ def  _dsa_add_mean(dsa):
     dsa = np.asarray(dsa)
 
     #FIXME: there must be a better way
-    dsa_mean = dsa.mean() #FIXME: should be nanmean here in the original...
-    inds_nan = np.where( np.isnan(dsa_mean) )
+    dsa_mean = dsa.mean(axis = 0) #FIXME: should be nanmean here in the original...
+    inds_nan = np.where( np.isnan(dsa_mean) )[0]
     no_nan = len(inds_nan)
 
     for kk in range(0, no_nan):
         col = inds_nan[kk]
-        inds_kk = np.where( np.isnan( dsa[:,col] ) )
-        Inn = np.where(~np.isnan( dsa[:,col] ) )
-        if Inn.size == 0:
+        inds_kk = np.where( np.isnan( dsa[:,col] ) )[0]
+        Inn = np.where(~np.isnan( dsa[:,col] ) )[0]
+        if Inn.size != 0:
             dsa[inds_kk, col] = dsa[Inn,col].mean()
 
     delta_SA = dsa
@@ -1187,19 +1188,6 @@ def  _dsa_add_mean(dsa):
 
     #return SA_iref_cast, CT_iref_cast, p_iref_cast
 
-def sub2ind(shape, I, J, row_major=True):
-    """
-    Quick-and-ditry matlab sub2ind substitute
-    TODO: enter integers-math-with-float-output-integer
-    """
-    if row_major:
-        ind = (I % shape[0]) * shape[1] + (J % shape[1])
-    else:
-        ind = (J % shape[1]) * shape[0] + (I % shape[0])
-
-    ind = np.int64(ind)
-    return ind
-
 def  _delta_SA(p, lon, lat):
     """
     Calculates the Absolute Salinity anomaly, SA - SR, in the open ocean by spatially interpolating the global reference data set of delta_SA to the location of the seawater sample.
@@ -1280,8 +1268,8 @@ def  _delta_SA(p, lon, lat):
 
 
     #FIXME: check if this work when inds1 !=0
-    inds1 = np.where(indsz0 > nmax) # casts deeper than GK maximum
-    if inds1[0].size != 0:
+    inds1 = np.where(indsz0 > nmax)[0] # casts deeper than GK maximum
+    if inds1.size != 0:
         p[inds1] = p_ref[nmax[inds1]] # have reset p here so have to reset indsz0
 
 
@@ -1290,38 +1278,37 @@ def  _delta_SA(p, lon, lat):
     P = np.dot( p_ref[:,np.newaxis], np.ones(p.size)[np.newaxis,:] )
     indsz0 = np.sum( (P_REF >= P), axis=0 ) - 1
 
-    inds = np.where(indsz0 == p_ref.size-1)
-    if inds[0].size != 0:
+    inds = np.where(indsz0 == p_ref.size-1)[0]
+    if inds.size != 0:
         indsz0[inds] = p_ref.size - 2
 
-    #inds0 = sub2ind(shape, indsz0, indsy0, indsx0)
     inds0 = indsz0 + indsy0 * delta_SA_ref.shape[0] + indsx0 * delta_SA_ref.shape[0] * delta_SA_ref.shape[1]
 
     data_indices = np.c_[indsx0, indsy0, indsz0, inds0]
     data_inds = data_indices[:,2]
 
-    r1 = ( lon - longs_ref[indsx0] ) / ( longs_ref[indsx0+1] - longs_ref[indsx0] )
-    s1 = ( lat - lats_ref[indsy0] ) / ( lats_ref[indsy0+1] - lats_ref[indsy0] )
-    t1 = ( p - p_ref[indsz0] ) / ( p_ref[indsz0+1] - p_ref[indsz0] )
+    r1 = ( lon - longs_ref[indsx0] ) / np.float64( longs_ref[indsx0+1] - longs_ref[indsx0] )
+    s1 = ( lat - lats_ref[indsy0] ) / np.float64( lats_ref[indsy0+1] - lats_ref[indsy0] )
+    t1 = ( p - p_ref[indsz0] ) / np.float64( p_ref[indsz0+1] - p_ref[indsz0] )
 
     nksum = 0
     no_levels_missing = 0
 
     sa_upper = np.nan * ( np.ones(data_inds.shape) )
-    sa_lower = sa_upper
-    delta_SA = sa_upper
+    sa_lower = np.nan * ( np.ones(data_inds.shape) )
+    delta_SA = np.nan * ( np.ones(data_inds.shape) )
     in_ocean = np.ones( delta_SA.shape )
 
-    for k in range(0, p_ref.size):
-        inds_k = np.where( indsz0 == k )
-        nk = len(inds_k[0])
+    for k in range(0, p_ref.size-1):
+        inds_k = np.where( indsz0 == k )[0]
+        nk = len(inds_k)
 
         if nk > 0:
             nksum = nksum + nk
             indsx = indsx0[inds_k]
             indsy = indsy0[inds_k]
             indsz = k * np.ones( indsx.shape, dtype='int64' )
-            inds_di = np.where( data_inds == k ) # level k interpolation
+            inds_di = np.where( data_inds == k )[0] # level k interpolation
             dsa = np.nan * np.ones( (4, p.size) )
 
             dsa[0, inds_k] = delta_SA_ref[indsz, indsy, indsx]
@@ -1329,16 +1316,15 @@ def  _delta_SA(p, lon, lat):
             dsa[2, inds_k] = delta_SA_ref[indsz, indsy+1, indsx+1] # inds0 + ny*nz + nz
             dsa[3, inds_k] = delta_SA_ref[indsz, indsy+1, indsx] #  inds0 + nz
 
-            inds = np.where( (260. <= lon) & (lon <= 295.217) & (0. <= lat) & (lat <= 19.55) & (indsz0 == k) )
+            inds = np.where( (260. <= lon) & (lon <= 295.217) & (0. <= lat) & (lat <= 19.55) & (indsz0 == k) )[0]
 
-            if inds[0].size !=0: #FIXME: test case when this is True
+            if inds.size !=0: #FIXME: test case when this is True
                 dsa[:,inds] = _dsa_add_barrier( dsa[:,inds], lon[inds], \
-                lat[inds], longs_ref[indsx0[inds]], lats_ref[indsy0[inds]], dlongs_ref, dlats_ref)
+                lat[inds], longs_ref[indsx0[0][inds[0]]], lats_ref[indsy0[0][inds[0]]], dlongs_ref, dlats_ref)
 
-            #FIXME: here np.sum is return something != than nan while the original return nan
-            inds = np.where( ( np.isnan( np.sum(dsa, axis=0) ) ) & (indsz0==k))
+            inds = np.where( ( np.isnan( np.sum(dsa, axis=0) ) ) & (indsz0==k))[0]
 
-            if inds[0].size !=0:  #FIXME: test case when this is True
+            if inds.size !=0:  #FIXME: Not working !!!
                 dsa[:,inds] = _dsa_add_mean(dsa[:,inds])
 
             sa_upper[inds_di] = ( 1 - s1[inds_di] ) * ( dsa[0, inds_k] + \
@@ -1346,92 +1332,55 @@ def  _delta_SA(p, lon, lat):
             s1[inds_di] * ( dsa[3, inds_k] + \
             r1[inds_di] * ( dsa[2, inds_k] - dsa[3,inds_k] ) ) # level k+1 interpolation
 
-            #dsa = nan(4,n0);
-            #inds1 = sub2ind([nz,ny,nx], indsz+1, indsy, indsx);
-            #dsa(1,inds_k) = delta_SA_ref(inds1);
-            #inds2 = sub2ind([nz,ny,nx], indsz+1, indsy, indsx+1);
-            #dsa(2,inds_k) = delta_SA_ref(inds2);                % inds1 + ny*nz
-            #inds3 = sub2ind([nz,ny,nx], indsz+1, indsy+1, indsx+1);
-            #dsa(3,inds_k) = delta_SA_ref(inds3);           % inds1 + ny*nz + nz
-            #inds4 = sub2ind([nz ny,nx], indsz+1, indsy+1, indsx);
-            #dsa(4,inds_k) = delta_SA_ref(inds4);                   % inds1 + nz
+            dsa = np.nan * np.ones( (4, p.size) )
+            dsa[0, inds_k] = delta_SA_ref[indsz+1, indsy, indsx]
+            dsa[1, inds_k] = delta_SA_ref[indsz+1, indsy, indsx+1] # inds1 + ny*nz
+            dsa[2, inds_k] = delta_SA_ref[indsz+1, indsy+1, indsx+1] # inds1 + ny*nz + nz
+            dsa[3, inds_k] = delta_SA_ref[indsz+1, indsy+1, indsx] # inds1 + nz
 
-            #inds = find(260<=long(:) & long(:)<=295.217 & ...
-                #0<=lat(:) & lat(:)<=19.55 & indsz0(:)==k);
-            #if ~isempty(inds)
-                #dsa(:,inds) = gsw_dsa_add_barrier(dsa(:,inds),long(inds), ...
-                    #lat(inds),longs_ref(indsx0(inds)),lats_ref(indsy0(inds)),dlongs_ref,dlats_ref);
-            #end
+            inds = np.where( (260. <= lon) & (lon <= 295.217) & (0 <= lat) & (lat <= 19.55) & (indsz0 == k) )[0]
 
-            #inds = find(isnan(sum(dsa))' & indsz0==k);
+            """ TODO: describe add_barrier """
+            if inds.size != 0:  #FIXME: test case when this is True
+                dsa[:,inds] = _dsa_add_barrier( dsa[:,inds], lon[inds], \
+                lat[inds], longs_ref[ndsx0[0][inds[0]]], lats_ref[indsy0[0][inds[0]]], dlongs_ref, dlats_ref)
 
-            #if ~isempty(inds)
-                #dsa(:,inds) = gsw_dsa_add_mean(dsa(:,inds));
-            #end
+            inds = np.where( ( np.isnan( np.sum(dsa, axis=0) ) ) & (indsz0==k))[0]
 
-            #sa_lower(inds_di) = (1-s1(inds_di)).*(dsa(1,inds_k)' + ...
-                #r1(inds_di).*(dsa(2,inds_k)'-dsa(1,inds_k)')) + ...
-                #s1(inds_di).*(dsa(4,inds_k)' + ...
-                #r1(inds_di).*(dsa(3,inds_k)'-dsa(4,inds_k)'));
+            """ TODO: describe add_mean """
+            if inds.size !=0:  #FIXME: test case when this is True
+                dsa[:,inds] = _dsa_add_mean(dsa[:,inds])
 
-            #inds_different = find(isfinite(sa_upper(inds_di)) & isnan(sa_lower(inds_di)));
+            sa_lower[inds_di] = ( 1 - s1[inds_di] ) * ( dsa[0, inds_k] + \
+            r1[inds_di] * ( dsa[1, inds_k] - dsa[0,inds_k] ) ) + \
+            s1[inds_di] * ( dsa[3, inds_k] + \
+            r1[inds_di] * ( dsa[2, inds_k] - dsa[3, inds_k] ) )
 
-            #if ~isempty(inds_different)
-                #sa_lower(inds_di(inds_different)) = sa_upper(inds_di(inds_different));
-            #end
+            inds_different = np.where( np.isfinite(sa_upper[inds_di] ) & np.isnan(sa_lower[inds_di]) )[0]
 
-            #delta_SA(inds_di) = sa_upper(inds_di) + t1(inds_di).*(sa_lower(inds_di) - sa_upper(inds_di));
+            if inds_different.size != 0: # FIXME: test this when this is True
+                sa_lower[inds_di[0][inds_different[0]]] = sa_upper[inds_di[0][inds_different[0]]]
 
-        #else
-            #no_levels_missing = no_levels_missing + 1;
-        #end
-    #end
+            delta_SA[inds_di] = sa_upper[inds_di] + t1[inds_di] * ( sa_lower[inds_di] - sa_upper[inds_di] )
 
-    #inds = find(~isfinite(delta_SA));
-    #delta_SA(inds) = 0;
+        else:
+            no_levels_missing = no_levels_missing + 1
 
-    #in_ocean(inds) = 0;
+    inds = np.where( ~np.isfinite(delta_SA) )[0]
+    delta_SA[inds] = 0
+    in_ocean[inds] = 0 # TODO: change to boolean
 
-    #returns delta_SA, in_ocean
+    return delta_SA, in_ocean
 
-
-#""" test _delta_SA """
-#try:
-    #import cPickle as pickle
-#except:
-    #import pickle
-
-#import seawater.gibbs as gsw
-#import seawater.csiro as sw
-
-#""" FIXME: temporary solution until SA is OK"""
 #import scipy.io as sio
-##SA_chck_cast = sio.loadmat('SA_chck_cast.mat', squeeze_me=True)['SA_chck_cast']
-
-#""" load test data """
-#class Dict2Struc(object):
-    #""" all the variables from a dict in a "matlab-like-structure" """
-    #def __init__(self, adict):
-        #self.__dict__.update(adict)
-
-#data = pickle.load( open('gsw_cv.pkl','rb') )
-#gsw_cv = Dict2Struc(data) # then type dat.<tab> to navigate through your variables
-
-#p, lon, lat = np.asarray(gsw_cv.p_chck_cast), np.asarray(gsw_cv.long_chck_cast), np.asarray(gsw_cv.lat_chck_cast)
-
-#_delta_SA(p, lon, lat)
-
-import scipy.io as sio
 import numpy as np
-from seawater import constants as cte
 
-try:
-    import cPickle as pickle
-except:
-    import pickle
+#delta = sio.loadmat('DELTA.mat', squeeze_me=True)
+#lon = delta['lon']
+#lat = delta['lat']
+#p = delta['p']
 
-delta = sio.loadmat('DELTA.mat', squeeze_me=True)
-delta = sio.loadmat('DELTA.mat', squeeze_me=True)
-lon = delta['lon']
-lat = delta['lat']
-p = delta['p']
+#delta_SA, in_ocean = _delta_SA(p, lon, lat)
+#tmp = sio.loadmat('tmp.mat', squeeze_me=True)
+#tmp = tmp['delta_SA']
+#print (tmp - delta_SA).max()
