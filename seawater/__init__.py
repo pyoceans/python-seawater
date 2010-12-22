@@ -13,19 +13,20 @@ The author has no intention to do things in a "pythonic-way", it is just a "work
 
 CAVEAT: These modules do not adhere to strict basic-SI units but rather oceanographic units are adopted.
 
-The present version is 1.0.7, released 23 December 2010.
+The present version is 1.2.1, released 24 December 2010.
 """
 
 __authors__    = ['Filipe Fernandes']
 __copyright__  = ["CSIRO"]
 __credits__    = ["Filipe Fernandes", "Lindsay Pender","Phil Morgan"]
 __license__    = ["CSIRO"]
-__version__    = ["1.0.7"]
+__version__    = ["1.2.1"]
 __maintainer__ = ["Filipe Fernandes"]
 __email__      = ["ocefpaf@gmail.com"]
 __status__     = ["Production"]
-__all__        = ["seawater","csiro","extras"]
-__obs__        = ["Translated from matlab CSIRO seawater toolbox Version 3.2"]
+__all__        = ["seawater","gibbs","csiro","extras"] #FIXME
+__obs__        = ["csiro: Translated from matlab CSIRO seawater toolbox version 3.2"]
+__obs__        = ["gibbs: Translated from matlab GSW seawater toolbox version 2.0"]
 __web__        = ['http://ocefpaf.tiddlyspot.com/']
 __created__    = ["14-Jan-2010"]
 __modified__   = ["24-Dec-2010"]

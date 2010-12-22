@@ -912,9 +912,8 @@ def SA_from_SP(SP, p, lon, lat):
     lat = check_dim(lat, SP)
     lon = check_dim(lon, SP)
 
-    lon[lon < 0] = lon[lon < 0] + 360.
-
     SP[SP < 0] = 0
+    lon[lon < 0] = lon[lon < 0] + 360.
 
     inds = np.isfinite(SP)
 
@@ -927,6 +926,7 @@ def SA_from_SP(SP, p, lon, lat):
     SA[inds] = ( 35.16504 / 35 ) * SP[inds] + dSA[inds]
 
     #inds = np.where(inds.flatten('F'))
+    SP.flatten('F')[np.where( SP[inds] )] #Argh...
     SA_baltic = lib._SA_from_SP_Baltic( SP[inds], lon[inds], lat[inds] )
 
     indsbaltic = ~np.isnan(SA_baltic)
@@ -975,9 +975,7 @@ def check_dim(prop1, prop2):
  #9.16762415    9.10314577
 #10.38946846    10.32802047
 
-""" FIXME: temporary solution until SA is OK"""
-#import scipy.io as sio
-#SA_chck_cast = sio.loadmat('SA_chck_cast.mat', squeeze_me=True)['SA_chck_cast']
+""" FIXME """
 try:
     import cPickle as pickle
 except:
