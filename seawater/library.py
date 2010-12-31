@@ -390,17 +390,16 @@ def  _SA_from_SP_Baltic(SP, lon, lat):
     xb1a, xb3a = 45., 26.
     yb1, yb2, yb3 = 50., 59., 69.
 
-    inds = (xb2 < lon) & (lon < xb1a) & (yb1 < lat) & (lat < yb3)
-    #inds_itrp = np.where( ((xb2 < lon) & (lon < xb1a) & (yb1 < lat) & (lat < yb3)).flatten('F') )[0]
+    inds_baltic = (xb2 < lon) & (lon < xb1a) & (yb1 < lat) & (lat < yb3)
     SA_baltic = np.ones( SP.shape )*np.nan
 
-    if inds_itrp.size != 0:
-        xx_left = np.interp( lat[inds], [yb1,yb2,yb3], [xb1,xb2,xb3])
-        xx_right = np.interp( lat[inds], [yb1,yb3], [xb1a,xb3a] )
-        inds1 = np.where( (xx_left <= lon.flatten('F')[inds_itrp]) & (lon.flatten('F')[inds_itrp] <= xx_right) )[0]
-
+    #if inds_itrp.size != 0:
+    if list(inds_baltic): #FIXME: find a equivalent for numpy arrays
+        xx_left = np.interp( lat[inds_baltic], [yb1,yb2,yb3], [xb1,xb2,xb3])
+        xx_right = np.interp( lat[inds_baltic], [yb1,yb3], [xb1a,xb3a] )
+        inds_baltic1 = (xx_left <= lon[inds_baltic]) & (lon[inds_baltic] <= xx_right)
         #SA_baltic.flatten('F')[inds[inds1]] = ( ( 35.16504 - 0.087 ) / 35 ) * SP.flatten('F')[inds[inds1]] + 0.087
-        SA_baltic[inds_bool[inds1]] = ( ( 35.16504 - 0.087 ) / 35 ) * SP[inds_bool[inds1]] + 0.087
+        SA_baltic[inds_baltic[inds_baltic1]] = ( ( 35.16504 - 0.087 ) / 35 ) * SP[inds_baltic[inds_baltic1]] + 0.087
         #SA_baltic = np.reshape( SA_baltic, lon.shape )
 
     return SA_baltic

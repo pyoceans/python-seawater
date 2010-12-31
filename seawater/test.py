@@ -2,9 +2,6 @@ import seawater.gibbs as gsw
 import seawater.csiro as sw
 import numpy as np
 
-""" FIXME: temporary solution until SA is OK"""
-#import scipy.io as sio
-#SA_chck_cast = sio.loadmat('SA_chck_cast.mat', squeeze_me=True)['SA_chck_cast']
 try:
     import cPickle as pickle
 except:
@@ -19,30 +16,30 @@ class Dict2Struc(object):
 data = pickle.load( open('gsw_cv.pkl','rb') )
 gsw_cv = Dict2Struc(data) # then type dat.<tab> to navigate through your variables
 
-""" SA_from_SP """
-#TODO: Fails for 2 columns, probably the sub2ind logic fails?
-SA_chck_cast = gsw.SA_from_SP(gsw_cv.SP_chck_cast, gsw_cv.p_chck_cast, gsw_cv.long_chck_cast, gsw_cv.lat_chck_cast)[0]
-ISA_from_SP = np.where( (gsw_cv.SA_from_SP - SA_chck_cast) >= gsw_cv.SA_from_SP_ca)
 
-if ISA_from_SP[0].size != 0:
+""" SA_from_SP """
+SA_chck_cast = gsw.SA_from_SP(gsw_cv.SP_chck_cast, gsw_cv.p_chck_cast, gsw_cv.long_chck_cast, gsw_cv.lat_chck_cast)[0]
+ISA_from_SP = (gsw_cv.SA_from_SP - SA_chck_cast) >= gsw_cv.SA_from_SP_ca
+
+if ISA_from_SP.any():
     print "SA_from_SP:   Failed. Note that this will cause many other programmes in the GSW toolbox to fail"
 else:
     print "SA_from_SP:   Passed"
 
 """ z_from_p """
 z_from_p = gsw.z_from_p(gsw_cv.p_chck_cast, gsw_cv.lat_chck_cast)
-Iz_from_p = np.where( (gsw_cv.z_from_p - z_from_p) >= gsw_cv.z_from_p_ca )
+Iz_from_p = (gsw_cv.z_from_p - z_from_p) >= gsw_cv.z_from_p_ca
 
-if Iz_from_p[0].size != 0:
+if Iz_from_p.any():
     print "z_from_p:   Failed"
 else:
     print "z_from_p:   Passed"
 
 """ grav """
 grav = gsw.grav(gsw_cv.lat_chck_cast, gsw_cv.p_chck_cast )
-Igrav = np.where( (gsw_cv.grav - grav) >= gsw_cv.grav_ca )
+Igrav = (gsw_cv.grav - grav) >= gsw_cv.grav_ca
 
-if Igrav[0].size != 0:
+if Igrav.any():
     print "grav:   Failed"
 else:
     print "grav:   Passed"
@@ -50,9 +47,9 @@ else:
 
 """ molality """
 molality = gsw.molality(SA_chck_cast)
-Imolality = np.where( (gsw_cv.molality - molality) >= gsw_cv.molality_ca )
+Imolality = (gsw_cv.molality - molality) >= gsw_cv.molality_ca
 
-if Imolality[0].size != 0:
+if Imolality.any():
     print "molality:   Failed"
 else:
     print "molality:   Passed"
@@ -60,9 +57,9 @@ else:
 
 """ ionic_strength """
 ionic_strength = gsw.ionic_strength(SA_chck_cast)
-Iionic_strength = np.where( (gsw_cv.ionic_strength - ionic_strength) >= gsw_cv.ionic_strength_ca )
+Iionic_strength = (gsw_cv.ionic_strength - ionic_strength) >= gsw_cv.ionic_strength_ca
 
-if Iionic_strength[0].size != 0:
+if Iionic_strength.any():
     print "ionic_strength:   Failed"
 else:
     print "ionic_strength:   Passed"
@@ -71,9 +68,9 @@ else:
 """ gsw/sw f """
 f = sw.cor(gsw_cv.lat_chck_cast)
 
-If = np.where( (gsw_cv.f - f) >= gsw_cv.f_ca )
+If = (gsw_cv.f - f) >= gsw_cv.f_ca
 
-if If[0].size != 0:
+if If.any():
     print "f:   Failed"
 else:
     print "f:   Passed"
@@ -81,8 +78,8 @@ else:
 
 """ CT_from_t """
 CT_chck_cast = gsw.CT_from_t(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
-ICT_from_t = np.where( (gsw_cv.CT_from_t - CT_chck_cast) >= gsw_cv.CT_from_t_ca )
-if ICT_from_t[0].size != 0:
+ICT_from_t = (gsw_cv.CT_from_t - CT_chck_cast) >= gsw_cv.CT_from_t_ca
+if ICT_from_t.any():
     print "CT_from_t:   Failed. Note that this will cause many other programmes in the GSW toolbox to fail."
 else:
     print "CT_from_t:   Passed"
@@ -91,19 +88,19 @@ else:
 
 """ pt_from_t """
 pt = gsw.pt_from_t(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast, gsw_cv.pr)
-Ipt_from_t = np.where( (gsw_cv.pt_from_t - pt) >= gsw_cv.pt_from_t_ca )
+Ipt_from_t = (gsw_cv.pt_from_t - pt) >= gsw_cv.pt_from_t_ca
 
-if Ipt_from_t[0].size != 0:
+if Ipt_from_t.any():
     print "pt_from_t:   Failed"
 else:
     print "pt_from_t:   Passed"
 
 
-""" entropy_from_t 'pt' """
+""" entropy_from_t 'pt' """ #FIXME: pass, but small float are detected, investigate further
 entropy_from_pt =  gsw.entropy_from_t(SA_chck_cast, pt)
-Ientropy_from_pt = np.where( (gsw_cv.entropy_from_pt - entropy_from_pt) >= gsw_cv.entropy_from_pt_ca )
+Ientropy_from_pt = (gsw_cv.entropy_from_pt - entropy_from_pt) >= gsw_cv.entropy_from_pt_ca
 
-if Ientropy_from_pt[0].size != 0:
+if Ientropy_from_pt.any():
     print "entropy_from_pt:   Failed"
 else:
     print "entropy_from_pt:   Passed"
@@ -111,19 +108,19 @@ else:
 
 """ entropy_from_t 'CT'"""
 entropy_from_CT =  gsw.entropy_from_t(SA_chck_cast, CT_chck_cast, t_type='CT')
-Ientropy_from_CT = np.where( (gsw_cv.entropy_from_CT - entropy_from_CT) >= gsw_cv.entropy_from_CT_ca)
+Ientropy_from_CT = (gsw_cv.entropy_from_CT - entropy_from_CT) >= gsw_cv.entropy_from_CT_ca
 
-if Ientropy_from_CT[0].size != 0:
+if Ientropy_from_CT.any():
     print "entropy_from_CT:   Failed"
 else:
     print "entropy_from_CT:   Passed"
 
 
 """ CT_from_pt """
-CT_from_pt = gsw.CT_from_pt(SA_chck_cast, pt)
-ICT_from_pt = np.where( (gsw_cv.CT_from_pt - CT_from_pt) >= gsw_cv.CT_from_pt_ca )
+CT_from_pt = gsw.CT_from_pt(SA_chck_cast, pt) #FIXME: pass, but small float are detected, investigate further
+ICT_from_pt = (gsw_cv.CT_from_pt - CT_from_pt) >= gsw_cv.CT_from_pt_ca
 
-if ICT_from_pt[0].size != 0:
+if ICT_from_pt.any():
     print "CT_from_pt:   Failed"
 else:
     print "CT_from_pt:   Passed"
@@ -131,9 +128,9 @@ else:
 
 """ pt0_from_t """
 pt0 = gsw.pt0_from_t(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
-Ipt0 = np.where( (gsw_cv.pt0 - pt0) >= gsw_cv.pt0_ca )
+Ipt0 = (gsw_cv.pt0 - pt0) >= gsw_cv.pt0_ca
 
-if Ipt0[0].size != 0:
+if Ipt0.any():
     print "pt0_from_t:   Failed"
 else:
     print "pt0_from_t:   Passed"
@@ -142,39 +139,63 @@ else:
 
 """ pt_from_CT """
 pt_from_CT = gsw.pt_from_CT(SA_chck_cast, CT_chck_cast)
-Ipt_from_CT = np.where( (gsw_cv.pt - pt_from_CT) >= gsw_cv.pt_ca )
+Ipt_from_CT = (gsw_cv.pt - pt_from_CT) >= gsw_cv.pt_ca
 
-if Ipt_from_CT[0].size != 0:
+if Ipt_from_CT.any():
     print "pt_from_CT:   Failed"
 else:
     print "pt_from_CT:   Passed"
 
 
 
+
 """ entropy """
 entropy = gsw.entropy(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
-Ientropy = np.where( (gsw_cv.entropy - entropy) >= gsw_cv.entropy_ca )
+Ientropy = (gsw_cv.entropy - entropy) >= gsw_cv.entropy_ca
 
-if Ientropy[0].size != 0:
+if Ientropy.any():
     print "entropy:   Failed"
 else:
     print "entropy:   Passed"
 
-""" pt_from_entropy """
-pt_from_entropy =  gsw.t_from_entropy(SA_chck_cast, entropy)
-Ipt_from_entropy = np.where( (gsw_cv.pt_from_entropy - pt_from_entropy) >= gsw_cv.pt_from_entropy_ca )
 
-if Ipt_from_entropy[0].size != 0:
+
+""" pt_from_entropy """ #FIXME: pass, but small float are detected, investigate further
+pt_from_entropy =  gsw.t_from_entropy(SA_chck_cast, entropy)
+Ipt_from_entropy = (gsw_cv.pt_from_entropy - pt_from_entropy) >= gsw_cv.pt_from_entropy_ca
+
+if Ipt_from_entropy.any():
     print "pt_from_entropy:   Failed"
 else:
     print "pt_from_entropy:   Passed"
 
 
-""" CT_from_entropy """
-CT_from_entropy =  gsw.t_from_entropy(SA_chck_cast, entropy, 'CT')
-ICT_from_entropy = np.where( (gsw_cv.CT_from_entropy - CT_from_entropy) >= gsw_cv.CT_from_entropy_ca )
 
-if ICT_from_entropy[0].size != 0:
+""" CT_from_entropy """ #FIXME: pass, but small float are detected, investigate further
+CT_from_entropy =  gsw.t_from_entropy(SA_chck_cast, entropy, 'CT')
+ICT_from_entropy = (gsw_cv.CT_from_entropy - CT_from_entropy) >= gsw_cv.CT_from_entropy_ca
+
+if ICT_from_entropy.any():
     print "CT_from_entropy:   Failed"
 else:
     print "CT_from_entropy:   Passed"
+
+
+""" sigma0_CT """
+sigma0_CT = gsw.sigma0_CT(SA_chck_cast, CT_chck_cast)
+Isigma0_CT = (gsw_cv.sigma0_CT - sigma0_CT) >= gsw_cv.sigma0_CT_ca
+
+if Isigma0_CT.any():
+    print "sigma0_CT:   Failed"
+else:
+    print "sigma0_CT:   Passed"
+
+
+""" cp """
+cp = gsw.cp(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+Icp = (gsw_cv.cp - cp) >= gsw_cv.cp_ca
+
+if Icp.any():
+    print "cp:   Failed"
+else:
+    print "cp:   Passed"

@@ -1,8 +1,38 @@
 #TODO: Go over PDFs to improve documentation
+#TODO: Examples: simple (copy-and-paste numbers) and complex (data)
+#TODO: Check original authors and dates
+#TODO: csiro vs gibbs (table?)
+#TODO: check_dim for p in all "p" functions
 
 import numpy as np
 from seawater import constants as cte
 from seawater import library as lib
+
+def check_dim(prop1, prop2):
+    """
+    Broadcast prop1 to the shape prop2. Prop1 can be scalar, row equal or column equal to prop2.
+    TODO: Needs lots of improvement and cleanups...
+    """
+    if prop1.ndim == 1:
+        prop1 = prop1.flatten()
+
+    if (prop1.ndim == 1) & (prop1.size == 1):
+        prop1 = prop1 * np.ones( prop2.shape )
+    elif (prop1.ndim == 1) & (prop2.ndim != 1):
+        if prop1.size == prop2.shape[1]:
+            prop1 = prop1 * np.ones(prop2.shape)
+            #prop1 = np.repeat(prop1[np.newaxis,:], prop2.shape[1], axis=1).reshape(prop2.shape)
+        elif prop1.size == prop2.shape[0]:
+            prop1 = prop1[:,np.newaxis] * np.ones(prop2.shape)
+            #prop1 = np.repeat(prop1[np.newaxis,:], prop2.shape[0], axis=0).reshape(prop2.shape)
+        else:
+            print "add a proper error msg"
+
+    if prop1.ndim == 0:
+        prop1 = prop1 * np.ones(prop2.shape)
+
+    prop1.dtype = 'float64' # FIXME: somehow lon is been loaded as uint8
+    return prop1
 
 def  z_from_p(p, lat):
     """
@@ -890,8 +920,6 @@ def SA_from_SP(SP, p, lon, lat):
               8.04146315e+00]])
 
 
-    TODO
-
     References
     ----------
     .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp.
@@ -915,7 +943,8 @@ def SA_from_SP(SP, p, lon, lat):
     SP[SP < 0] = 0
     lon[lon < 0] = lon[lon < 0] + 360.
 
-    inds = np.isfinite(SP)
+    inds = np.isfinite(SP) # pythonic
+    #inds = np.where(np.isfinite(SP.flatten('F'))) # matlab
 
     SA = np.nan * np.zeros( SP.shape )
     dSA = np.nan * np.zeros( SP.shape )
@@ -925,71 +954,120 @@ def SA_from_SP(SP, p, lon, lat):
     dSA[inds], in_ocean[inds] = lib._delta_SA( p[inds], lon[inds], lat[inds] )
     SA[inds] = ( 35.16504 / 35 ) * SP[inds] + dSA[inds]
 
-    #inds = np.where(inds.flatten('F'))
-    SP.flatten('F')[np.where( SP[inds] )] #Argh...
-    SA_baltic = lib._SA_from_SP_Baltic( SP[inds], lon[inds], lat[inds] )
+    SA_baltic = lib._SA_from_SP_Baltic( SP, lon, lat )
 
     indsbaltic = ~np.isnan(SA_baltic)
 
-    SA[inds[indsbaltic]] = SA_baltic[inds[indsbaltic]]
+    SA[indsbaltic] = SA_baltic[indsbaltic]
 
     return SA, in_ocean
 
-def check_dim(prop1, prop2):
+def sigma0_CT(SA, CT):
     """
-    Broadcast prop1 to the shape prop2. Prop1 can be scalar, row equal or column equal to prop2.
-    TODO: Needs lots of improvement and cleanups...
+    Calculates potential density anomaly with reference pressure of 0 dbar, this being this particular potential density minus 1000 kg m :sup:`-3`.
+
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+    CT : array_like
+        Conservative Temperature [:math:`^\\circ` C (TEOS-10)]
+
+    Returns
+    -------
+    sigma0_CT : array_like
+         potential density anomaly [kg m :sup:`-3`]
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    TODO
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+    >>> CT = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+    >>> gsw.sigma0_CT(SA, CT)
+    array([[ 41.73409047,  22.04181414,   5.48105772,  10.02188228],
+           [  6.84287855,  -0.15791025,   8.44540164,   2.49335766]])
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp.
+    See Eqn. (A.30.1) of this TEOS-10 Manual.
+
+    Modifications:
+    2010-08-26. Trevor McDougall & Paul Barker
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
-    if prop1.ndim == 1:
-        prop1 = prop1.flatten()
 
-    if (prop1.ndim == 1) & (prop1.size == 1):
-        prop1 = prop1 * np.ones( prop2.shape )
-    elif (prop1.ndim == 1) & (prop2.ndim != 1):
-        if prop1.size == prop2.shape[1]:
-            prop1 = prop1 * np.ones(prop2.shape)
-            #prop1 = np.repeat(prop1[np.newaxis,:], prop2.shape[1], axis=1).reshape(prop2.shape)
-        elif prop1.size == prop2.shape[0]:
-            prop1 = prop1[:,np.newaxis] * np.ones(prop2.shape)
-            #prop1 = np.repeat(prop1[np.newaxis,:], prop2.shape[0], axis=0).reshape(prop2.shape)
-        else:
-            print "add a proper error msg"
+    # Convert input to numpy arrays
+    SA, CT = np.asarray(SA), np.asarray(CT)
 
-    if prop1.ndim == 0:
-        prop1 = prop1 * np.ones(prop2.shape)
+    pr0 = np.zeros( SA.shape )
+    pt = pt_from_CT(SA, CT)
+    n0 = 0
+    n1 = 1
+    rho_0 = np.ones( SA.shape ) / lib._gibbs(n0, n0, n1, SA, pt, pr0)
 
-    prop1.dtype = 'float64' # FIXME: somehow lon is been loaded as uint8
-    return prop1
+    sigma0_CT = rho_0 - 1000
 
-#lon = [20.]
-#lat = [59.]
-#p = [20., 30., 40., 50., 76., 101.]
-#SP = [6.810767, 7.034835, 7.262911, 7.482537, 9.060422, 10.279548]
-#SA_from_SP(SP, p, lon, lat)
-#SA
-  #right         wrong
- #6.91295306    6.84288269
- #7.13752067    7.06800726
- #7.36610522    7.29715874
- #7.58622092    7.51782037
- #9.16762415    9.10314577
-#10.38946846    10.32802047
+    return sigma0_CT
 
-""" FIXME """
-try:
-    import cPickle as pickle
-except:
-    import pickle
+def cp(SA, t, p):
+    """
+    Calculates the isobaric heat capacity of seawater.
 
-""" load test data """
-class Dict2Struc(object):
-    """ all the variables from a dict in a "matlab-like-structure" """
-    def __init__(self, adict):
-        self.__dict__.update(adict)
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+    t : array_like
+         in-situ temperature [:math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]
 
-data = pickle.load( open('gsw_cv.pkl','rb') )
-gsw_cv = Dict2Struc(data) # then type dat.<tab> to navigate through your variables
-SP = gsw_cv.SP_chck_cast
-p = gsw_cv.p_chck_cast
-lon = gsw_cv.long_chck_cast
-lat  = gsw_cv.lat_chck_cast
+    Returns
+    -------
+    cp : array_like
+         heat capacity of seawater [ J kg :sup:`-1` K:sup:`-1`]
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    TODO
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+    >>> p = 900
+    >>> gsw.cp(SA, t, p)
+    array([[ 3869.46487578,  3996.62909658,  4102.39689639,  4056.09090058],
+          [ 4102.00085198,  4176.72470928,  4077.47206662,  4114.01189933]])
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp.
+
+    Modifications:
+    2010-07-23. David Jackett, Trevor McDougall and Paul Barker
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    # Convert input to numpy arrays
+    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+
+    n0 = 0
+    n2 = 2
+    cp = -( t + cte.Kelvin ) * lib._gibbs(n0, n2, n0, SA, t, p)
+
+    return cp
