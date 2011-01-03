@@ -181,15 +181,46 @@ else:
     print "CT_from_entropy:   Passed"
 
 
-""" sigma0_CT """
-sigma0_CT = gsw.sigma0_CT(SA_chck_cast, CT_chck_cast)
-Isigma0_CT = (gsw_cv.sigma0_CT - sigma0_CT) >= gsw_cv.sigma0_CT_ca
+""" sigma_CT """
+sigma0_CT = gsw.sigma_CT(SA_chck_cast, CT_chck_cast)
+Isigma_CT = (gsw_cv.sigma0_CT - sigma0_CT) >= gsw_cv.sigma0_CT_ca
 
-if Isigma0_CT.any():
-    print "sigma0_CT:   Failed"
+if Isigma_CT.any():
+    print "sigma_CT at 0 db:   Failed"
 else:
-    print "sigma0_CT:   Passed"
+    print "sigma_CT at 0 db:   Passed"
 
+sigma1_CT = gsw.sigma_CT(SA_chck_cast, CT_chck_cast, 1000)
+Isigma_CT = (gsw_cv.sigma1_CT - sigma1_CT) >= gsw_cv.sigma1_CT_ca
+
+if Isigma_CT.any():
+    print "sigma_CT at 1000 db:   Failed"
+else:
+    print "sigma_CT at 1000 db:   Passed"
+
+sigma2_CT = gsw.sigma_CT(SA_chck_cast, CT_chck_cast, 2000)
+Isigma_CT = (gsw_cv.sigma2_CT - sigma2_CT) >= gsw_cv.sigma2_CT_ca
+
+if Isigma_CT.any():
+    print "sigma_CT at 2000 db:   Failed"
+else:
+    print "sigma_CT at 2000 db:   Passed"
+
+sigma3_CT = gsw.sigma_CT(SA_chck_cast, CT_chck_cast, 3000)
+Isigma_CT = (gsw_cv.sigma3_CT - sigma3_CT) >= gsw_cv.sigma3_CT_ca
+
+if Isigma_CT.any():
+    print "sigma_CT at 3000 db:   Failed"
+else:
+    print "sigma_CT at 3000 db:   Passed"
+
+sigma4_CT = gsw.sigma_CT(SA_chck_cast, CT_chck_cast, 4000)
+Isigma_CT = (gsw_cv.sigma4_CT - sigma4_CT) >= gsw_cv.sigma4_CT_ca
+
+if Isigma_CT.any():
+    print "sigma_CT at 4000 db:   Failed"
+else:
+    print "sigma_CT at 4000 db:   Passed"
 
 """ cp """
 cp = gsw.cp(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)

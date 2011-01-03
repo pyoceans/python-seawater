@@ -962,9 +962,9 @@ def SA_from_SP(SP, p, lon, lat):
 
     return SA, in_ocean
 
-def sigma0_CT(SA, CT):
+def sigma_CT(SA, CT, p=0):
     """
-    Calculates potential density anomaly with reference pressure of 0 dbar, this being this particular potential density minus 1000 kg m :sup:`-3`.
+    Calculates potential density anomaly with reference pressure (default is 0 dbar). Returns potential density minus 1000 kg m :sup:`-3`.
 
     Parameters
     ----------
@@ -972,10 +972,12 @@ def sigma0_CT(SA, CT):
          Absolute salinity [g kg :sup:`-1`]
     CT : array_like
         Conservative Temperature [:math:`^\\circ` C (TEOS-10)]
+    p : array_like
+        pressure [db], default = 0 db
 
     Returns
     -------
-    sigma0_CT : array_like
+    sigma_CT : array_like
          potential density anomaly [kg m :sup:`-3`]
 
     See Also
@@ -984,14 +986,14 @@ def sigma0_CT(SA, CT):
 
     Notes
     -----
-    TODO
+    Original has 5 versions for this (gsw_sigma0_CT, gsw_sigma1_CT, gsw_sigma2_CT, gsw_sigma3_CT and gsw_sigma4_CT). Here just changed the pressure to the desireded reference.
 
     Examples
     --------
     >>> import seawater.gibbs as gsw
     >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
     >>> CT = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> gsw.sigma0_CT(SA, CT)
+    >>> gsw.sigma_CT(SA, CT)
     array([[ 41.73409047,  22.04181414,   5.48105772,  10.02188228],
            [  6.84287855,  -0.15791025,   8.44540164,   2.49335766]])
 
@@ -1006,17 +1008,22 @@ def sigma0_CT(SA, CT):
     """
 
     # Convert input to numpy arrays
-    SA, CT = np.asarray(SA), np.asarray(CT)
+    SA, CT, p = np.asarray(SA), np.asarray(CT), np.asarray(p)
 
     pr0 = np.zeros( SA.shape )
-    pt = pt_from_CT(SA, CT)
+    pt0 = pt_from_CT(SA, CT)
+
+    pref = p + np.zeros( SA.shape )
+    tref = pt_from_t(SA, pt0, pr0, pref)
+
     n0 = 0
     n1 = 1
-    rho_0 = np.ones( SA.shape ) / lib._gibbs(n0, n0, n1, SA, pt, pr0)
 
-    sigma0_CT = rho_0 - 1000
+    rho = np.ones( SA.shape ) / lib._gibbs(n0, n0, n1, SA, tref, pref)
 
-    return sigma0_CT
+    sigma_CT = rho - 1000
+
+    return sigma_CT
 
 def cp(SA, t, p):
     """
@@ -1071,3 +1078,57 @@ def cp(SA, t, p):
     cp = -( t + cte.Kelvin ) * lib._gibbs(n0, n2, n0, SA, t, p)
 
     return cp
+
+def enthalpy(SA, t, p):
+    """
+    Calculates the specific enthalpy of seawater.
+
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+    t : array_like
+         in-situ temperature [:math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]
+
+    Returns
+    -------
+    enthalpy : array_like
+               specific enthalpy [ J kg :sup:`-1`]
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    TODO
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+    >>> p = 900
+    >>> gsw.enthalpy(SA, t, p)
+
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp.
+
+    Modifications:
+    2010-08-26. David Jackett, Trevor McDougall and Paul Barker
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    # Convert input to numpy arrays
+    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+
+    n0 = 0
+    n1 = 1
+
+    enthalpy = lib._gibbs(n0, n0, n0, SA, t, p) - ( t + cte.Kelvin ) * lib._gibbs(n0, n1, n0, SA, t, p)
+
+    return enthalpy
