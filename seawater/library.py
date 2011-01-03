@@ -617,7 +617,8 @@ def _gibbs(ns, nt, npr, SA, t, p):
     x2 = sfac * SA
     x = np.sqrt(x2)
     y = t * 0.025 # FIXME: 0.025d0
-    z = p * 1e-4 # The input pressure (p) is sea pressure in units of dbar. FIXME: 1d-4
+    z = p * 1e-4 # The input pressure (p) is sea pressure in units of dbar.
+    #FIXME: check if 1d-4 is OK
 
     if (ns==0) & (nt==0) & (npr==0):
         g03 = 101.342743139674 + z * ( 100015.695367145 + \

@@ -259,3 +259,30 @@ if Irho.any():
     print "rho:   Failed"
 else:
     print "rho:   Passed"
+
+""" Helmholtz_energy """
+Helmholtz_energy = gsw.Helmholtz_energy(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+IHelmholtz_energy = (gsw_cv.Helmholtz_energy - Helmholtz_energy) >= gsw_cv.Helmholtz_energy_ca
+
+if IHelmholtz_energy.any():
+    print "Helmholtz_energy:   Failed"
+else:
+    print "Helmholtz_energy:   Passed"
+
+""" internal_energy """
+internal_energy = gsw.internal_energy(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+Iinternal_energy = (gsw_cv.internal_energy - internal_energy) >= gsw_cv.internal_energy_ca
+
+if Iinternal_energy.any():
+    print "internal_energy:   Failed"
+else:
+    print "internal_energy:   Passed"
+
+""" sound_speed """
+sound_speed = gsw.sound_speed(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+Isound_speed = (gsw_cv.sound_speed - sound_speed) >= gsw_cv.sound_speed_ca
+
+if Isound_speed.any():
+    print "sound_speed:   Failed"
+else:
+    print "sound_speed:   Passed"

@@ -559,8 +559,6 @@ def pt0_from_t(SA, t, p):
     # Convert input to numpy arrays
     SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
 
-    p = check_dim(p, SA)
-
     SA[SA < 0] = 0
 
     s1 = SA*(35. / cte.SSO)
@@ -640,8 +638,6 @@ def CT_from_t(SA, t, p):
     # Convert input to numpy arrays
     SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
 
-    p = check_dim(p, SA)
-
     pt0 = pt0_from_t(SA, t, p)
     CT = CT_from_pt(SA, pt0)
 
@@ -700,8 +696,6 @@ def pt_from_t(SA, t, p, pr=0):
 
     # Convert input to numpy arrays
     SA, t, p, pr = np.asarray(SA), np.asarray(t), np.asarray(p), np.asarray(pr)
-
-    p = check_dim(p, SA)
 
     SA[SA < 0] = 0
 
@@ -871,8 +865,6 @@ def entropy(SA, t, p):
     # Convert input to numpy arrays
     SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
 
-    p = check_dim(p, SA)
-
     n0 = 0
     n1 = 1
     entropy = -lib._gibbs(n0, n1, n0, SA, t, p)
@@ -1008,8 +1000,6 @@ def rho(SA, t, p):
     # Convert input to numpy arrays
     SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
 
-    p = check_dim(p, SA)
-
     n0 = 0
     n1 = 1
     rho = np.ones( SA.shape ) / lib._gibbs(n0, n0, n1, SA, t, p)
@@ -1112,7 +1102,7 @@ def cp(SA, t, p):
     >>> p = 900
     >>> gsw.cp(SA, t, p)
     array([[ 3869.46487578,  3996.62909658,  4102.39689639,  4056.09090058],
-          [ 4102.00085198,  4176.72470928,  4077.47206662,  4114.01189933]])
+           [ 4102.00085198,  4176.72470928,  4077.47206662,  4114.01189933]])
 
     References
     ----------
@@ -1125,8 +1115,6 @@ def cp(SA, t, p):
 
     # Convert input to numpy arrays
     SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
-
-    p = check_dim(p, SA)
 
     n0 = 0
     n2 = 2
@@ -1185,8 +1173,6 @@ def enthalpy(SA, t, p):
     # Convert input to numpy arrays
     SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
 
-    p = check_dim(p, SA)
-
     n0 = 0
     n1 = 1
 
@@ -1228,7 +1214,7 @@ def t_from_CT(SA, CT, p):
     >>> p = 900
     >>> gsw.t_from_CT(SA, CT, p)
     array([[  5.35055483,  15.01761692,  21.36145947,  31.53232787],
-       [ 14.54639292,  -0.04443084,  24.45692118,  27.12600316]])
+           [ 14.54639292,  -0.04443084,  24.45692118,  27.12600316]])
 
     References
     ----------
@@ -1242,10 +1228,185 @@ def t_from_CT(SA, CT, p):
     # Convert input to numpy arrays
     SA, CT, p = np.asarray(SA), np.asarray(CT), np.asarray(p)
 
-    p = check_dim(p, SA)
-
     pr0 = np.zeros( SA.shape )
     pt0 = pt_from_CT(SA, CT)
     t = pt_from_t(SA, pt0, pr0, p)
 
     return t
+
+def Helmholtz_energy(SA, t, p):
+    """
+    Calculates the Helmholtz energy of seawater.
+
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+    t : array_like
+         in-situ temperature [:math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]
+
+    Returns
+    -------
+    Helmholtz_energy : array_like
+               Helmholtz energy [ J kg :sup:`-1`]
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    TODO
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+    >>> p = [0., 500., 1500., 2000.]
+    >>> gsw.Helmholtz_energy(SA, t, p)
+    array([[  1.18057894e+03,  -2.04243623e+03,  -4.45224072e+03,
+             -8.18003196e+03],
+           [ -2.58190138e+03,   6.54845497e+00,  -5.48590282e+03,
+             -6.56341929e+03]])
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See section 2.13.
+
+    Modifications:
+    2010-08-26. Trevor McDougall
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    # Convert input to numpy arrays
+    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+
+    n0 = 0
+    n1 = 1
+
+    Helmholtz_energy = lib._gibbs(n0,n0,n0,SA,t,p) - \
+                       ( cte.db2Pascal * p + 101325 ) * lib._gibbs(n0, n0, n1, SA, t, p)
+
+    return Helmholtz_energy
+
+def internal_energy(SA, t, p):
+    """
+    Calculates the Helmholtz energy of seawater.
+
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+    t : array_like
+         in-situ temperature [:math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]
+
+    Returns
+    -------
+    internal_energy(u) : array_like #TODO: function of "u" ?
+               specific internal energy [ J kg :sup:`-1`]
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    TODO
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+    >>> p = [0., 500., 1500., 2000.]
+    >>> gsw.internal_energy(SA, t, p)
+    array([[  1.88963342e+04,   5.99564714e+04,   8.99386314e+04,
+              1.28477936e+05],
+           [  6.20949295e+04,   4.56594812e+01,   1.01450494e+05,
+              1.14344649e+05]])
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See section 2.13.
+
+    Modifications:
+    2010-08-26. Trevor McDougall
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    # Convert input to numpy arrays
+    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+
+    n0 = 0
+    n1 = 1
+
+    internal_energy = lib._gibbs(n0, n0, n0, SA, t, p) - \
+                      (cte.Kelvin + t) * lib._gibbs(n0, n1, n0, SA, t, p) - \
+                      (cte.db2Pascal * p + 101325) * lib._gibbs(n0, n0, n1, SA, t, p)
+
+    return internal_energy
+
+def sound_speed(SA, t, p):
+    """
+    Calculates the speed of sound in seawater.
+
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+    t : array_like
+         in-situ temperature [:math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]
+
+    Returns
+    -------
+    sound_speed : array_like
+                  speed of sound in seawater [ m s :sup:`-1`]
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    TODO
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+    >>> p = [0., 500., 1500., 2000.]
+    >>> gsw.sound_speed(SA, t, p)
+    array([[ 1493.5609568 ,  1508.86141015,  1524.04873089,  1567.35919386],
+           [ 1477.63190763,  1410.40969768,  1537.60287636,  1546.09128039]])
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See Eqn. (2.17.1)
+
+    Modifications:
+    2010-07-23. Trevor McDougall
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    # Convert input to numpy arrays
+    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+
+    n0 = 0
+    n1 = 1
+    n2 = 2
+
+    g_tt = lib._gibbs(n0, n2, n0, SA, t, p)
+    g_tp = lib._gibbs(n0, n1, n1, SA, t, p)
+
+    sound_speed = lib._gibbs(n0, n0, n1, SA, t, p) * \
+    np.sqrt( g_tt / ( g_tp * g_tp - g_tt * lib._gibbs(n0, n0, n2, SA, t,p ) ) )
+
+    return sound_speed
