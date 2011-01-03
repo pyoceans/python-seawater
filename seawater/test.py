@@ -1,3 +1,5 @@
+#TODO: organize in the same order as original version
+
 import seawater.gibbs as gsw
 import seawater.csiro as sw
 import numpy as np
@@ -230,3 +232,30 @@ if Icp.any():
     print "cp:   Failed"
 else:
     print "cp:   Passed"
+
+""" enthalpy """
+enthalpy = gsw.enthalpy(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+Ienthalpy = (gsw_cv.enthalpy - enthalpy) >= gsw_cv.enthalpy_ca
+
+if Ienthalpy.any():
+    print "enthalpy:   Failed"
+else:
+    print "enthalpy:   Passed"
+
+""" t_from_CT """ #FIXME: pass, but small float are detected, investigate further
+t_from_CT =  gsw.t_from_CT(SA_chck_cast, CT_chck_cast, gsw_cv.p_chck_cast)
+It_from_CT = (gsw_cv.t_chck_cast - t_from_CT) >= gsw_cv.t_from_CT_ca
+
+if It_from_CT.any():
+    print "t_from_CT:   Failed"
+else:
+    print "t_from_CT:   Passed"
+
+""" rho """
+rho = gsw.rho(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+Irho = (gsw_cv.rho - rho) >= gsw_cv.rho_ca
+
+if Irho.any():
+    print "rho:   Failed"
+else:
+    print "rho:   Passed"
