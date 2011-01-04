@@ -286,3 +286,57 @@ if Isound_speed.any():
     print "sound_speed:   Failed"
 else:
     print "sound_speed:   Passed"
+
+""" kappa """
+kappa = gsw.kappa(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+Ikappa = (gsw_cv.kappa - kappa) >= gsw_cv.kappa_ca
+
+if Ikappa.any():
+    print "kappa:   Failed"
+else:
+    print "kappa:   Passed"
+
+""" adiabatic_lapse_rate """
+adiabatic_lapse_rate = gsw.adiabatic_lapse_rate(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+Iadiabatic_lapse_rate = (gsw_cv.adiabatic_lapse_rate - adiabatic_lapse_rate) >= gsw_cv.adiabatic_lapse_rate_ca
+
+if Iadiabatic_lapse_rate.any():
+    print "adiabatic_lapse_rate:   Failed"
+else:
+    print "adiabatic_lapse_rate:   Passed"
+
+""" chem_potential """
+chem_potential =  gsw.chem_potential_relative(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+Ichem_potential = (gsw_cv.chem_potential - chem_potential) >= gsw_cv.chem_potential_ca
+
+if Ichem_potential.any():
+    print "chem_potential_relative:   Failed"
+else:
+    print "chem_potential_relative:   Passed"
+
+""" specvol """
+specvol = gsw.specvol(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+Ispecvol = (gsw_cv.specvol - specvol) >= gsw_cv.specvol_ca
+
+if Ispecvol.any():
+    print "specvol:   Failed"
+else:
+    print "specvol:   Passed"
+
+""" enthalpy_CT """
+enthalpy_CT =  gsw.enthalpy(SA_chck_cast,CT_chck_cast, gsw_cv.p_chck_cast, t_type='CT')
+Ienthalpy_CT = (gsw_cv.enthalpy_CT - enthalpy_CT) >= gsw_cv.enthalpy_CT_ca
+
+if Ienthalpy_CT.any():
+    print "enthalpy_CT:   Failed"
+else:
+    print "enthalpy_CT:   Passed"
+
+""" enthalpy_CT25 """ #FIXME: pass, but small float are detected, investigate further
+enthalpy_CT25 =  gsw.enthalpy(SA_chck_cast, CT_chck_cast, gsw_cv.p_chck_cast, t_type='CT', term25=True)[0]
+Ienthalpy_CT25 = (gsw_cv.enthalpy_CT25 - enthalpy_CT25) >= gsw_cv.enthalpy_CT25_ca
+
+if Ienthalpy_CT25.any():
+    print "enthalpy_CT25:   Failed"
+else:
+    print "enthalpy_CT25:   Passed"

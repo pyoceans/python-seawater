@@ -450,7 +450,7 @@ def  _infunnel(SA, CT, p):
     SA, CT, p = np.asarray(SA), np.asarray(CT), np.asarray(p)
 
     in_funnel = np.ones( SA.shape )
-    Inan = np.where( np.isnan(SA) | np.isnan(CT) | np.isnan(p) )
+    Inan = ( np.isnan(SA) | np.isnan(CT) | np.isnan(p) )
 
     Ifunnel = (p > 8000) | (SA < 0) | (SA > 42.2) | \
         ( CT < ( -0.3595467 - 0.0553734 * SA ) ) | \
@@ -658,9 +658,7 @@ def _gibbs(ns, nt, npr, SA, t, p):
         z * ( -860.764303783977 + z * ( 337.409530269367 + \
         z * ( -178.314556207638 + ( 44.2040358308 - 7.92001547211682 * z ) * z ) ) ) ) ) )
 
-        inds = np.where(x>0)
-        if inds[0].size != 0:  # FIXME: wierd, there must be a better way...
-            g08[inds] = g08[inds] + x2[inds] * ( 5812.81456626732 + 851.226734946706 * y[inds] ) * np.log( x[inds] )
+        g08[x>0] = g08[x>0] + x2[x>0] * ( 5812.81456626732 + 851.226734946706 * y[x>0] ) * np.log( x[x>0] )
 
         gibbs = g03 + g08
 
@@ -686,10 +684,7 @@ def _gibbs(ns, nt, npr, SA, t, p):
         z * ( -1721.528607567954 + z * ( 674.819060538734 + \
         z * ( -356.629112415276 + ( 88.4080716616 - 15.84003094423364 * z ) * z ) ) ) ) )
 
-        inds = np.where(x>0)
-        if inds[0].size != 0:  # FIXME: wierd, there must be a better way...
-            g08[inds] = g08[inds] + ( 11625.62913253464 + 1702.453469893412 * y[inds] ) * np.log( x[inds] )
-
+        g08[x>0] = g08[x>0] + ( 11625.62913253464 + 1702.453469893412 * y[x>0] ) * np.log( x[x>0] )
         g08[x==0] = np.nan
 
         gibbs = 0.5 * sfac * g08
@@ -722,9 +717,7 @@ def _gibbs(ns, nt, npr, SA, t, p):
         z * ( -1721.528607567954 + z * ( 674.819060538734 + \
         z * ( -356.629112415276 + ( 88.4080716616 - 15.84003094423364 * z ) * z ) ) ) ) )
 
-        inds = np.where(x>0)
-        if inds[0].size != 0:  # FIXME: wierd, there must be a better way...
-            g08[inds] = g08[inds] + 851.226734946706 * x2[inds] * np.log( x[inds] )
+        g08[x>0] = g08[x>0] + 851.226734946706 * x2[x>0] * np.log( x[x>0] )
 
         gibbs = (g03 + g08) * 0.025 # FIXME: 0.025d0
 
@@ -741,7 +734,6 @@ def _gibbs(ns, nt, npr, SA, t, p):
         y * ( -194.618310617595 + y * ( 63.5113936641785 - 9.63108119393062 * y + \
         z * ( -44.5794634280918 + 24.511816254543362 * z ) ) + \
         z * ( 241.04130980405 + z * ( -165.8169157020456 + 25.92762672308884 * z ) ) ) ) ) ) )
-
 
         g08 = x2 * ( -3310.49154044839 + z * ( 769.588305957198 + \
         z * ( -289.5972960322374 + ( 63.3632691067296 - 13.1240078295496 * z ) * z ) ) + \
@@ -775,12 +767,8 @@ def _gibbs(ns, nt, npr, SA, t, p):
         z * ( -3443.057215135908 + z * ( 1349.638121077468 + \
         z * ( -713.258224830552 + ( 176.8161433232 - 31.68006188846728 * z ) * z ) ) ) )
 
-        inds = np.where(x>0)
-        if inds[0].size != 0:  # FIXME: wierd, there must be a better way...
-            g08[inds] = g08[inds] + 1702.453469893412 * np.log( x[inds] )
-
+        g08[x>0] = g08[x>0] + 1702.453469893412 * np.log( x[x>0] )
         g08[SA==0] = np.nan
-
         gibbs = 0.5 * sfac * 0.025 * g08 # FIXME: 0.025d0
 
     elif (ns==1) & (nt==0) & (npr==1):
@@ -825,8 +813,7 @@ def _gibbs(ns, nt, npr, SA, t, p):
         z * ( 1349.638121077468 + z * ( -1069.887337245828 + ( 353.6322866464 - 79.20015472116819 * z ) * z ) ) ) )
 
         gibbs = (g03 + g08) * 2.5e-10
-        # This derivative of the Gibbs function is in units of (m :sup::`3` (K kg) )
-        # that is, the pressure of the derivative in Pa.
+        # This derivative of the Gibbs function is in units of (m :sup::`3` (K kg) ) that is, the pressure of the derivative in Pa.
 
     elif (ns==2) & (nt==0) & (npr==0):
         g08 = 2.0 * ( 8103.20462414788 + \
@@ -837,17 +824,15 @@ def _gibbs(ns, nt, npr, SA, t, p):
         180.142097805543 * z ) + \
         z * ( -219.1676534131548 + ( -16.32775915649044 - 120.7020447884644 * z ) * z ) )
 
-        inds = np.where(x>0)
-        if inds[0].size != 0:  # FIXME: wierd, there must be a better way...
-            g08[inds] = g08[inds] + ( -7296.43987145382 + z[inds] * ( 598.378809221703 + \
-            z[inds] * ( -156.8822727844005 + ( 204.1334828179377 - 10.23755797323846 * z[inds] ) * z[inds] ) ) + \
-            y[inds] * ( -1480.222530425046 + z[inds] * ( -525.876123559641 + \
-            ( 249.57717834054571 - 88.449193048287 * z[inds] ) * z[inds] ) + \
-            y[inds] * ( -129.1994027934126 + z[inds] * ( 1149.174198007428 + \
-            z[inds] * ( -162.5751787551336 + 76.9195462169742 * z[inds] ) ) + \
-            y[inds] * ( -30.0682112585625 - 1380.9597954037708 * z[inds] + \
-            y[inds] * ( 2.626801985426835 + 703.695562834065 * z[inds] ) ) ) ) ) / x[inds] + \
-            ( 11625.62913253464 + 1702.453469893412 * y[inds] ) / x2[inds]
+        g08[x>0] = g08[x>0] + ( -7296.43987145382 + z[x>0] * ( 598.378809221703 + \
+        z[x>0] * ( -156.8822727844005 + ( 204.1334828179377 - 10.23755797323846 * z[x>0] ) * z[x>0] ) ) + \
+        y[x>0] * ( -1480.222530425046 + z[x>0] * ( -525.876123559641 + \
+        ( 249.57717834054571 - 88.449193048287 * z[x>0] ) * z[x>0] ) + \
+        y[x>0] * ( -129.1994027934126 + z[x>0] * ( 1149.174198007428 + \
+        z[x>0] * ( -162.5751787551336 + 76.9195462169742 * z[x>0] ) ) + \
+        y[x>0] * ( -30.0682112585625 - 1380.9597954037708 * z[x>0] + \
+        y[x>0] * ( 2.626801985426835 + 703.695562834065 * z[x>0] ) ) ) ) ) / x[x>0] + \
+        ( 11625.62913253464 + 1702.453469893412 * y[x>0] ) / x2[x>0]
 
         g08[x==0] = np.nan
 
@@ -898,9 +883,9 @@ def _gibbs(ns, nt, npr, SA, t, p):
 
         gibbs = (g03 + g08) * 1e-16
         # This is the second derivative of the Gibbs function with respect to pressure, measured in Pa.  This derivative has units of (J kg :sup::`-1`) (Pa :sup::`-2`).
-
     else:
-        print "add a proper error message" #FIXME
+        print "I'm here"
+        raise NameError('Wrong Combination of order/variables')
 
     return gibbs
 
@@ -991,7 +976,7 @@ def  _dsa_add_barrier(dsa, lon, lat, longs_ref, lats_ref, dlongs_ref, dlats_ref)
         else:
             above_line[2] = False
 
-        inds = np.where( above_line != above_line0 )[0] # indices of different sides of CA line
+        inds = ( above_line != above_line0 ) # indices of different sides of CA line
         dsa[inds,k0] = np.nan
 
     dsa_mean = dsa.mean()
@@ -1278,9 +1263,8 @@ def  _delta_SA(p, lon, lat):
     P = np.dot( p_ref[:,np.newaxis], np.ones(p.size)[np.newaxis,:] )
     indsz0 = np.sum( (P_REF >= P), axis=0 ) - 1
 
-    inds = np.where(indsz0 == p_ref.size-1)[0]
-    if inds.size != 0:
-        indsz0[inds] = p_ref.size - 2
+    inds = (indsz0 == p_ref.size-1)
+    indsz0[inds] = p_ref.size - 2
 
     inds0 = indsz0 + indsy0 * delta_SA_ref.shape[0] + indsx0 * delta_SA_ref.shape[0] * delta_SA_ref.shape[1]
 
@@ -1300,7 +1284,7 @@ def  _delta_SA(p, lon, lat):
     in_ocean = np.ones( delta_SA.shape )
 
     for k in range(0, p_ref.size-1):
-        inds_k = np.where( indsz0 == k )[0]
+        inds_k = (indsz0 == k)
         nk = len(inds_k)
 
         if nk > 0:
@@ -1308,7 +1292,7 @@ def  _delta_SA(p, lon, lat):
             indsx = indsx0[inds_k]
             indsy = indsy0[inds_k]
             indsz = k * np.ones( indsx.shape, dtype='int64' )
-            inds_di = np.where( data_inds == k )[0] # level k interpolation
+            inds_di = (data_inds == k) # level k interpolation
             dsa = np.nan * np.ones( (4, p.size) )
 
             dsa[0, inds_k] = delta_SA_ref[indsz, indsy, indsx]
@@ -1345,42 +1329,26 @@ def  _delta_SA(p, lon, lat):
                 dsa[:,inds] = _dsa_add_barrier( dsa[:,inds], lon[inds], \
                 lat[inds], longs_ref[ndsx0[0][inds[0]]], lats_ref[indsy0[0][inds[0]]], dlongs_ref, dlats_ref)
 
-            inds = np.where( ( np.isnan( np.sum(dsa, axis=0) ) ) & (indsz0==k))[0]
+            inds = ( np.isnan( np.sum(dsa, axis=0) ) ) & (indsz0==k)
 
             """ TODO: describe add_mean """
-            if inds.size !=0:  #FIXME: test case when this is True
-                dsa[:,inds] = _dsa_add_mean(dsa[:,inds])
+            dsa[:,inds] = _dsa_add_mean(dsa[:,inds])
 
             sa_lower[inds_di] = ( 1 - s1[inds_di] ) * ( dsa[0, inds_k] + \
             r1[inds_di] * ( dsa[1, inds_k] - dsa[0,inds_k] ) ) + \
             s1[inds_di] * ( dsa[3, inds_k] + \
             r1[inds_di] * ( dsa[2, inds_k] - dsa[3, inds_k] ) )
 
-            inds_different = np.where( np.isfinite(sa_upper[inds_di] ) & np.isnan(sa_lower[inds_di]) )[0]
-
-            if inds_different.size != 0: # FIXME: test this when this is True
-                sa_lower[inds_di[0][inds_different[0]]] = sa_upper[inds_di[0][inds_different[0]]]
+            inds_different = np.isfinite(sa_upper[inds_di]) & np.isnan(sa_lower[inds_di])
+            sa_lower[inds_di[inds_different]] = sa_upper[inds_di[inds_different]]
 
             delta_SA[inds_di] = sa_upper[inds_di] + t1[inds_di] * ( sa_lower[inds_di] - sa_upper[inds_di] )
 
         else:
             no_levels_missing = no_levels_missing + 1
 
-    inds = np.where( ~np.isfinite(delta_SA) )[0]
+    inds = ~np.isfinite(delta_SA)
     delta_SA[inds] = 0
-    in_ocean[inds] = 0 # TODO: change to boolean
+    in_ocean[inds] = False # TODO: change to boolean
 
     return delta_SA, in_ocean
-
-#import scipy.io as sio
-import numpy as np
-
-#delta = sio.loadmat('DELTA.mat', squeeze_me=True)
-#lon = delta['lon']
-#lat = delta['lat']
-#p = delta['p']
-
-#delta_SA, in_ocean = _delta_SA(p, lon, lat)
-#tmp = sio.loadmat('tmp.mat', squeeze_me=True)
-#tmp = tmp['delta_SA']
-#print (tmp - delta_SA).max()

@@ -1,8 +1,10 @@
 #TODO: Go over PDFs to improve documentation
-#TODO: Examples: simple (copy-and-paste numbers) and complex (data)
+#TODO: Examples: simple with the data range (copy-and-paste numbers) and complex (real data)
 #TODO: Check original authors and dates
 #TODO: csiro vs gibbs (table?)
 #TODO: check_dim for p in all "p" functions
+#TODO: def abc(): in alphabetical order
+#FIXME: some function return values even with nan in the input, check this behaviour (also present in the original).
 
 import numpy as np
 from seawater import constants as cte
@@ -26,7 +28,7 @@ def check_dim(prop1, prop2):
             prop1 = prop1[:,np.newaxis] * np.ones(prop2.shape)
             #prop1 = np.repeat(prop1[np.newaxis,:], prop2.shape[0], axis=0).reshape(prop2.shape)
         else:
-            print "add a proper error msg"
+            raise NameError('Blahrg')
 
     if prop1.ndim == 0:
         prop1 = prop1 * np.ones(prop2.shape)
@@ -170,7 +172,7 @@ def molality(SA):
     Returns
     -------
     molality : array_like
-        seawater molality [mol kg :sup:`-1`]
+               seawater molality [mol kg :sup:`-1`]
 
     See Also
     --------
@@ -219,7 +221,7 @@ def ionic_strength(SA):
     Returns
     -------
     ionic_strength : array_like
-        ionic strength of seawater [mol kg :sup:`-1`]
+                     ionic strength of seawater [mol kg :sup:`-1`]
 
     See Also
     --------
@@ -338,7 +340,7 @@ def pt_from_CT(SA, CT):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     CT : array_like
-        Conservative Temperature [:math:`^\\circ` C (TEOS-10)] FIXME: the orginal has (ITS-90) Copy and paste issue?
+         Conservative Temperature [:math:`^\\circ` C (TEOS-10)] FIXME: the orginal has (ITS-90) Copy and paste issue?
 
     Returns
     -------
@@ -433,7 +435,7 @@ def CT_from_pt(SA, pt):
     Returns
     -------
     CT : array_like
-        Conservative Temperature [:math:`^\\circ` C (TEOS-10)] FIXME: the orginal has (ITS-90) Copy and paste issue?
+         Conservative Temperature [:math:`^\\circ` C (TEOS-10)] FIXME: the orginal has (ITS-90) Copy and paste issue?
 
     See Also
     --------
@@ -516,7 +518,7 @@ def pt0_from_t(SA, t, p):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-         in-situ temperature [:math:`^\\circ` C (ITS-90)]
+        in-situ temperature [:math:`^\\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -605,7 +607,7 @@ def CT_from_t(SA, t, p):
     Returns
     -------
     CT : array_like
-        Conservative Temperature [:math:`^\\circ` C (TEOS-10)] FIXME: the orginal has (ITS-90) Copy and paste issue?
+         Conservative Temperature [:math:`^\\circ` C (TEOS-10)] FIXME: the orginal has (ITS-90) Copy and paste issue?
 
     See Also
     --------
@@ -652,7 +654,7 @@ def pt_from_t(SA, t, p, pr=0):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-         in-situ temperature [:math:`^\\circ` C (ITS-90)]
+        in-situ temperature [:math:`^\\circ` C (ITS-90)]
     p : array_like
         pressure [db]
     pr : int, float, optional
@@ -822,7 +824,7 @@ def entropy(SA, t, p):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-         in-situ temperature [:math:`^\\circ` C (ITS-90)]
+        in-situ temperature [:math:`^\\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -961,14 +963,14 @@ def rho(SA, t, p):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-         in-situ temperature [:math:`^\\circ` C (ITS-90)]
+        in-situ temperature [:math:`^\\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
     Returns
     -------
     rho : array_like
-         in-situ density [kg m :sup:`-3`]
+          in-situ density [kg m :sup:`-3`]
 
     See Also
     --------
@@ -1002,7 +1004,7 @@ def rho(SA, t, p):
 
     n0 = 0
     n1 = 1
-    rho = np.ones( SA.shape ) / lib._gibbs(n0, n0, n1, SA, t, p)
+    rho = 1. / lib._gibbs(n0, n0, n1, SA, t, p)
 
     return rho
 
@@ -1022,7 +1024,7 @@ def sigma_CT(SA, CT, p=0):
     Returns
     -------
     sigma_CT : array_like
-         potential density anomaly [kg m :sup:`-3`]
+               potential density anomaly [kg m :sup:`-3`]
 
     See Also
     --------
@@ -1122,7 +1124,7 @@ def cp(SA, t, p):
 
     return cp
 
-def enthalpy(SA, t, p):
+def enthalpy(SA, t, p, t_type='t', term25=False):
     """
     Calculates the specific enthalpy of seawater.
 
@@ -1131,14 +1133,23 @@ def enthalpy(SA, t, p):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-         in-situ temperature [:math:`^\\circ` C (ITS-90)]
+        temperature [:math:`^\\circ` C]
     p : array_like
         pressure [db]
+    t_type : str, optional
+            't' for in situ temperature [:math:`^\\circ` C (ITS-90)], default
+            'CT' for Conservative Temperature [:math:`^\\circ` C (TEOS-10)]
+    term25 : bool
+             using the computationally-efficient 25-term expression for density in terms of SA, CT and p, default is False
 
     Returns
     -------
     enthalpy : array_like
                specific enthalpy [ J kg :sup:`-1`]
+    in_funnel : bool
+                False, if SA, CT and p are outside the "funnel"
+                True, if SA, CT and p are inside the "funnel"
+                "funnel" is the range of SA, CT and p where the fit error for density was calculated (McDougall et al., 2010).
 
     See Also
     --------
@@ -1146,38 +1157,105 @@ def enthalpy(SA, t, p):
 
     Notes
     -----
-    TODO
+    TODO:
+    gsw_enthalpy_CT: Conservative Temperature
+    gsw_enthalpy_CT25: Calculates specific enthalpy of seawater using the computationally- efficient 25-term expression for density in terms of SA, CT and p (McDougall et al., 2010)
 
     Examples
     --------
     >>> import seawater.gibbs as gsw
     >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
     >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = 900
+    >>> p = [0., 500., 1500., 2000.]
     >>> gsw.enthalpy(SA, t, p)
-    array([[  27225.64763375,   68596.44704271,   99373.84287758,
-             138530.58568158],
-           [  70659.38328035,    9166.59773394,  110918.37943836,
-             124327.95577648]])
-
+    array([[  18993.59620275,   64937.05999321,  104862.01693673,
+             148218.3415969 ],
+           [  62195.57534579,    5134.91245416,  116331.82020187,
+             134229.82985461]])
+    >>> gsw.enthalpy(SA, t, p, t_type='CT')
+    array([[  19959.3397856 ,   64764.8981313 ,  102690.44744487,
+             147459.53882186],
+           [  59878.01935679,    4994.46567716,  114623.36652738,
+             131637.09809679]])
+    >>> gsw.enthalpy(SA, t, p, t_type='CT', term25=True)[0]
+    array([[  19959.3397856 ,   64764.89794958,  102690.46525807,
+             147459.50132288],
+           [  59878.01935679,    4994.43975554,  114623.36824859,
+             131637.09114752]])
 
     References
     ----------
-    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp.
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See apendix A.11.
+
+    .. [2] McDougall T. J., D. R. Jackett, P. M. Barker, C. Roberts-Thomson, R. Feistel and R. W. Hallberg, 2010:  A computationally efficient 25-term expression for the density of seawater in terms of Conservative Temperature, and related properties of seawater.  To be submitted to Ocean Science Discussions.
 
     Modifications:
-    2010-08-26. David Jackett, Trevor McDougall and Paul Barker
+    2010-08-26. Trevor McDougall, David Jackett, Claire Roberts-Thomson and Paul Barker.
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
     # Convert input to numpy arrays
     SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
 
+    if (t_type == 'CT') & (term25 == True):
+        SA[SA<0] = 0
+        CT = t
+        in_funnel = lib._infunnel(SA, CT, p)
+
+        CT2 = CT**2
+        CT3 = CT**3
+
+        a0 = 1 + CT * ( 7.0547681896071576e-3 + \
+                 CT * (-1.1753695605858647e-5 + \
+                 CT * ( 5.9219809488274903e-7 + \
+                 CT * 3.4887902228012519e-10 ) ) ) + \
+                 SA * ( 2.0777716085618458e-3 + \
+                 CT * ( -2.2210857293722998e-8 + \
+                 CT2 * -3.6628141067895282e-10 ) + \
+                 np.sqrt(SA) * ( 3.4688210757917340e-6 + \
+                 CT2 * 8.0190541528070655e-10 ) )
+        a1 = 6.8314629554123324e-6
+        a2 = CT3 * -8.5294794834485446e-17
+        a3 = CT * -9.2275325145038070e-18
+
+        b0 = 9.9984380290708214e2 + \
+             CT * ( 7.1188090678940910e0 + \
+             CT * ( -1.9459922513379687e-2 + \
+             CT * 6.1748404455874641e-4 ) ) + \
+             SA * ( 2.8925731541277653e0 + \
+             CT * 2.1471495493268324e-3 + \
+             SA * 1.9457531751183059e-3 )
+        b1 = 0.5 * ( 1.1930681818531748e-2 + \
+             CT2 * 2.6969148011830758e-7 + \
+             SA * 5.9355685925035653e-6 )
+        b2 = CT2 * -7.2734111712822707e-12 - 2.5943389807429039e-8
+
+        sqrt_disc = np.sqrt( b1**2 - b0 * b2)
+        N = a0 + ( 2 * a3 * b0 * b1 / b2 - a2 * b0 ) / b2
+        M = a1 + ( 4 * a3 * b1**2 / b2 - ( a3 * b0 + 2 * a2 * b1 ) ) / b2
+        A = b1 - sqrt_disc
+        B = b1 + sqrt_disc
+        part = ( N * b2 - M * b1 ) / ( b2 * (B - A) )
+
+        enthalpy = cte.cp0 * CT + \
+                   cte.db2Pascal * ( p * ( a2 - 2 * a3 * b1 / b2 + 0.5 * a3 * p ) / b2 + \
+                   ( M / ( 2 * b2 ) ) * np.log( 1 + p * ( 2 * b1 + b2 * p ) / b0 ) + \
+                   part * np.log( 1 + ( b2 * p * (B - A) ) / ( A * ( B + b2 * p ) ) ) )
+
+        return enthalpy, in_funnel
+
+    elif (t_type == 'CT') & (term25 == False):
+        pt = pt_from_CT(SA, t)
+        t = pt_from_t(SA, pt, 0, p)
+    elif (t_type == 't') & (term25 == False):
+        pass
+    else:
+        raise NameError('Wrong combination. Read help for mor info')
+
     n0 = 0
     n1 = 1
 
     enthalpy = lib._gibbs(n0, n0, n0, SA, t, p) - ( t + cte.Kelvin ) * lib._gibbs(n0, n1, n0, SA, t, p)
-
     return enthalpy
 
 def t_from_CT(SA, CT, p):
@@ -1196,7 +1274,7 @@ def t_from_CT(SA, CT, p):
     Returns
     -------
     t : array_like
-         in-situ temperature [:math:`^\\circ` C (ITS-90)]
+        in-situ temperature [:math:`^\\circ` C (ITS-90)]
 
     See Also
     --------
@@ -1243,14 +1321,14 @@ def Helmholtz_energy(SA, t, p):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-         in-situ temperature [:math:`^\\circ` C (ITS-90)]
+        in-situ temperature [:math:`^\\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
     Returns
     -------
     Helmholtz_energy : array_like
-               Helmholtz energy [ J kg :sup:`-1`]
+                       Helmholtz energy [ J kg :sup:`-1`]
 
     See Also
     --------
@@ -1301,14 +1379,14 @@ def internal_energy(SA, t, p):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-         in-situ temperature [:math:`^\\circ` C (ITS-90)]
+        in-situ temperature [:math:`^\\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
     Returns
     -------
     internal_energy(u) : array_like #TODO: function of "u" ?
-               specific internal energy [ J kg :sup:`-1`]
+                         specific internal energy [ J kg :sup:`-1`]
 
     See Also
     --------
@@ -1360,7 +1438,7 @@ def sound_speed(SA, t, p):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-         in-situ temperature [:math:`^\\circ` C (ITS-90)]
+        in-situ temperature [:math:`^\\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -1410,3 +1488,232 @@ def sound_speed(SA, t, p):
     np.sqrt( g_tt / ( g_tp * g_tp - g_tt * lib._gibbs(n0, n0, n2, SA, t,p ) ) )
 
     return sound_speed
+
+def kappa(SA, t, p):
+    """
+    Calculates the isentropic compressibility of seawater.
+
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+    t : array_like
+        in-situ temperature [:math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]
+
+    Returns
+    -------
+    kappa : array_like
+            Isentropic compressibility [ Pa :sup:`-1`]
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    The output is Pascal and not dbar.
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+    >>> p = [0., 500., 1500., 2000.]
+    >>> gsw.kappa(SA, t, p)
+    array([[  4.30309045e-10,   4.28843638e-10,   4.25455945e-10,
+              3.99755378e-10],
+           [  4.54932038e-10,   5.01511014e-10,   4.16810090e-10,
+              4.13842034e-10]])
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See Eqns. (2.16.1) and the row for kappa in Table P.1 of appendix P
+
+    Modifications:
+    2010-07-23. David Jackett, Trevor McDougall and Paul Barker
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    # Convert input to numpy arrays
+    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+
+    n0 = 0
+    n1 = 1
+    n2 = 2
+
+    g_tt = lib._gibbs(n0, n2, n0, SA, t, p)
+    g_tp = lib._gibbs(n0, n1, n1, SA, t, p)
+
+    kappa = ( g_tp * g_tp - g_tt * lib._gibbs(n0, n0, n2, SA, t, p) ) / ( lib._gibbs(n0, n0, n1, SA, t, p ) * g_tt)
+
+    return kappa
+
+
+def adiabatic_lapse_rate(SA, t, p):
+    """
+    Calculates the adiabatic lapse rate of sea water.
+
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+    t : array_like
+        in-situ temperature [:math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]
+
+    Returns
+    -------
+    adiabatic_lapse_rate : array_like
+                           Adiabatic lapse rate [ K Pa :sup:`-1`]
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    The output is in unit of degress Celsius per Pa, (or equivilently K/Pa) not in units of K/dbar
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+    >>> p = [0., 500., 1500., 2000.]
+    >>> gsw.adiabatic_lapse_rate(SA, t, p)
+    array([[  1.05756574e-08,   1.49457941e-08,   1.85280735e-08,
+              2.58480453e-08],
+           [  1.18016760e-08,  -3.17131249e-09,   2.09612644e-08,
+              2.26342914e-08]])
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See Eqn. (2.22.1).
+
+    Modifications:
+    2010-07-23. Trevor McDougall and Paul Barker
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    # Convert input to numpy arrays
+    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+
+    n0 = 0
+    n1 = 1
+    n2 = 2
+
+    adiabatic_lapse_rate = - lib._gibbs(n0, n1, n1, SA, t, p) / ( lib._gibbs(n0, n2, n0, SA, t, p ) )
+
+    return adiabatic_lapse_rate
+
+def chem_potential_relative(SA, t, p):
+    """
+    Calculates the adiabatic lapse rate of sea water.
+
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+    t : array_like
+        in-situ temperature [:math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]
+
+    Returns
+    -------
+    chem_potential_relative : array_like
+                              relative chemical potential [ J kg :sup:`-1`]
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    TODO
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+    >>> p = [0., 500., 1500., 2000.]
+    >>> gsw.chem_potential_relative(SA, t, p)
+    array([[ 96.16894372,  55.28852987, -27.68689914,  25.15417648],
+           [-18.85739517,          nan,   2.85509781, -44.75926356]])
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp.
+
+    Modifications:
+    2010-08-26. Trevor McDougall and Paul Barker
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    # Convert input to numpy arrays
+    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+
+    n0 = 0
+    n1 = 1
+
+    chem_potential_relative = lib._gibbs(n1, n0, n0, SA, t, p)
+
+    return chem_potential_relative
+
+def specvol(SA, t, p):
+    """
+    Calculates the specific volume of seawater.
+
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+    t : array_like
+        in-situ temperature [:math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]
+
+    Returns
+    -------
+    specvol : array_like
+              specific volume [ m :sup:`-3` kg :sup:`-1`] #FIXME: original has a typo [ kg m :sup:`-3`]
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    TODO
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+    >>> p = [0., 500., 1500., 2000.]
+    >>> gsw.specvol(SA, t, p)
+    array([[ 0.0009599 ,  0.00097633,  0.00098822,  0.00098204],
+           [ 0.0009933 ,  0.00099763,  0.00098543,  0.00098925]])
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See section 2.7.
+
+    Modifications:
+    2010-08-26. David Jackett & Paul Barker.
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    # Convert input to numpy arrays
+    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    n0 = 0
+    n1 = 1
+
+    specvol = lib._gibbs(n0, n0, n1, SA, t, p)
+
+    return specvol
