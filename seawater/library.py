@@ -884,7 +884,6 @@ def _gibbs(ns, nt, npr, SA, t, p):
         gibbs = (g03 + g08) * 1e-16
         # This is the second derivative of the Gibbs function with respect to pressure, measured in Pa.  This derivative has units of (J kg :sup::`-1`) (Pa :sup::`-2`).
     else:
-        print "I'm here"
         raise NameError('Wrong Combination of order/variables')
 
     return gibbs

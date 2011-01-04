@@ -114,7 +114,7 @@ def T90conv(t, t_type='T68'):
     elif t_type == 'T48':
         T90 = (t - 4.4e-6 * t * (100 - t) ) / 1.00024
     else:
-        print "add a proper error here" #FIXME
+        raise NameError('Wrong t_type')
 
     return T90
 
