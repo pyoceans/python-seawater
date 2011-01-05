@@ -128,17 +128,6 @@ else:
     print "CT_from_pt:   Passed"
 
 
-""" pt0_from_t """
-pt0 = gsw.pt0_from_t(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
-Ipt0 = (gsw_cv.pt0 - pt0) >= gsw_cv.pt0_ca
-
-if Ipt0.any():
-    print "pt0_from_t:   Failed"
-else:
-    print "pt0_from_t:   Passed"
-
-
-
 """ pt_from_CT """
 pt_from_CT = gsw.pt_from_CT(SA_chck_cast, CT_chck_cast)
 Ipt_from_CT = (gsw_cv.pt - pt_from_CT) >= gsw_cv.pt_ca
@@ -147,30 +136,6 @@ if Ipt_from_CT.any():
     print "pt_from_CT:   Failed"
 else:
     print "pt_from_CT:   Passed"
-
-
-
-
-""" entropy """
-entropy = gsw.entropy(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
-Ientropy = (gsw_cv.entropy - entropy) >= gsw_cv.entropy_ca
-
-if Ientropy.any():
-    print "entropy:   Failed"
-else:
-    print "entropy:   Passed"
-
-
-
-""" pt_from_entropy """ #FIXME: pass, but small float are detected, investigate further
-pt_from_entropy =  gsw.t_from_entropy(SA_chck_cast, entropy)
-Ipt_from_entropy = (gsw_cv.pt_from_entropy - pt_from_entropy) >= gsw_cv.pt_from_entropy_ca
-
-if Ipt_from_entropy.any():
-    print "pt_from_entropy:   Failed"
-else:
-    print "pt_from_entropy:   Passed"
-
 
 
 """ CT_from_entropy """ #FIXME: pass, but small float are detected, investigate further
@@ -224,15 +189,6 @@ if Isigma_CT.any():
 else:
     print "sigma_CT at 4000 db:   Passed"
 
-""" cp """
-cp = gsw.cp(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
-Icp = (gsw_cv.cp - cp) >= gsw_cv.cp_ca
-
-if Icp.any():
-    print "cp:   Failed"
-else:
-    print "cp:   Passed"
-
 """ enthalpy """
 enthalpy = gsw.enthalpy(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 Ienthalpy = (gsw_cv.enthalpy - enthalpy) >= gsw_cv.enthalpy_ca
@@ -250,24 +206,6 @@ if It_from_CT.any():
     print "t_from_CT:   Failed"
 else:
     print "t_from_CT:   Passed"
-
-""" rho """
-rho = gsw.rho(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
-Irho = (gsw_cv.rho - rho) >= gsw_cv.rho_ca
-
-if Irho.any():
-    print "rho:   Failed"
-else:
-    print "rho:   Passed"
-
-""" Helmholtz_energy """
-Helmholtz_energy = gsw.Helmholtz_energy(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
-IHelmholtz_energy = (gsw_cv.Helmholtz_energy - Helmholtz_energy) >= gsw_cv.Helmholtz_energy_ca
-
-if IHelmholtz_energy.any():
-    print "Helmholtz_energy:   Failed"
-else:
-    print "Helmholtz_energy:   Passed"
 
 """ internal_energy """
 internal_energy = gsw.internal_energy(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)

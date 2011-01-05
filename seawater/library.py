@@ -183,7 +183,11 @@ def  _gibbs_pt0_pt0(SA, pt0):
     SA, pt0 = np.asarray(SA), np.asarray(pt0)
 
     # Ensure that SP is non-negative. FIXME: Shouldn't it be SA?
-    SA[SA < 0] = 0
+    if SA.shape:
+        SA[SA < 0] = 0
+    elif SA < 0:
+        SA = 0
+
     sfac = 0.0248826675584615 # sfac = 1 / ( 40 * ( 35.16504 / 35 ) )
 
     x2 = sfac * SA
@@ -247,7 +251,11 @@ def  _entropy_part_zerop(SA, pt0):
     SA, pt0 = np.asarray(SA), np.asarray(pt0)
 
     # Ensure that SA is non-negative
-    SA[SA < 0] = 0
+    if SA.shape:
+        SA[SA < 0] = 0
+    elif SA < 0:
+        SA = 0
+
     sfac = 0.0248826675584615 # sfac = 1 / ( 40 * ( 35.16504 / 35 ) )
 
     x2 = sfac * SA
@@ -506,7 +514,10 @@ def  _entropy_part(SA, t, p):
     # Convert input to numpy arrays
     SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
 
-    SA[SA < 0] = 0
+    if SA.shape:
+        SA[SA < 0] = 0
+    elif SA < 0:
+        SA = 0
 
     sfac = 0.0248826675584615 # sfac = 1 / ( 40 * ( 35.16504 / 35 ) )
     x2 = sfac * SA
