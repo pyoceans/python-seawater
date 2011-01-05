@@ -632,7 +632,7 @@ def sigma_CT(SA, CT, p=0):
 
     return sigma_CT
 
-def enthalpy(SA, t, p, t_type='t', term25=False):
+def enthalpy(SA, t, p, t_type='CT', term25=False):
     """
     Calculates the specific enthalpy of seawater.
 
@@ -645,8 +645,7 @@ def enthalpy(SA, t, p, t_type='t', term25=False):
     p : array_like
         pressure [db]
     t_type : str, optional
-            't' for in situ temperature [:math:`^\\circ` C (ITS-90)], default
-            'CT' for Conservative Temperature [:math:`^\\circ` C (TEOS-10)]
+            'CT' for Conservative Temperature [:math:`^\\circ` C (TEOS-10)], default
     term25 : bool
              using the computationally-efficient 25-term expression for density in terms of SA, CT and p, default is False
 
@@ -676,11 +675,6 @@ def enthalpy(SA, t, p, t_type='t', term25=False):
     >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
     >>> p = [0., 500., 1500., 2000.]
     >>> gsw.enthalpy(SA, t, p)
-    array([[  18993.59620275,   64937.05999321,  104862.01693673,
-             148218.3415969 ],
-           [  62195.57534579,    5134.91245416,  116331.82020187,
-             134229.82985461]])
-    >>> gsw.enthalpy(SA, t, p, t_type='CT')
     array([[  19959.3397856 ,   64764.8981313 ,  102690.44744487,
              147459.53882186],
            [  59878.01935679,    4994.46567716,  114623.36652738,
@@ -755,8 +749,6 @@ def enthalpy(SA, t, p, t_type='t', term25=False):
     elif (t_type == 'CT') & (term25 == False):
         pt = pt_from_CT(SA, t)
         t = pt_from_t(SA, pt, 0, p)
-    elif (t_type == 't') & (term25 == False):
-        pass
     else:
         raise NameError('Wrong combination. Read help for mor info')
 

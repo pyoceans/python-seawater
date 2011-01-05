@@ -771,6 +771,51 @@ class SaTePr:
 
         return pt
 
+    def enthalpy(self):
+        """
+        Calculates the specific enthalpy of seawater.
+
+        Returns
+        -------
+        enthalpy : array_like
+                   specific enthalpy [ J kg :sup:`-1`]
+
+        See Also
+        --------
+        TODO
+
+        Notes
+        -----
+        TODO
+
+        Examples
+        --------
+        >>> from seawater.SaTePr import SaTePr
+        >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+        >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+        >>> p = [0., 500., 1500., 2000.]
+        >>> STP = SaTePr(SA, t, p)
+        >>> STP.enthalpy()
+        array([[  18993.59620275,   64937.05999321,  104862.01693673,
+                 148218.3415969 ],
+               [  62195.57534579,    5134.91245416,  116331.82020187,
+                 134229.82985461]])
+
+        References
+        ----------
+        .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See apendix A.11.
+
+        Modifications:
+        2010-08-26. Trevor McDougall, David Jackett, Claire Roberts-Thomson and Paul Barker.
+        2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+        """
+
+        n0, n1 = 0, 1
+
+        enthalpy = lib._gibbs(n0, n0, n0, self.SA, self.t, self.p) - ( self.t + cte.Kelvin ) * lib._gibbs(n0, n1, n0, self.SA, self.t, self.p)
+
+        return enthalpy
+
 if __name__=='__main__':
     try:
         import cPickle as pickle
@@ -820,3 +865,4 @@ if __name__=='__main__':
     test_print(STP, "molality", "molality")
     test_print(STP, "ionic_strength", "ionic_strength")
     test_print(STP, "pt_from_t", "pt_from_t")
+    test_print(STP, "enthalpy", "enthalpy")
