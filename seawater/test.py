@@ -47,26 +47,6 @@ else:
     print "grav:   Passed"
 
 
-""" molality """
-molality = gsw.molality(SA_chck_cast)
-Imolality = (gsw_cv.molality - molality) >= gsw_cv.molality_ca
-
-if Imolality.any():
-    print "molality:   Failed"
-else:
-    print "molality:   Passed"
-
-
-""" ionic_strength """
-ionic_strength = gsw.ionic_strength(SA_chck_cast)
-Iionic_strength = (gsw_cv.ionic_strength - ionic_strength) >= gsw_cv.ionic_strength_ca
-
-if Iionic_strength.any():
-    print "ionic_strength:   Failed"
-else:
-    print "ionic_strength:   Passed"
-
-
 """ gsw/sw f """
 f = sw.cor(gsw_cv.lat_chck_cast)
 
@@ -76,26 +56,6 @@ if If.any():
     print "f:   Failed"
 else:
     print "f:   Passed"
-
-
-""" CT_from_t """
-CT_chck_cast = gsw.CT_from_t(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
-ICT_from_t = (gsw_cv.CT_from_t - CT_chck_cast) >= gsw_cv.CT_from_t_ca
-if ICT_from_t.any():
-    print "CT_from_t:   Failed. Note that this will cause many other programmes in the GSW toolbox to fail."
-else:
-    print "CT_from_t:   Passed"
-
-
-
-""" pt_from_t """
-pt = gsw.pt_from_t(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast, gsw_cv.pr)
-Ipt_from_t = (gsw_cv.pt_from_t - pt) >= gsw_cv.pt_from_t_ca
-
-if Ipt_from_t.any():
-    print "pt_from_t:   Failed"
-else:
-    print "pt_from_t:   Passed"
 
 
 """ entropy_from_t 'pt' """ #FIXME: pass, but small float are detected, investigate further
@@ -206,60 +166,6 @@ if It_from_CT.any():
     print "t_from_CT:   Failed"
 else:
     print "t_from_CT:   Passed"
-
-""" internal_energy """
-internal_energy = gsw.internal_energy(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
-Iinternal_energy = (gsw_cv.internal_energy - internal_energy) >= gsw_cv.internal_energy_ca
-
-if Iinternal_energy.any():
-    print "internal_energy:   Failed"
-else:
-    print "internal_energy:   Passed"
-
-""" sound_speed """
-sound_speed = gsw.sound_speed(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
-Isound_speed = (gsw_cv.sound_speed - sound_speed) >= gsw_cv.sound_speed_ca
-
-if Isound_speed.any():
-    print "sound_speed:   Failed"
-else:
-    print "sound_speed:   Passed"
-
-""" kappa """
-kappa = gsw.kappa(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
-Ikappa = (gsw_cv.kappa - kappa) >= gsw_cv.kappa_ca
-
-if Ikappa.any():
-    print "kappa:   Failed"
-else:
-    print "kappa:   Passed"
-
-""" adiabatic_lapse_rate """
-adiabatic_lapse_rate = gsw.adiabatic_lapse_rate(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
-Iadiabatic_lapse_rate = (gsw_cv.adiabatic_lapse_rate - adiabatic_lapse_rate) >= gsw_cv.adiabatic_lapse_rate_ca
-
-if Iadiabatic_lapse_rate.any():
-    print "adiabatic_lapse_rate:   Failed"
-else:
-    print "adiabatic_lapse_rate:   Passed"
-
-""" chem_potential """
-chem_potential =  gsw.chem_potential_relative(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
-Ichem_potential = (gsw_cv.chem_potential - chem_potential) >= gsw_cv.chem_potential_ca
-
-if Ichem_potential.any():
-    print "chem_potential_relative:   Failed"
-else:
-    print "chem_potential_relative:   Passed"
-
-""" specvol """
-specvol = gsw.specvol(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
-Ispecvol = (gsw_cv.specvol - specvol) >= gsw_cv.specvol_ca
-
-if Ispecvol.any():
-    print "specvol:   Failed"
-else:
-    print "specvol:   Passed"
 
 """ enthalpy_CT """
 enthalpy_CT =  gsw.enthalpy(SA_chck_cast,CT_chck_cast, gsw_cv.p_chck_cast, t_type='CT')
