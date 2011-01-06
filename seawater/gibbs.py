@@ -33,7 +33,7 @@ def check_dim(prop1, prop2):
     if prop1.ndim == 0:
         prop1 = prop1 * np.ones(prop2.shape)
 
-    prop1.dtype = 'float64' # FIXME: somehow lon is been loaded as uint8
+    #prop1.dtype = 'float64' # FIXME: somehow lon is been loaded as uint8
     return prop1
 
 def  z_from_p(p, lat):

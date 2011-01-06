@@ -25,77 +25,6 @@ class SaTePr:
         self.masked_SA = ma.masked_less(self.SA, 0)
         self.masked_SA.fill_value = 0
 
-    def pt0_from_t(self):
-        """
-        Calculates potential temperature with reference pressure, pr = 0 dbar. The present routine is computationally faster than the more general function "pt_from_t(SA, t, p, pr)" which can be used for any reference pressure value.
-
-        Returns
-        -------
-        pt0 : array_like
-              potential temperature relative to 0 db [:math:`^\\circ` C (ITS-90)]
-
-        See Also
-        --------
-        TODO
-
-        Notes
-        -----
-        TODO
-
-        Examples
-        --------
-        >>> from seawater.SaTePr import SaTePr
-        >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-        >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-        >>> p = 900
-        >>> STP = SaTePr(SA, t, p)
-        >>> STP.pt0_from_t()
-        array([[  4.89971486e+00,   1.48664023e+01,   2.18420392e+01,
-                  3.17741959e+01],
-               [  1.48891940e+01,   2.95267636e-02,   2.48187231e+01,
-                  2.78058513e+01]])
-
-        References
-        ----------
-        .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See section 3.1.
-
-        .. [2] McDougall T. J., D. R. Jackett, P. M. Barker, C. Roberts-Thomson, R. Feistel and R. W. Hallberg, 2010:  A computationally efficient 25-term expression for the density of seawater in terms of Conservative Temperature, and related properties of seawater.  To be submitted to Ocean Science Discussions.
-
-        Modifications:
-        2010-08-26. Trevor McDougall, David Jackett, Claire Roberts-Thomson and Paul Barker.
-        2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
-        """
-
-        SA = self.masked_SA.filled() # ensure that SA is non-negative
-
-        s1 = SA * (35. / cte.SSO)
-
-        pt0 = self.t + self.p * ( 8.65483913395442e-6  - \
-              s1 * 1.41636299744881e-6 - \
-              self.p * 7.38286467135737e-9 + \
-              self.t * ( -8.38241357039698e-6 + \
-              s1 * 2.83933368585534e-8 + \
-              self.t * 1.77803965218656e-8 + \
-              self.p * 1.71155619208233e-10 ) )
-
-        dentropy_dt = cte.cp0 / ( (273.15 + pt0) * ( 1 - 0.05 * ( 1 - SA / cte.SSO ) ) )
-
-        true_entropy_part = lib._entropy_part(SA, self.t, self.p)
-
-        for Number_of_iterations in range(0,2,1):
-            pt0_old = pt0
-            dentropy = lib._entropy_part_zerop(SA, pt0_old) - true_entropy_part
-            pt0 = pt0_old - dentropy / dentropy_dt # this is half way through the modified method
-            pt0m = 0.5 * (pt0 + pt0_old);
-            dentropy_dt = -lib._gibbs_pt0_pt0(SA, pt0m)
-            pt0 = pt0_old - dentropy / dentropy_dt
-
-        # maximum error of 6.3x10^-9 degrees C for one iteration.
-        # maximum error is 1.8x10^-14 degrees C for two iterations (two iterations is the default, "for Number_of_iterations = 1:2")
-        # These errors are over the full "oceanographic funnel" of McDougall et al. (2010), which reaches down to p = 8000 dbar.
-
-        return pt0
-
     def entropy(self):
         """
         Calculates potential temperature with reference pressure pr = 0 dbar or Conservative temperature from entropy.
@@ -546,7 +475,7 @@ class SaTePr:
 
         return specvol
 
-    def CT_from_t(self):
+    def conservative_t(self):
         """
         Calculates Conservative Temperature of seawater from in-situ temperature.
 
@@ -570,7 +499,7 @@ class SaTePr:
         >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
         >>> p = 900
         >>> STP = SaTePr(SA, t, p)
-        >>> STP.CT_from_t()
+        >>> STP.conservative_t()
         array([[  4.66028901,  14.98237022,  22.6558658 ,  32.47483113],
                [ 15.46594688,   0.04649395,  25.55437701,  28.90014276]])
 
@@ -583,7 +512,8 @@ class SaTePr:
         2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
         """
 
-        pt0 = self.pt0_from_t()
+        #pt0 = self.pt0_from_t() #TODO: pt0_from_t
+        pt0 = self.potential_t()
 
         CT = gsw.CT_from_pt(self.SA, pt0)
 
@@ -688,7 +618,7 @@ class SaTePr:
 
         return ionic_strength
 
-    def pt_from_t(self, pr=0):
+    def potential_t(self, pr=0):
         """
         Calculates potential temperature with the general reference pressure, pr, from in-situ temperature.
 
@@ -717,12 +647,12 @@ class SaTePr:
         >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
         >>> p = 900
         >>> STP = SaTePr(SA, t, p)
-        >>> STP.pt_from_t()
+        >>> STP.potential_t()
         array([[  4.89971486e+00,   1.48664023e+01,   2.18420392e+01,
                   3.17741959e+01],
                [  1.48891940e+01,   2.95267636e-02,   2.48187231e+01,
                   2.78058513e+01]])
-        >>> STP.pt_from_t(pr = 900)
+        >>> STP.potential_t(pr = 900)
         array([[  5.,  15.,  22.,  32.],
                [ 15.,   0.,  25.,  28.]])
 
@@ -845,12 +775,12 @@ if __name__=='__main__':
             if eval( "( gsw_cv." +comp_value+ "[~np.isnan(gsw_cv."+comp_value+")] == STP." +method+ "()[~np.isnan(STP."+method+"())] ).all()" ):
                 print "%s: Passed, equal" % method.rjust(width)
             else:
-                exec("nmax = STP." +method+ "()[~np.isnan(STP."+method+"())].max()")
-                print "%s: Passed, but small diff %s" % ( method.rjust(width), nmax)
+                exec("nmax = ( gsw_cv."+comp_value+" - STP."+method+"() )[~np.isnan(gsw_cv."+comp_value+")].max()")
+                exec("nmin = ( gsw_cv."+comp_value+" - STP."+method+"() )[~np.isnan(gsw_cv."+comp_value+")].min()")
+                print "%s: Passed, but small diff ranging from: %s to %s" % ( method.rjust(width), nmax, nmin)
 
     STP = SaTePr(gsw_cv.SA_from_SP, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 
-    test_print(STP, "pt0_from_t", "pt0")
     test_print(STP, "entropy", "entropy")
     test_print(STP, "rho", "rho")
     test_print(STP, "cp", "cp")
@@ -861,8 +791,80 @@ if __name__=='__main__':
     test_print(STP, "adiabatic_lapse_rate", "adiabatic_lapse_rate")
     test_print(STP, "chem_potential_relative", "chem_potential")
     test_print(STP, "specvol", "specvol")
-    test_print(STP, "CT_from_t", "CT_from_t")
     test_print(STP, "molality", "molality")
     test_print(STP, "ionic_strength", "ionic_strength")
-    test_print(STP, "pt_from_t", "pt_from_t")
     test_print(STP, "enthalpy", "enthalpy")
+    test_print(STP, "potential_t", "pt_from_t")
+    test_print(STP, "potential_t", "pt0") #TODO: pt0_from_t
+    test_print(STP, "conservative_t", "CT_from_t")
+
+    #def pt0_from_t(self): # TODO: add as an option for potential_t
+        #"""
+        #Calculates potential temperature with reference pressure, pr = 0 dbar. The present routine is computationally faster than the more general function "pt_from_t(SA, t, p, pr)" which can be used for any reference pressure value.
+
+        #Returns
+        #-------
+        #pt0 : array_like
+              #potential temperature relative to 0 db [:math:`^\\circ` C (ITS-90)]
+
+        #See Also
+        #--------
+        #TODO
+
+        #Notes
+        #-----
+        #TODO
+
+        #Examples
+        #--------
+        #>>> from seawater.SaTePr import SaTePr
+        #>>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+        #>>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+        #>>> p = 900
+        #>>> STP = SaTePr(SA, t, p)
+        #>>> STP.pt0_from_t()
+        #array([[  4.89971486e+00,   1.48664023e+01,   2.18420392e+01,
+                  #3.17741959e+01],
+               #[  1.48891940e+01,   2.95267636e-02,   2.48187231e+01,
+                  #2.78058513e+01]])
+
+        #References
+        #----------
+        #.. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See section 3.1.
+
+        #.. [2] McDougall T. J., D. R. Jackett, P. M. Barker, C. Roberts-Thomson, R. Feistel and R. W. Hallberg, 2010:  A computationally efficient 25-term expression for the density of seawater in terms of Conservative Temperature, and related properties of seawater.  To be submitted to Ocean Science Discussions.
+
+        #Modifications:
+        #2010-08-26. Trevor McDougall, David Jackett, Claire Roberts-Thomson and Paul Barker.
+        #2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+        #"""
+
+        #SA = self.masked_SA.filled() # ensure that SA is non-negative
+
+        #s1 = SA * (35. / cte.SSO)
+
+        #pt0 = self.t + self.p * ( 8.65483913395442e-6  - \
+              #s1 * 1.41636299744881e-6 - \
+              #self.p * 7.38286467135737e-9 + \
+              #self.t * ( -8.38241357039698e-6 + \
+              #s1 * 2.83933368585534e-8 + \
+              #self.t * 1.77803965218656e-8 + \
+              #self.p * 1.71155619208233e-10 ) )
+
+        #dentropy_dt = cte.cp0 / ( (273.15 + pt0) * ( 1 - 0.05 * ( 1 - SA / cte.SSO ) ) )
+
+        #true_entropy_part = lib._entropy_part(SA, self.t, self.p)
+
+        #for Number_of_iterations in range(0,2,1):
+            #pt0_old = pt0
+            #dentropy = lib._entropy_part_zerop(SA, pt0_old) - true_entropy_part
+            #pt0 = pt0_old - dentropy / dentropy_dt # this is half way through the modified method
+            #pt0m = 0.5 * (pt0 + pt0_old);
+            #dentropy_dt = -lib._gibbs_pt0_pt0(SA, pt0m)
+            #pt0 = pt0_old - dentropy / dentropy_dt
+
+        ## maximum error of 6.3x10^-9 degrees C for one iteration.
+        ## maximum error is 1.8x10^-14 degrees C for two iterations (two iterations is the default, "for Number_of_iterations = 1:2")
+        ## These errors are over the full "oceanographic funnel" of McDougall et al. (2010), which reaches down to p = 8000 dbar.
+
+        #return pt0
