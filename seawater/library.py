@@ -2,7 +2,6 @@
 from __future__ import division
 import numpy as np
 from seawater import constants as cte
-#import gzip # FIXME: zlib for windows? or FTB?
 
 try:
     import cPickle as pickle
