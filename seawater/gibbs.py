@@ -3,7 +3,6 @@
 #TODO: Check original authors and dates
 #TODO: csiro vs gibbs (table?)
 #TODO: check_dim for p in all "p" functions
-#TODO: def abc(): in alphabetical order
 #FIXME: some function return values even with nan in the input, check this behaviour (also present in the original).
 
 import numpy as np
