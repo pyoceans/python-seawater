@@ -311,7 +311,7 @@ def SA_from_SP(SP, p, lon, lat):
 
     return SA, in_ocean
 
-class SaTePr:
+class SaTePr: #TODO: find a better name!
     """
     Class that agregatte all Sa, t, p functions
 
@@ -331,6 +331,9 @@ class SaTePr:
 
         self.masked_SA = ma.masked_less(self.SA, 0)
         self.masked_SA.fill_value = 0
+
+        # order for the gibbs function
+        self.n0, self.n1, self.n2 = 0, 1, 2
 
     def entropy(self):
         """
@@ -371,9 +374,7 @@ class SaTePr:
         2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
         """
 
-        n0, n1 = 0, 1
-
-        entropy = -lib._gibbs(n0, n1, n0, self.SA, self.t, self.p)
+        entropy = -lib._gibbs(self.n0, self.n1, self.n0, self.SA, self.t, self.p)
 
         return entropy
 
@@ -414,9 +415,7 @@ class SaTePr:
         2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
         """
 
-        n0, n1 = 0, 1
-
-        rho = 1. / lib._gibbs(n0, n0, n1, self.SA, self.t, self.p)
+        rho = 1. / lib._gibbs(self.n0, self.n0, self.n1, self.SA, self.t, self.p)
 
         return rho
 
@@ -457,9 +456,7 @@ class SaTePr:
         2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
         """
 
-        n0, n2 = 0, 2
-
-        cp = -( self.t + cte.Kelvin ) * lib._gibbs(n0, n2, n0, self.SA, self.t, self.p)
+        cp = -( self.t + cte.Kelvin ) * lib._gibbs(self.n0, self.n2, self.n0, self.SA, self.t, self.p)
 
         return cp
 
@@ -502,10 +499,8 @@ class SaTePr:
         2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
         """
 
-        n0, n1 = 0, 1
-
-        helmholtz_energy = lib._gibbs(n0, n0, n0, self.SA, self.t, self.p) - \
-                        ( cte.db2Pascal * self.p + 101325 ) * lib._gibbs(n0, n0, n1, self.SA, self.t, self.p)
+        helmholtz_energy = lib._gibbs(self.n0, self.n0, self.n0, self.SA, self.t, self.p) - \
+                        ( cte.db2Pascal * self.p + 101325 ) * lib._gibbs(self.n0, self.n0, self.n1, self.SA, self.t, self.p)
 
         return helmholtz_energy
 
@@ -548,11 +543,9 @@ class SaTePr:
         2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
         """
 
-        n0, n1 = 0, 1
-
-        internal_energy = lib._gibbs(n0, n0, n0, self.SA, self.t, self.p) - \
-                        (cte.Kelvin + self.t) * lib._gibbs(n0, n1, n0, self.SA, self.t, self.p) - \
-                        (cte.db2Pascal * self.p + 101325) * lib._gibbs(n0, n0, n1, self.SA, self.t, self.p)
+        internal_energy = lib._gibbs(self.n0, self.n0, self.n0, self.SA, self.t, self.p) - \
+                        (cte.Kelvin + self.t) * lib._gibbs(self.n0, self.n1, self.n0, self.SA, self.t, self.p) - \
+                        (cte.db2Pascal * self.p + 101325) * lib._gibbs(self.n0, self.n0, self.n1, self.SA, self.t, self.p)
 
         return internal_energy
 
@@ -593,13 +586,11 @@ class SaTePr:
         2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
         """
 
-        n0, n1, n2  = 0, 1, 2
+        g_tt = lib._gibbs(self.n0, self.n2, self.n0, self.SA, self.t, self.p)
+        g_tp = lib._gibbs(self.n0, self.n1, self.n1, self.SA, self.t, self.p)
 
-        g_tt = lib._gibbs(n0, n2, n0, self.SA, self.t, self.p)
-        g_tp = lib._gibbs(n0, n1, n1, self.SA, self.t, self.p)
-
-        sound_speed = lib._gibbs(n0, n0, n1, self.SA, self.t, self.p) * \
-        np.sqrt( g_tt / ( g_tp * g_tp - g_tt * lib._gibbs(n0, n0, n2, self.SA, self.t, self.p ) ) )
+        sound_speed = lib._gibbs(self.n0, self.n0, self.n1, self.SA, self.t, self.p) * \
+        np.sqrt( g_tt / ( g_tp * g_tp - g_tt * lib._gibbs(self.n0, self.n0, self.n2, self.SA, self.t, self.p ) ) )
 
         return sound_speed
 
@@ -642,12 +633,10 @@ class SaTePr:
         2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
         """
 
-        n0, n1, n2 = 0, 1, 2
+        g_tt = lib._gibbs(self.n0, self.n2, self.n0, self.SA, self.t, self.p)
+        g_tp = lib._gibbs(self.n0, self.n1, self.n1, self.SA, self.t, self.p)
 
-        g_tt = lib._gibbs(n0, n2, n0, self.SA, self.t, self.p)
-        g_tp = lib._gibbs(n0, n1, n1, self.SA, self.t, self.p)
-
-        kappa = ( g_tp * g_tp - g_tt * lib._gibbs(n0, n0, n2, self.SA, self.t, self.p) ) / ( lib._gibbs(n0, n0, n1, self.SA, self.t, self.p ) * g_tt)
+        kappa = ( g_tp * g_tp - g_tt * lib._gibbs(self.n0, self.n0, self.n2, self.SA, self.t, self.p) ) / ( lib._gibbs(self.n0, self.n0, self.n1, self.SA, self.t, self.p ) * g_tt)
 
         return kappa
 
@@ -690,9 +679,7 @@ class SaTePr:
         2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
         """
 
-        n0, n1, n2 = 0, 1, 2
-
-        adiabatic_lapse_rate = - lib._gibbs(n0, n1, n1, self.SA, self.t, self.p) / ( lib._gibbs(n0, n2, n0, self.SA, self.t, self.p ) )
+        adiabatic_lapse_rate = - lib._gibbs(self.n0, self.n1, self.n1, self.SA, self.t, self.p) / ( lib._gibbs(self.n0, self.n2, self.n0, self.SA, self.t, self.p ) )
 
         return adiabatic_lapse_rate
 
@@ -733,9 +720,7 @@ class SaTePr:
         2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
         """
 
-        n0, n1 = 0, 1
-
-        chem_potential_relative = lib._gibbs(n1, n0, n0, self.SA, self.t, self.p)
+        chem_potential_relative = lib._gibbs(self.n1, self.n0, self.n0, self.SA, self.t, self.p)
 
         return chem_potential_relative
 
@@ -776,9 +761,7 @@ class SaTePr:
         2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
         """
 
-        n0, n1= 0, 1
-
-        specvol = lib._gibbs(n0, n0, n1, self.SA, self.t, self.p)
+        specvol = lib._gibbs(self.n0, self.n0, self.n1, self.SA, self.t, self.p)
 
         return specvol
 
@@ -851,9 +834,8 @@ class SaTePr:
 
         #The above polynomial for pot_enthalpy is the full expression for potential enthalpy in terms of SA and pt, obtained from the Gibbs function as below. The above polynomial has simply collected like powers of x and y so that it is computationally faster than calling the Gibbs function twice as is done in the commented code below. When this code below is run, the results are identical to calculating pot_enthalpy as above, to machine precision.
 
-        #n0, n1 = 0, 1
         #pr0 = np.zeros( self.SA.shape )
-        #pot_enthalpy = lib._gibbs(n0, n0, n0, self.SA, pt0, pr0) - (cte.Kelvin + pt0) * lib._gibbs(n0, n1, n0, self.SA, pt0, pr0)
+        #pot_enthalpy = lib._gibbs(self.n0, self.n0, self.n0, self.SA, pt0, pr0) - (cte.Kelvin + pt0) * lib._gibbs(self.n0, self.n1, self.n0, self.SA, pt0, pr0)
 
         #----------------This is the end of the alternative code------------------
         #%timeit results
@@ -1016,8 +998,6 @@ class SaTePr:
         pr = np.asarray(pr)
         SA = self.masked_SA.filled() # ensure that SA is non-negative
 
-        n0, n2 = 0, 2
-
         s1 = SA * 35. / cte.SSO
 
         pt = self.t + ( self.p - pr ) * ( 8.65483913395442e-6  - \
@@ -1037,7 +1017,7 @@ class SaTePr:
             dentropy = lib._entropy_part(SA, pt_old, pr) - true_entropy_part
             pt = pt_old - dentropy / dentropy_dt # this is half way through the modified method
             ptm = 0.5 * (pt + pt_old)
-            dentropy_dt = -lib._gibbs(n0, n2, n0, SA, ptm, pr)
+            dentropy_dt = -lib._gibbs(self.n0, self.n2, self.n0, SA, ptm, pr)
             pt = pt_old - dentropy / dentropy_dt
 
         # maximum error of 6.3x10^-9 degrees C for one iteration.
@@ -1085,11 +1065,54 @@ class SaTePr:
         2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
         """
 
-        n0, n1 = 0, 1
-
-        enthalpy = lib._gibbs(n0, n0, n0, self.SA, self.t, self.p) - ( self.t + cte.Kelvin ) * lib._gibbs(n0, n1, n0, self.SA, self.t, self.p)
+        enthalpy = lib._gibbs(self.n0, self.n0, self.n0, self.SA, self.t, self.p) - ( self.t + cte.Kelvin ) * lib._gibbs(self.n0, self.n1, self.n0, self.SA, self.t, self.p)
 
         return enthalpy
+
+    def alpha(self):
+        """
+        Calculates the thermal expansion coefficient of seawater with respect to in-situ temperature.
+
+        Returns
+        -------
+        alpha : array_like
+                thermal expansion coefficient [ K :sup:`-1`]
+
+        See Also
+        --------
+        TODO
+
+        Notes
+        -----
+        original name: gsw_alpha_wrt_t (A.K.A with respect to in-situ temperature)
+
+        Examples
+        --------
+        >>> from seawater.gibbs import SaTePr
+        >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+        >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+        >>> p = [0., 500., 1500., 2000.]
+        >>> STP = SaTePr(SA, t, p)
+        >>> STP.alpha()
+        array([[  1.54174741e-04,   2.12859667e-04,   2.59617457e-04,
+                  3.47907236e-04],
+               [  1.70265060e-04,  -4.88225022e-05,   2.89880704e-04,
+                  3.10594834e-04]])
+
+        References
+        ----------
+        .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See Eqn. (2.18.1)
+
+        .. [2] McDougall, T.J., D.R. Jackett and F.J. Millero, 2010: An algorithm for estimating Absolute Salinity in the global ocean. Submitted to Ocean Science. A preliminary version is available at Ocean Sci. Discuss., 6, 215-242.
+
+        Modifications:
+        2010-08-26. Trevor McDougall, David Jackett, Claire Roberts-Thomson and Paul Barker.
+        2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+        """
+
+        alpha = lib._gibbs(self.n0, self.n1, self.n1, self.SA, self.t, self.p) / lib._gibbs(self.n0, self.n0, self.n1, self.SA, self.t, self.p)
+
+        return alpha
 
 if __name__=='__main__':
     try:
@@ -1110,6 +1133,7 @@ if __name__=='__main__':
 
     def test_print(STP, method, comp_value):
         """
+        TODO
         """
         exec( "inequal = (gsw_cv." +comp_value+ " - STP." +method+ "() ) >= gsw_cv." +comp_value+ "_ca")
 
@@ -1138,7 +1162,8 @@ if __name__=='__main__':
     test_print(STP, "specvol", "specvol")
     test_print(STP, "molality", "molality")
     test_print(STP, "ionic_strength", "ionic_strength")
-    test_print(STP, "enthalpy", "enthalpy")
     test_print(STP, "potential_t", "pt_from_t")
     test_print(STP, "potential_t", "pt0") #TODO: pt0_from_t
     test_print(STP, "conservative_t", "CT_from_t")
+    test_print(STP, "enthalpy", "enthalpy")
+    test_print(STP, "alpha", "alpha_wrt_t")
