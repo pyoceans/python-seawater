@@ -37,6 +37,15 @@ if Iz_from_p.any():
 else:
     print "z_from_p:   Passed"
 
+""" p_from_z """
+p_from_z = gsw.p_from_z( z_from_p, gsw_cv.lat_chck_cast )
+Ip_from_z = (gsw_cv.p_from_z - p_from_z) >= gsw_cv.p_from_z_ca
+
+if Iz_from_p.any():
+    print "p_from_z:   Failed"
+else:
+    print "p_from_z:   Passed"
+
 """ grav """
 grav = gsw.grav(gsw_cv.lat_chck_cast, gsw_cv.p_chck_cast )
 Igrav = (gsw_cv.grav - grav) >= gsw_cv.grav_ca

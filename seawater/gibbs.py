@@ -37,7 +37,7 @@ def check_dim(prop1, prop2):
     #prop1.dtype = 'float64' # FIXME: somehow lon is been loaded as uint8
     return prop1
 
-def  z_from_p(p, lat):
+def  z_from_p(p, lat): # Also in DepthPressure.py
     """
     Calculates height from sea pressure using the computationally-efficient 25-term expression for density in terms of SA, CT and p.
 
@@ -102,7 +102,75 @@ def  z_from_p(p, lat):
 
     return z
 
-def grav(lat, p=0):
+def  p_from_z(z, lat): # Also in DepthPressure.py
+    """
+    Calculates sea pressure from height using computationally-efficient 25-term expression for density, in terms of SA, CT and p.
+
+    Parameters
+    ----------
+    lat : array_like
+          latitude in decimal degrees north [-90..+90]
+    z : array_like
+        height [m]
+
+    Returns
+    -------
+    p : array_like
+        pressure [db]
+
+    See Also
+    --------
+    TODO
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> z = [-0., -14.89499448, -99.27948265, -545.44412444, -1484.209721, -1976.61994868, -2958.05761312, -4907.87772419, -9712.16369644]
+    >>> lat = 32.
+    >>> gsw.p_from_z(z, lat)
+    array([     0.,     15.,    100.,    550.,   1500.,   2000.,   3000.,
+             5000.,  10000.])
+
+    Notes
+    -----
+    Height (z) is NEGATIVE in the ocean.  Depth is -z. Depth is not used in the gibbs library.
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp.
+
+    ,, [2] McDougall T. J., D. R. Jackett, P. M. Barker, C. Roberts-Thomson, R. Feistel and R. W. Hallberg, 2010:  A computationally efficient 25-term expression for the density of seawater in terms of Conservative Temperature, and related properties of seawater. FIXME: To be submitted to Ocean Science Discussions.
+
+    .. [3] Moritz (2000) Goedetic reference system 1980. J. Geodesy, 74, 128-133.
+
+    .. [4] Saunders, P. M., 1981: Practical conversion of pressure to depth. Journal of Physical Oceanography, 11, 573-574.
+
+    Modifications:
+    2010-08-26. Trevor McDougall, Claire Roberts-Thomson and Paul Barker.
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    # Convert input to numpy arrays
+    z, lat = np.asarray(z), np.asarray(lat)
+
+    X     = np.sin( np.deg2rad(lat) )
+    sin2  = X**2
+    gs    = 9.780327 * ( 1.0 + ( 5.2792e-3 + ( 2.32e-5 * sin2 ) ) * sin2 )
+    # get the first estimate of p from Saunders (1981)
+    c1 =  5.25e-3 * sin2 + 5.92e-3
+    p  = -2 * z / ( (1-c1) + np.sqrt( (1-c1) * (1-c1) + 8.84e-6 * z ) )
+    # end of the first estimate from Saunders (1981)
+    df_dp = cte.db2Pascal * lib._specvol_SSO_0_CT25(p) # initial value of the derivative of f
+    f     = lib._enthalpy_SSO_0_CT25(p) + gs * ( z - 0.5 * cte.gamma * ( z**2 ) )
+    p_old = p
+    p     = p_old - f / df_dp
+    pm    = 0.5 * (p + p_old)
+    df_dp = cte.db2Pascal * lib._specvol_SSO_0_CT25(pm)
+    p     = p_old - f / df_dp
+
+    return p
+
+def grav(lat, p=0): # Also in DepthPressure.py
     """
     Calculates acceleration due to gravity as a function of latitude and as a function of pressure in the ocean.
 

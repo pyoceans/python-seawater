@@ -7,6 +7,7 @@ class DepthPressure:
     Class to convert pressure to depth and vice-versa:
 
     This class will (maybe) replace z_from_p, p_from_z, and grav functions
+    TODO: Copy documentation
     """
     def __init__(self, lat, p=None, z=None):
         self.lat, self.p, self.z = np.asarray(lat), np.asarray(p), np.asarray(z)
