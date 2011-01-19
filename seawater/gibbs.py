@@ -1114,6 +1114,47 @@ class SaTePr: #TODO: find a better name!
 
         return alpha
 
+    def beta(self):
+        """
+        Calculates the saline (i.e. haline) contraction coefficient of seawater.
+
+        Returns
+        -------
+        beta : array_like
+               saline contraction coefficient [ kg g :sup:`-1`]
+
+        See Also
+        --------
+        TODO
+
+        Notes
+        -----
+        original name: gsw_beta_const_t (at constant in-situ temperature)
+
+        Examples
+        --------
+        >>> from seawater.gibbs import SaTePr
+        >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+        >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+        >>> p = [0., 500., 1500., 2000.]
+        >>> STP = SaTePr(SA, t, p)
+        >>> STP.beta()
+        array([[ 0.00076014,  0.00074453,  0.0007323 ,  0.0007157 ],
+               [ 0.00075704,  0.00081627,  0.00072689,  0.00072291]])
+
+        References
+        ----------
+        .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See Eqn. (2.19.1)
+
+        Modifications:
+        2010-07-23. David Jackett, Trevor McDougall and Paul Barker
+        2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+        """
+
+        beta = -lib._gibbs(self.n1, self.n0, self.n1, self.SA, self.t, self.p) / lib._gibbs(self.n0, self.n0, self.n1, self.SA, self.t, self.p)
+
+        return beta
+
 if __name__=='__main__':
     try:
         import cPickle as pickle
@@ -1167,3 +1208,4 @@ if __name__=='__main__':
     test_print(STP, "conservative_t", "CT_from_t")
     test_print(STP, "enthalpy", "enthalpy")
     test_print(STP, "alpha", "alpha_wrt_t")
+    test_print(STP, "beta", "beta_const_t")
