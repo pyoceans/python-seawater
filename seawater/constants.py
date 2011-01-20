@@ -73,3 +73,6 @@ SSO = 35.16504
 
 sfac = 0.0248826675584615
 """ TODO: sfac = 1 / (40 * ( 35.16504 / 35 ) ) """
+
+R = 8.314472
+""" the molar gas constant = 8.314472 m :sup:`2` kg s:sup:`-21 K :sup:`-1` mol :sup:`-1` """

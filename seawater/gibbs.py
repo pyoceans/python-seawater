@@ -3,7 +3,7 @@
 #TODO: Check original authors and dates
 #TODO: csiro vs gibbs (table?)
 #TODO: check_dim for p in all "p" functions
-#FIXME: some function return values even with nan in the input, check this behaviour (also present in the original).
+#FIXME: some function return values even with NaN in the input, check this behaviour (also present in the original).
 
 import numpy as np
 from seawater import constants as cte
@@ -295,10 +295,10 @@ def SA_from_SP(SP, p, lon, lat):
 
     inds = np.isfinite(SP) # pythonic
 
-    SA = np.nan * np.zeros( SP.shape )
-    dSA = np.nan * np.zeros( SP.shape )
-    SA_baltic = np.nan * np.zeros( SP.shape )
-    in_ocean = np.nan * np.zeros( SP.shape ) #FIXME: change to boolean
+    SA = np.NaN * np.zeros( SP.shape )
+    dSA = np.NaN * np.zeros( SP.shape )
+    SA_baltic = np.NaN * np.zeros( SP.shape )
+    in_ocean = np.NaN * np.zeros( SP.shape ) #FIXME: change to boolean
 
     dSA[inds], in_ocean[inds] = lib._delta_SA( p[inds], lon[inds], lat[inds] )
     SA[inds] = ( 35.16504 / 35 ) * SP[inds] + dSA[inds]
@@ -326,8 +326,12 @@ class SaTePr: #TODO: find a better name!
 
     """
     def __init__(self, SA=None, t=None, p=None):
+
         # Convert input to numpy arrays
         self.SA, self.t, self.p = np.asarray(SA), np.asarray(t), np.asarray(p)
+
+        # broadcast p to SA dimension TODO
+        #self.p = check_dim(self.p, self.SA)
 
         self.masked_SA = ma.masked_less(self.SA, 0)
         self.masked_SA.fill_value = 0
@@ -594,52 +598,6 @@ class SaTePr: #TODO: find a better name!
 
         return sound_speed
 
-    def kappa(self):
-        """
-        Calculates the isentropic compressibility of seawater.
-
-        Returns
-        -------
-        kappa : array_like
-                Isentropic compressibility [ Pa :sup:`-1`]
-
-        See Also
-        --------
-        TODO
-
-        Notes
-        -----
-        The output is Pascal and not dbar.
-
-        Examples
-        --------
-        >>> from seawater.gibbs import SaTePr
-        >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-        >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-        >>> p = [0., 500., 1500., 2000.]
-        >>> STP = SaTePr(SA, t, p)
-        >>> STP.kappa()
-        array([[  4.30309045e-10,   4.28843638e-10,   4.25455945e-10,
-                  3.99755378e-10],
-               [  4.54932038e-10,   5.01511014e-10,   4.16810090e-10,
-                  4.13842034e-10]])
-
-        References
-        ----------
-        .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See Eqns. (2.16.1) and the row for kappa in Table P.1 of appendix P
-
-        Modifications:
-        2010-07-23. David Jackett, Trevor McDougall and Paul Barker
-        2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
-        """
-
-        g_tt = lib._gibbs(self.n0, self.n2, self.n0, self.SA, self.t, self.p)
-        g_tp = lib._gibbs(self.n0, self.n1, self.n1, self.SA, self.t, self.p)
-
-        kappa = ( g_tp * g_tp - g_tt * lib._gibbs(self.n0, self.n0, self.n2, self.SA, self.t, self.p) ) / ( lib._gibbs(self.n0, self.n0, self.n1, self.SA, self.t, self.p ) * g_tt)
-
-        return kappa
-
     def adiabatic_lapse_rate(self):
         """
         Calculates the adiabatic lapse rate of sea water.
@@ -885,7 +843,7 @@ class SaTePr: #TODO: find a better name!
         """
 
         # only >= than zero
-        self.masked_SA.fill_value = np.nan
+        self.masked_SA.fill_value = np.NaN #TODO: check if this affect other masks
         SA = self.masked_SA
 
         # molality of seawater in mol kg :sup:`-1`
@@ -1285,6 +1243,241 @@ class SaTePr: #TODO: find a better name!
 
         return chem_potential_salt
 
+    def isochoric_heat_cap(self):
+        """
+        Calculates the isochoric heat capacity of seawater.
+
+        Returns
+        -------
+        isochoric_heat_cap : array_like
+                             isochoric heat capacity [ J kg :sup:`-1` K :sup:`-1`]
+
+        See Also
+        --------
+        TODO
+
+        Notes
+        -----
+        TODO
+
+        Examples
+        --------
+        >>> from seawater.gibbs import SaTePr
+        >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+        >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+        >>> p = [0., 500., 1500., 2000.]
+        >>> STP = SaTePr(SA, t, p)
+        >>> STP.isochoric_heat_cap()
+        array([[ 3877.6517887 ,  3977.23066819,  4041.25381871,  3944.74636445],
+               [ 4111.17043765,  4193.91078826,  4004.77189377,  4019.75411647]])
+
+        References
+        ----------
+        .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See section 2.21.
+
+        Modifications:
+        2010-08-26. Trevor McDougall
+        2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+        """
+
+        g_tt = lib._gibbs(self.n0, self.n2, self.n0, self.SA, self.t, self.p)
+        g_tp = lib._gibbs(self.n0, self.n1, self.n1, self.SA, self.t, self.p)
+        g_pp = lib._gibbs(self.n0, self.n0, self.n2, self.SA, self.t, self.p)
+
+        isochoric_heat_cap = -(cte.Kelvin + self.t) * (g_tt - g_tp * g_tp / g_pp)
+
+        return isochoric_heat_cap
+
+    def kappa(self):
+        """
+        Calculates the isentropic compressibility of seawater.
+
+        Returns
+        -------
+        kappa : array_like
+                Isentropic compressibility [ Pa :sup:`-1`]
+
+        See Also
+        --------
+        TODO
+
+        Notes
+        -----
+        The output is Pascal and not dbar.
+
+        Examples
+        --------
+        >>> from seawater.gibbs import SaTePr
+        >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+        >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+        >>> p = [0., 500., 1500., 2000.]
+        >>> STP = SaTePr(SA, t, p)
+        >>> STP.kappa()
+        array([[  4.30309045e-10,   4.28843638e-10,   4.25455945e-10,
+                  3.99755378e-10],
+               [  4.54932038e-10,   5.01511014e-10,   4.16810090e-10,
+                  4.13842034e-10]])
+
+        References
+        ----------
+        .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See Eqns. (2.16.1) and the row for kappa in Table P.1 of appendix P
+
+        Modifications:
+        2010-07-23. David Jackett, Trevor McDougall and Paul Barker
+        2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+        """
+
+        g_tt = lib._gibbs(self.n0, self.n2, self.n0, self.SA, self.t, self.p)
+        g_tp = lib._gibbs(self.n0, self.n1, self.n1, self.SA, self.t, self.p)
+
+        kappa = ( g_tp * g_tp - g_tt * lib._gibbs(self.n0, self.n0, self.n2, self.SA, self.t, self.p) ) / ( lib._gibbs(self.n0, self.n0, self.n1, self.SA, self.t, self.p ) * g_tt)
+
+        return kappa
+
+    def kappa_const_t(self):
+        """
+        Calculates isothermal compressibility of seawater at constant in-situ temperature.
+
+        Returns
+        -------
+        kappa : array_like
+                Isothermal compressibility [ Pa :sup:`-1`]
+
+        See Also
+        --------
+        TODO
+
+        Notes
+        -----
+        This is the compressibility of seawater at constant in-situ temperature.
+
+        Examples
+        --------
+        >>> from seawater.gibbs import SaTePr
+        >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+        >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+        >>> p = [0., 500., 1500., 2000.]
+        >>> STP = SaTePr(SA, t, p)
+        >>> STP.kappa_const_t()
+        array([[  4.31939544e-10,   4.32024995e-10,   4.30266156e-10,
+                  4.08748100e-10],
+               [  4.56941451e-10,   5.01665845e-10,   4.22886356e-10,
+                  4.20872128e-10]])
+
+        References
+        ----------
+        .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See Eqn. (2.15.1)
+
+        Modifications:
+        2010-07-23. David Jackett, Trevor McDougall and Paul Barker
+        2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+        """
+
+        kappa = - lib._gibbs(self.n0, self.n0, self.n2, self.SA, self.t, self.p) / lib._gibbs(self.n0, self.n0, self.n1, self.SA, self.t, self.p)
+
+        return kappa
+
+    def osmotic_coefficient(self):
+        """
+        Calculates the osmotic coefficient of seawater.
+
+        Returns
+        -------
+        osmotic_coefficient : array_like
+                              osmotic coefficient of seawater [ unitless ]
+
+        See Also
+        --------
+        TODO
+
+        Notes
+        -----
+        TODO
+
+        Examples
+        --------
+        >>> from seawater.gibbs import SaTePr
+        >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+        >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+        >>> p = [0., 500., 1500., 2000.]
+        >>> STP = SaTePr(SA, t, p)
+        >>> STP.osmotic_coefficient()
+        array([[ 0.90488718,  0.89901313,  0.90280557,  0.89943715],
+               [ 0.90152697,         nan,  0.89931561,  0.90564689]])
+
+        References
+        ----------
+        .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp.
+
+        Modifications:
+        2010-09-28. Trevor McDougall and Paul Barker
+        2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+        """
+
+        M_S = 0.0314038218 # mole-weighted average atomic weight of the elements of sea salt, in units of kg mol :sup:`-1`
+
+        # only >= than zero
+        self.masked_SA.fill_value = np.NaN #TODO: check if this affect other masks
+        SA = self.masked_SA.filled()
+
+        molality = SA / ( M_S * ( 1000 - SA ) ) # molality of seawater in mol kg :sup:`-1`
+        part = molality * cte.R * ( cte.Kelvin + self.t )
+
+        #FIXME: lib._gibbs does not accept 0-dim yet
+        SAzero = np.zeros( SA.shape )
+
+        osmotic_coefficient = ( lib._gibbs(self.n0, self.n0, self.n0, SAzero, self.t, self.p) - \
+        self.chem_potential_water() ) / part
+
+        return osmotic_coefficient
+
+    def pot_rho(self, pr=0):
+        """
+        Calculates potential density of seawater.
+
+        Parameters
+        ----------
+        pr : int, float, optional
+            reference pressure, default = 0
+
+        Returns
+        -------
+        pot_rho : array_like
+                  potential density  [ kg m :sup:`-3` ]
+
+        See Also
+        --------
+        TODO
+
+        Notes
+        -----
+        TODO
+
+        Examples
+        --------
+        >>> from seawater.gibbs import SaTePr
+        >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+        >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+        >>> p = [0., 500., 1500., 2000.]
+        >>> STP = SaTePr(SA, t, p)
+        >>> STP.pot_rho()
+        array([[ 1041.77425464,  1022.03286026,  1005.35590628,  1009.95952733],
+               [ 1006.74841976,   999.84434287,  1008.33162777,  1002.31311402]])
+
+        References
+        ----------
+        .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See section 3.4.
+
+        Modifications:
+        2010-07-23. David Jackett, Trevor McDougall and Paul Barker
+        2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+        """
+
+        pt = self.potential_t(pr=pr)
+        pot_rho = 1. / lib._gibbs(self.n0, self.n0, self.n1, self.SA, pt, pr)
+
+        return pot_rho
+
 if __name__=='__main__':
     try:
         import cPickle as pickle
@@ -1302,42 +1495,53 @@ if __name__=='__main__':
     data = pickle.load( open('gsw_cv.pkl','rb') )
     gsw_cv = Dict2Struc(data) # then type dat.<tab> to navigate through your variables
 
-    def test_print(STP, method, comp_value):
+    def test_print(STP, method, comp_value=None):
         """
-        TODO
+        Run a function test mimicking the original logic. This is done to allow for a direct comparison of the result from the Matlab to the python package.
         """
+
+        if comp_value is None:
+            comp_value = method
+
+        # test for floating differences with: computed - check_value >= defined_precision
         exec( "inequal = (gsw_cv." +comp_value+ " - STP." +method+ "() ) >= gsw_cv." +comp_value+ "_ca")
 
         width = 23
         if inequal.any():
             print "%s: Failed" % method.rjust(width)
         else:
+            # test if check value is identical to computed value
             if eval( "( gsw_cv." +comp_value+ "[~np.isnan(gsw_cv."+comp_value+")] == STP." +method+ "()[~np.isnan(STP."+method+"())] ).all()" ):
-                print "%s: Passed, equal" % method.rjust(width)
+                print "%s: Passed" % method.rjust(width)
             else:
+                # test for differences in case their aren't equal. This is an attempt to place all tests together (i.e. term25 and small float differences that will appear)
                 exec("nmax = ( gsw_cv."+comp_value+" - STP."+method+"() )[~np.isnan(gsw_cv."+comp_value+")].max()")
                 exec("nmin = ( gsw_cv."+comp_value+" - STP."+method+"() )[~np.isnan(gsw_cv."+comp_value+")].min()")
                 print "%s: Passed, but small diff ranging from: %s to %s" % ( method.rjust(width), nmax, nmin)
 
     STP = SaTePr(gsw_cv.SA_from_SP, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 
-    test_print(STP, "entropy", "entropy")
-    test_print(STP, "rho", "rho")
-    test_print(STP, "cp", "cp")
+    test_print(STP, "entropy")
+    test_print(STP, "rho")
+    test_print(STP, "cp")
     test_print(STP, "helmholtz_energy", "Helmholtz_energy")
-    test_print(STP, "internal_energy", "internal_energy")
-    test_print(STP, "sound_speed", "sound_speed")
-    test_print(STP, "kappa", "kappa")
-    test_print(STP, "adiabatic_lapse_rate", "adiabatic_lapse_rate")
+    test_print(STP, "internal_energy")
+    test_print(STP, "sound_speed")
+    test_print(STP, "adiabatic_lapse_rate")
     test_print(STP, "chem_potential_relative", "chem_potential")
-    test_print(STP, "specvol", "specvol")
-    test_print(STP, "molality", "molality")
-    test_print(STP, "ionic_strength", "ionic_strength")
+    test_print(STP, "specvol")
+    test_print(STP, "molality")
+    test_print(STP, "ionic_strength")
     test_print(STP, "potential_t", "pt_from_t")
     test_print(STP, "potential_t", "pt0") #TODO: pt0_from_t
     test_print(STP, "conservative_t", "CT_from_t")
-    test_print(STP, "enthalpy", "enthalpy")
+    test_print(STP, "enthalpy")
     test_print(STP, "alpha", "alpha_wrt_t")
     test_print(STP, "beta", "beta_const_t")
-    test_print(STP, "chem_potential_water", "chem_potential_water")
-    test_print(STP, "chem_potential_salt", "chem_potential_salt")
+    test_print(STP, "chem_potential_water")
+    test_print(STP, "chem_potential_salt")
+    test_print(STP, "isochoric_heat_cap")
+    test_print(STP, "kappa")
+    test_print(STP, "kappa_const_t")
+    test_print(STP, "osmotic_coefficient")
+    test_print(STP, "pot_rho")
