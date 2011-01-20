@@ -8,6 +8,7 @@
 import numpy as np
 from seawater import constants as cte
 from seawater import library as lib
+from seawater import Temperature as temp
 
 import numpy.ma as ma
 
@@ -301,7 +302,7 @@ def SA_from_SP(SP, p, lon, lat):
     in_ocean = np.NaN * np.zeros( SP.shape ) #FIXME: change to boolean
 
     dSA[inds], in_ocean[inds] = lib._delta_SA( p[inds], lon[inds], lat[inds] )
-    SA[inds] = ( 35.16504 / 35 ) * SP[inds] + dSA[inds]
+    SA[inds] = ( cte.SSO / 35 ) * SP[inds] + dSA[inds]
 
     SA_baltic = lib._SA_from_SP_Baltic( SP, lon, lat )
 
@@ -763,42 +764,7 @@ class SaTePr: #TODO: find a better name!
         #pt0 = self.pt0_from_t() #TODO: pt0_from_t
         pt0 = self.potential_t()
 
-        #CT = gsw.CT_from_pt(self.SA, pt0) NOTE: incorporated below
-
-        SA = self.masked_SA.filled() # ensure that SA is non-negative
-
-        x2 = cte.sfac * SA
-        x = np.sqrt(x2)
-        y = pt0 * 0.025 # normalize for F03 and F08
-
-        pot_enthalpy =  61.01362420681071 + y * ( 168776.46138048015 + \
-        y * ( -2735.2785605119625 + y * ( 2574.2164453821433 + \
-        y * ( -1536.6644434977543 + y * ( 545.7340497931629 + \
-        ( -50.91091728474331 - 18.30489878927802 * y ) * y ) ) ) ) ) + \
-        x2 * ( 268.5520265845071 + y * ( -12019.028203559312 + \
-        y * ( 3734.858026725145 + y * ( -2046.7671145057618 + \
-        y * ( 465.28655623826234 + ( -0.6370820302376359 - \
-        10.650848542359153 * y ) * y ) ) ) ) + \
-        x * ( 937.2099110620707 + y * ( 588.1802812170108 + \
-        y * ( 248.39476522971285 + ( -3.871557904936333 - \
-        2.6268019854268356 * y ) * y ) ) + \
-        x * ( -1687.914374187449 + x * ( 246.9598888781377 + \
-        x * ( 123.59576582457964 - 48.5891069025409 * x ) ) + \
-        y * ( 936.3206544460336 + \
-        y * ( -942.7827304544439 + y * ( 369.4389437509002 + \
-        ( -33.83664947895248 - 9.987880382780322 * y ) * y ) ) ) ) ) )
-
-        #The above polynomial for pot_enthalpy is the full expression for potential enthalpy in terms of SA and pt, obtained from the Gibbs function as below. The above polynomial has simply collected like powers of x and y so that it is computationally faster than calling the Gibbs function twice as is done in the commented code below. When this code below is run, the results are identical to calculating pot_enthalpy as above, to machine precision.
-
-        #pr0 = np.zeros( self.SA.shape )
-        #pot_enthalpy = lib._gibbs(self.n0, self.n0, self.n0, self.SA, pt0, pr0) - (cte.Kelvin + pt0) * lib._gibbs(self.n0, self.n1, self.n0, self.SA, pt0, pr0)
-
-        #----------------This is the end of the alternative code------------------
-        #%timeit results
-        #1000 loops, best of 3: 1.34 ms per loop <- calling gibbs
-        #1000 loops, best of 3: 254 us per loop <- standard
-
-        CT = pot_enthalpy / cte.cp0
+        CT = temp.CT_from_pt(self.SA, pt0)
 
         return CT
 
@@ -1025,14 +991,14 @@ class SaTePr: #TODO: find a better name!
 
         return enthalpy
 
-    def alpha(self):
+    def alpha_wrt_t(self):
         """
         Calculates the thermal expansion coefficient of seawater with respect to in-situ temperature.
 
         Returns
         -------
-        alpha : array_like
-                thermal expansion coefficient [ K :sup:`-1`]
+        alpha_wrt_t : array_like
+                      thermal expansion coefficient [ K :sup:`-1`]
 
         See Also
         --------
@@ -1040,7 +1006,7 @@ class SaTePr: #TODO: find a better name!
 
         Notes
         -----
-        original name: gsw_alpha_wrt_t (A.K.A with respect to in-situ temperature)
+        TODO
 
         Examples
         --------
@@ -1049,7 +1015,7 @@ class SaTePr: #TODO: find a better name!
         >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
         >>> p = [0., 500., 1500., 2000.]
         >>> STP = SaTePr(SA, t, p)
-        >>> STP.alpha()
+        >>> STP.alpha_wrt_t()
         array([[  1.54174741e-04,   2.12859667e-04,   2.59617457e-04,
                   3.47907236e-04],
                [  1.70265060e-04,  -4.88225022e-05,   2.89880704e-04,
@@ -1066,18 +1032,18 @@ class SaTePr: #TODO: find a better name!
         2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
         """
 
-        alpha = lib._gibbs(self.n0, self.n1, self.n1, self.SA, self.t, self.p) / lib._gibbs(self.n0, self.n0, self.n1, self.SA, self.t, self.p)
+        alpha_wrt_t = lib._gibbs(self.n0, self.n1, self.n1, self.SA, self.t, self.p) / lib._gibbs(self.n0, self.n0, self.n1, self.SA, self.t, self.p)
 
-        return alpha
+        return alpha_wrt_t
 
-    def beta(self):
+    def beta_const_t(self):
         """
-        Calculates the saline (i.e. haline) contraction coefficient of seawater.
+        Calculates the saline (i.e. haline) contraction coefficient of seawater at constant in-situ temperature.
 
         Returns
         -------
-        beta : array_like
-               saline contraction coefficient [ kg g :sup:`-1`]
+        beta_const_t : array_like
+                       saline contraction coefficient [ kg g :sup:`-1`]
 
         See Also
         --------
@@ -1085,7 +1051,7 @@ class SaTePr: #TODO: find a better name!
 
         Notes
         -----
-        original name: gsw_beta_const_t (at constant in-situ temperature)
+        TODO
 
         Examples
         --------
@@ -1094,7 +1060,7 @@ class SaTePr: #TODO: find a better name!
         >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
         >>> p = [0., 500., 1500., 2000.]
         >>> STP = SaTePr(SA, t, p)
-        >>> STP.beta()
+        >>> STP.beta_const_t()
         array([[ 0.00076014,  0.00074453,  0.0007323 ,  0.0007157 ],
                [ 0.00075704,  0.00081627,  0.00072689,  0.00072291]])
 
@@ -1107,9 +1073,9 @@ class SaTePr: #TODO: find a better name!
         2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
         """
 
-        beta = -lib._gibbs(self.n1, self.n0, self.n1, self.SA, self.t, self.p) / lib._gibbs(self.n0, self.n0, self.n1, self.SA, self.t, self.p)
+        beta_const_t = -lib._gibbs(self.n1, self.n0, self.n1, self.SA, self.t, self.p) / lib._gibbs(self.n0, self.n0, self.n1, self.SA, self.t, self.p)
 
-        return beta
+        return beta_const_t
 
     def chem_potential_water(self):
         """
@@ -1474,9 +1440,61 @@ class SaTePr: #TODO: find a better name!
         """
 
         pt = self.potential_t(pr=pr)
+        #TODO: the line below recompute rho with pr=0 and pt
         pot_rho = 1. / lib._gibbs(self.n0, self.n0, self.n1, self.SA, pt, pr)
 
         return pot_rho
+
+    def specvol_anom(self):
+        """
+        Calculates specific volume anomaly from Absolute Salinity, in-situ temperature and pressure, using the full TEOS-10 Gibbs function.
+
+        The reference value of Absolute Salinity is SSO and the reference value of Conservative Temperature is equal to 0 :math:`^\\circ` C.
+
+        Returns
+        -------
+        specvol_anom : array_like
+                       specific volume anomaly  [ m :sup:`-3` kg ] #TODO: the original has this reversed
+
+        See Also
+        --------
+        TODO
+
+        Notes
+        -----
+        TODO
+
+        Examples
+        --------
+        >>> from seawater.gibbs import SaTePr
+        >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+        >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+        >>> p = [0., 500., 1500., 2000.]
+        >>> STP = SaTePr(SA, t, p)
+        >>> STP.pot_rho()
+        array([[ 1041.77425464,  1022.03286026,  1005.35590628,  1009.95952733],
+               [ 1006.74841976,   999.84434287,  1008.33162777,  1002.31311402]])
+
+        References
+        ----------
+        .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See Eqn. (3.7.3)
+
+        Modifications:
+        2010-08-26. Trevor McDougall & Paul Barker
+        2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+        """
+
+        SSO = cte.SSO * np.ones( self.SA.shape )
+        CT0 = np.zeros( SSO.shape )
+        pr0 = np.zeros( SSO.shape )
+        pt_zero = temp.pt_from_CT(SSO, CT0)
+        #TODO: If I figure out a way to recalculate from self.potential_t() this call to Temperature.py will be unecessary
+        t_zero = temp.potential_t(SSO, pt_zero, pr0, self.p)
+
+        specvol_anom = lib._gibbs(self.n0, self.n0, self.n1, self.SA, self.t, self.p) - \
+        lib._gibbs(self.n0, self.n0, self.n1, SSO, t_zero, self.p)
+
+        return specvol_anom
 
 if __name__=='__main__':
     try:
@@ -1536,8 +1554,8 @@ if __name__=='__main__':
     test_print(STP, "potential_t", "pt0") #TODO: pt0_from_t
     test_print(STP, "conservative_t", "CT_from_t")
     test_print(STP, "enthalpy")
-    test_print(STP, "alpha", "alpha_wrt_t")
-    test_print(STP, "beta", "beta_const_t")
+    test_print(STP, "alpha_wrt_t", "alpha_wrt_t")
+    test_print(STP, "beta_const_t", "beta_const_t")
     test_print(STP, "chem_potential_water")
     test_print(STP, "chem_potential_salt")
     test_print(STP, "isochoric_heat_cap")
@@ -1545,3 +1563,4 @@ if __name__=='__main__':
     test_print(STP, "kappa_const_t")
     test_print(STP, "osmotic_coefficient")
     test_print(STP, "pot_rho")
+    test_print(STP, "specvol_anom")
