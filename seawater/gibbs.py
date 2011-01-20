@@ -431,7 +431,7 @@ class SaTePr: #TODO: find a better name!
         Returns
         -------
         cp : array_like
-             heat capacity of seawater [ J kg :sup:`-1` K:sup:`-1`]
+             heat capacity of seawater [J kg :sup:`-1` K:sup:`-1`]
 
         See Also
         --------
@@ -472,7 +472,7 @@ class SaTePr: #TODO: find a better name!
         Returns
         -------
         Helmholtz_energy : array_like
-                           Helmholtz energy [ J kg :sup:`-1`]
+                           Helmholtz energy [J kg :sup:`-1`]
 
         See Also
         --------
@@ -516,7 +516,7 @@ class SaTePr: #TODO: find a better name!
         Returns
         -------
         internal_energy(u) : array_like #FIXME: function of "u" !? What is "u"?
-                             specific internal energy [ J kg :sup:`-1`]
+                             specific internal energy [J kg :sup:`-1`]
 
         See Also
         --------
@@ -561,7 +561,7 @@ class SaTePr: #TODO: find a better name!
         Returns
         -------
         sound_speed : array_like
-                      speed of sound in seawater [ m s :sup:`-1`]
+                      speed of sound in seawater [m s :sup:`-1`]
 
         See Also
         --------
@@ -606,7 +606,7 @@ class SaTePr: #TODO: find a better name!
         Returns
         -------
         adiabatic_lapse_rate : array_like
-                               Adiabatic lapse rate [ K Pa :sup:`-1`]
+                               Adiabatic lapse rate [K Pa :sup:`-1`]
 
         See Also
         --------
@@ -649,7 +649,7 @@ class SaTePr: #TODO: find a better name!
         Returns
         -------
         chem_potential_relative : array_like
-                                  relative chemical potential [ J kg :sup:`-1`]
+                                  relative chemical potential [J kg :sup:`-1`]
 
         See Also
         --------
@@ -690,7 +690,8 @@ class SaTePr: #TODO: find a better name!
         Returns
         -------
         specvol : array_like
-                  specific volume [ m :sup:`-3` kg :sup:`-1`] #TODO: original has a typo [ kg m :sup:`-3`]
+                  specific volume [m :sup:`3` kg :sup:`-1`]
+                  #TODO: the original has this reversed
 
         See Also
         --------
@@ -955,7 +956,7 @@ class SaTePr: #TODO: find a better name!
         Returns
         -------
         enthalpy : array_like
-                   specific enthalpy [ J kg :sup:`-1`]
+                   specific enthalpy [J kg :sup:`-1`]
 
         See Also
         --------
@@ -998,7 +999,7 @@ class SaTePr: #TODO: find a better name!
         Returns
         -------
         alpha_wrt_t : array_like
-                      thermal expansion coefficient [ K :sup:`-1`]
+                      thermal expansion coefficient [K :sup:`-1`]
 
         See Also
         --------
@@ -1043,7 +1044,7 @@ class SaTePr: #TODO: find a better name!
         Returns
         -------
         beta_const_t : array_like
-                       saline contraction coefficient [ kg g :sup:`-1`]
+                       saline contraction coefficient [kg g :sup:`-1`]
 
         See Also
         --------
@@ -1084,7 +1085,7 @@ class SaTePr: #TODO: find a better name!
         Returns
         -------
         chem_potential_water : array_like
-                              chemical potential of water in seawater [ J kg :sup:`-1`]
+                              chemical potential of water in seawater [J kg :sup:`-1`]
 
         See Also
         --------
@@ -1174,7 +1175,7 @@ class SaTePr: #TODO: find a better name!
         Returns
         -------
         chem_potential_salt : array_like
-                              chemical potential of salt in seawater [ J kg :sup:`-1`]
+                              chemical potential of salt in seawater [J kg :sup:`-1`]
 
         See Also
         --------
@@ -1216,7 +1217,7 @@ class SaTePr: #TODO: find a better name!
         Returns
         -------
         isochoric_heat_cap : array_like
-                             isochoric heat capacity [ J kg :sup:`-1` K :sup:`-1`]
+                             isochoric heat capacity [J kg :sup:`-1` K :sup:`-1`]
 
         See Also
         --------
@@ -1261,7 +1262,7 @@ class SaTePr: #TODO: find a better name!
         Returns
         -------
         kappa : array_like
-                Isentropic compressibility [ Pa :sup:`-1`]
+                Isentropic compressibility [Pa :sup:`-1`]
 
         See Also
         --------
@@ -1307,7 +1308,7 @@ class SaTePr: #TODO: find a better name!
         Returns
         -------
         kappa : array_like
-                Isothermal compressibility [ Pa :sup:`-1`]
+                Isothermal compressibility [Pa :sup:`-1`]
 
         See Also
         --------
@@ -1350,7 +1351,7 @@ class SaTePr: #TODO: find a better name!
         Returns
         -------
         osmotic_coefficient : array_like
-                              osmotic coefficient of seawater [ unitless ]
+                              osmotic coefficient of seawater [unitless]
 
         See Also
         --------
@@ -1409,7 +1410,7 @@ class SaTePr: #TODO: find a better name!
         Returns
         -------
         pot_rho : array_like
-                  potential density  [ kg m :sup:`-3` ]
+                  potential density  [kg m :sup:`-3`]
 
         See Also
         --------
@@ -1454,7 +1455,8 @@ class SaTePr: #TODO: find a better name!
         Returns
         -------
         specvol_anom : array_like
-                       specific volume anomaly  [ m :sup:`-3` kg ] #TODO: the original has this reversed
+                       specific volume anomaly  [m :sup:`3` kg :sup:`-1`]
+                       #TODO: the original has this reversed
 
         See Also
         --------
@@ -1495,6 +1497,51 @@ class SaTePr: #TODO: find a better name!
         lib._gibbs(self.n0, self.n0, self.n1, SSO, t_zero, self.p)
 
         return specvol_anom
+
+    def alpha_wrt_CT(self):
+        """
+        Calculates the thermal expansion coefficient of seawater with respect to Conservative Temperature.
+
+        Returns
+        -------
+        alpha_wrt_CT : array_like
+                       thermal expansion coefficient [K :sup:`-1`]
+
+        See Also
+        --------
+        TODO
+
+        Notes
+        -----
+        TODO
+
+        Examples
+        --------
+        >>> from seawater.gibbs import SaTePr
+        >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+        >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+        >>> p = [0., 500., 1500., 2000.]
+        >>> STP = SaTePr(SA, t, p)
+        >>> STP.alpha_wrt_CT()
+        array([[  1.58116830e-04,   2.12123759e-04,   2.53807153e-04,
+                  3.44888273e-04],
+               [  1.64597103e-04,  -4.64529201e-05,   2.85086325e-04,
+                  3.03728728e-04]])
+
+        References
+        ----------
+        .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See Eqn. (2.18.3).
+
+        Modifications:
+        2010-07-23. David Jackett, Trevor McDougall and Paul Barker
+        2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+        """
+
+        pt0 = self.potential_t()
+        factor = -cte.cp0 / ( (cte.Kelvin + pt0) * lib._gibbs(self.n0, self.n2, self.n0, self.SA, self.t, self.p ) )
+        alpha_wrt_CT = factor  * ( lib._gibbs(self.n0, self.n1, self.n1, self.SA, self.t, self.p) / lib._gibbs(self.n0, self.n0, self.n1, self.SA, self.t, self.p ) )
+
+        return alpha_wrt_CT
 
 if __name__=='__main__':
     try:
@@ -1551,11 +1598,12 @@ if __name__=='__main__':
     test_print(STP, "molality")
     test_print(STP, "ionic_strength")
     test_print(STP, "potential_t", "pt_from_t")
-    test_print(STP, "potential_t", "pt0") #TODO: pt0_from_t
+    test_print(STP, "potential_t", "pt0") #NOTE: pt0_from_t
     test_print(STP, "conservative_t", "CT_from_t")
     test_print(STP, "enthalpy")
-    test_print(STP, "alpha_wrt_t", "alpha_wrt_t")
-    test_print(STP, "beta_const_t", "beta_const_t")
+    test_print(STP, "alpha_wrt_t")
+    test_print(STP, "alpha_wrt_CT")
+    test_print(STP, "beta_const_t")
     test_print(STP, "chem_potential_water")
     test_print(STP, "chem_potential_salt")
     test_print(STP, "isochoric_heat_cap")
