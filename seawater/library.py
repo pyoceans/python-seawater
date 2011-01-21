@@ -620,6 +620,9 @@ def _gibbs(ns, nt, npr, SA, t, p):
     SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
 
     # ensure that SA is non-negative.
+    if SA.ndim == 0:
+        SA = SA[np.newaxis]
+
     SA[SA < 0] = 0
 
     sfac = 0.0248826675584615 # sfac = 1 / ( 40 * ( 35.16504 / 35 ) )

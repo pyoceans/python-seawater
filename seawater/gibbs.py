@@ -1303,7 +1303,7 @@ class SaTePr: #TODO: find a better name!
         molality = SA / ( M_S * ( 1000 - SA ) ) # molality of seawater in mol kg :sup:`-1`
         part = molality * cte.R * ( cte.Kelvin + self.t )
 
-        #FIXME: lib._gibbs does not accept 0-dim yet
+        #FIXME: the SAzero is needed to fixlib._gibbs: ValueError: shape mismatch: objects cannot be broadcast to a single shape
         SAzero = np.zeros( SA.shape )
 
         osmotic_coefficient = ( lib._gibbs(self.n0, self.n0, self.n0, SAzero, self.t, self.p) - \
