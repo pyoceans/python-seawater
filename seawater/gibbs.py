@@ -762,8 +762,7 @@ class SaTePr: #TODO: find a better name!
         2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
         """
 
-        #pt0 = self.pt0_from_t() #TODO: pt0_from_t
-        pt0 = self.potential_t()
+        pt0 = self.potential_t() # NOTE: pt0_from_t
 
         CT = temp.CT_from_pt(self.SA, pt0)
 
@@ -991,92 +990,6 @@ class SaTePr: #TODO: find a better name!
         enthalpy = lib._gibbs(self.n0, self.n0, self.n0, self.SA, self.t, self.p) - ( self.t + cte.Kelvin ) * lib._gibbs(self.n0, self.n1, self.n0, self.SA, self.t, self.p)
 
         return enthalpy
-
-    def alpha_wrt_t(self):
-        """
-        Calculates the thermal expansion coefficient of seawater with respect to in-situ temperature.
-
-        Returns
-        -------
-        alpha_wrt_t : array_like
-                      thermal expansion coefficient [K :sup:`-1`]
-
-        See Also
-        --------
-        TODO
-
-        Notes
-        -----
-        TODO
-
-        Examples
-        --------
-        >>> from seawater.gibbs import SaTePr
-        >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-        >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-        >>> p = [0., 500., 1500., 2000.]
-        >>> STP = SaTePr(SA, t, p)
-        >>> STP.alpha_wrt_t()
-        array([[  1.54174741e-04,   2.12859667e-04,   2.59617457e-04,
-                  3.47907236e-04],
-               [  1.70265060e-04,  -4.88225022e-05,   2.89880704e-04,
-                  3.10594834e-04]])
-
-        References
-        ----------
-        .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See Eqn. (2.18.1)
-
-        .. [2] McDougall, T.J., D.R. Jackett and F.J. Millero, 2010: An algorithm for estimating Absolute Salinity in the global ocean. Submitted to Ocean Science. A preliminary version is available at Ocean Sci. Discuss., 6, 215-242.
-
-        Modifications:
-        2010-08-26. Trevor McDougall, David Jackett, Claire Roberts-Thomson and Paul Barker.
-        2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
-        """
-
-        alpha_wrt_t = lib._gibbs(self.n0, self.n1, self.n1, self.SA, self.t, self.p) / lib._gibbs(self.n0, self.n0, self.n1, self.SA, self.t, self.p)
-
-        return alpha_wrt_t
-
-    def beta_const_t(self):
-        """
-        Calculates the saline (i.e. haline) contraction coefficient of seawater at constant in-situ temperature.
-
-        Returns
-        -------
-        beta_const_t : array_like
-                       saline contraction coefficient [kg g :sup:`-1`]
-
-        See Also
-        --------
-        TODO
-
-        Notes
-        -----
-        TODO
-
-        Examples
-        --------
-        >>> from seawater.gibbs import SaTePr
-        >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-        >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-        >>> p = [0., 500., 1500., 2000.]
-        >>> STP = SaTePr(SA, t, p)
-        >>> STP.beta_const_t()
-        array([[ 0.00076014,  0.00074453,  0.0007323 ,  0.0007157 ],
-               [ 0.00075704,  0.00081627,  0.00072689,  0.00072291]])
-
-        References
-        ----------
-        .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See Eqn. (2.19.1)
-
-        Modifications:
-        2010-07-23. David Jackett, Trevor McDougall and Paul Barker
-        2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
-        """
-
-        beta_const_t = -lib._gibbs(self.n1, self.n0, self.n1, self.SA, self.t, self.p) / lib._gibbs(self.n0, self.n0, self.n1, self.SA, self.t, self.p)
-
-        return beta_const_t
 
     def chem_potential_water(self):
         """
@@ -1498,6 +1411,51 @@ class SaTePr: #TODO: find a better name!
 
         return specvol_anom
 
+    def alpha_wrt_t(self):
+        """
+        Calculates the thermal expansion coefficient of seawater with respect to in-situ temperature.
+
+        Returns
+        -------
+        alpha_wrt_t : array_like
+                      thermal expansion coefficient [K :sup:`-1`]
+
+        See Also
+        --------
+        TODO
+
+        Notes
+        -----
+        TODO
+
+        Examples
+        --------
+        >>> from seawater.gibbs import SaTePr
+        >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+        >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+        >>> p = [0., 500., 1500., 2000.]
+        >>> STP = SaTePr(SA, t, p)
+        >>> STP.alpha_wrt_t()
+        array([[  1.54174741e-04,   2.12859667e-04,   2.59617457e-04,
+                  3.47907236e-04],
+               [  1.70265060e-04,  -4.88225022e-05,   2.89880704e-04,
+                  3.10594834e-04]])
+
+        References
+        ----------
+        .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See Eqn. (2.18.1)
+
+        .. [2] McDougall, T.J., D.R. Jackett and F.J. Millero, 2010: An algorithm for estimating Absolute Salinity in the global ocean. Submitted to Ocean Science. A preliminary version is available at Ocean Sci. Discuss., 6, 215-242.
+
+        Modifications:
+        2010-08-26. Trevor McDougall, David Jackett, Claire Roberts-Thomson and Paul Barker.
+        2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+        """
+
+        alpha_wrt_t = lib._gibbs(self.n0, self.n1, self.n1, self.SA, self.t, self.p) / lib._gibbs(self.n0, self.n0, self.n1, self.SA, self.t, self.p)
+
+        return alpha_wrt_t
+
     def alpha_wrt_CT(self):
         """
         Calculates the thermal expansion coefficient of seawater with respect to Conservative Temperature.
@@ -1537,11 +1495,205 @@ class SaTePr: #TODO: find a better name!
         2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
         """
 
-        pt0 = self.potential_t()
+        pt0 = self.potential_t() # NOTE: pt0_from_t
         factor = -cte.cp0 / ( (cte.Kelvin + pt0) * lib._gibbs(self.n0, self.n2, self.n0, self.SA, self.t, self.p ) )
         alpha_wrt_CT = factor  * ( lib._gibbs(self.n0, self.n1, self.n1, self.SA, self.t, self.p) / lib._gibbs(self.n0, self.n0, self.n1, self.SA, self.t, self.p ) )
 
         return alpha_wrt_CT
+
+    def alpha_wrt_pt(self):
+        """
+        Calculates the thermal expansion coefficient of seawater with respect to potential temperature, with a reference pressure of zero.
+
+        Returns
+        -------
+        alpha_wrt_pt : array_like
+                       thermal expansion coefficient [K :sup:`-1`]
+
+        See Also
+        --------
+        TODO
+
+        Notes
+        -----
+        TODO
+
+        Examples
+        --------
+        >>> from seawater.gibbs import SaTePr
+        >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+        >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+        >>> p = [0., 500., 1500., 2000.]
+        >>> STP = SaTePr(SA, t, p)
+        >>> STP.alpha_wrt_pt()
+        array([[  1.54174741e-04,   2.13608621e-04,   2.62397019e-04,
+                  3.52131126e-04],
+               [  1.70265060e-04,  -4.91000706e-05,   2.92817943e-04,
+                  3.14759131e-04]])
+
+        References
+        ----------
+        .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See Eqn. (2.18.2).
+
+        Modifications:
+        2010-07-23. David Jackett, Trevor McDougall and Paul Barker
+        2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+        """
+
+        pr0 = np.zeros( self.p.shape )
+        pt0 = self.potential_t() # NOTE: pt0_from_t
+        factor = lib._gibbs(self.n0, self.n2, self.n0, self.SA, pt0, pr0) / lib._gibbs(self.n0, self.n2, self.n0, self.SA, self.t, self.p)
+
+        alpha_wrt_pt = factor * ( lib._gibbs(self.n0, self.n1, self.n1, self.SA, self.t, self.p) / lib._gibbs( self.n0, self.n0, self.n1, self.SA, self.t, self.p ) )
+
+        return alpha_wrt_pt
+
+    def beta_const_t(self):
+        """
+        Calculates the saline (i.e. haline) contraction coefficient of seawater at constant in-situ temperature.
+
+        Returns
+        -------
+        beta_const_t : array_like
+                       saline contraction coefficient [kg g :sup:`-1`]
+
+        See Also
+        --------
+        TODO
+
+        Notes
+        -----
+        TODO
+
+        Examples
+        --------
+        >>> from seawater.gibbs import SaTePr
+        >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+        >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+        >>> p = [0., 500., 1500., 2000.]
+        >>> STP = SaTePr(SA, t, p)
+        >>> STP.beta_const_t()
+        array([[ 0.00076014,  0.00074453,  0.0007323 ,  0.0007157 ],
+               [ 0.00075704,  0.00081627,  0.00072689,  0.00072291]])
+
+        References
+        ----------
+        .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See Eqn. (2.19.1)
+
+        Modifications:
+        2010-07-23. David Jackett, Trevor McDougall and Paul Barker
+        2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+        """
+
+        beta_const_t = -lib._gibbs(self.n1, self.n0, self.n1, self.SA, self.t, self.p) / lib._gibbs(self.n0, self.n0, self.n1, self.SA, self.t, self.p)
+
+        return beta_const_t
+
+    def beta_const_CT(self):
+        """
+        Calculates the saline (i.e. haline) contraction coefficient of seawater at constant Conservative Temperature.
+
+        Returns
+        -------
+        beta_const_CT : array_like
+                        saline contraction coefficient [kg g :sup:`-1`]
+
+        See Also
+        --------
+        TODO
+
+        Notes
+        -----
+        TODO
+
+        Examples
+        --------
+        >>> from seawater.gibbs import SaTePr
+        >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+        >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+        >>> p = [0., 500., 1500., 2000.]
+        >>> STP = SaTePr(SA, t, p)
+        >>> STP.beta_const_CT()
+        array([[ 0.0007578 ,  0.00073925,  0.0007239 ,  0.00069986],
+               [ 0.0007534 ,         nan,  0.00071632,  0.00071045]])
+
+        References
+        ----------
+        .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See Eqn. (2.19.3)
+
+        Modifications:
+        2010-07-23. David Jackett, Trevor McDougall and Paul Barker
+        2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+        """
+
+        pr0 = np.zeros( self.p.shape )
+
+        pt0 = self.potential_t() # NOTE: pt0_from_t
+
+        gp = lib._gibbs(self.n0, self.n0, self.n1, self.SA, self.t, self.p)
+
+        factora = lib._gibbs(self.n1, self.n1, self.n0, self.SA, self.t, self.p) - \
+        lib._gibbs(self.n1, self.n0, self.n0, self.SA, pt0, pr0) / (cte.Kelvin + pt0)
+
+        factor = factora / ( gp * lib._gibbs(self.n0, self.n2, self.n0, self.SA, self.t, self.p) )
+
+        beta_const_CT = lib._gibbs(self.n0, self.n1, self.n1, self.SA, self.t, self.p) * factor - \
+        lib._gibbs(self.n1, self.n0, self.n1, self.SA, self.t, self.p) / gp
+
+        return beta_const_CT
+
+    def beta_const_pt(self):
+        """
+        Calculates the saline (i.e. haline) contraction coefficient of seawater at constant potential temperature with a reference pressure of 0 dbar.
+
+        Returns
+        -------
+        beta_const_pt : array_like
+                        saline contraction coefficient [kg g :sup:`-1`]
+
+        See Also
+        --------
+        TODO
+
+        Notes
+        -----
+        TODO
+
+        Examples
+        --------
+        >>> from seawater.gibbs import SaTePr
+        >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+        >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+        >>> p = [0., 500., 1500., 2000.]
+        >>> STP = SaTePr(SA, t, p)
+        >>> STP.beta_const_pt()
+        array([[ 0.00076014,  0.0007444 ,  0.0007319 ,  0.00071523],
+               [ 0.00075704,         nan,  0.00072649,  0.0007224 ]])
+
+        References
+        ----------
+        .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See Eqn. (2.19.2)
+
+        Modifications:
+        2010-07-23. David Jackett, Trevor McDougall and Paul Barker
+        2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+        """
+
+        pr0 = np.zeros( self.p.shape )
+
+        pt0 = self.potential_t() # NOTE: pt0_from_t
+
+        gp = lib._gibbs(self.n0, self.n0, self.n1, self.SA, self.t, self.p)
+
+        factora = lib._gibbs(self.n1, self.n1, self.n0, self.SA, self.t, self.p) - \
+        lib._gibbs(self.n1, self.n1, self.n0, self.SA, pt0, pr0)
+
+        factor = factora / ( gp * lib._gibbs(self.n0, self.n2, self.n0, self.SA, self.t, self.p) )
+
+        beta_const_pt = lib._gibbs(self.n0, self.n1, self.n1, self.SA, self.t, self.p) * factor - \
+        lib._gibbs(self.n1, self.n0, self.n1, self.SA, self.t, self.p) / gp
+
+        return beta_const_pt
 
 if __name__=='__main__':
     try:
@@ -1603,7 +1755,10 @@ if __name__=='__main__':
     test_print(STP, "enthalpy")
     test_print(STP, "alpha_wrt_t")
     test_print(STP, "alpha_wrt_CT")
+    test_print(STP, "alpha_wrt_pt")
     test_print(STP, "beta_const_t")
+    test_print(STP, "beta_const_CT")
+    test_print(STP, "beta_const_pt")
     test_print(STP, "chem_potential_water")
     test_print(STP, "chem_potential_salt")
     test_print(STP, "isochoric_heat_cap")
