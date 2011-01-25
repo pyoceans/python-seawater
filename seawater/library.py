@@ -1357,3 +1357,28 @@ def  _delta_SA(p, lon, lat):
     in_ocean[inds] = False # TODO: change to boolean
 
     return delta_SA, in_ocean
+
+def check_dim(prop1, prop2):
+    """
+    Broadcast prop1 to the shape prop2. Prop1 can be scalar, row equal or column equal to prop2.
+    TODO: Needs lots of improvements and cleanups...
+    """
+    if prop1.ndim == 1:
+        prop1 = prop1.flatten()
+
+    if (prop1.ndim == 1) & (prop1.size == 1):
+        prop1 = prop1 * np.ones( prop2.shape )
+    elif (prop1.ndim == 1) & (prop2.ndim != 1):
+        if prop1.size == prop2.shape[1]:
+            prop1 = prop1 * np.ones(prop2.shape)
+            #prop1 = np.repeat(prop1[np.newaxis,:], prop2.shape[1], axis=1).reshape(prop2.shape)
+        elif prop1.size == prop2.shape[0]:
+            prop1 = prop1[:,np.newaxis] * np.ones(prop2.shape)
+            #prop1 = np.repeat(prop1[np.newaxis,:], prop2.shape[0], axis=0).reshape(prop2.shape)
+        else:
+            raise NameError('Blahrg')
+
+    if prop1.ndim == 0:
+        prop1 = prop1 * np.ones(prop2.shape)
+
+    return prop1
