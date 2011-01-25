@@ -79,7 +79,7 @@ def CT_from_pt(SA, pt):
     #n0 = 0
     #n1 = 1
     #pr0 = np.zeros( SA.shape )
-    #pot_enthalpy = lib._gibbs(n0, n0, n0, SA, pt, pr0) - (273.15 + pt) * lib._gibbs(n0, n1, n0, SA, pt, pr0)
+    #pot_enthalpy = lib._gibbs(n0, n0, n0, SA, pt, pr0) - (cte.Kelvin + pt) * lib._gibbs(n0, n1, n0, SA, pt, pr0)
 
     #----------------This is the end of the alternative code------------------
     #%timeit gsw.CT_from_pt(SA, pt)
@@ -141,7 +141,7 @@ def pt_from_CT(SA, CT): #NOTE: used at specvol_anom
 
     SA[SA < 0] = 0
 
-    s1 = SA * 35. / 35.16504
+    s1 = SA * 35. / cte.SSO
 
     a0 = -1.446013646344788e-2
     a1 = -3.305308995852924e-3
@@ -172,7 +172,7 @@ def pt_from_CT(SA, CT): #NOTE: used at specvol_anom
 
     #This routine calls gibbs_pt0_pt0(SA,pt0) to get the second derivative of the Gibbs function with respect to temperature at zero sea pressure.
 
-    dCT_dpt = -(ptm + 273.15) * lib._gibbs_pt0_pt0(SA, ptm) / cte.cp0
+    dCT_dpt = -(ptm + cte.Kelvin) * lib._gibbs_pt0_pt0(SA, ptm) / cte.cp0
     pt = pt_old - CT_diff / dCT_dpt # end of 1st full modified N-R iteration
     CT_diff = CT_from_pt(SA, pt) - CT
     pt_old = pt
@@ -230,11 +230,11 @@ def t_from_CT(SA, CT, p):
 
     pr0 = np.zeros( SA.shape )
     pt0 = pt_from_CT(SA, CT)
-    t = pt_from_t(SA, pt0, pr0, p)
+    t = pt_from_t(SA, pt0, pr0, p) #FIXME: also inside SaTePr as potential_t
 
     return t
 
-def potential_t(SA, t, p, pr=0): # FIXME: repeated inside SaTePr due to different call (see spec_anom)
+def pt_from_t(SA, t, p, pr=0): # FIXME: also inside SaTePr as potential_t (spec_anom uses this one!)
     """
     Calculates potential temperature with the general reference pressure, pr, from in-situ temperature.
 
@@ -320,73 +320,322 @@ def potential_t(SA, t, p, pr=0): # FIXME: repeated inside SaTePr due to differen
 
     return pt
 
-#def pt0_from_t(self): #NOTE: Not necessary at the moment, since potential_t does this
-    #"""
-    #Calculates potential temperature with reference pressure, pr = 0 dbar. The present routine is computationally faster than the more general function "pt_from_t(SA, t, p, pr)" which can be used for any reference pressure value.
+def pt0_from_t(SA, t, p): #NOTE: Not necessary at the moment, since potential_t does this, but slower
+    """
+    Calculates potential temperature with reference pressure, pr = 0 dbar. The present routine is computationally faster than the more general function "pt_from_t(SA, t, p, pr)" which can be used for any reference pressure value.
 
-    #Returns
-    #-------
-    #pt0 : array_like
-            #potential temperature relative to 0 db [:math:`^\\circ` C (ITS-90)]
+    Parameters
+    ----------
+    SA : array_like
+        Absolute salinity [g kg :sup:`-1`]
+    t : array_like
+        in-situ temperature [:math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]
 
-    #See Also
-    #--------
-    #TODO
+    Returns
+    -------
+    pt0 : array_like
+            potential temperature relative to 0 db [:math:`^\\circ` C (ITS-90)]
 
-    #Notes
-    #-----
-    #TODO
+    See Also
+    --------
+    TODO
 
-    #Examples
-    #--------
-    #>>> from seawater.SaTePr import SaTePr
-    #>>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    #>>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    #>>> p = 900
-    #>>> STP = SaTePr(SA, t, p)
-    #>>> STP.pt0_from_t()
-    #array([[  4.89971486e+00,   1.48664023e+01,   2.18420392e+01,
-                #3.17741959e+01],
-            #[  1.48891940e+01,   2.95267636e-02,   2.48187231e+01,
-                #2.78058513e+01]])
+    Notes
+    -----
+    TODO
 
-    #References
-    #----------
-    #.. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See section 3.1.
+    Examples
+    --------
+    >>> from seawater.SaTePr import SaTePr
+    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+    >>> p = 900
+    >>> STP = SaTePr(SA, t, p)
+    >>> STP.pt0_from_t()
+    array([[  4.89971486e+00,   1.48664023e+01,   2.18420392e+01,
+                3.17741959e+01],
+            [  1.48891940e+01,   2.95267636e-02,   2.48187231e+01,
+                2.78058513e+01]])
 
-    #.. [2] McDougall T. J., D. R. Jackett, P. M. Barker, C. Roberts-Thomson, R. Feistel and R. W. Hallberg, 2010:  A computationally efficient 25-term expression for the density of seawater in terms of Conservative Temperature, and related properties of seawater.  To be submitted to Ocean Science Discussions.
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See section 3.1.
 
-    #Modifications:
-    #2010-08-26. Trevor McDougall, David Jackett, Claire Roberts-Thomson and Paul Barker.
-    #2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
-    #"""
+    .. [2] McDougall T. J., D. R. Jackett, P. M. Barker, C. Roberts-Thomson, R. Feistel and R. W. Hallberg, 2010:  A computationally efficient 25-term expression for the density of seawater in terms of Conservative Temperature, and related properties of seawater.  To be submitted to Ocean Science Discussions.
 
-    #SA = self.masked_SA.filled() # ensure that SA is non-negative
+    Modifications:
+    2010-08-26. Trevor McDougall, David Jackett, Claire Roberts-Thomson and Paul Barker.
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
 
-    #s1 = SA * (35. / cte.SSO)
+    # Convert input to numpy arrays
+    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
 
-    #pt0 = self.t + self.p * ( 8.65483913395442e-6  - \
-            #s1 * 1.41636299744881e-6 - \
-            #self.p * 7.38286467135737e-9 + \
-            #self.t * ( -8.38241357039698e-6 + \
-            #s1 * 2.83933368585534e-8 + \
-            #self.t * 1.77803965218656e-8 + \
-            #self.p * 1.71155619208233e-10 ) )
+    s1 = SA * (35. / cte.SSO)
 
-    #dentropy_dt = cte.cp0 / ( (cte.Kelvin + pt0) * ( 1 - 0.05 * ( 1 - SA / cte.SSO ) ) )
+    pt0 = t + p * ( 8.65483913395442e-6 - \
+             s1 *   1.41636299744881e-6 - \
+              p *   7.38286467135737e-9 + \
+              t * (-8.38241357039698e-6 + \
+             s1 *   2.83933368585534e-8 + \
+              t *   1.77803965218656e-8 + \
+              p *   1.71155619208233e-10 ) )
 
-    #true_entropy_part = lib._entropy_part(SA, self.t, self.p)
+    dentropy_dt = cte.cp0 / ( (cte.Kelvin + pt0) * ( 1 - 0.05 * ( 1 - SA / cte.SSO ) ) )
 
-    #for Number_of_iterations in range(0,2,1):
-        #pt0_old = pt0
-        #dentropy = lib._entropy_part_zerop(SA, pt0_old) - true_entropy_part
-        #pt0 = pt0_old - dentropy / dentropy_dt # this is half way through the modified method
-        #pt0m = 0.5 * (pt0 + pt0_old);
-        #dentropy_dt = -lib._gibbs_pt0_pt0(SA, pt0m)
-        #pt0 = pt0_old - dentropy / dentropy_dt
+    true_entropy_part = lib._entropy_part(SA, t, p)
 
-    ## maximum error of 6.3x10^-9 degrees C for one iteration.
-    ## maximum error is 1.8x10^-14 degrees C for two iterations (two iterations is the default, "for Number_of_iterations = 1:2")
-    ## These errors are over the full "oceanographic funnel" of McDougall et al. (2010), which reaches down to p = 8000 dbar.
+    for Number_of_iterations in range(0,2,1):
+        pt0_old = pt0
+        dentropy = lib._entropy_part_zerop(SA, pt0_old) - true_entropy_part
+        pt0 = pt0_old - dentropy / dentropy_dt # this is half way through the modified method
+        pt0m = 0.5 * (pt0 + pt0_old);
+        dentropy_dt = -lib._gibbs_pt0_pt0(SA, pt0m)
+        pt0 = pt0_old - dentropy / dentropy_dt
 
-    #return pt0
+    # maximum error of 6.3x10^-9 degrees C for one iteration.
+    # maximum error is 1.8x10^-14 degrees C for two iterations (two iterations is the default, "for Number_of_iterations = 1:2")
+    # These errors are over the full "oceanographic funnel" of McDougall et al. (2010), which reaches down to p = 8000 dbar.
+
+    return pt0
+
+def t_from_entropy(SA, entropy, t_type='pt'):
+    """
+    Calculates potential temperature with reference pressure pr = 0 dbar or Conservative temperature from entropy.
+
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+    entropy : array_like
+              specific entropy [J kg :sup:`-1` K :sup:`-1`]
+    t_type : str, optional
+             'pt' for potential temperature [:math:`^\\circ` C (ITS-90)]
+             'CT' for Conservative Temperature [:math:`^\\circ` C (TEOS-10)]
+
+    Returns
+    -------
+    t : array_like
+        potential temperature [:math:`^\\circ` C (ITS-90)] (Default) or Conservative Temperature [:math:`^\\circ` C (TEOS-10)]
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    TODO
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+    >>> entropy = [[63.6913727, 216.184242, 323.536391, 454.589274], [224.455426, -0.147644587, 362.859557, 407.493891]]
+    >>> gsw.t_from_entropy(SA, entropy)
+    array([[  5.00000000e+00,   1.50000000e+01,   2.20000000e+01,
+              3.20000000e+01],
+           [  1.50000000e+01,  -1.46624844e-12,   2.50000000e+01,
+              2.80000000e+01]])
+    >>> entropy = [[67.1618495, 214.564404, 312.442303, 445.351241], [216.404703, -0.371020898, 352.932205, 392.869342]]
+    >>> gsw.t_from_entropy(SA, entropy, t_type='CT')
+    array([[  5.00000000e+00,   1.50000000e+01,   2.20000000e+01,
+              3.20000000e+01],
+           [  1.50000000e+01,  -2.64654543e-11,   2.50000000e+01,
+              2.80000000e+01]])
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See appendix  A.10.
+
+    Modifications:
+    2010-08-13. Trevor McDougall and Paul Barker.
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    # Convert input to numpy arrays
+    SA, entropy = np.asarray(SA), np.asarray(entropy)
+
+    SA[SA < 0] = 0
+
+    n0 = 0
+    n1 = 1
+    #pr0 = np.zeros( SA.shape )
+
+    part1 = 1 - SA / cte.SSO
+    part2 = 1 - 0.05 * part1
+    ent_SA = (cte.cp0 / cte.Kelvin) * part1 * ( 1 - 1.01 * part1)
+    c = (entropy - ent_SA) * part2 / cte.cp0
+    pt = cte.Kelvin * (np.exp(c) - 1)
+    dentropy_dt = cte.cp0 / ( (cte.Kelvin + pt) * part2) # this is the intial value of dentropy_dt
+
+    for Number_of_iterations in range(0,3):
+        pt_old = pt
+        dentropy = entropy_from_t(SA, pt_old, t_type='pt') - entropy
+        pt = pt_old - dentropy / dentropy_dt # this is half way through the modified method
+        ptm = 0.5 * (pt + pt_old)
+        dentropy_dt = -lib._gibbs_pt0_pt0(SA, ptm)
+        t = pt_old - dentropy / dentropy_dt
+
+    if t_type == 'CT':
+        t = CT_from_pt(SA, t)
+
+    return t
+
+def entropy_from_t(SA, t, t_type='pt'):
+    """
+    Calculates specific entropy of seawater.
+
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+    t : array_like
+        temperature [:math:`^\\circ` C]
+    t_type : str, optional
+             'pt' for potential temperature [:math:`^\\circ` C (ITS-90)]
+             'CT' for Conservative Temperature [:math:`^\\circ` C (TEOS-10)] FIXME: the orginal has (ITS-90) Copy and paste issue?
+
+    Returns
+    -------
+    entropy : array_like
+              specific entropy [J kg :sup:`-1` K :sup:`-1`]
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    TODO
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+    >>> gsw.entropy_from_t(SA, t)
+    array([[  6.36913727e+01,   2.16184242e+02,   3.23536391e+02,
+              4.54589274e+02],
+           [  2.24455426e+02,  -1.47644587e-01,   3.62859557e+02,
+              4.07493891e+02]])
+    >>> gsw.entropy_from_t(SA, t, 'CT')
+    array([[  6.71618495e+01,   2.14564404e+02,   3.12442303e+02,
+              4.45351241e+02],
+           [  2.16404703e+02,  -3.71020898e-01,   3.52932205e+02,
+              3.92869342e+02]])
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See appendix A.10.
+
+    Modifications:
+    2010-10-13. Trevor McDougall & Paul Barker
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    # Convert input to numpy arrays
+    SA, t = np.asarray(SA), np.asarray(t)
+
+    SA[SA < 0] = 0
+
+    n0 = 0
+    n1 = 1
+    pr0 = np.zeros( SA.shape )
+
+    if t_type == 'pt':
+        entropy = -lib._gibbs(n0, n1, n0, SA, t, pr0)
+    elif t_type == 'CT':
+        pt0 = pt_from_CT(SA, t)
+        entropy = -lib._gibbs(n0, n1, n0, SA, pt0, pr0)
+
+    return entropy
+
+if __name__=='__main__':
+    try:
+        import cPickle as pickle
+    except:
+        import pickle
+    import numpy as np
+    import scipy.io as sio
+
+    """ load test data """
+    class Dict2Struc(object):
+        """ all the variables from a dict in a "matlab-like-structure" """
+        def __init__(self, adict):
+            self.__dict__.update(adict)
+
+    data = pickle.load( open('gsw_cv.pkl','rb') )
+    gsw_cv = Dict2Struc(data) # then type dat.<tab> to navigate through your variables
+
+    def test_print(method, comp_value=None):
+        """
+        Run a function test mimicking the original logic. This is done to allow for a direct comparison of the result from the Matlab to the python package.
+        """
+
+        if comp_value is None:
+            comp_value = method
+
+        # test for floating differences with: computed - check_value >= defined_precision
+        try:
+            exec( "unequal = (gsw_cv." +comp_value+ " - " +method+ " ) >= gsw_cv." +comp_value+ "_ca")
+        except:
+            exec( "unequal = (gsw_cv." +comp_value+ " - " +method+ " ) >= gsw_cv." +method+ "_ca")
+
+        width = 23
+        if unequal.any():
+            print "%s: Failed" % method.rjust(width)
+        else:
+            # test if check value is identical to computed value
+            if eval( "( gsw_cv." +comp_value+ "[~np.isnan(gsw_cv."+comp_value+")] == " +method+ "[~np.isnan("+method+")] ).all()" ):
+                print "%s: Passed" % method.rjust(width)
+            else:
+                # test for differences in case their aren't equal. This is an attempt to place all tests together (i.e. term25 and small float differences that will appear)
+                exec("nmax = ( gsw_cv."+comp_value+" - "+method+" )[~np.isnan(gsw_cv."+comp_value+")].max()")
+                exec("nmin = ( gsw_cv."+comp_value+" - "+method+" )[~np.isnan(gsw_cv."+comp_value+")].min()")
+                print "%s: Passed, but small diff ranging from: %s to %s" % ( method.rjust(width), nmax, nmin)
+
+    import seawater.Temperature as gsw
+
+    """ derived values (for comparison/test) """
+    SA_chck_cast      = sio.loadmat("derived_prop.mat", squeeze_me=True)['SA_chck_cast']
+    CT_chck_cast      = sio.loadmat("derived_prop.mat", squeeze_me=True)['CT_chck_cast']
+    pt_chck_cast      = sio.loadmat("derived_prop.mat", squeeze_me=True)['pt']
+    entropy_chck_cast = sio.loadmat("derived_prop.mat", squeeze_me=True)['entropy']
+
+    """ CT_from_pt """
+    CT_from_pt = gsw.CT_from_pt(SA_chck_cast, pt_chck_cast)
+    test_print("CT_from_pt")
+
+    """ pt_from_CT """
+    pt_from_CT = gsw.pt_from_CT(SA_chck_cast, CT_chck_cast)
+    test_print("pt_from_CT", "pt")
+
+    """ t_from_CT """
+    t_from_CT =  gsw.t_from_CT(SA_chck_cast, CT_chck_cast, gsw_cv.p_chck_cast)
+    test_print("t_from_CT", "t_chck_cast")
+
+    """ pt_from_t """
+    pt_from_t = gsw.pt_from_t(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast, gsw_cv.pr)
+    test_print("pt_from_t")
+
+    """ pt0_from_t """
+    pt0_from_t = gsw.pt0_from_t(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+    test_print("pt0_from_t", "pt0")
+
+    """ pt_from_entropy (t_from_entropy) """ #NOTE: show small diff not present in the original
+    pt_from_entropy =  gsw.t_from_entropy(SA_chck_cast, entropy_chck_cast, 'pt')
+    test_print("pt_from_entropy")
+
+    """ CT_from_entropy (t_from_entropy) """ #NOTE: show diff not present in the original
+    CT_from_entropy =  gsw.t_from_entropy(SA_chck_cast, entropy_chck_cast, 'CT')
+    test_print("CT_from_entropy")
+
+    """ entropy_from_t (entropy_from_pt) """
+    entropy_from_pt =  gsw.entropy_from_t(SA_chck_cast, pt_chck_cast, 'pt')
+    test_print("entropy_from_pt")
+
+    """ entropy_from_t (entropy_from_CT) """
+    entropy_from_CT =  gsw.entropy_from_t(SA_chck_cast, CT_chck_cast, 'CT')
+    test_print("entropy_from_CT")
