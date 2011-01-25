@@ -752,12 +752,12 @@ def cndr(s, t, p):
     T68 = T68conv(t)
 
     # DO A NEWTON-RAPHSON ITERATION FOR INVERSE INTERPOLATION OF Rt FROM S.
-    Rx = np.sqrt( s / 35.0 ) # first guess at Rx = sqrt(Rt)
+    Rx = np.sqrt( s / 35.0 ) # first guess at Rx = sqrt(Rt) NOTE: gibbs isn't taking the square root here!
     SInc = sals( Rx**2, t ) # S INCrement (guess) from Rx
     iloop = 0
     end_loop = 0
     while True:
-        Rx = Rx + ( s - SInc ) / salds( Rx, T90conv(t) - 15 )
+        Rx = Rx + ( s - SInc ) / salds( Rx, t - 15 )
         SInc = sals( Rx**2, t )
         iloop = iloop + 1
         dels = np.abs( SInc - s )
@@ -780,7 +780,7 @@ def cndr(s, t, p):
     C  = p * ( e1 + e2 * p + e3 * p**2 )
 
     # eqn(6) p.9 UNESCO 1983.
-    Rt    = Rx * Rx
+    Rt    = Rx**2
     rt    = salrt(t)
     #Rtrt  = rt * Rt # TODO: unused in the code, but present in the original
     D     = B - A * rt * Rt
