@@ -1,9 +1,16 @@
+#TODO: compare SIGMAS
+#TODO: create a CTD class that will take Conductive, in-situ t and Pressure (lon,lat) and outout SA
+#TODO: create term25 class
 #TODO: Go over PDFs to improve documentation
 #TODO: Examples: simple with the data range (copy-and-paste numbers) and complex (real data)
 #A short demonstation of the GSW Oceanographic Toolbox now follows. The following vertical profile, from the North Pacific, is of Practical Salinity, SP, and in situ temperature, t, as a function of pressure, p,
 #SP = [ 34.3454  34.5427  34.6289  34.6663  34.6839  34.6915  34.6914 ]
 #t  = [ 27.9620   4.4726   2.1178   1.6031   1.4601   1.4753   1.5998 ]
 #p  = [       0     1010     2025     3045     4069     5098     6131 ]
+#SA = [ 34.5075  34.7165  34.8083  34.8465  34.8636  34.8707  34.8702 ]
+#CT = [ 27.9948   4.3913   1.9771   1.3795   1.1343   1.0290   1.0150 ]
+#lon = [142 183 20]
+#lat = [11 9.5 59]
 #TODO: Check original authors and dates
 #TODO: csiro vs gibbs (table?)
 #TODO: check_dim for p in all "p" functions
@@ -1108,7 +1115,7 @@ class SaTePr: #TODO: find a better name!
         pr0 = np.zeros( SSO.shape )
         pt_zero = temp.pt_from_CT(SSO, CT0)
         #TODO: If I figure out a way to recalculate from self.potential_t() this call to Temperature.py will be unecessary
-        t_zero = temp.potential_t(SSO, pt_zero, pr0, self.p)
+        t_zero = temp.pt_from_t(SSO, pt_zero, pr0, self.p)
 
         specvol_anom = lib._gibbs(self.n0, self.n0, self.n1, self.SA, self.t, self.p) - \
         lib._gibbs(self.n0, self.n0, self.n1, SSO, t_zero, self.p)
