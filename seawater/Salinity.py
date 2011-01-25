@@ -4,6 +4,31 @@ import numpy as np
 from seawater import constants as cte
 from seawater import library as lib
 
+def check_dim(prop1, prop2):
+    """
+    Broadcast prop1 to the shape prop2. Prop1 can be scalar, row equal or column equal to prop2.
+    TODO: Needs lots of improvements and cleanups...
+    """
+    if prop1.ndim == 1:
+        prop1 = prop1.flatten()
+
+    if (prop1.ndim == 1) & (prop1.size == 1):
+        prop1 = prop1 * np.ones( prop2.shape )
+    elif (prop1.ndim == 1) & (prop2.ndim != 1):
+        if prop1.size == prop2.shape[1]:
+            prop1 = prop1 * np.ones(prop2.shape)
+            #prop1 = np.repeat(prop1[np.newaxis,:], prop2.shape[1], axis=1).reshape(prop2.shape)
+        elif prop1.size == prop2.shape[0]:
+            prop1 = prop1[:,np.newaxis] * np.ones(prop2.shape)
+            #prop1 = np.repeat(prop1[np.newaxis,:], prop2.shape[0], axis=0).reshape(prop2.shape)
+        else:
+            raise NameError('Blahrg')
+
+    if prop1.ndim == 0:
+        prop1 = prop1 * np.ones(prop2.shape)
+
+    return prop1
+
 def SA_from_SP(SP, p, lon, lat):
     """
     Calculates Absolute Salinity from Practical Salinity.
@@ -183,7 +208,6 @@ if __name__=='__main__':
             comp_value = method
 
         # test for floating differences with: computed - check_value >= defined_precision
-        print "unequal = (gsw_cv." +comp_value+ " - " +method+ " ) >= gsw_cv." +comp_value+ "_ca"
         exec( "unequal = (gsw_cv." +comp_value+ " - " +method+ " ) >= gsw_cv." +comp_value+ "_ca")
 
         width = 23
@@ -199,7 +223,14 @@ if __name__=='__main__':
                 exec("nmin = ( gsw_cv."+comp_value+" - "+method+" )[~np.isnan(gsw_cv."+comp_value+")].min()")
                 print "%s: Passed, but small diff ranging from: %s to %s" % ( method.rjust(width), nmax, nmin)
 
+    """ derived values (for comparison/test) """
+    rho_chck_cast = sio.loadmat("derived_prop.mat", squeeze_me=True)['rho']
 
-    rho = sio.loadmat("rho.mat", squeeze_me=True)['rho'] #FIXME: agregate all extra derived properties in one file
-    SA_from_rho = gsw.SA_from_rho(rho, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+    """ SA_from_SP """ #TODO: test the second output (in funnel)
+    SA_from_SP  = gsw.SA_from_SP(gsw_cv.SP_chck_cast, gsw_cv.p_chck_cast, gsw_cv.long_chck_cast, gsw_cv.lat_chck_cast)[0]
+    test_print("SA_from_SP")
+
+    """ SA_from_rho """
+    SA_from_rho = gsw.SA_from_rho(rho_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
     test_print("SA_from_rho")
+
