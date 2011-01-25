@@ -9,10 +9,6 @@ from time  import asctime, localtime
 from sys   import version
 
 
-"""
-Original seawater functions
-===========================
-"""
 def T68conv(T90):
     """
     Convert ITS-90 temperature to IPTS-68
@@ -118,6 +114,10 @@ def T90conv(t, t_type='T68'):
 
     return T90
 
+"""
+Original seawater functions
+===========================
+"""
 def adtg(s, t, p):
     """
     Calculates adiabatic temperature gradient as per UNESCO 1983 routines.
