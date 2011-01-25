@@ -198,6 +198,13 @@ def distance(lon, lat, p=None):
     """
     Calculates the distance in metres between successive points in the vectors lon and lat, computed using the Haversine formula on a spherical earth of radius 6,371 km, being the radius of a sphere having the same volume as Earth. For a sperical Earth of radius 6,371,000 m, one nautical mile is 1,853.2488 m, thus one degree of latitude is 111,194.93 m.
 
+    Haversine formula:
+        R = earth's radius (mean radius = 6,371 km)
+    .. math::
+        a = \sin^2(\delta lat/2) + cos(lat_1) cos(lat_2) sin^2(\delta lon/2)
+        c = 2 \textrm{atan2}(\sqrt{a}, \sqrt{(1-a)})
+        d = R \times c
+
     Parameters
     ----------
     lon : array_like
@@ -343,7 +350,7 @@ if __name__=='__main__':
     grav = gsw.grav(gsw_cv.lat_chck_cast, gsw_cv.p_chck_cast )
     test_print("grav")
 
-    """ distance """
+    """ distance """ #NOTE: show diff not present in the original
     distance = gsw.distance(gsw_cv.long_chck_cast, gsw_cv.lat_chck_cast, gsw_cv.p_chck_cast)
     test_print("distance")
 
