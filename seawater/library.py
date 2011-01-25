@@ -83,7 +83,7 @@ def _specvol_SSO_0_CT25(p):
     # Convert input to numpy arrays
     p = np.asarray(p)
 
-    SSO = 35.16504 * np.ones( p.shape )
+    SSO = cte.SSO * np.ones( p.shape )
     specvol_SSO_0_CT25 = (1.00000000e+00 + SSO * ( 2.0777716085618458e-003 +np.sqrt(SSO) * 3.4688210757917340e-006) + p * 6.8314629554123324e-006) / (9.9984380290708214e+002 + SSO * ( 2.8925731541277653e+000 + SSO * 1.9457531751183059e-003) + p * ( 1.1930681818531748e-002 + SSO * 5.9355685925035653e-006 + p * -2.5943389807429039e-008) )
 
     return specvol_SSO_0_CT25
@@ -126,7 +126,7 @@ def  _enthalpy_SSO_0_CT25(p):
     # Convert input to numpy arrays
     p = np.asarray(p)
 
-    SSO = 35.16504 * np.ones( p.shape )
+    SSO = cte.SSO * np.ones( p.shape )
 
     a0 = 1 + SSO * (2.0777716085618458e-3 + np.sqrt(SSO) * 3.4688210757917340e-6)
     a1 = 6.8314629554123324e-6
@@ -187,9 +187,7 @@ def  _gibbs_pt0_pt0(SA, pt0):
     elif SA < 0:
         SA = 0
 
-    sfac = 0.0248826675584615 # sfac = 1 / ( 40 * ( 35.16504 / 35 ) )
-
-    x2 = sfac * SA
+    x2 = cte.sfac * SA
     x = np.sqrt(x2)
     y = pt0 * 0.025 # FIXME: 0.025d0 -> decimal.Decimal('0.025') ?
 
@@ -255,9 +253,7 @@ def  _entropy_part_zerop(SA, pt0):
     elif SA < 0:
         SA = 0
 
-    sfac = 0.0248826675584615 # sfac = 1 / ( 40 * ( 35.16504 / 35 ) )
-
-    x2 = sfac * SA
+    x2 = cte.sfac * SA
     x = np.sqrt(x2)
     y = pt0 * 0.025 # FIXME: 0.025d0 -> decimal.Decimal('0.025') ?
 
@@ -337,7 +333,7 @@ def  _SP_from_SA_Baltic(SA, lon, lat):
         inds1 = (xx_left <= lon[inds]) & (lon[inds] <= xx_right)
 
         if np.any(inds1):
-            SP_baltic[inds[inds1]] = ( 35 / ( 35.16504 - 0.087 ) ) * ( SA[inds[inds1]] - 0.087)
+            SP_baltic[inds[inds1]] = ( 35 / ( cte.SSO - 0.087 ) ) * ( SA[inds[inds1]] - 0.087)
 
 
         SP_baltic = np.reshape( SP_baltic, lon.shape )
@@ -405,8 +401,8 @@ def  _SA_from_SP_Baltic(SP, lon, lat):
         xx_left = np.interp( lat[inds_baltic], [yb1,yb2,yb3], [xb1,xb2,xb3])
         xx_right = np.interp( lat[inds_baltic], [yb1,yb3], [xb1a,xb3a] )
         inds_baltic1 = (xx_left <= lon[inds_baltic]) & (lon[inds_baltic] <= xx_right)
-        #SA_baltic.flatten('F')[inds[inds1]] = ( ( 35.16504 - 0.087 ) / 35 ) * SP.flatten('F')[inds[inds1]] + 0.087
-        SA_baltic[inds_baltic[inds_baltic1]] = ( ( 35.16504 - 0.087 ) / 35 ) * SP[inds_baltic[inds_baltic1]] + 0.087
+        #SA_baltic.flatten('F')[inds[inds1]] = ( ( cte.SSO - 0.087 ) / 35 ) * SP.flatten('F')[inds[inds1]] + 0.087
+        SA_baltic[inds_baltic[inds_baltic1]] = ( ( cte.SSO - 0.087 ) / 35 ) * SP[inds_baltic[inds_baltic1]] + 0.087
         #SA_baltic = np.reshape( SA_baltic, lon.shape )
 
     return SA_baltic
@@ -518,8 +514,7 @@ def  _entropy_part(SA, t, p):
     elif SA < 0:
         SA = 0
 
-    sfac = 0.0248826675584615 # sfac = 1 / ( 40 * ( 35.16504 / 35 ) )
-    x2 = sfac * SA
+    x2 = cte.sfac * SA
     x = np.sqrt(x2)
     y = t * 0.025 #FIXME 0.025d0 use Decimal?
     z = p * 1e-4 #TODO: matlab original 1d-4
@@ -625,9 +620,7 @@ def _gibbs(ns, nt, npr, SA, t, p):
 
     SA[SA < 0] = 0
 
-    sfac = 0.0248826675584615 # sfac = 1 / ( 40 * ( 35.16504 / 35 ) )
-
-    x2 = sfac * SA
+    x2 = cte.sfac * SA
     x = np.sqrt(x2)
     y = t * 0.025 # FIXME: 0.025d0
     z = p * 1e-4 # The input pressure (p) is sea pressure in units of dbar.
@@ -700,7 +693,7 @@ def _gibbs(ns, nt, npr, SA, t, p):
         g08[x>0] = g08[x>0] + ( 11625.62913253464 + 1702.453469893412 * y[x>0] ) * np.log( x[x>0] )
         g08[x==0] = np.nan
 
-        gibbs = 0.5 * sfac * g08
+        gibbs = 0.5 * cte.sfac * g08
 
     elif (ns==0) & (nt==1) & (npr==0):
         g03 = 5.90578347909402 + z * ( -270.983805184062 + \
@@ -782,7 +775,7 @@ def _gibbs(ns, nt, npr, SA, t, p):
 
         g08[x>0] = g08[x>0] + 1702.453469893412 * np.log( x[x>0] )
         g08[SA==0] = np.nan
-        gibbs = 0.5 * sfac * 0.025 * g08 # FIXME: 0.025d0
+        gibbs = 0.5 * cte.sfac * 0.025 * g08 # FIXME: 0.025d0
 
     elif (ns==1) & (nt==0) & (npr==1):
         g08 = -6620.98308089678 + z * ( 1539.176611914396 + \
@@ -800,7 +793,7 @@ def _gibbs(ns, nt, npr, SA, t, p):
         z * ( -819.558567859612 + ( 681.370187043564 - 89.0261874611304 * z ) * z ) ) + \
         z * ( 1349.638121077468 + z * ( -1069.887337245828 + ( 353.6322866464 - 79.20015472116819 * z ) * z ) ) ) )
 
-        gibbs = g08 * sfac * 0.5e-8 # FIXME: 0.5d
+        gibbs = g08 * cte.sfac * 0.5e-8 # FIXME: 0.5d
         # This derivative of the Gibbs function is in units of (m :sup::`3` kg :sup::`-1`) / (g kg :sup::`-1`) = m :sup::`3` g :sup::`-1`
         # that is, it is the derivative of specific volume with respect to Absolute Salinity measured in g kg :sup::`-1`.
 
@@ -849,7 +842,7 @@ def _gibbs(ns, nt, npr, SA, t, p):
 
         g08[x==0] = np.nan
 
-        gibbs = 0.25 * sfac**2 * g08
+        gibbs = 0.25 * cte.sfac**2 * g08
 
     elif (ns==0) & (nt==2) & (npr==0):
         g03 = -24715.571866078 + z * ( 2910.0729080936 + z * \
