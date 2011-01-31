@@ -31,7 +31,7 @@ Section A: Library functions
 """
 
 def _gibbs(ns, nt, npr, SA, t, p):
-    """
+    r"""
     Calculates specific Gibbs energy and its derivatives up to order 2 for seawater.
 
     The Gibbs function approach allows the calculation of internal energy, entropy, enthalpy, potential enthalpy and the chemical potentials of seawater as well as the freezing temperature, and the latent heats of freezing and of evaporation. These quantities were not available from EOS-80 but are essential for the accurate accounting of heat in the ocean and for the consistent and accurate treatment of air-sea and ice-sea heat fluxes.
@@ -47,7 +47,7 @@ def _gibbs(ns, nt, npr, SA, t, p):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -71,7 +71,7 @@ def _gibbs(ns, nt, npr, SA, t, p):
     ----------
     .. [1] Feistel, R., 2003: A new extended Gibbs thermodynamic potential of seawater, Progr. Oceanogr., 58, 43-114.
 
-    .. [2] Feistel, R., 2008: A Gibbs function for seawater thermodynamics for -6 to 80 :math:`^\\circ` C and salinity up to 120 g kg :sup:`-1`, Deep-Sea Res. I, 55, 1639-1671.
+    .. [2] Feistel, R., 2008: A Gibbs function for seawater thermodynamics for -6 to 80 :math:`^\circ` C and salinity up to 120 g kg :sup:`-1`, Deep-Sea Res. I, 55, 1639-1671.
 
     .. [3] IAPWS, 2008: Release on the IAPWS Formulation 2008 for the Thermodynamic Properties of Seawater. The International Association for the Properties of Water and Steam. Berlin, Germany, September 2008, available from http://www.iapws.org.  This Release is referred to as IAPWS-08.
 
@@ -368,7 +368,7 @@ def _gibbs(ns, nt, npr, SA, t, p):
     return gibbs
 
 def  _entropy_part(SA, t, p):
-    """
+    r"""
     Calculates entropy, except that it does not evaluate any terms that are functions of Absolute Salinity alone.
 
     Parameters
@@ -376,7 +376,7 @@ def  _entropy_part(SA, t, p):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -436,7 +436,7 @@ def  _entropy_part(SA, t, p):
     return entropy_part
 
 def  _gibbs_pt0_pt0(SA, pt0):
-    """
+    r"""
     Calculates the second derivative of the specific Gibbs function with respect to temperature at zero sea pressure.
 
     Parameters
@@ -444,7 +444,7 @@ def  _gibbs_pt0_pt0(SA, pt0):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     pt0 : array_like
-          potential temperature relative to 0 db [:math:`^\\circ` C (ITS-90)]
+          potential temperature relative to 0 db [:math:`^\circ` C (ITS-90)]
 
     Returns
     -------
@@ -490,7 +490,7 @@ def  _gibbs_pt0_pt0(SA, pt0):
     return gibbs_pt0_pt0
 
 def  _entropy_part_zerop(SA, pt0):
-    """
+    r"""
     Calculates entropy at a sea surface (p = 0 db), except that it does not evaluate any terms that are functions of Absolute Salinity alone.
 
     Parameters
@@ -498,7 +498,7 @@ def  _entropy_part_zerop(SA, pt0):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     pt0 : array_like
-          potential temperature relative to 0 db [:math:`^\\circ` C (ITS-90)]
+          potential temperature relative to 0 db [:math:`^\circ` C (ITS-90)]
 
     Returns
     -------
@@ -540,7 +540,7 @@ def  _entropy_part_zerop(SA, pt0):
     return entropy_part_zerop
 
 def  _enthalpy_SSO_0_CT25(p):
-    """
+    r"""
      Calculates enthalpy at the Standard Ocean Salinity (SSO) and at a Conservative Temperature of zero degrees C (CT=0), as a function of pressure (p [db]).
 
     Parameters
@@ -580,7 +580,7 @@ def  _enthalpy_SSO_0_CT25(p):
     return enthalpy_SSO_0_CT25
 
 def _specvol_SSO_0_CT25(p):
-    """
+    r"""
     Calculates specific volume at the Standard Ocean Salinity (SSO) and Conservative Temperature of zero degrees C (CT=0), as a function of pressure (p [db]).
 
     Parameters
@@ -609,7 +609,7 @@ def _specvol_SSO_0_CT25(p):
     return specvol_SSO_0_CT25
 
 def _check_dim(prop1, prop2):
-    """
+    r"""
     Broadcast prop1 to the shape of prop2.
     Prop1 can be scalar, row equal or column equal to prop2.
     """
@@ -637,7 +637,7 @@ def _check_dim(prop1, prop2):
 Salinity lib functions
 """
 def  _SP_from_SA_Baltic(SA, lon, lat):
-    """
+    r"""
     Calculates Practical Salinity (SP) for the Baltic Sea, from a value computed analytically from Absolute Salinity.
 
     Parameters
@@ -702,7 +702,7 @@ def  _SP_from_SA_Baltic(SA, lon, lat):
     return SP_baltic
 
 def  _SA_from_SP_Baltic(SP, lon, lat):
-    """
+    r"""
     Calculates Absolute Salinity in the Baltic Sea, from Practical Salinity.
     Since SP is non-negative by definition, this function changes any negative input values of SP to be zero.
 
@@ -762,7 +762,7 @@ def  _SA_from_SP_Baltic(SP, lon, lat):
     return SA_baltic
 
 def  _infunnel(SA, CT, p):
-    """
+    r"""
     Calculates Absolute Salinity in the Baltic Sea, from Practical Salinity.
     Since SP is non-negative by definition, this function changes any negative input values of SP to be zero.
 
@@ -771,7 +771,7 @@ def  _infunnel(SA, CT, p):
     SA(p) : array_like
          Absolute salinity [g kg :sup::`-1`]
     CT(p) : array_like
-         Conservative Temperature [:math:`^\\circ` C (TEOS-10)]
+         Conservative Temperature [:math:`^\circ` C (TEOS-10)]
     p : array_like
         pressure [db]
 
@@ -822,7 +822,7 @@ def  _infunnel(SA, CT, p):
     return Ifunnel
 
 def  _dsa_add_barrier(dsa, lon, lat, longs_ref, lats_ref, dlongs_ref, dlats_ref):
-    """
+    r"""
     Adds a barrier through Central America (Panama) and then averages over the appropriate side of the barrier.
 
     Parameters
@@ -914,7 +914,7 @@ def  _dsa_add_barrier(dsa, lon, lat, longs_ref, lats_ref, dlongs_ref, dlats_ref)
     return delta_SA
 
 def  _dsa_add_mean(dsa):
-    """
+    r"""
     Replaces NaN's with nanmean of the 4 adjacent neighbors
 
     Parameters
@@ -955,7 +955,7 @@ def  _dsa_add_mean(dsa):
     return delta_SA
 
 def  _delta_SA(p, lon, lat):
-    """
+    r"""
     Calculates the Absolute Salinity anomaly, SA - SR, in the open ocean by spatially interpolating the global reference data set of delta_SA to the location of the seawater sample.
 
     Parameters
@@ -1137,24 +1137,22 @@ Section B: functions
 """
 
 def entropy(SA, t, p):
-    """
+    r"""
     Calculates specific entropy of seawater.
 
     The specific entropy of seawater :math:`\eta` is given by:
 
     .. math::
-        \eta(SA, t, p) = -g_T = \\frac{\partial g}{\partial T}\Big|_{SA,p}
+        \eta(SA, t, p) = -g_T = \frac{\partial g}{\partial T}\Big|_{SA,p}
 
     When taking derivatives with respect to *in situ* temperature, the symbol :math:`T` will be used for temperature in order that these derivatives not be confused with time derivatives.
-
-    Entropy (:math:`\eta`) has units of  J kg :sup:`-1` K :sup:`-1` in both the SIA and GSW computer libraries.
 
     Parameters
     ----------
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -1201,7 +1199,7 @@ def entropy(SA, t, p):
     return entropy
 
 def rho(SA, t, p):
-    """
+    r"""
     Calculates in situ density of seawater from Absolute Salinity and in situ temperature.
 
     Parameters
@@ -1209,7 +1207,7 @@ def rho(SA, t, p):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -1254,13 +1252,13 @@ def rho(SA, t, p):
     return rho
 
 def cp(SA, t, p):
-    """
+    r"""
     Calculates the isobaric heat capacity of seawater.
 
     SA : array_like
         Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -1305,15 +1303,21 @@ def cp(SA, t, p):
     return cp
 
 def helmholtz_energy(SA, t, p):
-    """
+    r"""
     Calculates the Helmholtz energy of seawater.
+
+
+    The specific Helmholtz energy of seawater :math:`f` is given by:
+
+    .. math::
+        f(SA, t, p) = g - (p + P_0) \nu = g - (p + P_0) \frac{\partial g}{\partial P}\Big|_{SA,T}
 
     Parameters
     ----------
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -1361,15 +1365,22 @@ def helmholtz_energy(SA, t, p):
     return helmholtz_energy
 
 def internal_energy(SA, t, p):
-    """
+    r"""
     Calculates the Helmholtz energy of seawater.
+
+    The specific internal energy of seawater :math:`u` is given by:
+
+    .. math::
+        u(SA, t, p) = g + (T_0 + t)\eta - (p + P_0)\nu = g - (T_0 + t)\frac{\partial g}{\partial T}\Big|_{SA,p} - (p + P_0)\frac{\partial g}{\partial P}\Big|_{SA,T}
+
+    where :math:`T_0` is the Celsius zero point, 273.15 K and :math:`P_0` = 101 325 Pa is the standard atmosphere pressure.
 
     Parameters
     ----------
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -1418,15 +1429,23 @@ def internal_energy(SA, t, p):
     return internal_energy
 
 def sound_speed(SA, t, p):
-    """
+    r"""
     Calculates the speed of sound in seawater.
+
+
+    The speed of sound in seawater :math:`c` is given by:
+
+    .. math::
+        c(SA, t, p) = \sqrt{ \partial P  / \partial \rho |_{SA,\eta}} = \sqrt{(\rho\kappa)^{-1}} = g_P \sqrt{g_{TT}/(g^2_{TP} - g_{TT}g_{PP})}
+
+    Note that in these expressions, since sound speed is in m s :sup`-1` and density has units of kg m :sup:`-3` it follows that the pressure of the partial derivatives must be in Pa and the isentropic compressibility :math:`kappa` must have units of Pa :sup:`-1`. The sound speed c produced by both the SIA and the GSW software libraries (appendices M and N) has units of m s :sup:`-1`.
 
     Parameters
     ----------
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -1475,7 +1494,7 @@ def sound_speed(SA, t, p):
     return sound_speed
 
 def adiabatic_lapse_rate(SA, t, p):
-    """
+    r"""
     Calculates the adiabatic lapse rate of sea water.
 
     Parameters
@@ -1483,7 +1502,7 @@ def adiabatic_lapse_rate(SA, t, p):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -1530,7 +1549,7 @@ def adiabatic_lapse_rate(SA, t, p):
     return adiabatic_lapse_rate
 
 def chem_potential_relative(SA, t, p):
-    """
+    r"""
     Calculates the adiabatic lapse rate of sea water.
 
     Parameters
@@ -1538,7 +1557,7 @@ def chem_potential_relative(SA, t, p):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -1583,7 +1602,7 @@ def chem_potential_relative(SA, t, p):
     return chem_potential_relative
 
 def specvol(SA, t, p):
-    """
+    r"""
     Calculates the specific volume of seawater.
 
     Parameters
@@ -1591,7 +1610,7 @@ def specvol(SA, t, p):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -1636,7 +1655,7 @@ def specvol(SA, t, p):
     return specvol
 
 def conservative_t(SA, t, p):
-    """
+    r"""
     Calculates Conservative Temperature of seawater from in situ temperature.
 
     Parameters
@@ -1644,14 +1663,14 @@ def conservative_t(SA, t, p):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
     Returns
     -------
     CT : array_like
-         Conservative Temperature [:math:`^\\circ` C (TEOS-10)]
+         Conservative Temperature [:math:`^\circ` C (TEOS-10)]
 
     See Also
     --------
@@ -1690,7 +1709,7 @@ def conservative_t(SA, t, p):
     return CT
 
 def potential_t(SA, t, p, pr=0):
-    """
+    r"""
     Calculates potential temperature with the general reference pressure, pr, from in situ temperature.
 
     Parameters
@@ -1698,7 +1717,7 @@ def potential_t(SA, t, p, pr=0):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
     pr : int, float, optional
@@ -1707,7 +1726,7 @@ def potential_t(SA, t, p, pr=0):
     Returns
     -------
     pt : array_like
-         potential temperature [:math:`^\\circ` C (ITS-90)]
+         potential temperature [:math:`^\circ` C (ITS-90)]
 
     See Also
     --------
@@ -1779,15 +1798,21 @@ def potential_t(SA, t, p, pr=0):
     return pt
 
 def enthalpy(SA, t, p):
-    """
+    r"""
     Calculates the specific enthalpy of seawater.
+
+
+    The specific enthalpy of seawater :math:`h` is given by:
+
+    .. math::
+        h(SA, t, p) = g + (T_0 + t)\eta = g - (T_0 + t) \frac{\partial g}{\partial T}\Big|_{SA,p}
 
     Parameters
     ----------
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -1834,7 +1859,7 @@ def enthalpy(SA, t, p):
     return enthalpy
 
 def chem_potential_water(SA, t, p):
-    """
+    r"""
     Calculates the chemical potential of water in seawater.
 
     Parameters
@@ -1842,7 +1867,7 @@ def chem_potential_water(SA, t, p):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -1936,7 +1961,7 @@ def chem_potential_water(SA, t, p):
     return chem_potential_water
 
 def chem_potential_salt(SA, t, p):
-    """
+    r"""
     Calculates the chemical potential of salt in seawater.
 
     Parameters
@@ -1944,7 +1969,7 @@ def chem_potential_salt(SA, t, p):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -1988,7 +2013,7 @@ def chem_potential_salt(SA, t, p):
     return chem_potential_salt
 
 def isochoric_heat_cap(SA, t, p):
-    """
+    r"""
     Calculates the isochoric heat capacity of seawater.
 
     Parameters
@@ -1996,7 +2021,7 @@ def isochoric_heat_cap(SA, t, p):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -2045,15 +2070,23 @@ def isochoric_heat_cap(SA, t, p):
     return isochoric_heat_cap
 
 def kappa(SA, t, p):
-    """
+    r"""
     Calculates the isentropic compressibility of seawater.
+
+    When the entropy and Absolute Salinity are held constant while the pressure is changed, the isentropic and isohaline compressibility :math:`kappa` is obtained:
+
+    .. math::
+        \kappa(SA, t, p) = \rho^{-1}\frac{\partial \rho}{\partial P}\Big|_{SA,\eta} = -\nu^{-1}\frac{\partial \nu}{\partial P}\Big|_{SA,\eta} = \rho^{-1}\frac{\partial \rho}{\partial P}\Big|_{SA,\theta} = -\nu^{-1}\frac{\partial \nu}{\partial P}\Big|_{SA,\theta} =
+        -\frac{ (g_{TP}^2 - g_{TT} g_{PP} ) }{g_P g_{TT}}
+
+    The isentropic and isohaline compressibility is sometimes called simply the isentropic compressibility (or sometimes the "adiabatic compressibility"), on the unstated understanding that there is also no transfer of salt during the isentropic or adiabatic change in pressure.
 
     Parameters
     ----------
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -2103,15 +2136,18 @@ def kappa(SA, t, p):
     return kappa
 
 def kappa_const_t(SA, t, p):
-    """
+    r"""
     Calculates isothermal compressibility of seawater at constant in situ temperature.
+
+    .. math::
+        \kappa^t(SA, t, p) = \rho^{-1}\frac{\partial \rho}{\partial P}\Big|_{SA,T} = -\nu^{-1}\frac{\partial \nu}{\partial P}\Big|_{SA,T} = -\frac{g_{PP}}{g_P}
 
     Parameters
     ----------
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -2158,7 +2194,7 @@ def kappa_const_t(SA, t, p):
     return kappa
 
 def pot_rho(SA, t, p, pr=0):
-    """
+    r"""
     Calculates potential density of seawater.
 
     Parameters
@@ -2166,7 +2202,7 @@ def pot_rho(SA, t, p, pr=0):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
     pr : int, float, optional
@@ -2213,17 +2249,17 @@ def pot_rho(SA, t, p, pr=0):
     return pot_rho
 
 def specvol_anom(SA, t, p):
-    """
+    r"""
     Calculates specific volume anomaly from Absolute Salinity, in situ temperature and pressure, using the full TEOS-10 Gibbs function.
 
-    The reference value of Absolute Salinity is SSO and the reference value of Conservative Temperature is equal to 0 :math:`^\\circ` C.
+    The reference value of Absolute Salinity is SSO and the reference value of Conservative Temperature is equal to 0 :math:`^\circ` C.
 
     Parameters
     ----------
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -2279,7 +2315,7 @@ def specvol_anom(SA, t, p):
     return specvol_anom
 
 def alpha_wrt_t(SA, t, p):
-    """
+    r"""
     Calculates the thermal expansion coefficient of seawater with respect to in situ temperature.
 
     Parameters
@@ -2287,7 +2323,7 @@ def alpha_wrt_t(SA, t, p):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -2336,7 +2372,7 @@ def alpha_wrt_t(SA, t, p):
     return alpha_wrt_t
 
 def alpha_wrt_CT(SA, t, p):
-    """
+    r"""
     Calculates the thermal expansion coefficient of seawater with respect to Conservative Temperature.
 
     Parameters
@@ -2344,7 +2380,7 @@ def alpha_wrt_CT(SA, t, p):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -2396,7 +2432,7 @@ def alpha_wrt_CT(SA, t, p):
     return alpha_wrt_CT
 
 def alpha_wrt_pt(SA, t, p):
-    """
+    r"""
     Calculates the thermal expansion coefficient of seawater with respect to potential temperature, with a reference pressure of zero.
 
     Parameters
@@ -2404,7 +2440,7 @@ def alpha_wrt_pt(SA, t, p):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -2456,7 +2492,7 @@ def alpha_wrt_pt(SA, t, p):
     return alpha_wrt_pt
 
 def beta_const_t(SA, t, p):
-    """
+    r"""
     Calculates the saline (i.e. haline) contraction coefficient of seawater at constant in situ temperature.
 
     Parameters
@@ -2464,7 +2500,7 @@ def beta_const_t(SA, t, p):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -2509,7 +2545,7 @@ def beta_const_t(SA, t, p):
     return beta_const_t
 
 def beta_const_CT(SA, t, p):
-    """
+    r"""
     Calculates the saline (i.e. haline) contraction coefficient of seawater at constant Conservative Temperature.
 
     Parameters
@@ -2517,7 +2553,7 @@ def beta_const_CT(SA, t, p):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -2573,7 +2609,7 @@ def beta_const_CT(SA, t, p):
     return beta_const_CT
 
 def beta_const_pt(SA, t, p):
-    """
+    r"""
     Calculates the saline (i.e. haline) contraction coefficient of seawater at constant potential temperature with a reference pressure of 0 dbar.
 
     Parameters
@@ -2581,7 +2617,7 @@ def beta_const_pt(SA, t, p):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -2637,7 +2673,7 @@ def beta_const_pt(SA, t, p):
     return beta_const_pt
 
 def osmotic_coefficient(SA, t, p):
-    """
+    r"""
     Calculates the osmotic coefficient of seawater.
 
     Parameters
@@ -2645,7 +2681,7 @@ def osmotic_coefficient(SA, t, p):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -2696,7 +2732,7 @@ def osmotic_coefficient(SA, t, p):
     return osmotic_coefficient
 
 def molality(SA):
-    """
+    r"""
     Calculates the molality of seawater.
 
     Parameters
@@ -2746,7 +2782,7 @@ def molality(SA):
     return molal
 
 def ionic_strength(SA):
-    """
+    r"""
     Calculates the ionic strength of seawater.
 
     Parameters
@@ -2812,12 +2848,12 @@ def CT_from_pt(SA, pt): #NOTE: used in conservative_t(SA, t, p)
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     pt : array_like
-         potential temperature referenced to a sea pressure of zero dbar [:math:`^\\circ` C (ITS-90)]
+         potential temperature referenced to a sea pressure of zero dbar [:math:`^\circ` C (ITS-90)]
 
     Returns
     -------
     CT : array_like
-         Conservative Temperature [:math:`^\\circ` C (TEOS-10)]
+         Conservative Temperature [:math:`^\circ` C (TEOS-10)]
 
     See Also
     --------
@@ -2899,12 +2935,12 @@ def pt_from_CT(SA, CT): #NOTE: used in specvol_anom(SA,t, p) inside gibbs.py
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     CT : array_like
-         Conservative Temperature [:math:`^\\circ` C (TEOS-10)]
+         Conservative Temperature [:math:`^\circ` C (TEOS-10)]
 
     Returns
     -------
     pt : array_like
-         potential temperature referenced to a sea pressure of zero dbar [:math:`^\\circ` C (ITS-90)]
+         potential temperature referenced to a sea pressure of zero dbar [:math:`^\circ` C (ITS-90)]
 
     See Also
     --------
@@ -2980,7 +3016,7 @@ def pt_from_CT(SA, CT): #NOTE: used in specvol_anom(SA,t, p) inside gibbs.py
     return pt
 
 def t_from_CT(SA, CT, p):
-    """
+    r"""
     Calculates in situ temperature from Conservative Temperature of seawater.
 
     Parameters
@@ -2988,14 +3024,14 @@ def t_from_CT(SA, CT, p):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     CT : array_like
-         Conservative Temperature [:math:`^\\circ` C (TEOS-10)]
+         Conservative Temperature [:math:`^\circ` C (TEOS-10)]
     p : array_like
         pressure [db]
 
     Returns
     -------
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
 
     See Also
     --------
@@ -3041,14 +3077,14 @@ def pt0_from_t(SA, t, p): #NOTE: potential_t does has the same result (only slow
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
     Returns
     -------
     pt0 : array_like
-          potential temperature relative to 0 db [:math:`^\\circ` C (ITS-90)]
+          potential temperature relative to 0 db [:math:`^\circ` C (ITS-90)]
 
     See Also
     --------
@@ -3115,7 +3151,7 @@ def pt0_from_t(SA, t, p): #NOTE: potential_t does has the same result (only slow
     return pt0
 
 def t_from_entropy(SA, entropy, t_type='pt'):
-    """
+    r"""
     Calculates potential temperature with reference pressure pr = 0 dbar or Conservative temperature from entropy.
 
     Parameters
@@ -3125,13 +3161,13 @@ def t_from_entropy(SA, entropy, t_type='pt'):
     entropy : array_like
               specific entropy [J kg :sup:`-1` K :sup:`-1`]
     t_type : str, optional
-             'pt' for potential temperature [:math:`^\\circ` C (ITS-90)]
-             'CT' for Conservative Temperature [:math:`^\\circ` C (TEOS-10)]
+             'pt' for potential temperature [:math:`^\circ` C (ITS-90)]
+             'CT' for Conservative Temperature [:math:`^\circ` C (TEOS-10)]
 
     Returns
     -------
     t : array_like
-        potential temperature [:math:`^\\circ` C (ITS-90)] (Default) or Conservative Temperature [:math:`^\\circ` C (TEOS-10)]
+        potential temperature [:math:`^\circ` C (ITS-90)] (Default) or Conservative Temperature [:math:`^\circ` C (TEOS-10)]
 
     See Also
     --------
@@ -3195,7 +3231,7 @@ def t_from_entropy(SA, entropy, t_type='pt'):
     return t
 
 def entropy_from_t(SA, t, t_type='pt'):
-    """
+    r"""
     Calculates specific entropy of seawater.
 
     Parameters
@@ -3203,10 +3239,10 @@ def entropy_from_t(SA, t, t_type='pt'):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        temperature [:math:`^\\circ` C]
+        temperature [:math:`^\circ` C]
     t_type : str, optional
-             'pt' for potential temperature [:math:`^\\circ` C (ITS-90)]
-             'CT' for Conservative Temperature [:math:`^\\circ` C (TEOS-10)]
+             'pt' for potential temperature [:math:`^\circ` C (ITS-90)]
+             'CT' for Conservative Temperature [:math:`^\circ` C (TEOS-10)]
 
     Returns
     -------
@@ -3266,7 +3302,7 @@ TODO: create a class for Depth pressure conversions
 """
 
 def  z_from_p(p, lat):
-    """
+    r"""
     Calculates height from sea pressure using the computationally-efficient 25-term expression for density in terms of SA, CT and p.
 
     Parameters
@@ -3330,7 +3366,7 @@ def  z_from_p(p, lat):
     return z
 
 def  p_from_z(z, lat):
-    """
+    r"""
     Calculates sea pressure from height using computationally-efficient 25-term expression for density, in terms of SA, CT and p.
 
     Parameters
@@ -3397,7 +3433,7 @@ def  p_from_z(z, lat):
     return p
 
 def grav(lat, p=0):
-    """
+    r"""
     Calculates acceleration due to gravity as a function of latitude and as a function of pressure in the ocean.
 
     Parameters
@@ -3455,18 +3491,18 @@ def grav(lat, p=0):
     return grav
 
 def distance(lon, lat, p=None):
-    """
+    r"""
     Calculates the distance in met res between successive points in the vectors lon and lat, computed using the Haversine formula on a spherical earth of radius 6,371 km, being the radius of a sphere having the same volume as Earth. For a spherical Earth of radius 6,371,000 m, one nautical mile is 1,853.2488 m, thus one degree of latitude is 111,194.93 m.
 
     Haversine formula:
         R = earth's radius (mean radius = 6,371 km)
 
     .. math::
-        a = \sin^2(\delta \\text{lat}/2) + \cos(\\text{lat}_1) \cos(\\text{lat}_2) \sin^2(\delta \\text{lon}/2)
+        a = \sin^2(\delta \text{lat}/2) + \cos(\text{lat}_1) \cos(\text{lat}_2) \sin^2(\delta \text{lon}/2)
 
-        c = 2 \\times \\text{atan2}(\sqrt{a}, \sqrt{(1-a)})
+        c = 2 \times \text{atan2}(\sqrt{a}, \sqrt{(1-a)})
 
-        d = R \\times c
+        d = R \times c
 
     Parameters
     ----------
@@ -3566,7 +3602,7 @@ from  seawater.csiro import cndr as cndr_from_SP
 from  seawater.csiro import salt as SP_from_cndr
 
 def SA_from_SP(SP, p, lon, lat):
-    """
+    r"""
     Calculates Absolute Salinity from Practical Salinity.
 
     Parameters
@@ -3649,7 +3685,7 @@ def SA_from_SP(SP, p, lon, lat):
     return SA, in_ocean
 
 def SA_from_Sstar(Sstar, p, lon, lat):
-    """
+    r"""
     Calculates Absolute Salinity from Preformed Salinity.
 
     Parameters
@@ -3721,7 +3757,7 @@ def SA_from_Sstar(Sstar, p, lon, lat):
     return SA, in_ocean
 
 def SP_from_SA(SA, p, lon, lat):
-    """
+    r"""
     Calculates Practical Salinity from Absolute Salinity.
 
     Parameters
@@ -3797,7 +3833,7 @@ def SP_from_SA(SA, p, lon, lat):
     return SP, in_ocean
 
 def Sstar_from_SA(SA, p, lon, lat):
-    """
+    r"""
     Converts Preformed Salinity from Absolute Salinity.
 
     Parameters
@@ -3868,7 +3904,7 @@ def Sstar_from_SA(SA, p, lon, lat):
     return Sstar, in_ocean
 
 def SP_from_Sstar(Sstar, p, lon, lat):
-    """
+    r"""
     Calculates Practical Salinity from Preformed Salinity.
 
     Parameters
@@ -3944,7 +3980,7 @@ def SP_from_Sstar(Sstar, p, lon, lat):
     return SP, in_ocean
 
 def Sstar_from_SP(SP, p, lon, lat):
-    """
+    r"""
     Calculates Preformed Salinity from Absolute Salinity.
 
     Parameters
@@ -4027,7 +4063,7 @@ def Sstar_from_SP(SP, p, lon, lat):
     return Sstar, in_ocean
 
 def SA_Sstar_from_SP(SP, p, lon, lat):
-    """
+    r"""
     Calculates Absolute Salinity and Preformed Salinity from Practical Salinity.
 
     Parameters
@@ -4123,15 +4159,17 @@ def SA_Sstar_from_SP(SP, p, lon, lat):
     return SA, Sstar, in_ocean
 
 def SA_from_rho(rho, t, p):
-    """
+    r"""
     Calculates the Absolute Salinity of a seawater sample, for given values of its density, in situ temperature and sea pressure (in dbar).
+
+    One use for this function is in the laboratory where a measured value of the in situ density :math:`\rho` of a seawater sample may have been made at the laboratory temperature :math:`t` and at atmospheric pressure :math:`p`. The present function will return the Absolute Salinity SA of this seawater sample.
 
     Parameters
     ----------
     rho : array_like
           in situ density [kg m :sup:`-3`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -4198,7 +4236,7 @@ Section F: Classes
 """
 
 class Gibbs:
-    """
+    r"""
     Class that aggregate all SA, t, p functions.
 
     Parameters
@@ -4206,7 +4244,7 @@ class Gibbs:
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     t : array_like
-        in situ temperature [:math:`^\\circ` C (ITS-90)]
+        in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -4383,14 +4421,14 @@ class Gibbs:
         return ionic_strength(self.SA)
 
 class Dict2Struc(object):
-    """
+    r"""
     Open variables from a dictionary in a "matlab-like-structure"
     """
     def __init__(self, adict):
         self.__dict__.update(adict)
 
 if __name__=='__main__':
-    """
+    r"""
     This test only the Gibbs class
     """
     def test_print(STP, method, comp_value=None):

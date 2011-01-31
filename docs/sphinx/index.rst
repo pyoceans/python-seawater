@@ -26,6 +26,19 @@ The :mod:`csiro` module
     :show-inheritance:
 
 
+Gibbs Seawater Documentation
+============================
+
+This page contains the Csiro Module documentation.
+
+The :mod:`gibbs` module
+-----------------------
+
+.. automodule:: seawater.gibbs
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Extras Documentation
 ====================
 
