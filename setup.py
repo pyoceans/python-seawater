@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from distutils.core import setup
+from setuptools import setup, find_packages
 
 classifiers = """\
 Development Status :: 5 - Production/Stable
@@ -29,9 +29,12 @@ setup(name             = 'seawater',
 This python package contains a python translation for two Matlab user contributed toolboxes. (1) the `sewater <http://www.cmar.csiro.au/datacentre/ext_docs/seawater.htm>`_ (EOS-80) and (2) the `gibbs <http://www.teos-10.org/software.htm>`_ seawater (TEOS-10).
 """,
       download_url     = 'http://pypi.python.org/packages/source/s/seawater/',
-      #packages         = ['seawater', 'seawater.extras', 'seawater.extras.waves'],
       classifiers      = filter(None, classifiers.split("\n")),
       platforms        = 'any',
+      packages = find_packages('seawater'),
+      package_dir = {'':'seawater'},
+      package_data     = {'':['*.pkl']},
+      zip_safe = False,
       license          = 'MIT',
       keywords         = 'oceanography seawater',
     )

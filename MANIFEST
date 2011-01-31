@@ -1,6 +1,0 @@
-README.txt
-setup.py
-seawater/__init__.py
-seawater/csiro.py
-seawater/extras/__init__.py
-seawater/extras/sw_extras.py

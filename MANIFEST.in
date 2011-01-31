@@ -1,0 +1,15 @@
+include DISCLAIMER.txt
+include README.txt
+include docs/matlab-test.txt
+include docs/python-test.txt
+include docs/UNESCO-TechPaper44_eo.pdf
+include seawater/constants.py
+include seawater/csiro.py
+include seawater/gibbs.py
+include seawater/gibbs-test.py
+include seawater/__init__.py
+include seawater/data/gsw_cv.pkl
+include seawater/data/gsw_data_v2_0.pkl
+include seawater/extras/__init__.py
+include seawater/extras/sw_extras.py
+include seawater/extras/waves/__init__.py
