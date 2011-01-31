@@ -4,6 +4,130 @@ import numpy as np
 from seawater import constants as cte
 from seawater import library as lib
 
+def  _interp_McD_Klocker(spycnl, A='gn'):
+    """
+    Interpolates the reference cast with respect to the interpolating variable "spycnl". This reference cast is located at (188 E, 4 N) from the reference data set which underlies the Jackett & McDougall (1997) Neutral Density computer code.
+
+    Parameters
+    ----------
+    spycnl : array_like
+             TODO
+    A : array_like, default 'gn'
+        TODO: isopycnal ?
+        's2'
+
+    Returns
+    -------
+    TODO: SA_iref_cast, CT_iref_cast, p_iref_cast
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    This function finds the values of SA, CT and p on this reference cast which correspond to the value of isopycnal which is passed to this function from the function "_geo_str_McD_Klocker". The isopycnal could be either gamma_n or sigma_2. if A is set to any of the following 's2','S2','sigma2','sigma_2' the interpolation will take place in sigma 2 space, any other input will result in the programme working in gamma_n space.
+
+    Examples
+    --------
+    TODO
+
+    References
+    ----------
+    Jackett, D. R. and T. J. McDougall, 1997: A neutral density variable for the world's oceans. Journal of Physical Oceanography, 27, 237-263.
+
+    Modifications:
+    2010-07-23. Trevor McDougall and Paul Barker
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    # Convert input to numpy arrays
+    spycnl= np.asarray(spycnl)
+
+    data = pickle.load( open('gsw_data_v2_0.pkl', 'rb') )
+    SA_ref_cast = data['SA_ref_cast']
+    CT_ref_cast = data['CT_ref_cast']
+    p_ref_cast = data['p_ref_cast']
+
+    if A == 's2':
+        spycnl_ref_cast = data['sigma_2_ref_cast']
+    elif A == 'gn':
+        spycnl_ref_cast = data['gamma_n_ref_cast']
+    else:
+        print "unknown method" #FIXME: add a proper python error
+
+    min_spycnl_ref_cast, Imin_spycnl_ref_cast = spycnl_ref_cast.min(), spycnl_ref_cast.argmin()
+
+    Ishallow = np.where( spycnl <= min_spycnl_ref_cast ) # Set equal to the shallowest bottle.
+
+    SA_iref_cast[Ishallow] = SA_ref_cast[Imin_spycnl_ref_cast]
+    CT_iref_cast[Ishallow] = CT_ref_cast[Imin_spycnl_ref_cast]
+    p_iref_cast[Ishallow] = p_ref_cast[Imin_spycnl_ref_cast]
+
+    max_spycnl_ref_cast, Imax_spycnl_ref_cast = spycnl_ref_cast.max(), spycnl_ref_cast.argmax()
+
+    Ideep = np.where( spycnl >= max_spycnl_ref_cast ) # Set equal to the deepest bottle.
+
+    SA_iref_cast[Ideep] = SA_ref_cast[Imax_spycnl_ref_cast]
+    CT_iref_cast[Ideep] = CT_ref_cast[Imax_spycnl_ref_cast]
+    p_iref_cast[Ideep] = p_ref_cast[Imax_spycnl_ref_cast]
+
+    I = np.where(spycnl >= 21.805 & spycnl <= 28.3614)
+
+    xi = spycnl[I]
+    x = spycnl_ref_cast
+
+    siz = xi.shape # FIXME: unfinished
+    if xi.shape > 1:
+        [xxi, k] = sort(xi)
+        [dum, j] = sort([x;xxi])
+        r(j) = 1:length(j)
+        r = r(length(x)+1:end) - (1:length(xxi))
+        r(k) = r
+        r(xi==x(end)) = length(x)-1
+        ind = find((r>0) & (r<length(x)))
+        ind = ind(:)
+        SA_ref_casti = NaN(length(xxi),size(SA_ref_cast,2),superiorfloat(x,SA_ref_cast,xi))
+        CT_ref_casti = NaN(length(xxi),size(CT_ref_cast,2),superiorfloat(x,CT_ref_cast,xi))
+        p_ref_casti = NaN(length(xxi),size(p_ref_cast,2),superiorfloat(x,p_ref_cast,xi))
+        rind = r(ind)
+        xrind = x(rind)
+        u = (xi(ind)-xrind)./(x(rind+1)-xrind)
+        SArind = SA_ref_cast(rind,:)
+        CTrind = CT_ref_cast(rind,:)
+        prind = p_ref_cast(rind,:)
+        SA_ref_casti(ind,:) = SArind + bsxfun(@times,SA_ref_cast(rind+1,:)-SArind,u)
+        CT_ref_casti(ind,:) = CTrind + bsxfun(@times,CT_ref_cast(rind+1,:)-CTrind,u)
+        p_ref_casti(ind,:) = prind + bsxfun(@times,p_ref_cast(rind+1,:)-prind,u)
+    else: # Special scalar xi case
+        r = find(x <= xi,1,'last')
+        r(xi==x(end)) = length(x)-1
+        if isempty(r) || r<=0 || r>=length(x):
+            SA_ref_casti = NaN(1,size(SA,2),superiorfloat(x,SA,xi))
+            CT_ref_casti = NaN(1,size(CT,2),superiorfloat(x,CT,xi))
+            p_ref_casti = NaN(1,size(p,2),superiorfloat(x,p,xi))
+        else:
+            u = (xi-x(r))./(x(r+1)-x(r))
+            SAr_ref_cast = SA_ref_cast(r,:)
+            CTr_ref_cast = CT_ref_cast(r,:)
+            pr_ref_cast = p_ref_cast(r,:)
+            SA_ref_casti = SAr_ref_cast + bsxfun(@times,SA_ref_cast(r+1,:)-SAr_ref_cast,u)
+            CT_ref_casti = CTr_ref_cast + bsxfun(@times,CT_ref_cast(r+1,:)-CTr_ref_cast,u)
+            p_ref_casti = pr_ref_cast + bsxfun(@times,p_ref_cast(r+1,:)-pr_ref_cast,u)
+
+
+    if min(size(SA_ref_casti)) == 1 && numel(xi) > 1:
+        SA_ref_casti = reshape(SA_ref_casti,siz)
+        CT_ref_casti = reshape(CT_ref_casti,siz)
+        p_ref_casti = reshape(p_ref_casti,siz)
+
+
+    SA_iref_cast[I] = SA_ref_casti
+    CT_iref_cast[I] = CT_ref_casti
+    p_iref_cast[I] = p_ref_casti
+
+    return SA_iref_cast, CT_iref_cast, p_iref_cast
+
 def sigma_CT(SA, CT, p=0):
     """
     Calculates potential density anomaly with reference pressure (default is 0 dbar). Returns potential density minus 1000 kg m :sup:`-3`.
