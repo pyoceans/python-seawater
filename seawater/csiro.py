@@ -106,7 +106,8 @@ def T90conv(t, t_type='T68'):
     t = np.asarray(t)
 
     if t_type == 'T68':
-        T90 = t / 1.00024
+        T90 = t * 0.999760057586179
+        #T90 = t / 1.00024
     elif t_type == 'T48':
         T90 = (t - 4.4e-6 * t * (100 - t) ) / 1.00024
     else:
