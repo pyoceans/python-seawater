@@ -61,19 +61,11 @@ def _gibbs(ns, nt, npr, SA, t, p):
             The pressure derivatives are output in units of: [ (J kg :sup:`-1`) Pa :sup:`-npr` ]
             The mixed derivatives are output in units of: [ (J kg :sup:`-1`) (g kg :sup:`-1`) :sup:`-ns` K :sup:`-nt` Pa :sup:`-npr` ]
 
-    See Also
-    --------
-    TODO
-
     Notes
     -----
     The Gibbs function for seawater is that of TEOS-10 (IOC et al., 2010), being the sum of IAPWS-08 for the saline part and IAPWS-09 for the pure water part. These IAPWS releases are the officially blessed IAPWS descriptions of Feistel (2008) and the pure water part of Feistel (2003). Absolute Salinity, SA, in all of the GSW routines is expressed on the Reference-Composition Salinity Scale of 2008 (RCSS-08) of Millero et al. (2008).
 
     The derivatives are taken with respect to pressure in Pa, not withstanding that the pressure input into this routine is in dbar.
-
-    Examples
-    --------
-    TODO
 
     References
     ----------
@@ -85,7 +77,7 @@ def _gibbs(ns, nt, npr, SA, t, p):
 
     .. [4] IAPWS, 2009: Supplementary Release on a Computationally Efficient Thermodynamic Formulation for Liquid Water for Oceanographic Use. The International Association for the Properties of Water and Steam. Doorwerth, The Netherlands, September 2009, available from http://www.iapws.org.  This Release is referred to as IAPWS-09.
 
-    .. [5] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp.  Available from http://www.TEOS-10.org See section 2.6 and appendices A.6,  G and H of this TEOS-10 Manual.
+    .. [5] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp.  Available from http://www.TEOS-10.org See section 2.6 and appendices A.6,  G and H.
 
     .. [6] Millero, F. J., R. Feistel, D. G. Wright, and T. J. McDougall, 2008: The composition of Standard Seawater and the definition of the Reference-Composition Salinity Scale, Deep-Sea Res. I, 55, 50-72.
 
@@ -393,24 +385,11 @@ def  _entropy_part(SA, t, p):
     entropy_part : array_like
                    entropy minus the terms that due to SA alone [J kg :sup:`-1` K :sup:`-1`]
 
-    See Also
-    --------
-    TODO
-
     Notes
     -----
     By not calculating these terms, which are a function only of Absolute Salinity, several unnecessary computations are avoided (including saving the computation of a natural logarithm). These terms are a necessary part of entropy, but are not needed when calculating potential temperature from in situ temperature.
 
-    Examples
-    --------
-    TODO
-
-    References
-    ----------
-    TODO
-
     Modifications:
-    2010-07-23. Trevor McDougall and Paul Barker
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
@@ -470,23 +449,12 @@ def  _gibbs_pt0_pt0(SA, pt0):
     Returns
     -------
     gibbs_pt0_pt0 : array_like
-                    TODO: write the eq. for the second derivative of the specific Gibbs function. FIXME: [units]
-
-    See Also
-    --------
-    TODO
+                    TODO: write the eq. for the second derivative of the specific Gibbs function.
+                    FIXME: [units]
 
     Notes
     -----
-    TODO
-
-    Examples
-    --------
-    TODO
-
-    References
-    ----------
-    TODO
+    This library function is called by both "pt_from_CT(SA,CT)" and "pt0_from_t(SA,t,p)".
 
     Modifications:
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
@@ -537,21 +505,9 @@ def  _entropy_part_zerop(SA, pt0):
     entropy_part_zerop : array_like
                          [J kg :sup:`-1` K :sup:`-1`]
 
-    See Also
-    --------
-    TODO
-
     Notes
     -----
     By not calculating these terms, which are a function only of Absolute Salinity, several unnecessary computations are avoided (including saving the computation of a natural logarithm). These terms are a necessary part of entropy, but are not needed when calculating potential temperature from in situ temperature.
-
-    Examples
-    --------
-    TODO
-
-    References
-    ----------
-    TODO
 
     Modifications:
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
@@ -597,21 +553,9 @@ def  _enthalpy_SSO_0_CT25(p):
     enthalpy_CT25 : array_like
                     enthalpy_CT25 at (SSO, CT = 0, p), 25-term equation. [J kg :sup:`-1`]
 
-    See Also
-    --------
-    TODO
-
     Notes
     -----
-    It Uses a streamlined version of the 25-term CT version of the Gibbs function ( FIXME:enthalpy_CT25(SA,CT,p) )
-
-    Examples
-    --------
-    TODO
-
-    References
-    ----------
-    TODO
+    It Uses a streamlined version of the 25-term CT version of the Gibbs function, that is, a streamlined version of the code "enthalpy_CT25(SA,CT,p)"
 
     Modifications:
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
@@ -649,21 +593,9 @@ def _specvol_SSO_0_CT25(p):
     specvol_SSO_0_CT25 : array_like
                          Specific volume at (SSO, CT=0, p), 25-term equation. [m :sup:`3` kg :sup:`-1`]
 
-    See Also
-    --------
-    TODO
-
     Notes
     -----
-    It uses a streamlined version of the 25-term CT version of specific volume ( FIXME: _rho_alpha_beta_CT25(SA,CT,p) ).
-
-    Examples
-    --------
-    TODO
-
-    References
-    ----------
-    TODO
+    It uses a streamlined version of the 25-term CT version of specific volume that is, a streamlined version of the code "rho_alpha_beta_CT25(SA,CT,p)"
 
     Modifications
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
@@ -678,9 +610,11 @@ def _specvol_SSO_0_CT25(p):
 
 def _check_dim(prop1, prop2):
     """
-    Broadcast prop1 to the shape prop2. Prop1 can be scalar, row equal or column equal to prop2.
-    TODO: Needs lots of improvements and cleanups...
+    Broadcast prop1 to the shape of prop2.
+    Prop1 can be scalar, row equal or column equal to prop2.
     """
+
+    # Comic book guy would say: "Worst function ever!"
     if prop1.ndim == 1:
         prop1 = prop1.flatten()
 
@@ -689,10 +623,8 @@ def _check_dim(prop1, prop2):
     elif (prop1.ndim == 1) & (prop2.ndim != 1):
         if prop1.size == prop2.shape[1]:
             prop1 = prop1 * np.ones(prop2.shape)
-            #prop1 = np.repeat(prop1[np.newaxis,:], prop2.shape[1], axis=1).reshape(prop2.shape)
         elif prop1.size == prop2.shape[0]:
             prop1 = prop1[:,np.newaxis] * np.ones(prop2.shape)
-            #prop1 = np.repeat(prop1[np.newaxis,:], prop2.shape[0], axis=0).reshape(prop2.shape)
         else:
             raise NameError('Blahrg')
 
@@ -730,10 +662,6 @@ def  _SP_from_SA_Baltic(SA, lon, lat):
     -----
     This program will only produce Practical Salinity values for the Baltic Sea. Calculates entropy at a sea surface (p = 0 db), except that it does not evaluate any terms that are functions of Absolute Salinity alone. By not calculating these terms, which are a function only of Absolute Salinity, several unnecessary computations are avoided (including saving the computation of a natural logarithm). These terms are a necessary part of entropy, but are not needed when calculating potential temperature from in-situ temperature.
 
-    Examples
-    --------
-    TODO
-
     References
     ----------
     .. [1] Feistel, R., S. Weinreben, H. Wolf, S. Seitz, P. Spitzer, B. Adel, G. Nausch, B. Schneider and D. G. Wright, 2010c: Density and Absolute Salinity of the Baltic Sea 2006-2009.  Ocean Science, 6, 3-24.
@@ -746,6 +674,7 @@ def  _SP_from_SA_Baltic(SA, lon, lat):
     http://www.ocean-sci-discuss.net/6/215/2009/osd-6-215-2009-print.pdf
 
     Modifications:
+    2010-07-23. David Jackett, Trevor McDougall & Paul Barker
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
@@ -793,16 +722,11 @@ def  _SA_from_SP_Baltic(SP, lon, lat):
 
     See Also
     --------
-    TODO: explain why these three need Baltic salinity computations
     SA_from_SP, Sstar_from_SP, SA_Sstar_from_SP
 
     Notes
     -----
     This program will only produce Absolute Salinity values for the Baltic Sea.
-
-    Examples
-    --------
-    TODO
 
     References
     ----------
@@ -815,6 +739,7 @@ def  _SA_from_SP_Baltic(SP, lon, lat):
     http://www.ocean-sci-discuss.net/6/215/2009/osd-6-215-2009-print.pdf
 
     Modifications:
+    2010-07-23. David Jackett, Trevor McDougall & Paul Barker
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
@@ -922,24 +847,11 @@ def  _dsa_add_barrier(dsa, lon, lat, longs_ref, lats_ref, dlongs_ref, dlats_ref)
     delta_SA : array_like
           Absolute Salinity anomaly of the 4 adjacent neighbors  [g kg :sup::`-1`]
 
-    See Also
-    --------
-    TODO
-
     Notes
     -----
-    TODO
-
-    Examples
-    --------
-    TODO
-
-    References
-    ----------
-    TODO
+    originally inside "_delta_SA"
 
     Modifications:
-    2010-07-23. David Jackett, Paul Barker and Trevor McDougall
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
     dsa = np.asarray(dsa)
@@ -1015,28 +927,14 @@ def  _dsa_add_mean(dsa):
     delta_SA : array_like
           Absolute Salinity anomaly of the 4 adjacent neighbours  [g kg :sup::`-1`]
 
-    See Also
-    --------
-    TODO
-
     Notes
     -----
-    TODO
-
-    Examples
-    --------
-    TODO
-
-    References
-    ----------
-    TODO
+    originally inside "_delta_SA"
 
     Modifications:
-    2010-07-23. David Jackett, Paul Barker and Trevor McDougall
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    #TODO: I do not understand the logic for this function
     dsa = np.asarray(dsa)
 
     #FIXME: there must be a better way
@@ -1086,10 +984,6 @@ def  _delta_SA(p, lon, lat):
 
     The in_ocean flag is only set when the observation is well and truly on dry land; often the warning flag is not set until one is several hundred kilometres inland from the coast.
 
-    Examples
-    --------
-    TODO
-
     References
     ----------
     .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp.
@@ -1098,7 +992,8 @@ def  _delta_SA(p, lon, lat):
     http://www.ocean-sci-discuss.net/6/215/2009/osd-6-215-2009-print.pdf
 
     Modifications:
-    2010-07-23. David Jackett, Paul Barker and Trevor McDougall
+    ????-??-??. David Jackett.
+    2010-07-23. Paul Barker and Trevor McDougall
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
@@ -1248,11 +1143,11 @@ def entropy(SA, t, p):
     The specific entropy of seawater :math:`\eta` is given by:
 
     .. math::
-        \eta = \eta(SA, t, p) = -g_T = \frac{\partial g}{\partial T}|_{SA,p}
+        \eta(SA, t, p) = -g_T = \\frac{\partial g}{\partial T}\Big|_{SA,p}
 
     When taking derivatives with respect to *in situ* temperature, the symbol :math:`T` will be used for temperature in order that these derivatives not be confused with time derivatives.
 
-    Entropy :math:`\eta` has units of :math:`J kg^{-1} K^{-1} in both the SIA and GSW computer libraries.
+    Entropy (:math:`\eta`) has units of  J kg :sup:`-1` K :sup:`-1` in both the SIA and GSW computer libraries.
 
     Parameters
     ----------
@@ -1505,10 +1400,10 @@ def internal_energy(SA, t, p):
 
     References
     ----------
-    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See section 2.13.
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See Eqn. (2.11.1)
 
     Modifications:
-    2010-08-26. Trevor McDougall
+    2010-08-22. Trevor McDougall
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
@@ -1563,7 +1458,7 @@ def sound_speed(SA, t, p):
     .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See Eqn. (2.17.1)
 
     Modifications:
-    2010-07-23. Trevor McDougall
+    2010-07-23. David Jackett, Paul Barker and Trevor McDougall.
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
@@ -1622,7 +1517,7 @@ def adiabatic_lapse_rate(SA, t, p):
     .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See Eqn. (2.22.1).
 
     Modifications:
-    2010-07-23. Trevor McDougall and Paul Barker
+    2010-08-26. Trevor McDougall and Paul Barker
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
@@ -1926,7 +1821,7 @@ def enthalpy(SA, t, p):
     .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See appendix A.11.
 
     Modifications:
-    2010-08-26. Trevor McDougall, David Jackett, Claire Roberts-Thomson and Paul Barker.
+    2010-08-26. David Jackett, Trevor McDougall and Paul Barker.
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
@@ -2428,7 +2323,7 @@ def alpha_wrt_t(SA, t, p):
     .. [2] McDougall, T.J., D.R. Jackett and F.J. Millero, 2010: An algorithm for estimating Absolute Salinity in the global ocean. Submitted to Ocean Science. A preliminary version is available at Ocean Sci. Discuss., 6, 215-242.
 
     Modifications:
-    2010-08-26. Trevor McDougall, David Jackett, Claire Roberts-Thomson and Paul Barker.
+    2010-07-23. David Jackett, Trevor McDougall and Paul Barker
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
@@ -2945,7 +2840,7 @@ def CT_from_pt(SA, pt): #NOTE: used in conservative_t(SA, t, p)
 
     References
     ----------
-    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See sections 3.1 and 3.3.
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See section 3.3.
 
     Modifications:
     2010-08-05. David Jackett, Trevor McDougall and Paul Barker.
@@ -3037,7 +2932,7 @@ def pt_from_CT(SA, CT): #NOTE: used in specvol_anom(SA,t, p) inside gibbs.py
     .. [2] McDougall T. J., D. R. Jackett, P. M. Barker, C. Roberts-Thomson, R. Feistel and R. W. Hallberg, 2010:  A computationally efficient 25-term expression for the density of seawater in terms of Conservative Temperature, and related properties of seawater.  To be submitted to Ocean Science Discussions.
 
     Modifications:
-    2010-08-26. McDougall, David Jackett, Claire Roberts-Thomson and Paul Barker.
+    2010-08-26. Trevor McDougall, David Jackett, Claire Roberts-Thomson and Paul Barker.
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
@@ -3137,7 +3032,7 @@ def t_from_CT(SA, CT, p):
 
     return t
 
-def pt0_from_t(SA, t, p): #NOTE: Not used at the moment, since potential_t does has the same result (only slower)
+def pt0_from_t(SA, t, p): #NOTE: potential_t does has the same result (only slower)
     """
     Calculates potential temperature with reference pressure, pr = 0 dbar. The present routine is computationally faster than the more general function "potential_t(SA, t, p, pr)" which can be used for any reference pressure value.
 
@@ -3268,7 +3163,7 @@ def t_from_entropy(SA, entropy, t_type='pt'):
     .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See appendix  A.10.
 
     Modifications:
-    2010-08-13. Trevor McDougall and Paul Barker.
+    2010-10-13. Trevor McDougall and Paul Barker.
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
@@ -3565,10 +3460,13 @@ def distance(lon, lat, p=None):
 
     Haversine formula:
         R = earth's radius (mean radius = 6,371 km)
+
     .. math::
-        a = \sin^2(\delta lat/2) + cos(lat_1) cos(lat_2) sin^2(\delta lon/2)
-        c = 2 \textrm{atan2}(\sqrt{a}, \sqrt{(1-a)})
-        d = R \times c
+        a = \sin^2(\delta \\text{lat}/2) + \cos(\\text{lat}_1) \cos(\\text{lat}_2) \sin^2(\delta \\text{lon}/2)
+
+        c = 2 \\times \\text{atan2}(\sqrt{a}, \sqrt{(1-a)})
+
+        d = R \\times c
 
     Parameters
     ----------
@@ -4073,7 +3971,7 @@ def Sstar_from_SP(SP, p, lon, lat):
 
     Notes
     -----
-    The in_ocean flag is only set when the observation is well and truly on dry land; often the warning flag is not set until one is several hundred kilometres inland from the coast.
+    The in_ocean flag is only set when the observation is well and truly on dry land; often the warning flag is not set until one is several hundred kilometers inland from the coast.
 
     Since SP is non-negative by definition, this function changes any negative input values of SP to be zero.
 
@@ -4158,7 +4056,7 @@ def SA_Sstar_from_SP(SP, p, lon, lat):
 
     Notes
     -----
-    The in_ocean flag is only set when the observation is well and truly on dry land; often the warning flag is not set until one is several hundred kilometres inland from the coast.
+    The in_ocean flag is only set when the observation is well and truly on dry land; often the warning flag is not set until one is several hundred kilometers inland from the coast.
 
     Since SP is non-negative by definition, this function changes any negative input values of SP to be zero.
 
