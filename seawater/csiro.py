@@ -49,7 +49,7 @@ def T68conv(T90):
 
     """
 
-    T90 = np.asarray(T90)
+    T90 = np.asanyarray(T90)
 
     T68 = T90 * 1.00024
     return T68
@@ -104,11 +104,11 @@ def T90conv(t, t_type='T68'):
 
     """
 
-    t = np.asarray(t)
+    t = np.asanyarray(t)
 
     if t_type == 'T68':
-        T90 = t * 0.999760057586179
-        #T90 = t / 1.00024
+        #T90 = t * 0.999760057586179 #NOTE: gsw way is less precise
+        T90 = t / 1.00024
     elif t_type == 'T48':
         T90 = (t - 4.4e-6 * t * (100 - t) ) / 1.00024
     else:
@@ -179,7 +179,7 @@ def adtg(s, t, p):
                    10-08-16. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t, p = np.asarray(s), np.asarray(t), np.asarray(p)
+    s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
 
     T68 = T68conv(t)
 
@@ -263,7 +263,7 @@ def alpha(s, t, p, pt=False):
     """
 
 
-    s, t, p, pt = np.asarray(s), np.asarray(t), np.asarray(p), np.asarray(pt)
+    s, t, p, pt = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p), np.asanyarray(pt)
 
     alpha = aonb(s, t, p, pt) * beta(s, t, p, pt)
     return alpha
@@ -322,7 +322,7 @@ def aonb(s, t, p, pt=False):
     """
 
     # Ensure we use ptmp in calculations
-    s, t, p, pt = np.asarray(s), np.asarray(t), np.asarray(p), np.asarray(pt)
+    s, t, p, pt = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p), np.asanyarray(pt)
 
     if pt==False:
         t = ptmp(s, t, p, 0) # now we have ptmp
@@ -397,7 +397,7 @@ def beta(s, t, p, pt=False):
                    10-08-16. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t, p, pt = np.asarray(s), np.asarray(t), np.asarray(p), np.asarray(pt)
+    s, t, p, pt = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p), np.asanyarray(pt)
 
     # Ensure we use ptmp in calculations
     if pt==False:
@@ -495,7 +495,7 @@ def bfrq(s, t, p, lat=None):
     """
 
     #TODO: Check S and T have length at least of 2
-    s, t, p, lat = np.asarray(s), np.asarray(t), np.asarray(p), np.asarray(lat)
+    s, t, p, lat = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p), np.asanyarray(lat)
 
     # if pressure is a vector and t-s aren't 'make it a array of the same size as t-s
     if p.ndim == 1 and t.ndim != 1:
@@ -567,7 +567,7 @@ def depth(p, lat):
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
-    p, lat = np.asarray(p), np.asarray(lat)
+    p, lat = np.asanyarray(p), np.asanyarray(lat)
 
     # Eqn 25, p26.  UNESCO 1983.
     c1 =  9.72659
@@ -629,7 +629,7 @@ def grav(lat, z=0):
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
-    lat, z = np.asarray(lat), np.asarray(z)
+    lat, z = np.asanyarray(lat), np.asanyarray(z)
 
     # Eqn p27.  UNESCO 1983.
     lat     = np.abs(lat)
@@ -688,7 +688,7 @@ def cor(lat):
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
-    lat = np.asarray(lat)
+    lat = np.asanyarray(lat)
 
     # Eqn p27.  UNESCO 1983.
     f = 2 * cte.OMEGA * np.sin( np.deg2rad(lat) )
@@ -747,7 +747,7 @@ def cndr(s, t, p):
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t, p = np.asarray(s), np.asarray(t), np.asarray(p)
+    s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
 
     T68 = T68conv(t)
 
@@ -834,7 +834,7 @@ def sals(rt, t):
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
-    rt, t = np.asarray(rt), np.asarray(t)
+    rt, t = np.asanyarray(rt), np.asanyarray(t)
 
     # eqn (1) & (2) p6,7 unesco
     del_T68 = T68conv(t) - 15
@@ -911,7 +911,7 @@ def salds(rtx, delt):
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
-    rtx, delt = np.asarray(rtx), np.asarray(delt)
+    rtx, delt = np.asanyarray(rtx), np.asanyarray(delt)
 
     #a0 =  0.0080 #TODO: unused in the code, but present in the original
     a1 = -0.1692
@@ -981,7 +981,7 @@ def salrt(t):
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
-    t = np.asarray(t)
+    t = np.asanyarray(t)
 
     #Eqn (3) p.7 UNESCO.
     T68 = T68conv(t)
@@ -1042,7 +1042,7 @@ def salt(r, t, p):
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
-    r, t, p = np.asarray(r), np.asarray(t), np.asarray(p)
+    r, t, p = np.asanyarray(r), np.asanyarray(t), np.asanyarray(p)
 
     rt = salrt(t)
     rp = salrp(r, t, p )
@@ -1101,7 +1101,7 @@ def salrp(r, t, p):
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
-    r, t, p = np.asarray(r), np.asarray(t), np.asarray(p)
+    r, t, p = np.asanyarray(r), np.asanyarray(t), np.asanyarray(p)
 
     # eqn (4) p.8 unesco.
     T68 = T68conv(t)
@@ -1168,7 +1168,7 @@ def fp(s, p):
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, p = np.asarray(s), np.asarray(p)
+    s, p = np.asanyarray(s), np.asanyarray(p)
 
 
     #TODO: P = P/10; # to convert db to Bar as used in UNESCO routines (was commented in the original)
@@ -1243,7 +1243,7 @@ def svel(s, t, p):
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t, p = np.asarray(s), np.asarray(t), np.asarray(p)
+    s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
 
     # UNESCO 1983. eqn.33  p.46
     p = p/10  # convert db to bars as used in UNESCO routines
@@ -1367,7 +1367,7 @@ def pres(depth, lat):
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    depth, lat = np.asarray(depth), np.asarray(lat)
+    depth, lat = np.asanyarray(depth), np.asanyarray(lat)
 
     X       = np.sin( abs( np.deg2rad(lat) ) )
     C1      = 5.92E-3 + X**2 * 5.25E-3
@@ -1435,7 +1435,7 @@ def dist(lon, lat, units='km'):
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    lon, lat = np.asarray(lon), np.asarray(lat)
+    lon, lat = np.asanyarray(lon), np.asanyarray(lat)
 
     if lat.size == 1:
         lat = np.repeat(lat, lon.size)
@@ -1511,7 +1511,7 @@ def satAr(s, t):
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t = np.asarray(s), np.asarray(t)
+    s, t = np.asanyarray(s), np.asanyarray(t)
 
     # convert T to Kelvin
     t = cte.Kelvin + T68conv(t)
@@ -1582,7 +1582,7 @@ def satN2(s, t):
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t = np.asarray(s), np.asarray(t)
+    s, t = np.asanyarray(s), np.asanyarray(t)
 
     # convert T to Kelvin
     t = cte.Kelvin + T68conv(t)
@@ -1647,7 +1647,7 @@ def satO2(s, t):
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t = np.asarray(s), np.asarray(t)
+    s, t = np.asanyarray(s), np.asanyarray(t)
 
     # convert T to Kelvin
     t = cte.Kelvin + T68conv(t)
@@ -1715,7 +1715,7 @@ def dens0(s, t):
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t = np.asarray(s), np.asarray(t)
+    s, t = np.asanyarray(s), np.asanyarray(t)
 
     T68 = T68conv(t)
 
@@ -1780,7 +1780,7 @@ def smow(t):
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    t = np.asarray(t)
+    t = np.asanyarray(t)
 
     a0 = 999.842594
     a1 =   6.793952e-2
@@ -1844,7 +1844,7 @@ def seck(s, t, p=0):
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t, p = np.asarray(s), np.asarray(t), np.asarray(p)
+    s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
 
     # Compute compression terms
     p   = p/10.0 # convert from db to atmospheric pressure units
@@ -1956,7 +1956,7 @@ def dens(s, t, p):
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t, p = np.asarray(s), np.asarray(t), np.asarray(p)
+    s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
 
     # UNESCO 1983. eqn.7  p.15
     densP0 = dens0(s, t)
@@ -2021,7 +2021,7 @@ def pden(s, t, p, pr=0):
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t, p, pr = np.asarray(s), np.asarray(t), np.asarray(p), np.asarray(pr)
+    s, t, p, pr = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p), np.asanyarray(pr)
 
     pt   = ptmp(s, t, p, pr)
     pden = dens(s, pt, pr)
@@ -2081,7 +2081,7 @@ def svan(s, t, p=0):
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t, p = np.asarray(s), np.asarray(t), np.asarray(p)
+    s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
 
     svan = 1/dens( s, t, p ) - 1/dens( 35, 0.0, p )
     return svan
@@ -2145,7 +2145,7 @@ def gpan(s, t, p):
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t, p = np.asarray(s), np.asarray(t), np.asarray(p)
+    s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
 
 
     if t.ndim == 1:
@@ -2226,7 +2226,7 @@ def gvel(ga, distm, lat):
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    ga, distm, lat = np.asarray(ga), np.asarray(distm), np.asarray(lat)
+    ga, distm, lat = np.asanyarray(ga), np.asanyarray(distm), np.asanyarray(lat)
 
     f     = cor( ( lat[0:-1] + lat[1:] )/2 )
     lf    = f * distm
@@ -2291,7 +2291,7 @@ def cp(s, t, p):
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t, p = np.asarray(s), np.asarray(t), np.asarray(p)
+    s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
 
     p = p/10. # to convert [db] to [bar] as used in UNESCO routines
     T68 = T68conv(t)
@@ -2442,7 +2442,7 @@ def ptmp(s, t, p, pr=0):
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t, p, pr = np.asarray(s), np.asarray(t), np.asarray(p), np.asarray(pr)
+    s, t, p, pr = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p), np.asanyarray(pr)
 
     # theta1
     del_P  = pr - p
@@ -2512,7 +2512,7 @@ def temp(s, pt, p, pr=0):
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, pt, p, pr = np.asarray(s), np.asarray(pt), np.asarray(p), np.asarray(pr)
+    s, pt, p, pr = np.asanyarray(s), np.asanyarray(pt), np.asanyarray(p), np.asanyarray(pr)
 
     # Carry out inverse calculation by swapping p0 & pr
     t = ptmp(s, pt, pr, p);
@@ -2552,7 +2552,7 @@ def swvel(length, depth):
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    lenth, depth = np.asarray(length), np.asarray(depth)
+    lenth, depth = np.asanyarray(length), np.asanyarray(depth)
 
     k = 2.0 * np.pi / length
     speed = ( cte.gdef * np.tanh(k * depth) / k )**0.5

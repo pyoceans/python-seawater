@@ -94,7 +94,7 @@ def _gibbs(ns, nt, npr, SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     # trick to use single number
     if SA.ndim == 0:
@@ -401,7 +401,7 @@ def  _entropy_part(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     if SA.shape:
         SA[SA < 0] = 0
@@ -468,7 +468,7 @@ def  _gibbs_pt0_pt0(SA, pt0):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, pt0 = np.asarray(SA), np.asarray(pt0)
+    SA, pt0 = np.asanyarray(SA), np.asanyarray(pt0)
 
     # Ensure that SA is non-negative. Allows for array and single number
     if SA.shape:
@@ -521,7 +521,7 @@ def  _entropy_part_zerop(SA, pt0):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, pt0 = np.asarray(SA), np.asarray(pt0)
+    SA, pt0 = np.asanyarray(SA), np.asanyarray(pt0)
 
     # Ensure that SA is non-negative
     if SA.shape:
@@ -569,7 +569,7 @@ def  _enthalpy_SSO_0_CT25(p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    p = np.asarray(p)
+    p = np.asanyarray(p)
 
     SSO = cte.SSO * np.ones( p.shape )
 
@@ -609,7 +609,7 @@ def _specvol_SSO_0_CT25(p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    p = np.asarray(p)
+    p = np.asanyarray(p)
 
     SSO = cte.SSO * np.ones( p.shape )
     specvol_SSO_0_CT25 = (1.00000000e+00 + SSO * ( 2.0777716085618458e-003 +np.sqrt(SSO) * 3.4688210757917340e-006) + p * 6.8314629554123324e-006) / (9.9984380290708214e+002 + SSO * ( 2.8925731541277653e+000 + SSO * 1.9457531751183059e-003) + p * ( 1.1930681818531748e-002 + SSO * 5.9355685925035653e-006 + p * -2.5943389807429039e-008) )
@@ -686,7 +686,7 @@ def  _SP_from_SA_Baltic(SA, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, lon, lat = np.asarray(SA), np.asarray(lon), np.asarray(lat)
+    SA, lon, lat = np.asanyarray(SA), np.asanyarray(lon), np.asanyarray(lat)
 
     xb1, xb2, xb3 = 12.6, 7., 26.
     xb1a, xb3a = 45., 26.
@@ -751,7 +751,7 @@ def  _SA_from_SP_Baltic(SP, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SP, lon, lat = np.asarray(SP), np.asarray(lon), np.asarray(lat)
+    SP, lon, lat = np.asanyarray(SP), np.asanyarray(lon), np.asanyarray(lat)
 
     xb1, xb2, xb3 = 12.6, 7., 26.
     xb1a, xb3a = 45., 26.
@@ -811,7 +811,7 @@ def  _infunnel(SA, CT, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, CT, p = np.asarray(SA), np.asarray(CT), np.asarray(p)
+    SA, CT, p = np.asanyarray(SA), np.asanyarray(CT), np.asanyarray(p)
 
     in_funnel = np.ones( SA.shape )
     Inan = ( np.isnan(SA) | np.isnan(CT) | np.isnan(p) )
@@ -862,10 +862,10 @@ def  _dsa_add_barrier(dsa, lon, lat, longs_ref, lats_ref, dlongs_ref, dlats_ref)
     Modifications:
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
-    dsa = np.asarray(dsa)
-    lon, lat = np.asarray(lon), np.asarray(lat)
-    longs_ref, lats_ref = np.asarray(longs_ref), np.asarray(lats_ref)
-    dlongs_ref, dlats_ref = np.asarray(dlongs_ref), np.asarray(dlats_ref)
+    dsa = np.asanyarray(dsa)
+    lon, lat = np.asanyarray(lon), np.asanyarray(lat)
+    longs_ref, lats_ref = np.asanyarray(longs_ref), np.asanyarray(lats_ref)
+    dlongs_ref, dlats_ref = np.asanyarray(dlongs_ref), np.asanyarray(dlats_ref)
 
     longs_pan = np.array([260.0000, 272.5900, 276.5000, 278.6500, 280.7300, 295.2170])
     lats_pan = np.array([19.5500, 13.9700, 9.6000, 8.1000, 9.3300, 0])
@@ -943,7 +943,7 @@ def  _dsa_add_mean(dsa):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    dsa = np.asarray(dsa)
+    dsa = np.asanyarray(dsa)
 
     #FIXME: there must be a better way
     #FIXME: should be nanmean here in the original...
@@ -1005,7 +1005,7 @@ def  _delta_SA(p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    p, lon, lat = np.asarray(p), np.asarray(lon), np.asarray(lat)
+    p, lon, lat = np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
 
     data = pickle.load( open(os.path.join(datadir + 'gsw_data_v2_0.pkl'),'rb') )
 
@@ -1198,7 +1198,7 @@ def entropy(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     n0, n1 = 0, 1
 
@@ -1251,7 +1251,7 @@ def rho(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     n0, n1 = 0, 1
 
@@ -1302,7 +1302,7 @@ def cp(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     n0, n2 = 0, 2
 
@@ -1363,7 +1363,7 @@ def helmholtz_energy(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     n0, n1 = 0, 1
 
@@ -1426,7 +1426,7 @@ def internal_energy(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     n0, n1 = 0, 1
 
@@ -1489,7 +1489,7 @@ def sound_speed(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     n0, n1, n2 = 0, 1, 2
 
@@ -1548,7 +1548,7 @@ def adiabatic_lapse_rate(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     n0, n1, n2 = 0, 1, 2
 
@@ -1601,7 +1601,7 @@ def chem_potential_relative(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     n0, n1 = 0, 1
 
@@ -1654,7 +1654,7 @@ def specvol(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     n0, n1 = 0, 1
 
@@ -1707,7 +1707,7 @@ def conservative_t(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     #pt0 = potential_t(SA, t, p) #NOTE: original call a faster version (pt0_from_t) instead of potential_t
     pt0 = pt0_from_t(SA, t, p)
@@ -1770,8 +1770,8 @@ def potential_t(SA, t, p, pr=0):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
-    pr = np.asarray(pr)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
+    pr = np.asanyarray(pr)
 
     n0, n2 = 0, 2
 
@@ -1858,7 +1858,7 @@ def enthalpy(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     n0, n1 = 0, 1
 
@@ -1911,7 +1911,7 @@ def chem_potential_water(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     SA[ SA < 0] = 0 # ensure that SA is non-negative
 
@@ -2013,7 +2013,7 @@ def chem_potential_salt(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     chem_potential_salt = chem_potential_relative(SA, t, p) + \
                           chem_potential_water(SA, t, p)
@@ -2065,7 +2065,7 @@ def isochoric_heat_cap(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     n0, n1, n2 = 0, 1, 2
 
@@ -2132,7 +2132,7 @@ def kappa(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     n0, n1, n2 = 0, 1, 2
 
@@ -2193,7 +2193,7 @@ def kappa_const_t(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     n0, n1, n2 = 0, 1, 2
 
@@ -2248,7 +2248,7 @@ def pot_rho(SA, t, p, pr=0):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     pt = potential_t(SA, t, p, pr=pr)
 
@@ -2305,7 +2305,7 @@ def specvol_anom(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     n0, n1 = 0, 1
 
@@ -2371,7 +2371,7 @@ def alpha_wrt_t(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     n0, n1 = 0, 1
 
@@ -2426,7 +2426,7 @@ def alpha_wrt_CT(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     n0, n1, n2 = 0, 1, 2
 
@@ -2486,7 +2486,7 @@ def alpha_wrt_pt(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     n0, n1, n2 = 0, 1, 2
 
@@ -2544,7 +2544,7 @@ def beta_const_t(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     n0, n1 = 0, 1
 
@@ -2597,7 +2597,7 @@ def beta_const_CT(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     n0, n1, n2 = 0, 1, 2
 
@@ -2661,7 +2661,7 @@ def beta_const_pt(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     n0, n1, n2 = 0, 1, 2
 
@@ -2725,7 +2725,7 @@ def osmotic_coefficient(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     n0 = 0
 
@@ -2778,7 +2778,7 @@ def molality(SA):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA = np.asarray(SA)
+    SA = np.asanyarray(SA)
 
     # only >= than zero
     Isalty = (SA >= 0)
@@ -2830,7 +2830,7 @@ def ionic_strength(SA):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA = np.asarray(SA)
+    SA = np.asanyarray(SA)
 
     Z_2 = 1.2452898 # the valence factor of sea salt
 
@@ -2891,7 +2891,7 @@ def CT_from_pt(SA, pt): #NOTE: used in conservative_t(SA, t, p)
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, pt = np.asarray(SA), np.asarray(pt)
+    SA, pt = np.asanyarray(SA), np.asanyarray(pt)
 
     SA[SA < 0] = 0
 
@@ -2980,7 +2980,7 @@ def pt_from_CT(SA, CT): #NOTE: used in specvol_anom(SA,t, p) inside gibbs.py
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, CT = np.asarray(SA), np.asarray(CT)
+    SA, CT = np.asanyarray(SA), np.asanyarray(CT)
 
     SA[SA < 0] = 0
 
@@ -3068,7 +3068,7 @@ def t_from_CT(SA, CT, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, CT, p = np.asarray(SA), np.asarray(CT), np.asarray(p)
+    SA, CT, p = np.asanyarray(SA), np.asanyarray(CT), np.asanyarray(p)
 
     pt0 = pt_from_CT(SA, CT)
 
@@ -3125,7 +3125,7 @@ def pt0_from_t(SA, t, p): #NOTE: potential_t does has the same result (only slow
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asarray(SA), np.asarray(t), np.asarray(p)
+    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     s1 = SA * (35. / cte.SSO)
 
@@ -3211,7 +3211,7 @@ def t_from_entropy(SA, entropy, t_type='pt'):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, entropy = np.asarray(SA), np.asarray(entropy)
+    SA, entropy = np.asanyarray(SA), np.asanyarray(entropy)
 
     SA[SA < 0] = 0
 
@@ -3290,7 +3290,7 @@ def entropy_from_t(SA, t, t_type='pt'):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t = np.asarray(SA), np.asarray(t)
+    SA, t = np.asanyarray(SA), np.asanyarray(t)
 
     SA[SA < 0] = 0
 
@@ -3362,7 +3362,7 @@ def  z_from_p(p, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    p, lat = np.asarray(p), np.asarray(lat)
+    p, lat = np.asanyarray(p), np.asanyarray(lat)
 
     X     = np.sin( np.deg2rad(lat) )
     sin2  = X**2
@@ -3421,7 +3421,7 @@ def  p_from_z(z, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    z, lat = np.asarray(z), np.asarray(lat)
+    z, lat = np.asanyarray(z), np.asanyarray(lat)
 
     X     = np.sin( np.deg2rad(lat) )
     sin2  = X**2
@@ -3489,7 +3489,7 @@ def grav(lat, p=0):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    lat, p, = np.asarray(lat), np.asarray(p)
+    lat, p, = np.asanyarray(lat), np.asanyarray(p)
 
     X = np.sin( np.deg2rad(lat) )
     sin2 = X**2
@@ -3554,7 +3554,7 @@ def distance(lon, lat, p=None):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    lon, lat = np.asarray(lon), np.asarray(lat)
+    lon, lat = np.asanyarray(lon), np.asanyarray(lat)
 
     if (lon.size == 1) & (lat.size == 1):
         raise NameError('more than one point is needed to compute distance')
@@ -3574,7 +3574,7 @@ def distance(lon, lat, p=None):
     if p == None:
         p = np.zeros( lon.shape )
     else:
-        p = np.asarray(p)
+        p = np.asanyarray(p)
 
     if p.ndim > lat.ndim:
         lon = _check_dim(lon, p)
@@ -3664,7 +3664,7 @@ def SA_from_SP(SP, p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SP, p, lon, lat = np.asarray(SP), np.asarray(p), np.asarray(lon), np.asarray(lat)
+    SP, p, lon, lat = np.asanyarray(SP), np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
 
     p = _check_dim(p, SP)
     lat = _check_dim(lat, SP)
@@ -3741,7 +3741,7 @@ def SA_from_Sstar(Sstar, p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    Sstar, p, lon, lat = np.asarray(Sstar), np.asarray(p), np.asarray(lon), np.asarray(lat)
+    Sstar, p, lon, lat = np.asanyarray(Sstar), np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
 
     p = _check_dim(p, Sstar)
     lon = _check_dim(lon, Sstar)
@@ -3813,7 +3813,7 @@ def SP_from_SA(SA, p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, p, lon, lat = np.asarray(SA), np.asarray(p), np.asarray(lon), np.asarray(lat)
+    SA, p, lon, lat = np.asanyarray(SA), np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
 
     p = _check_dim(p, SA)
     lat = _check_dim(lat, SA)
@@ -3889,7 +3889,7 @@ def Sstar_from_SA(SA, p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, p, lon, lat = np.asarray(SA), np.asarray(p), np.asarray(lon), np.asarray(lat)
+    SA, p, lon, lat = np.asanyarray(SA), np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
 
     p = _check_dim(p, SA)
     lon = _check_dim(lon, SA)
@@ -3960,7 +3960,7 @@ def SP_from_Sstar(Sstar, p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    Sstar, p, lon, lat = np.asarray(Sstar), np.asarray(p), np.asarray(lon), np.asarray(lat)
+    Sstar, p, lon, lat = np.asanyarray(Sstar), np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
 
     p = _check_dim(p, Sstar)
     lon = _check_dim(lon, Sstar)
@@ -4042,7 +4042,7 @@ def Sstar_from_SP(SP, p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SP, p, lon, lat = np.asarray(SP), np.asarray(p), np.asarray(lon), np.asarray(lat)
+    SP, p, lon, lat = np.asanyarray(SP), np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
 
     p = _check_dim(p, SP)
     lon = _check_dim(lon, SP)
@@ -4133,7 +4133,7 @@ def SA_Sstar_from_SP(SP, p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SP, p, lon, lat = np.asarray(SP), np.asarray(p), np.asarray(lon), np.asarray(lat)
+    SP, p, lon, lat = np.asanyarray(SP), np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
 
     p = _check_dim(p, SP)
     lat = _check_dim(lat, SP)
@@ -4217,7 +4217,7 @@ def SA_from_rho(rho, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    rho, t, p = np.asarray(rho), np.asarray(t), np.asarray(p)
+    rho, t, p = np.asanyarray(rho), np.asanyarray(t), np.asanyarray(p)
 
     n0, n1 = 0, 1
     v_lab = np.ones( rho.shape ) / rho
@@ -4258,7 +4258,7 @@ class Gibbs:
 
     """
     def __init__(self, SA=None, t=None, p=None):
-        self.SA, self.t, self.p = np.asarray(SA), np.asarray(t), np.asarray(p)
+        self.SA, self.t, self.p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     def entropy(self):
         """
