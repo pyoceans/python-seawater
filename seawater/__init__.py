@@ -49,17 +49,11 @@ The scale factor C^o_p is a constant carefully chosen so that potential temperat
 """
 
 __authors__    = ['Filipe Fernandes']
-__copyright__  = ["CSIRO"]
-__credits__    = ["Filipe Fernandes", "Lindsay Pender","Phil Morgan"]
-__license__    = ["CSIRO"]
+__license__    = ["MIT"]
 __version__    = ["2.0.0"]
 __maintainer__ = ["Filipe Fernandes"]
 __email__      = ["ocefpaf@gmail.com"]
 __status__     = ["Production"]
-__all__        = ["seawater","gibbs","csiro","extras"] #FIXME
-__obs__        = ["csiro: Translated from matlab CSIRO seawater toolbox version 3.2"]
-__obs__        = ["gibbs: Translated from matlab GSW seawater toolbox version 2.0"]
-__web__        = ['http://ocefpaf.tiddlyspot.com/']
 __created__    = ["14-Jan-2010"]
 __modified__   = ["19-Feb-2011"]
-__all__        = ["csiro","gibbs"]
+__all__        = ["seawater","gibbs","csiro","extras"] #FIXME
