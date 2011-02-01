@@ -20,11 +20,19 @@
 from __future__ import division
 import numpy as np
 from seawater import constants as cte
+import os
+
+"""
+DSal Atlas v2 dir
+TODO: Add a option for a local Atlas
+"""
 
 try:
     import cPickle as pickle
 except:
     import pickle
+
+datadir = os.sep.join([os.path.dirname(__file__), 'data/'])
 
 """
 Section A: Library functions
@@ -999,7 +1007,7 @@ def  _delta_SA(p, lon, lat):
 
     p, lon, lat = np.asarray(p), np.asarray(lon), np.asarray(lat)
 
-    data = pickle.load( open('data/gsw_data_v2_0.pkl','rb') )
+    data = pickle.load( open(os.path.join(datadir + 'gsw_data_v2_0.pkl'),'rb') )
 
     delta_SA_ref = data['delta_SA_ref']
     lats_ref = data['lats_ref']
@@ -4456,7 +4464,7 @@ if __name__=='__main__':
                 print "%s: Passed, but small diff ranging from: %s to %s" % ( method.rjust(width), nmax, nmin)
 
     #load test data
-    data = pickle.load( open('data/gsw_cv.pkl','rb') )
+    data = pickle.load( open(os.path.join(datadir + 'gsw_cv.pkl'),'rb') )
     gsw_cv = Dict2Struc(data) # then type data.<tab> to navigate through your variables
 
     STP = Gibbs(gsw_cv.SA_from_SP, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
