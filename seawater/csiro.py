@@ -10,7 +10,7 @@ from sys   import version
 
 
 def T68conv(T90):
-    """
+    r"""
     Convert ITS-90 temperature to IPTS-68
 
     :math:`T68  = T90 * 1.00024`
@@ -18,12 +18,12 @@ def T68conv(T90):
     Parameters
     ----------
     t : array_like
-           temperature [:math:`^\\circ` C (ITS-90)]
+           temperature [:math:`^\circ` C (ITS-90)]
 
     Returns
     -------
     t : array_like
-           temperature [:math:`^\\circ` C (IPTS-68)]
+           temperature [:math:`^\circ` C (IPTS-68)]
 
     See Also
     --------
@@ -32,7 +32,7 @@ def T68conv(T90):
     Notes
     -----
     The International Practical Temperature Scale of 1968 (IPTS-68) need to be correct to the ITS-90.
-    This linear transformation is accurate within 0.5 :math:`^\\circ` C for conversion between IPTS-68 and ITS-90 over the oceanographic temperature range.
+    This linear transformation is accurate within 0.5 :math:`^\circ` C for conversion between IPTS-68 and ITS-90 over the oceanographic temperature range.
 
     Examples
     --------
@@ -48,31 +48,32 @@ def T68conv(T90):
                    10-11-24. Filipe Fernandes, first version.
 
     """
-    # Convert input to numpy arrays
+
     T90 = np.asarray(T90)
 
     T68 = T90 * 1.00024
     return T68
 
 def T90conv(t, t_type='T68'):
-    """
+    r"""
     Convert IPTS-68 or IPTS-48 to temperature to ITS-90
 
-    :math:`T90 = T68 / 1.00024 `
+    ..math:
+        T90 = T68 / 1.00024
 
-    :math:`T90 = T48 - (4.4e-6) * T48 * (100-T48) ) / 1.00024`
+        T90 = T48 - (4.4e-6) * T48 * (100-T48) ) / 1.00024
 
     Parameters
     ----------
     t : array_like
-           temperature [:math:`^\\circ` C (IPTS-68) or (IPTS-48)]
+           temperature [:math:`^\circ` C (IPTS-68) or (IPTS-48)]
     t_type : string, optional
             'T68' (default) or 'T48'
 
     Returns
     -------
     T90 : array_like
-           temperature [:math:`^\\circ` C (ITS-90)]
+           temperature [:math:`^\circ` C (ITS-90)]
 
     See Also
     --------
@@ -81,7 +82,7 @@ def T90conv(t, t_type='T68'):
     Notes
     -----
     The International Practical Temperature Scale of 1968 (IPTS-68) need to be correct to the ITS-90.
-    This linear transformation is accurate within 0.5 :math:`^\\circ` C for conversion between IPTS-68 and ITS-90 over the oceanographic temperature range.
+    This linear transformation is accurate within 0.5 :math:`^\circ` C for conversion between IPTS-68 and ITS-90 over the oceanographic temperature range.
 
     Examples
     --------
@@ -102,7 +103,7 @@ def T90conv(t, t_type='T68'):
                    2010-12-24. Filipe Fernandes, added T48.
 
     """
-    # Convert input to numpy arrays
+
     t = np.asarray(t)
 
     if t_type == 'T68':
@@ -120,7 +121,7 @@ Original seawater functions
 ===========================
 """
 def adtg(s, t, p):
-    """
+    r"""
     Calculates adiabatic temperature gradient as per UNESCO 1983 routines.
 
     Parameters
@@ -128,14 +129,14 @@ def adtg(s, t, p):
     s(p) : array_like
            salinity [psu (PSS-78)]
     t(p) : array_like
-           temperature [:math:`^\\circ` C (ITS-90)]
+           temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]. The shape can be "broadcasted"
 
     Returns
     -------
     adtg : array_like
-           adiabatic temperature gradient [:math:`^\\circ` C db :sup:`-1`]
+           adiabatic temperature gradient [:math:`^\circ` C db :sup:`-1`]
 
     See Also
     --------
@@ -177,7 +178,7 @@ def adtg(s, t, p):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-16. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     s, t, p = np.asarray(s), np.asarray(t), np.asarray(p)
 
     T68 = T68conv(t)
@@ -211,7 +212,7 @@ def adtg(s, t, p):
     return adtg
 
 def alpha(s, t, p, pt=False):
-    """
+    r"""
     Calculate the thermal expansion coefficient.
 
     Parameters
@@ -219,7 +220,7 @@ def alpha(s, t, p, pt=False):
     s(p) : array_like
            salinity [psu (PSS-78)]
     t(p) : array_like
-           temperature or potential temperature [:math:`^\\circ` C (ITS-90)]
+           temperature or potential temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]. The shape can be "broadcasted"
     pt : bool
@@ -228,7 +229,7 @@ def alpha(s, t, p, pt=False):
     Returns
     -------
     alpha : array_like
-            thermal expansion coeff (:math:`\\alpha`) [:math:`^\\circ` C :sup:`-1`]
+            thermal expansion coeff (:math:`\alpha`) [:math:`^\circ` C :sup:`-1`]
 
     See Also
     --------
@@ -261,22 +262,22 @@ def alpha(s, t, p, pt=False):
                    10-08-16. Filipe Fernandes, Reformulated docstring.
     """
 
-    # Convert input to numpy arrays
+
     s, t, p, pt = np.asarray(s), np.asarray(t), np.asarray(p), np.asarray(pt)
 
     alpha = aonb(s, t, p, pt) * beta(s, t, p, pt)
     return alpha
 
 def aonb(s, t, p, pt=False):
-    """
-    Calculate :math:`\\alpha/\\beta`.
+    r"""
+    Calculate :math:`\alpha/\beta`.
 
     Parameters
     ----------
     s(p) : array_like
            salinity [psu (PSS-78)]
     t(p) : array_like
-           temperature or potential temperature [:math:`^\\circ` C (ITS-90)]
+           temperature or potential temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]. The shape can be "broadcasted"
     pt : bool
@@ -285,7 +286,7 @@ def aonb(s, t, p, pt=False):
     Returns
     -------
     aonb : array_like
-           :math:`\\alpha/\\beta` [psu :math:`^\\circ` C :sup:`-1`]
+           :math:`\alpha/\beta` [psu :math:`^\circ` C :sup:`-1`]
 
     See Also
     --------
@@ -321,7 +322,6 @@ def aonb(s, t, p, pt=False):
     """
 
     # Ensure we use ptmp in calculations
-    # Convert input to numpy arrays
     s, t, p, pt = np.asarray(s), np.asarray(t), np.asarray(p), np.asarray(pt)
 
     if pt==False:
@@ -339,7 +339,7 @@ def aonb(s, t, p, pt=False):
     c5  =  0.512857e-12
     c6  = -0.302285e-13
 
-    # Now calculate the thermal expansion saline contraction ratio adb
+    # Now calculate the thermal expansion saline contraction ratio aonb
     sm35  = s - 35.0
     aonb  = np.polyval(c1, t) + sm35 * ( np.polyval(c2, t) \
             + np.polyval(c2a, p) ) \
@@ -349,15 +349,15 @@ def aonb(s, t, p, pt=False):
     return aonb
 
 def beta(s, t, p, pt=False):
-    """
-    Calculate the saline contraction coefficient :math:`\\beta` as defined by T.J. McDougall.
+    r"""
+    Calculate the saline contraction coefficient :math:`\beta` as defined by T.J. McDougall.
 
     Parameters
     ----------
     s(p) : array_like
            salinity [psu (PSS-78)]
     t(p) : array_like
-           temperature or potential temperature [:math:`^\\circ` C (ITS-90)]
+           temperature or potential temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]. The shape can be "broadcasted"
     pt : bool
@@ -396,7 +396,7 @@ def beta(s, t, p, pt=False):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-16. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     s, t, p, pt = np.asarray(s), np.asarray(t), np.asarray(p), np.asarray(pt)
 
     # Ensure we use ptmp in calculations
@@ -424,23 +424,23 @@ def beta(s, t, p, pt=False):
     return beta
 
 def bfrq(s, t, p, lat=None):
-    """
-    Calculates Brunt-Vaisala Frequency squared (N :sup:`2`) at the mid depths from the equation:
+    r"""
+    Calculates Brünt-Väisälä Frequency squared (N :sup:`2`) at the mid depths from the equation:
 
     .. math::
-        N^{2} = \\frac{-g}{\\sigma_{\\theta}} \\frac{d\\sigma_{\\theta}}{dz}
+        N^{2} = \frac{-g}{\sigma_{\theta}} \frac{d\sigma_{\theta}}{dz}
 
     Also calculates Potential Vorticity from:
 
     .. math::
-        q=f \\frac{N^2}{g}
+        q=f \frac{N^2}{g}
 
     Parameters
     ----------
     s(p) : array_like
            salinity [psu (PSS-78)]
     t(p) : array_like
-           temperature or potential temperature [:math:`^\\circ` C (ITS-90)]
+           temperature or potential temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]. The shape can be "broadcasted"
 
@@ -451,7 +451,7 @@ def bfrq(s, t, p, lat=None):
     Returns
     -------
     n2 : array_like
-           Brünt-Väisälä Frequency squared (M-1xN)  [rad s :sup:`-2`]
+           Brünt-Väisälä Frequency squared (M-1xN)  [rad s :sup:`-2`]
     q : array_like
            planetary potential vorticity (M-1xN)  [ m s :sup:`-1`]
     p_ave : array_like
@@ -495,7 +495,6 @@ def bfrq(s, t, p, lat=None):
     """
 
     #TODO: Check S and T have length at least of 2
-    # Convert input to numpy arrays
     s, t, p, lat = np.asarray(s), np.asarray(t), np.asarray(p), np.asarray(lat)
 
     # if pressure is a vector and t-s aren't 'make it a array of the same size as t-s
@@ -527,20 +526,20 @@ def bfrq(s, t, p, lat=None):
     return n2, q, p_ave
 
 def depth(p, lat):
-    """
-    Calculates depth in metres from pressure in dbars.
+    r"""
+    Calculates depth in meters from pressure in dbars.
 
     Parameters
     ----------
     p : array_like
         pressure [db].
     lat : number or array_like
-          latitude in decimal degress north [-90..+90]. The shape can be "broadcasted"
+          latitude in decimal degrees north [-90..+90]. The shape can be "broadcasted"
 
     Returns
     -------
     z : array_like
-        depth [metres]
+        depth [meters]
 
     Examples
     --------
@@ -567,7 +566,7 @@ def depth(p, lat):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     p, lat = np.asarray(p), np.asarray(lat)
 
     # Eqn 25, p26.  UNESCO 1983.
@@ -589,7 +588,7 @@ def depth(p, lat):
     return depthm
 
 def grav(lat, z=0):
-    """
+    r"""
     Calculates acceleration due to gravity as function of latitude.
 
     Parameters
@@ -598,7 +597,7 @@ def grav(lat, z=0):
          latitude in decimal degrees north [-90..+90].
 
     z : number or array_like. Default z = 0
-        height in metres (+ve above sea surface, -ve below).
+        height in meters (+ve above sea surface, -ve below).
 
     Returns
     -------
@@ -629,11 +628,11 @@ def grav(lat, z=0):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     lat, z = np.asarray(lat), np.asarray(z)
 
     # Eqn p27.  UNESCO 1983.
-    lat     = abs(lat)
+    lat     = np.abs(lat)
     X       = np.sin( np.deg2rad(lat) )
     sin2    = X * X
     grav    = 9.780318 * ( 1.0 + ( 5.2788E-3 + 2.36E-5 * sin2 ) * sin2 )
@@ -641,16 +640,16 @@ def grav(lat, z=0):
     return  grav
 
 def cor(lat):
-    """
+    r"""
     Calculates the Coriolis factor :math:`f` defined by:
 
     .. math::
-        f = 2 \\Omega \\sin(lat)
+        f = 2 \Omega \sin(lat)
 
     where:
 
     .. math::
-        \\Omega = \\frac{2 \\pi}{\\textrm{sidereal day}} = 7.2921150e^{-5} \\textrm{ radians sec}^{-1}
+        \Omega = \frac{2 \pi}{\textrm{sidereal day}} = 7.2921150e^{-5} \textrm{ radians sec}^{-1}
 
 
     Parameters
@@ -679,7 +678,7 @@ def cor(lat):
 
     References
     ----------
-    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical Oceanogrpahy Pergamon Press Sydney. ISBN 0-08-028728-X
+    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
 
     .. [2] A.E. Gill 1982. p.54  eqn 3.7.15 "Atmosphere-Ocean Dynamics" Academic Press: New York. ISBN: 0-12-283522-0
     .. [3] Groten, E., 2004: Fundamental Parameters and Current (2004) Best Estimates of the Parameters of Common Relevance to Astronomy, Geodesy, and Geodynamics. Journal of Geodesy, 77, pp. 724-797.
@@ -688,7 +687,7 @@ def cor(lat):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     lat = np.asarray(lat)
 
     # Eqn p27.  UNESCO 1983.
@@ -696,7 +695,7 @@ def cor(lat):
     return f
 
 def cndr(s, t, p):
-    """
+    r"""
     Calculates conductivity ratio.
 
     Parameters
@@ -704,7 +703,7 @@ def cndr(s, t, p):
     s(p) : array_like
            salinity [psu (PSS-78)]
     t(p) : array_like
-           temperature [:math:`^\\circ` C (ITS-90)]
+           temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]. The shape can be "broadcasted"
 
@@ -747,14 +746,14 @@ def cndr(s, t, p):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     s, t, p = np.asarray(s), np.asarray(t), np.asarray(p)
 
     T68 = T68conv(t)
 
     # DO A NEWTON-RAPHSON ITERATION FOR INVERSE INTERPOLATION OF Rt FROM S.
     Rx = np.sqrt( s / 35.0 ) # first guess at Rx = sqrt(Rt) NOTE: gibbs isn't taking the square root here!
-    SInc = sals( Rx**2, t ) # S INCrement (guess) from Rx
+    SInc = sals( Rx**2, t ) # S Increment (guess) from Rx
     iloop = 0
     end_loop = 0
     while True:
@@ -791,16 +790,16 @@ def cndr(s, t, p):
     return r
 
 def sals(rt, t):
-    """
+    r"""
     Salinity of sea water as a function of Rt and T.
     UNESCO 1983 polynomial.
 
     Parameters
     ----------
     rt : array_like
-         :math:`rt(s,t) = \\frac{C(s,t,0)}{C(35, t(\\textrm{IPTS-68}), 0)}`
+         :math:`rt(s,t) = \frac{C(s,t,0)}{C(35, t(\textrm{IPTS-68}), 0)}`
     t : array_like
-        temperature [:math:`^\\circ` C (ITS-90)]
+        temperature [:math:`^\circ` C (ITS-90)]
 
     Returns
     -------
@@ -834,7 +833,7 @@ def sals(rt, t):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     rt, t = np.asarray(rt), np.asarray(t)
 
     # eqn (1) & (2) p6,7 unesco
@@ -869,20 +868,20 @@ def sals(rt, t):
     return s
 
 def salds(rtx, delt):
-    """
-    Calculates Salinity differential (:math:`\\frac{dS}{d(\\sqrt{Rt})}`) at constant temperature.
+    r"""
+    Calculates Salinity differential (:math:`\frac{dS}{d(\sqrt{Rt})}`) at constant temperature.
 
     Parameters
     ----------
     rtx : array_like
-          :math:`\\sqrt{rt}`
+          :math:`\sqrt{rt}`
     delt : array_like
-           t-15 [:math:`^\\circ` C (IPTS-68)]
+           t-15 [:math:`^\circ` C (IPTS-68)]
 
     Returns
     -------
     ds : array_like
-         :math:`\\frac{dS}{d rtx}`
+         :math:`\frac{dS}{d rtx}`
 
     See Also
     --------
@@ -911,7 +910,7 @@ def salds(rtx, delt):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     rtx, delt = np.asarray(rtx), np.asarray(delt)
 
     #a0 =  0.0080 #TODO: unused in the code, but present in the original
@@ -938,17 +937,17 @@ def salds(rtx, delt):
     return ds
 
 def salrt(t):
-    """
+    r"""
     Equation for rt used in calculating salinity. UNESCO 1983 polynomial.
 
     .. math::
-        rt(t) = \\frac{C(35,t,0)}{C(35,15(\\textrm{IPTS-68}), 0)}
+        rt(t) = \frac{C(35,t,0)}{C(35,15(\textrm{IPTS-68}), 0)}
 
 
     Parameters
     ----------
       t : array_like
-          temperature [:math:`^\\circ` C (ITS-90)]
+          temperature [:math:`^\circ` C (ITS-90)]
 
     Returns
     -------
@@ -981,7 +980,7 @@ def salrt(t):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     t = np.asarray(t)
 
     #Eqn (3) p.7 UNESCO.
@@ -997,15 +996,15 @@ def salrt(t):
     return rt
 
 def salt(r, t, p):
-    """
+    r"""
     Calculates Salinity from conductivity ratio. UNESCO 1983 polynomial.
 
     Parameters
     ----------
     r : array_like
-            conductivity ratio :math:`R = \\frac{C(S,T,P)}{C(35,15(IPTS-68),0)}` [no units]
+            conductivity ratio :math:`R = \frac{C(S,T,P)}{C(35,15(IPTS-68),0)}` [no units]
     t : array_like
-        temperature [:math:`^\\circ` C (ITS-90)]
+        temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -1042,7 +1041,7 @@ def salt(r, t, p):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     r, t, p = np.asarray(r), np.asarray(t), np.asarray(p)
 
     rt = salrt(t)
@@ -1053,26 +1052,26 @@ def salt(r, t, p):
     return s
 
 def salrp(r, t, p):
-    """
+    r"""
     Equation for Rp used in calculating salinity. UNESCO 1983 polynomial.
 
     .. math::
-        Rp(S,T,P) = \\frac{C(S,T,P)}{C(S,T,0)}
+        Rp(S,T,P) = \frac{C(S,T,P)}{C(S,T,0)}
 
 
     Parameters
     ----------
     r : array_like
-        conductivity ratio :math:`R = \\frac{C(S,T,P)}{C(35,15(IPTS-68),0)}` [no units]
+        conductivity ratio :math:`R = \frac{C(S,T,P)}{C(35,15(IPTS-68),0)}` [no units]
     t : array_like
-        temperature [:math:`^\\circ` C (ITS-90)]
+        temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]
 
     Returns
     -------
     rp : array_like
-        conductivity ratio :math:`Rp(S,T,P) = \\frac{C(S,T,P)}{C(S,T,0)}` [no units]
+        conductivity ratio :math:`Rp(S,T,P) = \frac{C(S,T,P)}{C(S,T,0)}` [no units]
 
     See Also
     --------
@@ -1101,7 +1100,7 @@ def salrp(r, t, p):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     r, t, p = np.asarray(r), np.asarray(t), np.asarray(p)
 
     # eqn (4) p.8 unesco.
@@ -1122,7 +1121,7 @@ def salrp(r, t, p):
     return rp
 
 def fp(s, p):
-    """
+    r"""
     Freezing point of Sea Water using UNESCO 1983 polynomial.
 
     Parameters
@@ -1135,7 +1134,7 @@ def fp(s, p):
     Returns
     -------
     fp : array_like
-        freezing point temperature [:math:`^\\circ` C (ITS-90)]
+        freezing point temperature [:math:`^\circ` C (ITS-90)]
 
     See Also
     --------
@@ -1168,7 +1167,7 @@ def fp(s, p):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     s, p = np.asarray(s), np.asarray(p)
 
 
@@ -1185,7 +1184,7 @@ def fp(s, p):
     return fp
 
 def svel(s, t, p):
-    """
+    r"""
     Sound Velocity in sea water using UNESCO 1983 polynomial.
 
     Parameters
@@ -1193,7 +1192,7 @@ def svel(s, t, p):
     s(p) : array_like
            salinity [psu (PSS-78)]
     t(p) : array_like
-           temperature [:math:`^\\circ` C (ITS-90)]
+           temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]. The shape can be "broadcasted"
 
@@ -1243,7 +1242,7 @@ def svel(s, t, p):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     s, t, p = np.asarray(s), np.asarray(t), np.asarray(p)
 
     # UNESCO 1983. eqn.33  p.46
@@ -1326,15 +1325,15 @@ def svel(s, t, p):
     return svel
 
 def pres(depth, lat):
-    """
+    r"""
     Calculates pressure in dbars from depth in meters.
 
     Parameters
     ----------
     depth : array_like
-            depth [metres]
+            depth [meters]
     lat : array_like
-          latitude in decimal degress north [-90..+90]
+          latitude in decimal degrees north [-90..+90]
           The shape can be "broadcasted"
 
     Returns
@@ -1367,7 +1366,7 @@ def pres(depth, lat):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     depth, lat = np.asarray(depth), np.asarray(lat)
 
     X       = np.sin( abs( np.deg2rad(lat) ) )
@@ -1376,7 +1375,7 @@ def pres(depth, lat):
     return pres
 
 def dist(lon, lat, units='km'):
-    """
+    r"""
     Calculate distance between two positions on globe using the "Plane
     Sailing" method. Also uses simple geometry to calculate the bearing of
     the path between position pairs.
@@ -1403,7 +1402,7 @@ def dist(lon, lat, units='km'):
 
     Notes
     -----
-    Usually used to creat a distance vector to plot hydrographic data. However, pay attention to the phaseangle to aviod apples and oranges!
+    Usually used to create a distance vector to plot hydrographic data. However, pay attention to the phaseangle to avoid apples and oranges!
 
     Also not that the input order for the matlab version is lat,lon (alphabetic order),
     while this version is lon,lat (geometric order).
@@ -1427,7 +1426,7 @@ def dist(lon, lat, units='km'):
 
     References
     ----------
-    .. [1] The PLANE SAILING method as described in "CELESTIAL NAVIGATION" 1989 by Dr. P. Gormley. The Australian Antartic Division.
+    .. [1] The PLANE SAILING method as described in "CELESTIAL NAVIGATION" 1989 by Dr. P. Gormley. The Australian Antarctic Division.
 
     Modifications: Phil Morgan and Steve Rintoul 92-02-10
                    99-06-25. Lindsay Pender, Function name change from distance to sw_dist.
@@ -1435,7 +1434,7 @@ def dist(lon, lat, units='km'):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     lon, lat = np.asarray(lon), np.asarray(lat)
 
     if lat.size == 1:
@@ -1465,15 +1464,15 @@ def dist(lon, lat, units='km'):
     return dist, phaseangle
 
 def satAr(s, t):
-    """
-    Solubility (satuaration) of Argon (Ar) in sea water.
+    r"""
+    Solubility (saturation) of Argon (Ar) in sea water.
 
     Parameters
     ----------
     s : array_like
         salinity [psu (PSS-78)]
     t : array_like
-        temperature [:math:`^\\circ` C (ITS-90)]
+        temperature [:math:`^\circ` C (ITS-90)]
 
     Returns
     -------
@@ -1511,7 +1510,7 @@ def satAr(s, t):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     s, t = np.asarray(s), np.asarray(t)
 
     # convert T to Kelvin
@@ -1535,15 +1534,15 @@ def satAr(s, t):
     return c
 
 def satN2(s, t):
-    """
-    Solubility (satuaration) of Nitrogen (N2) in sea water.
+    r"""
+    Solubility (saturation) of Nitrogen (N2) in sea water.
 
     Parameters
     ----------
     s : array_like
         salinity [psu (PSS-78)]
     t : array_like
-        temperature [:math:`^\\circ` C (ITS-90)]
+        temperature [:math:`^\circ` C (ITS-90)]
 
     Returns
     -------
@@ -1582,7 +1581,7 @@ def satN2(s, t):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     s, t = np.asarray(s), np.asarray(t)
 
     # convert T to Kelvin
@@ -1605,15 +1604,15 @@ def satN2(s, t):
     return c
 
 def satO2(s, t):
-    """
-    Solubility (satuaration) of Oxygen (O2) in sea water.
+    r"""
+    Solubility (saturation) of Oxygen (O2) in sea water.
 
     Parameters
     ----------
     s : array_like
         salinity [psu (PSS-78)]
     t : array_like
-        temperature [:math:`^\\circ` C (ITS-68)]
+        temperature [:math:`^\circ` C (ITS-68)]
 
     Returns
     -------
@@ -1647,7 +1646,7 @@ def satO2(s, t):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     s, t = np.asarray(s), np.asarray(t)
 
     # convert T to Kelvin
@@ -1670,7 +1669,7 @@ def satO2(s, t):
     return c
 
 def dens0(s, t):
-    """
+    r"""
     Density of Sea Water at atmospheric pressure.
 
     Parameters
@@ -1678,7 +1677,7 @@ def dens0(s, t):
     s(p=0) : array_like
              salinity [psu (PSS-78)]
     t(p=0) : array_like
-             temperature [:math:`^\\circ` C (ITS-90)]
+             temperature [:math:`^\circ` C (ITS-90)]
 
     Returns
     -------
@@ -1691,7 +1690,7 @@ def dens0(s, t):
 
     Notes
     -----
-    TODO: used to ...
+    TODO
 
     Examples
     --------
@@ -1715,7 +1714,7 @@ def dens0(s, t):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     s, t = np.asarray(s), np.asarray(t)
 
     T68 = T68conv(t)
@@ -1737,13 +1736,13 @@ def dens0(s, t):
     return dens0
 
 def smow(t):
-    """
-    Denisty of Standard Mean Ocean Water (Pure Water) using EOS 1980.
+    r"""
+    Density of Standard Mean Ocean Water (Pure Water) using EOS 1980.
 
     Parameters
     ----------
     t : array_like
-        temperature [:math:`^\\circ` C (ITS-90)]
+        temperature [:math:`^\circ` C (ITS-90)]
 
     Returns
     -------
@@ -1780,7 +1779,7 @@ def smow(t):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     t = np.asarray(t)
 
     a0 = 999.842594
@@ -1795,7 +1794,7 @@ def smow(t):
     return dens
 
 def seck(s, t, p=0):
-    """
+    r"""
     Secant Bulk Modulus (K) of Sea Water using Equation of state 1980. UNESCO polynomial implementation.
 
     Parameters
@@ -1803,7 +1802,7 @@ def seck(s, t, p=0):
     s(p) : array_like
            salinity [psu (PSS-78)]
     t(p) : array_like
-           temperature [:math:`^\\circ` C (ITS-90)]
+           temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]. The shape can be "broadcasted"
 
@@ -1844,7 +1843,7 @@ def seck(s, t, p=0):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     s, t, p = np.asarray(s), np.asarray(t), np.asarray(p)
 
     # Compute compression terms
@@ -1907,7 +1906,7 @@ def seck(s, t, p=0):
     return K
 
 def dens(s, t, p):
-    """
+    r"""
     Density of Sea Water using UNESCO 1983 (EOS 80) polynomial.
 
     Parameters
@@ -1915,7 +1914,7 @@ def dens(s, t, p):
     s(p) : array_like
            salinity [psu (PSS-78)]
     t(p) : array_like
-           temperature [:math:`^\\circ` C (ITS-90)]
+           temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]. The shape can be "broadcasted"
 
@@ -1956,7 +1955,7 @@ def dens(s, t, p):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     s, t, p = np.asarray(s), np.asarray(t), np.asarray(p)
 
     # UNESCO 1983. eqn.7  p.15
@@ -1967,7 +1966,7 @@ def dens(s, t, p):
     return dens
 
 def pden(s, t, p, pr=0):
-    """
+    r"""
     Calculates potential density of water mass relative to the specified reference pressure by pden = dens(S, ptmp, PR).
 
     Parameters
@@ -1975,7 +1974,7 @@ def pden(s, t, p, pr=0):
     s(p) : array_like
            salinity [psu (PSS-78)]
     t(p) : array_like
-           temperature [:math:`^\\circ` C (ITS-90)]
+           temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]. The shape can be "broadcasted"
     pr : number
@@ -1984,7 +1983,7 @@ def pden(s, t, p, pr=0):
     Returns
     -------
     pden : array_like
-           potential denisty relative to the ref. pressure [kg m :sup:3]
+           potential density relative to the ref. pressure [kg m :sup:3]
 
     See Also
     --------
@@ -2006,7 +2005,7 @@ def pden(s, t, p, pr=0):
     array([  999.842594  ,   999.79523994,   995.65113374,   996.36115932,
             1028.10633141,  1028.15738545,  1021.72863949,  1022.59634627])
 
-    :math:`\\sigma_{4}` (at 4000 db)
+    :math:`\sigma_{4}` (at 4000 db)
 
     >>> sw.pden(s, t, p, 4000) - 1000
     array([ 19.2895493 ,  19.33422519,  12.43271053,  13.27563816,
@@ -2021,7 +2020,7 @@ def pden(s, t, p, pr=0):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     s, t, p, pr = np.asarray(s), np.asarray(t), np.asarray(p), np.asarray(pr)
 
     pt   = ptmp(s, t, p, pr)
@@ -2029,7 +2028,7 @@ def pden(s, t, p, pr=0):
     return pden
 
 def svan(s, t, p=0):
-    """
+    r"""
     Specific Volume Anomaly calculated as svan = 1/dens(s, t, p) - 1/dens(35, 0, p).
 
     Note that it is often quoted in literature as 1e8*units.
@@ -2039,7 +2038,7 @@ def svan(s, t, p=0):
     s(p) : array_like
            salinity [psu (PSS-78)]
     t(p) : array_like
-           temperature [:math:`^\\circ` C (ITS-90)]
+           temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]. The shape can be "broadcasted"
 
@@ -2073,7 +2072,7 @@ def svan(s, t, p=0):
     ----------
     .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    .. [2] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical Oceanogrpahy Pergamon Press Sydney. ISBN 0-08-028728-X
+    .. [2] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
 
     Modifications: Phil Morgan 92-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
@@ -2081,14 +2080,14 @@ def svan(s, t, p=0):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     s, t, p = np.asarray(s), np.asarray(t), np.asarray(p)
 
     svan = 1/dens( s, t, p ) - 1/dens( 35, 0.0, p )
     return svan
 
 def gpan(s, t, p):
-    """
+    r"""
     Geopotential Anomaly calculated as the integral of svan from the
     the sea surface to the bottom. THUS RELATIVE TO SEA SURFACE.
 
@@ -2097,7 +2096,7 @@ def gpan(s, t, p):
     s(p) : array_like
            salinity [psu (PSS-78)]
     t(p) : array_like
-           temperature [:math:`^\\circ` C (ITS-90)]
+           temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]. The shape can be "broadcasted"
     axis : int, optional
@@ -2115,7 +2114,7 @@ def gpan(s, t, p):
 
     Notes
     -----
-    Adapted method from Pond and Pickard (p76) to calc gpan relative to sea surface whereas P&P calculated relative to the deepest common depth. Note that older literature may use units of "dynamic decimeter" for above.
+    Adapted method from Pond and Pickard (p76) to calculate gpan relative to sea surface whereas P&P calculated relative to the deepest common depth. Note that older literature may use units of "dynamic decimeter" for above.
 
     TODO: example with values that make some sense
 
@@ -2138,14 +2137,14 @@ def gpan(s, t, p):
 
     References
     ----------
-    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical Oceanogrpahy Pergamon Press Sydney. ISBN 0-08-028728-X
+    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
 
     Modifications: Phil Morgan 92-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     s, t, p = np.asarray(s), np.asarray(t), np.asarray(p)
 
 
@@ -2167,7 +2166,7 @@ def gpan(s, t, p):
     return ga
 
 def gvel(ga, distm, lat):
-    """
+    r"""
     Calculates geostrophic velocity given the geopotential anomaly
     and position of each station.
 
@@ -2196,7 +2195,7 @@ def gvel(ga, distm, lat):
 
     TODO: dim(m, nstations-1) or pass axis?
 
-    TODO: add example with a referece level.
+    TODO: add example with a reference level.
 
     TODO: example with values that make some sense.
 
@@ -2220,13 +2219,13 @@ def gvel(ga, distm, lat):
 
     References
     ----------
-    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical Oceanogrpahy Pergamon Press Sydney. ISBN 0-08-028728-X
+    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
 
     Modifications: Phil Morgan 1992/03/26 (morgan@ml.csiro.au)
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     ga, distm, lat = np.asarray(ga), np.asarray(distm), np.asarray(lat)
 
     f     = cor( ( lat[0:-1] + lat[1:] )/2 )
@@ -2236,7 +2235,7 @@ def gvel(ga, distm, lat):
     return vel
 
 def cp(s, t, p):
-    """
+    r"""
     Heat Capacity of Sea Water using UNESCO 1983 polynomial.
 
     Parameters
@@ -2244,7 +2243,7 @@ def cp(s, t, p):
     s(p) : array_like
            salinity [psu (PSS-78)]
     t(p) : array_like
-           temperature [:math:`^\\circ` C (ITS-90)]
+           temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]. The shape can be "broadcasted"
 
@@ -2291,7 +2290,7 @@ def cp(s, t, p):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     s, t, p = np.asarray(s), np.asarray(t), np.asarray(p)
 
     p = p/10. # to convert [db] to [bar] as used in UNESCO routines
@@ -2385,7 +2384,7 @@ def cp(s, t, p):
     return cp
 
 def ptmp(s, t, p, pr=0):
-    """
+    r"""
     Calculates potential temperature as per UNESCO 1983 report.
 
     Parameters
@@ -2393,7 +2392,7 @@ def ptmp(s, t, p, pr=0):
     s(p) : array_like
            salinity [psu (PSS-78)]
     t(p) : array_like
-           temperature [:math:`^\\circ` C (ITS-90)]
+           temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]. The shape can be "broadcasted"
     pr : array_like
@@ -2402,7 +2401,7 @@ def ptmp(s, t, p, pr=0):
     Returns
     -------
     pt : array_like
-         potential temperature relative to PR [:math:`^\\circ` C (ITS-90)]
+         potential temperature relative to PR [:math:`^\circ` C (ITS-90)]
 
     See Also
     --------
@@ -2442,7 +2441,7 @@ def ptmp(s, t, p, pr=0):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     s, t, p, pr = np.asarray(s), np.asarray(t), np.asarray(p), np.asarray(pr)
 
     # theta1
@@ -2467,15 +2466,15 @@ def ptmp(s, t, p, pr=0):
     return pt
 
 def temp(s, pt, p, pr=0):
-    """
-    Calculates temperature from potential temperature at the reference pressure PR and in-situ pressure P.
+    r"""
+    Calculates temperature from potential temperature at the reference pressure PR and in situ pressure P.
 
     Parameters
     ----------
     s(p) : array_like
         salinity [psu (PSS-78)]
     pt(p) : array_like
-         potential temperature [:math:`^\\circ` C (ITS-90)]
+         potential temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db]. The shape can be "broadcasted"
     pr : array_like
@@ -2484,7 +2483,7 @@ def temp(s, pt, p, pr=0):
     Returns
     -------
     temp : array_like
-           temperature [:math:`^\\circ` C (ITS-90)]
+           temperature [:math:`^\circ` C (ITS-90)]
 
     See Also
     --------
@@ -2512,7 +2511,7 @@ def temp(s, pt, p, pr=0):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     s, pt, p, pr = np.asarray(s), np.asarray(pt), np.asarray(p), np.asarray(pr)
 
     # Carry out inverse calculation by swapping p0 & pr
@@ -2521,10 +2520,10 @@ def temp(s, pt, p, pr=0):
     return t
 
 def swvel(length, depth):
-    """
+    r"""
     Calculates surface wave velocity.
 
-    lenth : array_like
+    length : array_like
             wave length
     depth : array_like
             water depth [meters]
@@ -2552,7 +2551,7 @@ def swvel(length, depth):
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
-    # Convert input to numpy arrays
+
     lenth, depth = np.asarray(length), np.asarray(depth)
 
     k = 2.0 * np.pi / length
@@ -2560,7 +2559,7 @@ def swvel(length, depth):
     return speed
 
 def test(fileout):
-    """
+    r"""
     Execute test routines to test and verify SEAWATER Library routines for your platform. Prints output to file.
 
     Notes
@@ -2997,7 +2996,7 @@ def test(fileout):
     print >>f, '********************************************************'
     print >>f, 'Comparison of accepted values from Weiss, R.F. 1979 '
     print >>f, '"The solubility of nitrogen, oxygen and argon in water and seawater."'
-    print >>f, ' Deap-Sea Research., 1970, Vol 17, pp721-735.'
+    print >>f, ' Deep-Sea Research., 1970, Vol 17, pp721-735.'
     print >>f, '********************************************************'
 
     m,n = S.shape
