@@ -44,21 +44,6 @@ Extras Documentation
 
 This page contains the Extras Package documentation.
 
-Subpackages
------------
-
-.. toctree::
-
-    extras.waves
-
-The :mod:`sw_extras` Module
----------------------------
-
-.. automodule:: seawater.extras.sw_extras
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 Waves Documentation
 ===================
 
