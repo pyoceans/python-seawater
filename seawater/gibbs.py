@@ -1,32 +1,17 @@
-#TODO: compare SIGMAS
 #TODO: create a CTD class that will take Conductive, in situ t and Pressure (lon, lat) and output SA
-#TODO: create term25 class
-#TODO: Go over PDFs to improve documentation
-#TODO: Examples: simple with the data range (copy-and-paste numbers) and complex (real data)
-#A short demonstration of the GSW Oceanographic Toolbox now follows. The following vertical profile, from the North Pacific, is of Practical Salinity, SP, and in situ temperature, t, as a function of pressure, p,
-#SP = [ 34.3454  34.5427  34.6289  34.6663  34.6839  34.6915  34.6914 ]
-#t  = [ 27.9620   4.4726   2.1178   1.6031   1.4601   1.4753   1.5998 ]
-#p  = [       0     1010     2025     3045     4069     5098     6131 ]
-#SA = [ 34.5075  34.7165  34.8083  34.8465  34.8636  34.8707  34.8702 ]
-#CT = [ 27.9948   4.3913   1.9771   1.3795   1.1343   1.0290   1.0150 ]
-#lon = [142 183 20]
-#lat = [11 9.5 59]
-#TODO: Check original authors and dates
-#TODO: csiro vs gibbs (table?)
 #TODO: check_dim for p in all "p" functions
-# Atlas for Dsal is in gsw_data_v2_0.pkl
-#FIXME: some function return values even with NaN in the input, check this behavior (also present in the original).
+#FIXME: some function return values even with NaN in the input, check this behavior (also present in the original). print doctest to check which one
 
 from __future__ import division
+
 import numpy as np
 from seawater import constants as cte
 import os
 
-"""
-DSal Atlas v2 dir
+""" The global data set of Absolute Salinity Anomaly:
+data/gsw_data_v2_0.pkl
 TODO: Add a option for a local Atlas
 """
-
 try:
     import cPickle as pickle
 except:
@@ -57,7 +42,7 @@ def _gibbs(ns, nt, npr, SA, t, p):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -375,7 +360,7 @@ def _gibbs(ns, nt, npr, SA, t, p):
 
     return gibbs
 
-def  _entropy_part(SA, t, p):
+def _entropy_part(SA, t, p):
     r"""
     Calculates entropy, except that it does not evaluate any terms that are functions of Absolute Salinity alone.
 
@@ -386,7 +371,7 @@ def  _entropy_part(SA, t, p):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -443,16 +428,16 @@ def  _entropy_part(SA, t, p):
 
     return entropy_part
 
-def  _gibbs_pt0_pt0(SA, pt0):
+def _gibbs_pt0_pt0(SA, pt0):
     r"""
-    Calculates the second derivative of the specific Gibbs function with respect to temperature at zero sea pressure.
+    Calculates the second derivative of the specific Gibbs function with respect to temperature at zero sea pressure or _gibbs(0,2,0,SA,t,0).
 
     Parameters
     ----------
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     pt0 : array_like
-          potential temperature relative to 0 db [:math:`^\circ` C (ITS-90)]
+          potential temperature relative to 0 dbar [:math:`^\circ` C (ITS-90)]
 
     Returns
     -------
@@ -497,16 +482,16 @@ def  _gibbs_pt0_pt0(SA, pt0):
 
     return gibbs_pt0_pt0
 
-def  _entropy_part_zerop(SA, pt0):
+def _entropy_part_zerop(SA, pt0):
     r"""
-    Calculates entropy at a sea surface (p = 0 db), except that it does not evaluate any terms that are functions of Absolute Salinity alone.
+    Calculates entropy at a sea surface (p = 0 dbar), except that it does not evaluate any terms that are functions of Absolute Salinity alone.
 
     Parameters
     ----------
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     pt0 : array_like
-          potential temperature relative to 0 db [:math:`^\circ` C (ITS-90)]
+          potential temperature relative to 0 dbar [:math:`^\circ` C (ITS-90)]
 
     Returns
     -------
@@ -547,14 +532,14 @@ def  _entropy_part_zerop(SA, pt0):
 
     return entropy_part_zerop
 
-def  _enthalpy_SSO_0_CT25(p):
+def _enthalpy_SSO_0_CT25(p):
     r"""
-     Calculates enthalpy at the Standard Ocean Salinity (SSO) and at a Conservative Temperature of zero degrees C (CT=0), as a function of pressure (p [db]).
+     Calculates enthalpy at the Standard Ocean Salinity (SSO) and at a Conservative Temperature of zero degrees C (CT=0), as a function of pressure (p [dbar]) or enthalpy_CT25(35.16504,0,p).
 
     Parameters
     ----------
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -589,12 +574,12 @@ def  _enthalpy_SSO_0_CT25(p):
 
 def _specvol_SSO_0_CT25(p):
     r"""
-    Calculates specific volume at the Standard Ocean Salinity (SSO) and Conservative Temperature of zero degrees C (CT=0), as a function of pressure (p [db]).
+    Calculates specific volume at the Standard Ocean Salinity (SSO) and Conservative Temperature of zero degrees C (CT=0), as a function of pressure (p [dbar]) or spec_vol_CT25(35.16504,0,p).
 
     Parameters
     ----------
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -644,14 +629,14 @@ def _check_dim(prop1, prop2):
 """
 Salinity lib functions
 """
-def  _SP_from_SA_Baltic(SA, lon, lat):
+def _SP_from_SA_Baltic(SA, lon, lat):
     r"""
     Calculates Practical Salinity (SP) for the Baltic Sea, from a value computed analytically from Absolute Salinity.
 
     Parameters
     ----------
     SA : array_like
-         Absolute salinity [g kg :sup::`-1`]
+         Absolute salinity [g kg :sup:`-1`]
     lon : array_like
           decimal degrees east [0..+360]
     lat : array_like
@@ -668,7 +653,17 @@ def  _SP_from_SA_Baltic(SA, lon, lat):
 
     Notes
     -----
-    This program will only produce Practical Salinity values for the Baltic Sea. Calculates entropy at a sea surface (p = 0 db), except that it does not evaluate any terms that are functions of Absolute Salinity alone. By not calculating these terms, which are a function only of Absolute Salinity, several unnecessary computations are avoided (including saving the computation of a natural logarithm). These terms are a necessary part of entropy, but are not needed when calculating potential temperature from in-situ temperature.
+    This program will only produce Practical Salinity values for the Baltic Sea.
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> SA = [6.6699, 6.7738, 6.9130, 7.3661, 7.5862, 10.3895]
+    >>> lon = 20
+    >>> lat = 59
+    >>> gsw._SP_from_SA_Baltic(SA, lon, lat)
+    array([  6.56825467,   6.67192352,   6.81081383,   7.2629058 ,
+             7.48251613,  10.27957947])
 
     References
     ----------
@@ -687,6 +682,7 @@ def  _SP_from_SA_Baltic(SA, lon, lat):
     """
 
     SA, lon, lat = np.asanyarray(SA), np.asanyarray(lon), np.asanyarray(lat)
+    lon, lat = _check_dim(lon, SA), _check_dim(lat, SA)
 
     xb1, xb2, xb3 = 12.6, 7., 26.
     xb1a, xb3a = 45., 26.
@@ -704,12 +700,11 @@ def  _SP_from_SA_Baltic(SA, lon, lat):
         if np.any(inds1):
             SP_baltic[inds[inds1]] = ( 35 / ( cte.SSO - 0.087 ) ) * ( SA[inds[inds1]] - 0.087)
 
-
         SP_baltic = np.reshape( SP_baltic, lon.shape )
 
     return SP_baltic
 
-def  _SA_from_SP_Baltic(SP, lon, lat):
+def _SA_from_SP_Baltic(SP, lon, lat):
     r"""
     Calculates Absolute Salinity in the Baltic Sea, from Practical Salinity.
     Since SP is non-negative by definition, this function changes any negative input values of SP to be zero.
@@ -726,7 +721,7 @@ def  _SA_from_SP_Baltic(SP, lon, lat):
     Returns
     -------
     SA_baltic : array_like
-                Absolute salinity [g kg :sup::`-1`]
+                Absolute salinity [g kg :sup:`-1`]
 
     See Also
     --------
@@ -735,6 +730,16 @@ def  _SA_from_SP_Baltic(SP, lon, lat):
     Notes
     -----
     This program will only produce Absolute Salinity values for the Baltic Sea.
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> SP = [6.5683, 6.6719, 6.8108, 7.2629, 7.4825, 10.2796]
+    >>> lon = 20
+    >>> lat = 59
+    >>> gsw._SA_from_SP_Baltic(SP, lon, lat)
+    array([  6.66994543,   6.77377643,   6.91298614,   7.36609419,
+             7.58618384,  10.38952057])
 
     References
     ----------
@@ -752,15 +757,15 @@ def  _SA_from_SP_Baltic(SP, lon, lat):
     """
 
     SP, lon, lat = np.asanyarray(SP), np.asanyarray(lon), np.asanyarray(lat)
+    lon, lat = _check_dim(lon, SP), _check_dim(lat, SP)
 
     xb1, xb2, xb3 = 12.6, 7., 26.
     xb1a, xb3a = 45., 26.
     yb1, yb2, yb3 = 50., 59., 69.
 
     inds_baltic = (xb2 < lon) & (lon < xb1a) & (yb1 < lat) & (lat < yb3)
-    SA_baltic = np.ones( SP.shape )*np.nan
+    SA_baltic = np.ones( SP.shape ) * np.nan
 
-    #FIXME: find a equivalent for numpy arrays
     if list(inds_baltic):
         xx_left = np.interp( lat[inds_baltic], [yb1,yb2,yb3], [xb1,xb2,xb3])
         xx_right = np.interp( lat[inds_baltic], [yb1,yb3], [xb1a,xb3a] )
@@ -769,207 +774,14 @@ def  _SA_from_SP_Baltic(SP, lon, lat):
 
     return SA_baltic
 
-def  _infunnel(SA, CT, p):
-    r"""
-    Calculates Absolute Salinity in the Baltic Sea, from Practical Salinity.
-    Since SP is non-negative by definition, this function changes any negative input values of SP to be zero.
-
-    Parameters
-    ----------
-    SA(p) : array_like
-         Absolute salinity [g kg :sup::`-1`]
-    CT(p) : array_like
-         Conservative Temperature [:math:`^\circ` C (TEOS-10)]
-    p : array_like
-        pressure [db]
-
-    Returns
-    -------
-    in_funnel : bool
-                False, if SA, CT and p are outside the "funnel"
-                True, if SA, CT and p are inside the "funnel"
-
-    See Also
-    --------
-    TODO
-
-    Notes
-    -----
-    The term "funnel" describes the range of SA, CT and p over which the error in the fit of the computationally-efficient 25-term expression for density in terms of SA, CT and p was calculated (McDougall et al., 2010).
-
-    Examples
-    --------
-    TODO
-
-    References
-    ----------
-    .. [1] McDougall, T.J., D.R. Jackett and F.J. Millero, 2010: An algorithm for estimating Absolute Salinity in the global ocean. Submitted to Ocean Science. A preliminary version is available at Ocean Sci. Discuss., 6, 215-242.
-    http://www.ocean-sci-discuss.net/6/215/2009/osd-6-215-2009-print.pdf
-
-    Modifications:
-    2010-07-23. Trevor McDougall and Paul Barker
-    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
-    """
-
-    SA, CT, p = np.asanyarray(SA), np.asanyarray(CT), np.asanyarray(p)
-
-    in_funnel = np.ones( SA.shape )
-    Inan = ( np.isnan(SA) | np.isnan(CT) | np.isnan(p) )
-
-    Ifunnel = (p > 8000) | (SA < 0) | (SA > 42.2) | \
-        ( CT < ( -0.3595467 - 0.0553734 * SA ) ) | \
-        ( (p < 5500) & ( SA < 0.006028 * ( p - 500 ) ) ) | \
-        ( (p < 5500) & ( CT > ( 33.0 - 0.003818181818182 * p ) ) ) | \
-        ( (p > 5500) & ( SA < 30.14 ) ) | \
-        ( (p > 5500) & ( CT > 12.0 ) )
-
-    Ifunnel = (Ifunnel == False) # reverse True <-> False
-    # TODO: Nans will become False, change to mask array
-    Ifunnel[Inan] = False
-
-    return Ifunnel
-
-def  _dsa_add_barrier(dsa, lon, lat, longs_ref, lats_ref, dlongs_ref, dlats_ref):
-    r"""
-    Adds a barrier through Central America (Panama) and then averages over the appropriate side of the barrier.
-
-    Parameters
-    ----------
-    dsa : array_like
-          Absolute Salinity anomaly of the 4 adjacent neighbors  [g kg :sup::`-1`]
-    lon : array_like
-          decimal degrees east [0..+360]
-    lat : array_like
-          decimal degrees [-90..+90]
-    longs_ref : array_like
-          longitudes of regular grid in decimal degrees east [0..+360]
-    lats_ref : array_like
-          latitudes of regular grid in decimal degrees north [-90..+90]
-    dlongs_ref : array_like
-          longitudes difference of regular grid in decimal degrees east [0..+360]
-    dlats_ref : array_like
-          latitudes difference of regular grid in decimal degrees north [-90..+90]
-
-    Returns
-    -------
-    delta_SA : array_like
-          Absolute Salinity anomaly of the 4 adjacent neighbors  [g kg :sup::`-1`]
-
-    Notes
-    -----
-    originally inside "_delta_SA"
-
-    Modifications:
-    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
-    """
-    dsa = np.asanyarray(dsa)
-    lon, lat = np.asanyarray(lon), np.asanyarray(lat)
-    longs_ref, lats_ref = np.asanyarray(longs_ref), np.asanyarray(lats_ref)
-    dlongs_ref, dlats_ref = np.asanyarray(dlongs_ref), np.asanyarray(dlats_ref)
-
-    longs_pan = np.array([260.0000, 272.5900, 276.5000, 278.6500, 280.7300, 295.2170])
-    lats_pan = np.array([19.5500, 13.9700, 9.6000, 8.1000, 9.3300, 0])
-
-    lats_lines0 = interp1 ( longs_pan,  lats_pan, lon)
-    lats_lines0 = np.interp(lon, longs_pan, lats_pan)
-
-    lats_lines1 = np.interp( longs_ref, lats_pan, longs_pan)
-    lats_lines2 = np.interp( (longs_ref+dlongs_ref), lats_pan, longs_pan)
-
-    for k0 in range(0, len(lon.shape) ):
-        if lats_lines0[k0] <= lat[k0]:
-            above_line0 = True
-        else:
-            above_line0 = False
-
-        if lats_lines1[k0] <= lats_ref[k0]:
-            above_line[0] = True
-        else:
-            above_line[0] = False
-
-        if lats_lines1[k0] <= (lats_ref[k0] + dlats_ref):
-            above_line[3] = True
-        else:
-            above_line[4] = False
-
-        if lats_lines2[k0] <= lats_ref[k0]:
-            above_line[1] = True
-        else:
-            above_line[1] = False
-
-        if lats_lines2[k0] <= (lats_ref[k0] + dlats_ref):
-            above_line[2] = True
-        else:
-            above_line[2] = False
-
-        # indices of different sides of CA line
-        inds = ( above_line != above_line0 )
-        dsa[inds,k0] = np.nan
-
-    dsa_mean = dsa.mean()
-    inds_nan = np.where( np.isnan( dsa_mean ) )[0]
-    no_nan = len(inds_nan)
-
-    for kk in range(0,no_nan):
-        col = inds_nan[kk]
-        inds_kk = np.where( np.isnan( dsa[:,col] ) )[0]
-        Inn = np.where( ~np.isnan( dsa[:,col] ) )[0]
-        if Inn.size == 0:
-            dsa[inds_kk,col] = dsa[Inn,col].mean()
-
-
-    delta_SA = dsa
-    return delta_SA
-
-def  _dsa_add_mean(dsa):
-    r"""
-    Replaces NaN's with nanmean of the 4 adjacent neighbors
-
-    Parameters
-    ----------
-    dsa : array_like
-          Absolute Salinity anomaly of the 4 adjacent neighbors  [g kg :sup::`-1`]
-
-    Returns
-    -------
-    delta_SA : array_like
-          Absolute Salinity anomaly of the 4 adjacent neighbours  [g kg :sup::`-1`]
-
-    Notes
-    -----
-    originally inside "_delta_SA"
-
-    Modifications:
-    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
-    """
-
-    dsa = np.asanyarray(dsa)
-
-    #FIXME: there must be a better way
-    #FIXME: should be nanmean here in the original...
-    dsa_mean = dsa.mean(axis = 0)
-    inds_nan = np.where( np.isnan(dsa_mean) )[0]
-    no_nan = len(inds_nan)
-
-    for kk in range(0, no_nan):
-        col = inds_nan[kk]
-        inds_kk = np.where( np.isnan( dsa[:,col] ) )[0]
-        Inn = np.where(~np.isnan( dsa[:,col] ) )[0]
-        if Inn.size != 0:
-            dsa[inds_kk, col] = dsa[Inn,col].mean()
-
-    delta_SA = dsa
-
-    return delta_SA
-
-def  _delta_SA(p, lon, lat):
+def _delta_SA(p, lon, lat):
     r"""
     Calculates the Absolute Salinity anomaly, SA - SR, in the open ocean by spatially interpolating the global reference data set of delta_SA to the location of the seawater sample.
 
     Parameters
     ----------
     p : array_like
-        pressure [db]
+        pressure [dbar]
     lon : array_like
           decimal degrees east [0..+360] or [-180..+180]
     lat : array_like
@@ -978,19 +790,30 @@ def  _delta_SA(p, lon, lat):
     Returns
     -------
     delta_SA : array_like
-               Absolute Salinity anomaly [g kg :sup::`-1`]
+               Absolute Salinity anomaly [g kg :sup:`-1`]
     in_ocean : False, if [lon, lat] are a long way from the ocean
                True, [lon, lat] are in the ocean.
 
     See Also
     --------
-    TODO
+    _dsa_add_barrier, _dsa_add_mean
 
     Notes
     -----
     The Absolute Salinity Anomaly in the Baltic Sea is evaluated separately, since it is a function of Practical Salinity, not of space. The present function returns a delta_SA of zero for data in the Baltic Sea. The correct way of calculating Absolute Salinity in the Baltic Sea is by calling _SA_from_SP.
 
-    The in_ocean flag is only set when the observation is well and truly on dry land; often the warning flag is not set until one is several hundred kilometres inland from the coast.
+    The in_ocean flag is only set when the observation is well and truly on dry land; often the warning flag is not set until one is several hundred kilometers inland from the coast.
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> p = [10, 50, 125, 250, 600, 1000]
+    >>> lon, lat = 188, 4
+    >>> gsw._delta_SA(p, lon, lat)
+    (array([ 0.00016779,  0.00026868,  0.00066554,  0.0026943 ,  0.00562666,
+            0.00939665]), array([ True,  True,  True,  True,  True,  True], dtype=bool))
+    >>> gsw._delta_SA(p, -80, 45)[1]
+    array([ True,  True,  True,  True,  True, True], dtype=bool)
 
     References
     ----------
@@ -1006,8 +829,12 @@ def  _delta_SA(p, lon, lat):
     """
 
     p, lon, lat = np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
+    lon, lat = _check_dim(lon, p), _check_dim(lat, p)
 
-    data = pickle.load( open(os.path.join(datadir + 'gsw_data_v2_0.pkl'),'rb') )
+    if (lon < 0).any():
+        lon[lon < 0] = lon[lon < 0] + 360.
+
+    data = pickle.load( open(os.path.join(datadir + 'gsw_data_v2_0.pkl'), 'rb') )
 
     delta_SA_ref = data['delta_SA_ref']
     lats_ref = data['lats_ref']
@@ -1029,24 +856,23 @@ def  _delta_SA(p, lon, lat):
     #FIXME: Ugly matlab matrix dot multiplication, there must be a better way...
     P_REF = np.dot( np.ones(p_ref.size)[:,np.newaxis], p[np.newaxis,:] )
     P = np.dot( p_ref[:,np.newaxis], np.ones(p.size)[np.newaxis,:] )
-    indsz0 = np.sum( (P_REF >= P), axis=0 )
+    indsz0 = np.sum( (P_REF >= P), axis=0 ) -1 #FIXME: -1(?)
 
     nmax = np.c_[ ndepth_ref[indsy0, indsx0], \
                   ndepth_ref[indsy0, indsx0+1], \
                   ndepth_ref[indsy0+1, indsx0+1], \
-                  ndepth_ref[indsy0+1, indsx0] ].max(axis=1)
-
+                  ndepth_ref[indsy0+1, indsx0] ]
+    nmax = np.int64( np.nanmax(nmax, axis=1) )
 
     inds1 = np.where(indsz0 > nmax)[0] # casts deeper than GK maximum
     if inds1.size != 0:
         # have reset p here to reset indsz0
-        p[inds1] = p_ref[nmax[inds1]]
-
+        p[inds1] = p_ref[nmax[inds1]-1]
 
     #FIXME: Ugly matlab matrix dot multiplication, there must be a better way...
     P_REF = np.dot( np.ones(p_ref.size)[:,np.newaxis], p[np.newaxis,:] )
     P = np.dot( p_ref[:,np.newaxis], np.ones(p.size)[np.newaxis,:] )
-    indsz0 = np.sum( (P_REF >= P), axis=0 ) - 1
+    indsz0 = np.sum( (P_REF >= P), axis=0 ) -1
 
     inds = (indsz0 == p_ref.size-1)
     indsz0[inds] = p_ref.size - 2
@@ -1058,7 +884,7 @@ def  _delta_SA(p, lon, lat):
 
     r1 = ( lon - longs_ref[indsx0] ) / ( longs_ref[indsx0+1] - longs_ref[indsx0] )
     s1 = ( lat - lats_ref[indsy0] ) / ( lats_ref[indsy0+1] - lats_ref[indsy0] )
-    t1 = ( p - p_ref[indsz0] ) / ( p_ref[indsz0+1] - p_ref[indsz0] )
+    t1 = np.float64( ( p - p_ref[indsz0] ) ) / np.float64( ( p_ref[indsz0+1] - p_ref[indsz0] ) )
 
     nksum = 0
     no_levels_missing = 0
@@ -1066,11 +892,11 @@ def  _delta_SA(p, lon, lat):
     sa_upper = np.nan * ( np.ones(data_inds.shape) )
     sa_lower = np.nan * ( np.ones(data_inds.shape) )
     delta_SA = np.nan * ( np.ones(data_inds.shape) )
-    in_ocean = np.ones( delta_SA.shape )
 
-    for k in range(0, p_ref.size-1):
-        inds_k = (indsz0 == k)
-        nk = len(inds_k)
+    #for k in range(0, p_ref.size-1):
+    for k in range(0, p_ref.size):
+        inds_k = np.where(indsz0 == k)[0]
+        nk = inds_k.size
 
         if nk > 0:
             nksum = nksum + nk
@@ -1085,17 +911,21 @@ def  _delta_SA(p, lon, lat):
             dsa[2, inds_k] = delta_SA_ref[indsz, indsy+1, indsx+1] # inds0 + ny*nz + nz
             dsa[3, inds_k] = delta_SA_ref[indsz, indsy+1, indsx] #  inds0 + nz
 
-            inds = np.where( (260. <= lon) & (lon <= 295.217) & (0. <= lat) & (lat <= 19.55) & (indsz0 == k) )[0]
-
-            #FIXME: test case when this is True
-            if inds.size !=0:
-                dsa[:,inds] = _dsa_add_barrier( dsa[:,inds], lon[inds], \
-                lat[inds], longs_ref[indsx0[0][inds[0]]], lats_ref[indsy0[0][inds[0]]], dlongs_ref, dlats_ref)
+            #inds = np.where( (260. <= lon) & (lon <= 295.217) & (0. <= lat) & (lat <= 19.55) & (indsz0 == k) )[0]
+            inds = ( (260. <= lon) & (lon <= 295.217) & (0. <= lat) & (lat <= 19.55) & (indsz0 == k) )
+            """ TODO: describe add_barrier """
+            if inds.any():
+                dsa[:,inds] = _dsa_add_barrier( dsa[:,inds], lon[inds], lat[inds], longs_ref[indsx0[inds]], lats_ref[indsy0[inds]], dlongs_ref, dlats_ref)
+                #print "add_barrier %s" % dsa
 
             inds = np.where( ( np.isnan( np.sum(dsa, axis=0) ) ) & (indsz0==k))[0]
-
+            #print "inds = %s" % inds
+            #raw_input("Press Enter to continue...")
+            """ TODO: describe add_mean """
             if inds.size !=0:
+                #print "dsa = %s" % dsa[:,inds]
                 dsa[:,inds] = _dsa_add_mean(dsa[:,inds])
+                #print "add_mean %s" % dsa
 
             sa_upper[inds_di] = ( 1 - s1[inds_di] ) * ( dsa[0, inds_k] + \
             r1[inds_di] * ( dsa[1, inds_k] - dsa[0, inds_k] ) ) + \
@@ -1111,15 +941,15 @@ def  _delta_SA(p, lon, lat):
             inds = np.where( (260. <= lon) & (lon <= 295.217) & (0 <= lat) & (lat <= 19.55) & (indsz0 == k) )[0]
 
             """ TODO: describe add_barrier """
-            #FIXME: test case when this is True
-            if inds.size != 0:
-                dsa[:,inds] = _dsa_add_barrier( dsa[:,inds], lon[inds], \
-                lat[inds], longs_ref[ndsx0[0][inds[0]]], lats_ref[indsy0[0][inds[0]]], dlongs_ref, dlats_ref)
+            if inds.any():
+                dsa[:,inds] = _dsa_add_barrier( dsa[:,inds], lon[inds], lat[inds], longs_ref[indsx0[inds]], lats_ref[indsy0[inds]], dlongs_ref, dlats_ref)
+                #print "add_barrier %s" % dsa
 
             inds = ( np.isnan( np.sum(dsa, axis=0) ) ) & (indsz0==k)
 
             """ TODO: describe add_mean """
             dsa[:,inds] = _dsa_add_mean(dsa[:,inds])
+            #print "add_mean %s" % dsa
 
             sa_lower[inds_di] = ( 1 - s1[inds_di] ) * ( dsa[0, inds_k] + \
             r1[inds_di] * ( dsa[1, inds_k] - dsa[0,inds_k] ) ) + \
@@ -1130,15 +960,151 @@ def  _delta_SA(p, lon, lat):
             sa_lower[inds_di[inds_different]] = sa_upper[inds_di[inds_different]]
 
             delta_SA[inds_di] = sa_upper[inds_di] + t1[inds_di] * ( sa_lower[inds_di] - sa_upper[inds_di] )
-
         else:
             no_levels_missing = no_levels_missing + 1
 
-    inds = ~np.isfinite(delta_SA)
-    delta_SA[inds] = 0
-    in_ocean[inds] = False # TODO: change all to boolean
-
+    in_ocean = ~np.isfinite(delta_SA)
+    delta_SA[in_ocean] = 0
+    in_ocean = (in_ocean == False) # reverse True <-> False
     return delta_SA, in_ocean
+
+def _dsa_add_barrier(dsa, lon, lat, longs_ref, lats_ref, dlongs_ref, dlats_ref):
+    r"""
+    Adds a barrier through Central America (Panama) and then averages over the appropriate side of the barrier.
+
+    Parameters
+    ----------
+    dsa : array_like
+          Absolute Salinity anomaly of the 4 adjacent neighbors  [g kg :sup:`-1`]
+    lon : array_like
+          decimal degrees east [0..+360]
+    lat : array_like
+          decimal degrees [-90..+90]
+    longs_ref : array_like
+          longitudes of regular grid in decimal degrees east [0..+360]
+    lats_ref : array_like
+          latitudes of regular grid in decimal degrees north [-90..+90]
+    dlongs_ref : array_like
+          longitudes difference of regular grid in decimal degrees east [0..+360]
+    dlats_ref : array_like
+          latitudes difference of regular grid in decimal degrees north [-90..+90]
+
+    Returns
+    -------
+    delta_SA : array_like
+          Absolute Salinity anomaly of the 4 adjacent neighbors  [g kg :sup:`-1`]
+
+    Notes
+    -----
+    originally inside "_delta_SA"
+
+    Modifications:
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+    dsa = np.asanyarray(dsa)
+    lon, lat = np.asanyarray(lon), np.asanyarray(lat)
+    longs_ref, lats_ref = np.asanyarray(longs_ref), np.asanyarray(lats_ref)
+    dlongs_ref, dlats_ref = np.asanyarray(dlongs_ref), np.asanyarray(dlats_ref)
+
+    longs_pan = np.array([260.0000, 272.5900, 276.5000, 278.6500, 280.7300, 295.2170])
+    lats_pan = np.array([19.5500, 13.9700, 9.6000, 8.1000, 9.3300, 0])
+
+    lats_lines0 = np.interp(lon, longs_pan, lats_pan)
+
+    lats_lines1 = np.interp( longs_ref, lats_pan, longs_pan)
+    lats_lines2 = np.interp( (longs_ref+dlongs_ref), lats_pan, longs_pan)
+
+    above_line = np.bool_( np.ones(4) )
+    for k0 in range(0, len(lon.shape) ):
+        if lats_lines0[k0] <= lat[k0]:
+            above_line0 = True
+        else:
+            above_line0 = False
+
+        if lats_lines1[k0] <= lats_ref[k0]:
+            above_line[0] = True
+        else:
+            above_line[0] = False
+
+        if lats_lines1[k0] <= (lats_ref[k0] + dlats_ref):
+            above_line[3] = True
+        else:
+            above_line[3] = False
+
+        if lats_lines2[k0] <= lats_ref[k0]:
+            above_line[1] = True
+        else:
+            above_line[1] = False
+
+        if lats_lines2[k0] <= (lats_ref[k0] + dlats_ref):
+            above_line[2] = True
+        else:
+            above_line[2] = False
+
+        # indices of different sides of CA line
+        inds = ( above_line != above_line0 )
+        dsa[inds,k0] = np.nan
+
+    dsa_mean = dsa.mean()
+    inds_nan = np.isnan( dsa_mean )
+
+    if inds_nan.any():
+        no_nan = len(np.where(inds_nan))
+
+        for kk in range(0,no_nan):
+            col = inds_nan[kk]
+            inds_kk = np.where( np.isnan( dsa[:,col] ) )[0]
+            Inn = np.where( ~np.isnan( dsa[:,col] ) )[0]
+
+            if Inn.size == 0:
+                dsa[inds_kk,col] = dsa[Inn,col].mean()
+
+
+    delta_SA = dsa
+    return delta_SA
+
+def _dsa_add_mean(dsa):
+    r"""
+    Replaces NaN's with nanmean of the 4 adjacent neighbors
+
+    Parameters
+    ----------
+    dsa : array_like
+          Absolute Salinity anomaly of the 4 adjacent neighbors  [g kg :sup:`-1`]
+
+    Returns
+    -------
+    delta_SA : array_like
+          Absolute Salinity anomaly of the 4 adjacent neighbours  [g kg :sup:`-1`]
+
+    Notes
+    -----
+    originally inside "_delta_SA"
+
+    Modifications:
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    dsa = np.asanyarray(dsa)
+
+    #FIXME: should be nanmean here in the original
+    # the best approach should be a complete re-write using masked array and elimination in_ocean
+    #print "dsa%s" % dsa
+    dsa_mean = dsa.mean(axis = 0)
+    #print "dsa_mean %s" % dsa_mean
+    inds_nan = np.where( np.isnan(dsa_mean) )[0]
+    no_nan = len(inds_nan)
+
+    for kk in range(0, no_nan):
+        col = inds_nan[kk]
+        inds_kk = np.where( np.isnan( dsa[:,col] ) )[0]
+        Inn = np.where(~np.isnan( dsa[:,col] ) )[0]
+        if Inn.size != 0:
+            dsa[inds_kk, col] = dsa[Inn,col].mean()
+
+    delta_SA = dsa
+
+    return delta_SA
 
 """
 Section B: functions
@@ -1162,7 +1128,7 @@ def entropy(SA, t, p):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -1180,14 +1146,12 @@ def entropy(SA, t, p):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = [0., 500., 1500., 2000.]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.entropy(SA, t, p)
-    array([[  6.36913727e+01,   2.15161921e+02,   3.19806445e+02,
-              4.47838663e+02],
-           [  2.24455426e+02,   1.43185159e-01,   3.58666432e+02,
-              4.01487857e+02]])
+    array([ 400.38942528,  395.43817843,  319.8664982 ,  146.79088159,
+             98.64734087,   62.79150873])
 
     References
     ----------
@@ -1217,7 +1181,7 @@ def rho(SA, t, p):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -1235,12 +1199,12 @@ def rho(SA, t, p):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = [0., 500., 1500., 2000.]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.rho(SA, t, p)
-    array([[ 1041.77425464,  1024.2413978 ,  1011.923534  ,  1018.28328036],
-           [ 1006.74841976,  1002.37206267,  1014.78353156,  1010.8696052 ]])
+    array([ 1021.84017319,  1022.26268993,  1024.42771594,  1027.79020181,
+            1029.83771473,  1032.00240412])
 
     References
     ----------
@@ -1268,7 +1232,7 @@ def cp(SA, t, p):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -1286,12 +1250,12 @@ def cp(SA, t, p):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = 900
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.cp(SA, t, p)
-    array([[ 3869.46487578,  3996.62909658,  4102.39689639,  4056.09090058],
-           [ 4102.00085198,  4176.72470928,  4077.47206662,  4114.01189933]])
+    array([ 4002.88800396,  4000.98028393,  3995.54646889,  3985.07676902,
+            3973.59384348,  3960.18408479])
 
     References
     ----------
@@ -1327,7 +1291,7 @@ def helmholtz_energy(SA, t, p):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -1345,14 +1309,12 @@ def helmholtz_energy(SA, t, p):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = [0., 500., 1500., 2000.]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.helmholtz_energy(SA, t, p)
-    array([[  1.18057894e+03,  -2.04243623e+03,  -4.45224072e+03,
-             -8.18003196e+03],
-           [ -2.58190138e+03,   6.54845497e+00,  -5.48590282e+03,
-             -6.56341929e+03]])
+    array([-5985.58288209, -5830.81845224, -3806.96617841,  -877.66369421,
+            -462.17033905,  -245.50407205])
 
     References
     ----------
@@ -1390,7 +1352,7 @@ def internal_energy(SA, t, p):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -1408,14 +1370,12 @@ def internal_energy(SA, t, p):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = [0., 500., 1500., 2000.]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.internal_energy(SA, t, p)
-    array([[  1.88963342e+04,   5.99564714e+04,   8.99386314e+04,
-              1.28477936e+05],
-           [  6.20949295e+04,   4.56594812e+01,   1.01450494e+05,
-              1.14344649e+05]])
+    array([ 114906.23847309,  113426.57417062,   90860.81858842,
+             40724.34005719,   27162.66600185,   17182.50522667])
 
     References
     ----------
@@ -1455,7 +1415,7 @@ def sound_speed(SA, t, p):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -1473,12 +1433,12 @@ def sound_speed(SA, t, p):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = [0., 500., 1500., 2000.]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.sound_speed(SA, t, p)
-    array([[ 1493.5609568 ,  1508.86141015,  1524.04873089,  1567.35919386],
-           [ 1477.63190763,  1410.40969768,  1537.60287636,  1546.09128039]])
+    array([ 1542.61580359,  1542.70353407,  1530.84497914,  1494.40999692,
+            1487.37710252,  1483.93460908])
 
     References
     ----------
@@ -1512,7 +1472,7 @@ def adiabatic_lapse_rate(SA, t, p):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -1530,14 +1490,12 @@ def adiabatic_lapse_rate(SA, t, p):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = [0., 500., 1500., 2000.]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.adiabatic_lapse_rate(SA, t, p)
-    array([[  1.05756574e-08,   1.49457941e-08,   1.85280735e-08,
-              2.58480453e-08],
-           [  1.18016760e-08,  -3.17131249e-09,   2.09612644e-08,
-              2.26342914e-08]])
+    array([  2.40350282e-08,   2.38496700e-08,   2.03479880e-08,
+             1.19586543e-08,   9.96170718e-09,   8.71747270e-09])
 
     References
     ----------
@@ -1567,7 +1525,7 @@ def chem_potential_relative(SA, t, p):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -1585,12 +1543,12 @@ def chem_potential_relative(SA, t, p):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = [0., 500., 1500., 2000.]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.chem_potential_relative(SA, t, p)
-    array([[ 96.16894372,  55.28852987, -27.68689914,  25.15417648],
-           [-18.85739517,          nan,   2.85509781, -44.75926356]])
+    array([ 79.4254481 ,  79.25989214,  74.69154859,  65.64063719,
+            61.22685656,  57.21298557])
 
     References
     ----------
@@ -1620,7 +1578,7 @@ def specvol(SA, t, p):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -1638,12 +1596,12 @@ def specvol(SA, t, p):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = [0., 500., 1500., 2000.]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.specvol(SA, t, p)
-    array([[ 0.0009599 ,  0.00097633,  0.00098822,  0.00098204],
-           [ 0.0009933 ,  0.00099763,  0.00098543,  0.00098925]])
+    array([ 0.00097863,  0.00097822,  0.00097615,  0.00097296,  0.00097103,
+            0.00096899])
 
     References
     ----------
@@ -1673,7 +1631,7 @@ def conservative_t(SA, t, p):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -1691,12 +1649,12 @@ def conservative_t(SA, t, p):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = 900
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.conservative_t(SA, t, p)
-    array([[  4.66028901,  14.98237022,  22.6558658 ,  32.47483113],
-           [ 15.46594688,   0.04649395,  25.55437701,  28.90014276]])
+    array([ 28.80991983,  28.43922782,  22.78617689,  10.22618927,
+             6.82721363,   4.32357575])
 
     References
     ----------
@@ -1727,7 +1685,7 @@ def potential_t(SA, t, p, pr=0):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
     pr : int, float, optional
          reference pressure, default = 0
 
@@ -1747,17 +1705,15 @@ def potential_t(SA, t, p, pr=0):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = 900
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.potential_t(SA, t, p)
-    array([[  4.89971486e+00,   1.48664023e+01,   2.18420392e+01,
-              3.17741959e+01],
-           [  1.48891940e+01,   2.95267636e-02,   2.48187231e+01,
-              2.78058513e+01]])
-    >>> gsw.potential_t(SA, t, p, pr = 900)
-    array([[  5.,  15.,  22.,  32.],
-           [ 15.,   0.,  25.,  28.]])
+    array([ 28.78319682,  28.42098334,  22.7849304 ,  10.23052366,
+             6.82923022,   4.32451057])
+    >>> gsw.potential_t(SA, t, p, pr = 1000)
+    array([ 29.02665528,  28.662375  ,  22.99149634,  10.35341725,
+             6.92732954,   4.4036    ])
 
     References
     ----------
@@ -1822,7 +1778,7 @@ def enthalpy(SA, t, p):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -1840,14 +1796,12 @@ def enthalpy(SA, t, p):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = [0., 500., 1500., 2000.]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.enthalpy(SA, t, p)
-    array([[  18993.59620275,   64937.05999321,  104862.01693673,
-             148218.3415969 ],
-           [  62195.57534579,    5134.91245416,  116331.82020187,
-             134229.82985461]])
+    array([ 115103.26047838,  114014.8036012 ,   92179.9209311 ,
+             43255.32838089,   33087.21597002,   26970.5880448 ])
 
     References
     ----------
@@ -1877,7 +1831,7 @@ def chem_potential_water(SA, t, p):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -1895,12 +1849,12 @@ def chem_potential_water(SA, t, p):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = [0., 500., 1500., 2000.]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.chem_potential_water(SA, t, p)
-    array([[ -3819.11311835,   1279.4964416 ,  10748.01377942,  11057.29014031],
-           [ -2292.68162515,   5095.80142795,   9352.59715652,  13679.8357573 ]])
+    array([-8545.56114628, -8008.08554834, -5103.98013987,  -634.06778275,
+            3335.56680347,  7555.43444597])
 
     References
     ----------
@@ -1979,7 +1933,7 @@ def chem_potential_salt(SA, t, p):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -1997,16 +1951,16 @@ def chem_potential_salt(SA, t, p):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = [0., 500., 1500., 2000.]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.chem_potential_salt(SA, t, p)
-    array([[ -3722.94417463,   1334.78497147,  10720.32688028,  11082.44431678],
-           [ -2311.53902032,             nan,   9355.45225433,  13635.07649374]])
+    array([-8466.13569818, -7928.8256562 , -5029.28859129,  -568.42714556,
+            3396.79366004,  7612.64743154])
 
     References
     ----------
-    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp.
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See section 2.9.
 
     Modifications:
     2010-09-28. Trevor McDougall and Paul Barker
@@ -2031,7 +1985,7 @@ def isochoric_heat_cap(SA, t, p):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -2049,12 +2003,12 @@ def isochoric_heat_cap(SA, t, p):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = [0., 500., 1500., 2000.]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.isochoric_heat_cap(SA, t, p)
-    array([[ 3877.6517887 ,  3977.23066819,  4041.25381871,  3944.74636445],
-           [ 4111.17043765,  4193.91078826,  4004.77189377,  4019.75411647]])
+    array([ 3928.13708702,  3927.27381633,  3941.36418525,  3966.26126146,
+            3960.50903222,  3950.13901342])
 
     References
     ----------
@@ -2096,7 +2050,7 @@ def kappa(SA, t, p):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -2114,14 +2068,12 @@ def kappa(SA, t, p):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = [0., 500., 1500., 2000.]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.kappa(SA, t, p)
-    array([[  4.30309045e-10,   4.28843638e-10,   4.25455945e-10,
-              3.99755378e-10],
-           [  4.54932038e-10,   5.01511014e-10,   4.16810090e-10,
-              4.13842034e-10]])
+    array([  4.11245799e-10,   4.11029072e-10,   4.16539558e-10,
+             4.35668338e-10,   4.38923693e-10,   4.40037576e-10])
 
     References
     ----------
@@ -2157,7 +2109,7 @@ def kappa_const_t(SA, t, p):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -2175,14 +2127,12 @@ def kappa_const_t(SA, t, p):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = [0., 500., 1500., 2000.]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.kappa_const_t(SA, t, p)
-    array([[  4.31939544e-10,   4.32024995e-10,   4.30266156e-10,
-              4.08748100e-10],
-           [  4.56941451e-10,   5.01665845e-10,   4.22886356e-10,
-              4.20872128e-10]])
+    array([  4.19071646e-10,   4.18743202e-10,   4.22265764e-10,
+             4.37735100e-10,   4.40373818e-10,   4.41156577e-10])
 
     References
     ----------
@@ -2212,7 +2162,7 @@ def pot_rho(SA, t, p, pr=0):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
     pr : int, float, optional
          reference pressure, default = 0
 
@@ -2232,12 +2182,15 @@ def pot_rho(SA, t, p, pr=0):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = [0., 500., 1500., 2000.]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.pot_rho(SA, t, p)
-    array([[ 1041.77425464,  1022.03286026,  1005.35590628,  1009.95952733],
-           [ 1006.74841976,   999.84434287,  1008.33162777,  1002.31311402]])
+    array([ 1021.79814581,  1022.05248442,  1023.89358365,  1026.66762112,
+            1027.10723087,  1027.40963126])
+    >>> gsw.pot_rho(SA, t, p, pr=1000)
+    array([ 1025.95554512,  1026.21306986,  1028.12563226,  1031.1204547 ,
+            1031.63768355,  1032.00240412])
 
     References
     ----------
@@ -2269,7 +2222,7 @@ def specvol_anom(SA, t, p):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -2287,14 +2240,12 @@ def specvol_anom(SA, t, p):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = [0., 500., 1500., 2000.]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.specvol_anom(SA, t, p)
-    array([[ -1.27603741e-05,   5.90627585e-06,   2.21563447e-05,
-              1.81156664e-05],
-           [  2.06355849e-05,   2.72074872e-05,   1.93712205e-05,
-              2.53179431e-05]])
+    array([  6.01044463e-06,   5.78602432e-06,   4.05564999e-06,
+             1.42198662e-06,   1.04351837e-06,   7.63964850e-07])
 
     References
     ----------
@@ -2333,7 +2284,7 @@ def alpha_wrt_t(SA, t, p):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -2351,14 +2302,12 @@ def alpha_wrt_t(SA, t, p):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = [0., 500., 1500., 2000.]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.alpha_wrt_t(SA, t, p)
-    array([[  1.54174741e-04,   2.12859667e-04,   2.59617457e-04,
-              3.47907236e-04],
-           [  1.70265060e-04,  -4.88225022e-05,   2.89880704e-04,
-              3.10594834e-04]])
+    array([ 0.0003256 ,  0.00032345,  0.00028141,  0.00017283,  0.00014557,
+            0.00012836])
 
     References
     ----------
@@ -2390,7 +2339,7 @@ def alpha_wrt_CT(SA, t, p):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -2408,14 +2357,12 @@ def alpha_wrt_CT(SA, t, p):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = [0., 500., 1500., 2000.]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.alpha_wrt_CT(SA, t, p)
-    array([[  1.58116830e-04,   2.12123759e-04,   2.53807153e-04,
-              3.44888273e-04],
-           [  1.64597103e-04,  -4.64529201e-05,   2.85086325e-04,
-              3.03728728e-04]])
+    array([ 0.00032471,  0.00032272,  0.00028118,  0.00017314,  0.00014627,
+            0.00012943])
 
     References
     ----------
@@ -2450,7 +2397,7 @@ def alpha_wrt_pt(SA, t, p):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -2468,14 +2415,12 @@ def alpha_wrt_pt(SA, t, p):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = [0., 500., 1500., 2000.]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.alpha_wrt_pt(SA, t, p)
-    array([[  1.54174741e-04,   2.13608621e-04,   2.62397019e-04,
-              3.52131126e-04],
-           [  1.70265060e-04,  -4.91000706e-05,   2.92817943e-04,
-              3.14759131e-04]])
+    array([ 0.00032562,  0.00032355,  0.00028164,  0.00017314,  0.00014623,
+            0.00012936])
 
     References
     ----------
@@ -2510,7 +2455,7 @@ def beta_const_t(SA, t, p):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -2528,12 +2473,12 @@ def beta_const_t(SA, t, p):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = [0., 500., 1500., 2000.]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.beta_const_t(SA, t, p)
-    array([[ 0.00076014,  0.00074453,  0.0007323 ,  0.0007157 ],
-           [ 0.00075704,  0.00081627,  0.00072689,  0.00072291]])
+    array([ 0.00073112,  0.00073107,  0.00073602,  0.00075381,  0.00075726,
+            0.00075865])
 
     References
     ----------
@@ -2563,7 +2508,7 @@ def beta_const_CT(SA, t, p):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -2581,12 +2526,12 @@ def beta_const_CT(SA, t, p):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = [0., 500., 1500., 2000.]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.beta_const_CT(SA, t, p)
-    array([[ 0.0007578 ,  0.00073925,  0.0007239 ,  0.00069986],
-           [ 0.0007534 ,         nan,  0.00071632,  0.00071045]])
+    array([ 0.00071749,  0.00071765,  0.00072622,  0.00075051,  0.00075506,
+            0.00075707])
 
     References
     ----------
@@ -2627,7 +2572,7 @@ def beta_const_pt(SA, t, p):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -2645,12 +2590,12 @@ def beta_const_pt(SA, t, p):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = [0., 500., 1500., 2000.]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.beta_const_pt(SA, t, p)
-    array([[ 0.00076014,  0.0007444 ,  0.0007319 ,  0.00071523],
-           [ 0.00075704,         nan,  0.00072649,  0.0007224 ]])
+    array([ 0.00073112,  0.00073106,  0.00073599,  0.00075375,  0.00075712,
+            0.00075843])
 
     References
     ----------
@@ -2691,7 +2636,7 @@ def osmotic_coefficient(SA, t, p):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -2709,12 +2654,12 @@ def osmotic_coefficient(SA, t, p):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = [0., 500., 1500., 2000.]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.osmotic_coefficient(SA,t , p)
-    array([[ 0.90488718,  0.89901313,  0.90280557,  0.89943715],
-           [ 0.90152697,         nan,  0.89931561,  0.90564689]])
+    array([ 0.90284718,  0.90298624,  0.90238866,  0.89880927,  0.89801054,
+            0.89767912])
 
     References
     ----------
@@ -2764,10 +2709,10 @@ def molality(SA):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
     >>> gsw.molality(SA)
-    array([[ 1.78214644,  0.98484303,  0.32164907,  0.64986241],
-           [ 0.32164907,         nan,  0.48492271,  0.25680047]])
+    array([ 1.14508476,  1.15122708,  1.15581223,  1.14971265,  1.14593231,
+            1.14578877])
 
     References
     ----------
@@ -2814,10 +2759,10 @@ def ionic_strength(SA):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
     >>> gsw.ionic_strength(SA)
-    array([[ 1.10964439,  0.61320749,  0.20027315,  0.40463351],
-           [ 0.20027315,         nan,  0.30193465,  0.1598955 ]])
+    array([ 0.71298118,  0.71680567,  0.71966059,  0.71586272,  0.71350891,
+            0.71341953])
 
     References
     ----------
@@ -2848,7 +2793,7 @@ pt_from_t(SA, t, p, pr=0) was renamed to potential_t(SA, t, p, pr=0) in Section 
 """
 
 def CT_from_pt(SA, pt): #NOTE: used in conservative_t(SA, t, p)
-    """
+    r"""
     Calculates Conservative Temperature of seawater from potential temperature (whose reference sea pressure is zero dbar).
 
     Parameters
@@ -2874,13 +2819,11 @@ def CT_from_pt(SA, pt): #NOTE: used in conservative_t(SA, t, p)
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> pt = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> pt = [28.7832, 28.4209, 22.7850, 10.2305, 6.8292, 4.3245]
     >>> gsw.CT_from_pt(SA, pt)
-    array([[  4.75807226e+00,   1.51169032e+01,   2.28191712e+01,
-              3.27053824e+01],
-           [  1.55805693e+01,   1.52844796e-02,   2.57405705e+01,
-              2.91013409e+01]])
+    array([ 28.80992302,  28.43914426,  22.78624661,  10.22616561,
+             6.82718342,   4.32356518])
 
     References
     ----------
@@ -2935,7 +2878,7 @@ def CT_from_pt(SA, pt): #NOTE: used in conservative_t(SA, t, p)
     return CT
 
 def pt_from_CT(SA, CT): #NOTE: used in specvol_anom(SA,t, p) inside gibbs.py
-    """
+    r"""
     Calculates potential temperature (with a reference sea pressure of zero dbar) from Conservative Temperature.
 
     Parameters
@@ -2961,13 +2904,11 @@ def pt_from_CT(SA, CT): #NOTE: used in specvol_anom(SA,t, p) inside gibbs.py
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> CT = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> CT = [28.8099, 28.4392, 22.7862, 10.2262, 6.8272, 4.3236]
     >>> gsw.pt_from_CT(SA, CT)
-    array([[  5.24810333e+00,   1.48839096e+01,   2.12076507e+01,
-              3.13091326e+01],
-           [  1.44387776e+01,  -1.44601365e-02,   2.42789834e+01,
-              2.69372570e+01]])
+    array([ 28.78317705,  28.4209556 ,  22.78495347,  10.23053439,
+             6.82921659,   4.32453484])
 
     References
     ----------
@@ -3034,7 +2975,7 @@ def t_from_CT(SA, CT, p):
     CT : array_like
          Conservative Temperature [:math:`^\circ` C (TEOS-10)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -3052,12 +2993,12 @@ def t_from_CT(SA, CT, p):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> CT = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = 900
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> CT = [28.8099, 28.4392, 22.7862, 10.2262, 6.8272, 4.3236]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.t_from_CT(SA, CT, p)
-    array([[  5.35055483,  15.01761692,  21.36145947,  31.53232787],
-           [ 14.54639292,  -0.04443084,  24.45692118,  27.12600316]])
+    array([ 28.78558023,  28.43287225,  22.81032309,  10.26001075,
+             6.8862863 ,   4.40362445])
 
     References
     ----------
@@ -3077,7 +3018,7 @@ def t_from_CT(SA, CT, p):
     return t
 
 def pt0_from_t(SA, t, p): #NOTE: potential_t does has the same result (only slower)
-    """
+    r"""
     Calculates potential temperature with reference pressure, pr = 0 dbar. The present routine is computationally faster than the more general function "potential_t(SA, t, p, pr)" which can be used for any reference pressure value.
 
     Parameters
@@ -3087,12 +3028,12 @@ def pt0_from_t(SA, t, p): #NOTE: potential_t does has the same result (only slow
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
     pt0 : array_like
-          potential temperature relative to 0 db [:math:`^\circ` C (ITS-90)]
+          potential temperature relative to 0 dbar [:math:`^\circ` C (ITS-90)]
 
     See Also
     --------
@@ -3105,14 +3046,12 @@ def pt0_from_t(SA, t, p): #NOTE: potential_t does has the same result (only slow
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = 900
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.pt0_from_t(SA, t, p)
-    array([[  4.89971486e+00,   1.48664023e+01,   2.18420392e+01,
-              3.17741959e+01],
-           [  1.48891940e+01,   2.95267636e-02,   2.48187231e+01,
-              2.78058513e+01]])
+    array([ 28.78319682,  28.42098334,  22.7849304 ,  10.23052366,
+             6.82923022,   4.32451057])
 
     References
     ----------
@@ -3188,19 +3127,15 @@ def t_from_entropy(SA, entropy, t_type='pt'):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> entropy = [[63.6913727, 216.184242, 323.536391, 454.589274], [224.455426, -0.147644587, 362.859557, 407.493891]]
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> entropy = [400.3892, 395.4378, 319.8668, 146.7910, 98.6471, 62.7919]
     >>> gsw.t_from_entropy(SA, entropy)
-    array([[  5.00000000e+00,   1.50000000e+01,   2.20000000e+01,
-              3.20000000e+01],
-           [  1.50000000e+01,  -1.46624957e-12,   2.50000000e+01,
-              2.80000000e+01]])
-    >>> entropy = [[67.1618495, 214.564404, 312.442303, 445.351241], [216.404703, -0.371020898, 352.932205, 392.869342]]
+    array([ 28.78317983,  28.42095483,  22.78495274,  10.23053207,
+             6.82921333,   4.32453778])
     >>> gsw.t_from_entropy(SA, entropy, t_type='CT')
-    array([[  5.00000000e+00,   1.50000000e+01,   2.20000000e+01,
-              3.20000000e+01],
-           [  1.50000000e+01,  -2.64654543e-11,   2.50000000e+01,
-              2.80000000e+01]])
+    array([ 28.80990279,  28.43919923,  22.78619927,  10.22619767,
+             6.82719674,   4.32360295])
+
 
     References
     ----------
@@ -3268,18 +3203,15 @@ def entropy_from_t(SA, t, t_type='pt'):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> gsw.entropy_from_t(SA, t)
-    array([[  6.36913727e+01,   2.16184242e+02,   3.23536391e+02,
-              4.54589274e+02],
-           [  2.24455426e+02,  -1.47644587e-01,   3.62859557e+02,
-              4.07493891e+02]])
-    >>> gsw.entropy_from_t(SA, t, 'CT')
-    array([[  6.71618495e+01,   2.14564404e+02,   3.12442303e+02,
-              4.45351241e+02],
-           [  2.16404703e+02,  -3.71020898e-01,   3.52932205e+02,
-              3.92869342e+02]])
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> pt = [28.7832, 28.4210, 22.7850, 10.2305, 6.8292, 4.3245]
+    >>> gsw.entropy_from_t(SA, pt)
+    array([ 400.38946744,  395.43839949,  319.86743859,  146.79054828,
+             98.64691006,   62.79135672])
+    >>> CT = [28.8099, 28.4392, 22.7862, 10.2262, 6.8272, 4.3236]
+    >>> gsw.entropy_from_t(SA, CT, 'CT')
+    array([ 400.38916315,  395.43781023,  319.86680989,  146.79103279,
+             98.64714648,   62.79185763])
 
     References
     ----------
@@ -3318,7 +3250,7 @@ def  z_from_p(p, lat):
     lat : array_like
           latitude in decimal degrees north [-90..+90]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -3333,17 +3265,11 @@ def  z_from_p(p, lat):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> p = [0., 15., 100., 550., 1500., 2000., 3000., 5000., 10000.]
-    >>> lat = 32.
+    >>> p = [10, 50, 125, 250, 600, 1000]
+    >>> lat = 4
     >>> gsw.z_from_p(p, lat)
-    array([   -0.        ,   -14.89499448,   -99.27948265,  -545.44412444,
-           -1484.209721  , -1976.61994868, -2958.05761312, -4907.87772419,
-           -9712.16369644])
-    >>> lat = [0., 15., 20., 35., 42., 63., 77., 85., 90.]
-    >>> gsw.z_from_p(p, lat)
-    array([   -0.        ,   -14.9118282 ,   -99.36544813,  -545.30528098,
-           -1482.90095076, -1971.26442738, -2947.61650675, -4889.44474273,
-           -9675.31755921])
+    array([  -9.94460074,  -49.71817465, -124.2728275 , -248.47044828,
+           -595.82618014, -992.0931748 ])
 
     Notes
     -----
@@ -3387,7 +3313,7 @@ def  p_from_z(z, lat):
     Returns
     -------
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     See Also
     --------
@@ -3396,11 +3322,14 @@ def  p_from_z(z, lat):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> z = [-0., -14.89499448, -99.27948265, -545.44412444, -1484.209721, -1976.61994868, -2958.05761312, -4907.87772419, -9712.16369644]
-    >>> lat = 32.
+    >>> z = [10, 50, 125, 250, 600, 1000]
+    >>> lat = 4.
     >>> gsw.p_from_z(z, lat)
-    array([     0.,     15.,    100.,    550.,   1500.,   2000.,   3000.,
-             5000.,  10000.])
+    array([  -10.05521794,   -50.2711751 ,  -125.6548857 ,  -251.23284504,
+            -602.44050752, -1003.07609807])
+    >>> z = [-9.94460074, -49.71817465, -124.2728275, -248.47044828, -595.82618014, -992.0931748]
+    >>> gsw.p_from_z(z, lat)
+    array([   10.,    50.,   125.,   250.,   600.,  1000.])
 
     Notes
     -----
@@ -3449,7 +3378,7 @@ def grav(lat, p=0):
     lat : array_like
           latitude in decimal degrees north [-90..+90]
     p : number or array_like. Default p = 0
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -3467,14 +3396,12 @@ def grav(lat, p=0):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> lat = [0., 15., 20., 35., 42., 63., 77., 85., 90.]
-    >>> gsw.grav(lat)
-    array([ 9.780327  ,  9.78378673,  9.78636994,  9.79733807,  9.80349012,
-            9.82146051,  9.82955107,  9.83179057,  9.83218621])
-    >>> p = [0., 15., 100., 550., 1500., 2000., 3000., 5000., 10000.]
+    >>> lat = [-90, -60, -30, 0]
+    >>> p = 0
     >>> gsw.grav(lat, p)
-    array([ 9.780327  ,  9.7838197 ,  9.78658971,  9.79854548,  9.80677561,
-            9.82583603,  9.83609914,  9.84265484,  9.85368548])
+    array([ 9.83218621,  9.81917886,  9.79324926,  9.780327  ])
+    >>> gsw.grav(45)
+    9.8061998770458008
 
     References
     ----------
@@ -3519,7 +3446,7 @@ def distance(lon, lat, p=None):
     lat : array_like
           latitude in decimal degrees north [-90..+90]
     p : number or array_like. Default p = 0
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -3532,17 +3459,19 @@ def distance(lon, lat, p=None):
 
     Notes
     -----
-    Distances are probably good to better than 1% of the "true" distance on the ellipsoidal earth.
+    Distances are probably good to better than 1\% of the "true" distance on the ellipsoidal earth.
+    The check value below differ from the original online docs at "http://www.teos-10.org/pubs/gsw/html/gsw_distance.html" but agree with the result.
 
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> lon = [142, 183, 20]
-    >>> lat = [11, 9.5, 59]
-    >>> p = [[0., 0., 0.,],[500., 500., 500.,]]
+    >>> lon = [159, 220]
+    >>> lat = [-35, 35]
+    >>> gsw.distance(lon, lat)
+    array([[ 10030974.652916]])
+    >>> p = [200, 1000]
     >>> gsw.distance(lon, lat, p)
-    array([[  4486005.02220254,  12246940.87775248],
-           [  4485655.37223579,  12245987.75821541]])
+    array([[ 10030661.63878009]])
 
     References
     ----------
@@ -3616,9 +3545,9 @@ def SA_from_SP(SP, p, lon, lat):
     Parameters
     ----------
     SP : array_like
-         salinity [psu (PSS-78) unitless]
+         salinity [psu (PSS-78)], unitless
     p : array_like
-        pressure [db]
+        pressure [dbar]
     lon : array_like
           decimal degrees east [0..+360] or [-180..+180]
     lat : array_like
@@ -3642,15 +3571,12 @@ def SA_from_SP(SP, p, lon, lat):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SP = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> p = [0., 500., 1500., 2000.]
-    >>> lon, lat = -69., 42.
-    >>> gsw.SA_from_SP(SP, p, lon, lat)[0]
-    array([[  5.32510274e+01,   3.01448066e+01,   1.00503768e+01,
-              2.00980483e+01],
-           [  1.00482640e+01,   3.34377888e-03,   1.50739539e+01,
-              8.04146315e+00]])
-
+    >>> SP = [34.5487, 34.7275, 34.8605, 34.6810, 34.5680, 34.5600]
+    >>> p = [10, 50, 125, 250, 600, 1000]
+    >>> lon, lat = 188, 4
+    >>> gsw.SA_from_SP(SP, p, lon, lat)
+    (array([ 34.71177971,  34.89152372,  35.02554774,  34.84723008,
+            34.7366296 ,  34.73236186]), array([ True,  True,  True,  True,  True,  True], dtype=bool))
 
     References
     ----------
@@ -3667,23 +3593,22 @@ def SA_from_SP(SP, p, lon, lat):
     SP, p, lon, lat = np.asanyarray(SP), np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
 
     p = _check_dim(p, SP)
-    lat = _check_dim(lat, SP)
-    lon = _check_dim(lon, SP)
+    lon, lat = _check_dim(lon, SP), _check_dim(lat, SP)
 
     SP[SP < 0] = 0
-    lon[lon < 0] = lon[lon < 0] + 360.
+
+    if (lon < 0).any():
+        lon[lon < 0] = lon[lon < 0] + 360.
 
     inds = np.isfinite(SP)
 
     SA = np.NaN * np.zeros( SP.shape )
     dSA = np.NaN * np.zeros( SP.shape )
 
-    #FIXME: change to boolean
-    in_ocean = np.NaN * np.zeros( SP.shape )
+    in_ocean = np.bool_( np.ones( SP.shape ) )
 
     dSA[inds], in_ocean[inds] = _delta_SA( p[inds], lon[inds], lat[inds] )
     SA[inds] = ( cte.SSO / 35 ) * SP[inds] + dSA[inds]
-
     SA_baltic = _SA_from_SP_Baltic( SP, lon, lat )
 
     indsbaltic = ~np.isnan(SA_baltic)
@@ -3701,7 +3626,7 @@ def SA_from_Sstar(Sstar, p, lon, lat):
     Sstar : array_like
             Preformed Salinity [g kg :sup:`-1`]
     p : array_like
-        pressure [db]
+        pressure [dbar]
     lon : array_like
           decimal degrees east [0..+360] or [-180..+180]
     lat : array_like
@@ -3725,12 +3650,12 @@ def SA_from_Sstar(Sstar, p, lon, lat):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> Sstar = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> p = [0., 500., 1500., 2000.]
-    >>> lon, lat = -69., 42.
-    >>> gsw.SA_from_Sstar(Sstar, p, lon, lat)[0]
-    array([[ 53.00149807,  30.0045141 ,  10.00435036,  20.00504862],
-           [ 10.00149807,  -4.9954859 ,  15.00435036,   8.00504862]])
+    >>> Sstar = [34.7115, 34.8912, 35.0247, 34.8436, 34.7291, 34.7197]
+    >>> p = [10, 50, 125, 250, 600, 1000]
+    >>> lon, lat = 188, 4
+    >>> gsw.SA_from_Sstar(Sstar, p, lon, lat)
+    (array([ 34.71172651,  34.89156271,  35.02559848,  34.84723731,
+            34.736696  ,  34.73238548]), array([ True,  True,  True,  True,  True,  True], dtype=bool))
 
     References
     ----------
@@ -3747,14 +3672,14 @@ def SA_from_Sstar(Sstar, p, lon, lat):
     lon = _check_dim(lon, Sstar)
     lat = _check_dim(lat, Sstar)
 
-    lon[lon < 0] = lon[lon < 0] + 360.
+    if (lon < 0).any():
+        lon[lon < 0] = lon[lon < 0] + 360.
 
     inds = np.isfinite(Sstar)
     SA = np.NaN * np.zeros( Sstar.shape )
     dSA = np.NaN * np.zeros( Sstar.shape )
 
-    #FIXME: change to boolean
-    in_ocean = np.NaN * np.zeros( Sstar.shape )
+    in_ocean = np.bool_( np.ones( Sstar.shape ) )
 
     dSA[inds], in_ocean[inds] = _delta_SA( p[inds], lon[inds], lat[inds] )
 
@@ -3773,7 +3698,7 @@ def SP_from_SA(SA, p, lon, lat):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     p : array_like
-        pressure [db]
+        pressure [dbar]
     lon : array_like
           decimal degrees east [0..+360] or [-180..+180]
     lat : array_like
@@ -3797,12 +3722,12 @@ def SP_from_SA(SA, p, lon, lat):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> p = [0., 500., 1500., 2000.]
-    >>> lon, lat = -69., 42.
-    >>> gsw.SP_from_SA(SA, p, lon, lat)[0]
-    array([[ 52.75015075,  29.85587298,   9.94985966,  19.90241188],
-           [  9.95196255,  -4.9798616 ,  14.92639317,   7.95873145]])
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> p = [10, 50, 125, 250, 600, 1000]
+    >>> lon, lat =  188, 4
+    >>> gsw.SP_from_SA(SA, p, lon, lat)
+    (array([ 34.54872019,  34.72747639,  34.86055202,  34.68097006,
+            34.56797054,  34.56003796]), array([ True,  True,  True,  True,  True,  True], dtype=bool))
 
     References
     ----------
@@ -3819,14 +3744,14 @@ def SP_from_SA(SA, p, lon, lat):
     lat = _check_dim(lat, SA)
     lon = _check_dim(lon, SA)
 
-    lon[lon < 0] = lon[lon < 0] + 360.
+    if (lon < 0).any():
+        lon[lon < 0] = lon[lon < 0] + 360.
 
     inds = np.isfinite(SA)
     SP = np.NaN * np.zeros( SA.shape )
     dSA = np.NaN * np.zeros( SA.shape )
 
-    #FIXME: change to boolean
-    in_ocean = np.NaN * np.zeros( SA.shape )
+    in_ocean = np.bool_( np.ones( SA.shape ) )
 
     dSA[inds], in_ocean[inds] = _delta_SA( p[inds], lon[inds], lat[inds] )
 
@@ -3849,7 +3774,7 @@ def Sstar_from_SA(SA, p, lon, lat):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     p : array_like
-        pressure [db]
+        pressure [dbar]
     lon : array_like
           decimal degrees east [0..+360] or [-180..+180]
     lat : array_like
@@ -3873,16 +3798,16 @@ def Sstar_from_SA(SA, p, lon, lat):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> p = [0., 500., 1500., 2000.]
-    >>> lon, lat = -69., 42.
-    >>> gsw.Sstar_from_SA(SA, p, lon, lat)[0]
-    array([[ 52.99850193,  29.9954859 ,   9.99564964,  19.99495138],
-           [  9.99850193,  -5.0045141 ,  14.99564964,   7.99495138]])
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> p = [10, 50, 125, 250, 600, 1000]
+    >>> lon, lat =  188, 4
+    >>> gsw.Sstar_from_SA(SA, p, lon, lat)
+    (array([ 34.71157349,  34.89113729,  35.02470152,  34.84356269,
+            34.729004  ,  34.71971452]), array([ True,  True,  True,  True,  True,  True], dtype=bool))
 
     References
     ----------
-    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp.
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See section 2.5 and appendices A.4 and A.5.
 
     Modifications:
     2010-07-23. David Jackett, Trevor McDougall and Paul Barker.
@@ -3895,14 +3820,14 @@ def Sstar_from_SA(SA, p, lon, lat):
     lon = _check_dim(lon, SA)
     lat = _check_dim(lat, SA)
 
-    lon[lon < 0] = lon[lon < 0] + 360.
+    if (lon < 0).any():
+        lon[lon < 0] = lon[lon < 0] + 360.
 
     inds = np.isfinite(SA)
     Sstar = np.NaN * np.zeros( SA.shape )
     dSA = np.NaN * np.zeros( SA.shape )
 
-    #FIXME: change to boolean
-    in_ocean = np.NaN * np.zeros( SA.shape )
+    in_ocean = np.bool_( np.ones( SA.shape ) )
 
     dSA[inds], in_ocean[inds] = _delta_SA( p[inds], lon[inds], lat[inds] )
 
@@ -3920,7 +3845,7 @@ def SP_from_Sstar(Sstar, p, lon, lat):
     Sstar : array_like
             Preformed Salinity [g kg :sup:`-1`]
     p : array_like
-        pressure [db]
+        pressure [dbar]
     lon : array_like
           decimal degrees east [0..+360] or [-180..+180]
     lat : array_like
@@ -3939,21 +3864,21 @@ def SP_from_Sstar(Sstar, p, lon, lat):
 
     Notes
     -----
-    The in_ocean flag is only set when the observation is well and truly on dry land; often the warning flag is not set until one is several hundred kilometres inland from the coast.
+    The in_ocean flag is only set when the observation is well and truly on dry land; often the warning flag is not set until one is several hundred kilometers inland from the coast.
 
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> Sstar = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> p = [0., 500., 1500., 2000.]
-    >>> lon, lat = -69., 42.
-    >>> gsw.SP_from_Sstar(Sstar, p, lon, lat)[0]
-    array([[ 52.75164179,  29.8603659 ,   9.9541896 ,  19.9074368 ],
-           [  9.95345359,  -4.97536868,  14.93072311,   7.96375638]])
+    >>> Sstar = [34.7115, 34.8912, 35.0247, 34.8436, 34.7291, 34.7197]
+    >>> p = [10, 50, 125, 250, 600, 1000]
+    >>> lon, lat =  188, 4
+    >>> gsw.SP_from_Sstar(Sstar, p, lon, lat)
+    (array([ 34.54864705,  34.72753881,  34.8605505 ,  34.68100719,
+            34.56806609,  34.56002351]), array([ True,  True,  True,  True,  True,  True], dtype=bool))
 
     References
     ----------
-    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp.
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp. See section 2.5 and appendices A.4 and A.5.
 
     Modifications:
     2010-07-23. David Jackett, Trevor McDougall and Paul Barker.
@@ -3966,14 +3891,14 @@ def SP_from_Sstar(Sstar, p, lon, lat):
     lon = _check_dim(lon, Sstar)
     lat = _check_dim(lat, Sstar)
 
-    lon[lon < 0] = lon[lon < 0] + 360.
+    if (lon < 0).any():
+        lon[lon < 0] = lon[lon < 0] + 360.
 
     inds = np.isfinite(Sstar)
     SP = np.NaN * np.zeros( Sstar.shape )
     dSA = np.NaN * np.zeros( Sstar.shape )
 
-    #FIXME: change to boolean
-    in_ocean = np.NaN * np.zeros( Sstar.shape )
+    in_ocean = np.bool_( np.ones( Sstar.shape ) )
 
     dSA[inds], in_ocean[inds] = _delta_SA( p[inds], lon[inds], lat[inds] )
     SP[inds] = (35/cte.SSO) * ( Sstar[inds] + cte.r1 * dSA[inds] )
@@ -3996,7 +3921,7 @@ def Sstar_from_SP(SP, p, lon, lat):
     SP : array_like
          salinity [psu (PSS-78)], unitless
     p : array_like
-        pressure [db]
+        pressure [dbar]
     lon : array_like
           decimal degrees east [0..+360] or [-180..+180]
     lat : array_like
@@ -4022,14 +3947,12 @@ def Sstar_from_SP(SP, p, lon, lat):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SP = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> p = [0., 500., 1500., 2000.]
-    >>> lon, lat = -69., 42.
-    >>> gsw.Sstar_from_SP(SP, p, lon, lat)[0]
-    array([[  5.32495293e+01,   3.01402925e+01,   1.00460264e+01,
-              2.00929997e+01],
-           [  1.00467659e+01,  -1.17032261e-03,   1.50696036e+01,
-              8.03641453e+00]])
+    >>> SP = [34.5487, 34.7275, 34.8605, 34.6810, 34.5680, 34.5600]
+    >>> p = [10, 50, 125, 250, 600, 1000]
+    >>> lon, lat =  188, 4
+    >>> gsw.Sstar_from_SP(SP, p, lon, lat)
+    (array([ 34.7115532 ,  34.89116101,  35.02464926,  34.84359277,
+            34.7290336 ,  34.71967638]), array([ True,  True,  True,  True,  True,  True], dtype=bool))
 
     References
     ----------
@@ -4049,14 +3972,15 @@ def Sstar_from_SP(SP, p, lon, lat):
     lat = _check_dim(lat, SP)
 
     SP[SP < 0] = 0
-    lon[lon < 0] = lon[lon < 0] + 360.
+
+    if (lon < 0).any():
+        lon[lon < 0] = lon[lon < 0] + 360.
 
     inds = np.isfinite(SP)
     Sstar = np.NaN * np.zeros( SP.shape )
     dSA = np.NaN * np.zeros( SP.shape )
 
-    #FIXME: change to boolean
-    in_ocean = np.NaN * np.zeros( SP.shape )
+    in_ocean = np.bool_( np.ones( SP.shape ) )
 
     dSA[inds], in_ocean[inds] = _delta_SA( p[inds], lon[inds], lat[inds] )
     Sstar[inds] = (cte.SSO/35.) * SP[inds] - cte.r1 * dSA[inds]
@@ -4079,7 +4003,7 @@ def SA_Sstar_from_SP(SP, p, lon, lat):
     SP : array_like
          salinity [psu (PSS-78)], unitless
     p : array_like
-        pressure [db]
+        pressure [dbar]
     lon : array_like
           decimal degrees east [0..+360] or [-180..+180]
     lat : array_like
@@ -4107,19 +4031,13 @@ def SA_Sstar_from_SP(SP, p, lon, lat):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> SP = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
-    >>> p = [0., 500., 1500., 2000.]
-    >>> lon, lat = -69., 42.
-    >>> gsw.SA_Sstar_from_SP(SP, p, lon, lat)[0]
-    array([[  5.32510274e+01,   3.01448066e+01,   1.00503768e+01,
-              2.00980483e+01],
-           [  1.00482640e+01,   3.34377888e-03,   1.50739539e+01,
-              8.04146315e+00]])
-    >>> gsw.SA_Sstar_from_SP(SP, p, lon, lat)[1]
-    array([[  5.32495293e+01,   3.01402925e+01,   1.00460264e+01,
-              2.00929997e+01],
-           [  1.00467659e+01,  -1.17032261e-03,   1.50696036e+01,
-              8.03641453e+00]])
+    >>> SP = [34.5487, 34.7275, 34.8605, 34.6810, 34.5680, 34.5600]
+    >>> p = [10, 50, 125, 250, 600, 1000]
+    >>> lon, lat =  188, 4
+    >>> gsw.SA_Sstar_from_SP(SP, p, lon, lat)
+    (array([ 34.71177971,  34.89152372,  35.02554774,  34.84723008,
+            34.7366296 ,  34.73236186]), array([ 34.7115532 ,  34.89116101,  35.02464926,  34.84359277,
+            34.7290336 ,  34.71967638]), array([ True,  True,  True,  True,  True,  True], dtype=bool))
 
     References
     ----------
@@ -4140,7 +4058,9 @@ def SA_Sstar_from_SP(SP, p, lon, lat):
     lon = _check_dim(lon, SP)
 
     SP[SP < 0] = 0
-    lon[lon < 0] = lon[lon < 0] + 360.
+
+    if (lon < 0).any():
+        lon[lon < 0] = lon[lon < 0] + 360.
 
     inds = np.isfinite(SP)
 
@@ -4148,8 +4068,7 @@ def SA_Sstar_from_SP(SP, p, lon, lat):
     Sstar = np.NaN * np.zeros( SP.shape )
     dSA = np.NaN * np.zeros( SP.shape )
 
-    #FIXME: change to boolean
-    in_ocean = np.NaN * np.zeros( SP.shape )
+    in_ocean = np.bool_( np.ones( SP.shape ) )
 
     dSA[inds], in_ocean[inds] = _delta_SA( p[inds], lon[inds], lat[inds] )
 
@@ -4179,7 +4098,7 @@ def SA_from_rho(rho, t, p):
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     Returns
     -------
@@ -4199,12 +4118,12 @@ def SA_from_rho(rho, t, p):
     Examples
     --------
     >>> import seawater.gibbs as gsw
-    >>> rho = [[1041.77425464, 1024.2413978, 1011.923534, 1018.28328036],[1006.74841976, 1002.37206267, 1014.78353156, 1010.8696052]]
-    >>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
-    >>> p = [0., 500., 1500., 2000.]
+    >>> rho = [1021.839, 1022.262, 1024.426, 1027.792, 1029.839, 1032.002]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.SA_from_rho(rho, t, p)
-    array([[ 53.00000001,  30.        ,  10.        ,  20.        ],
-           [  9.99999999,          nan,  15.        ,   8.        ]])
+    array([ 34.71022966,  34.89057683,  35.02332421,  34.84952096,
+            34.73824809,  34.73188384])
 
     References
     ----------
@@ -4254,7 +4173,7 @@ class Gibbs:
     t : array_like
         in situ temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]
+        pressure [dbar]
 
     """
     def __init__(self, SA=None, t=None, p=None):
@@ -4463,7 +4382,13 @@ if __name__=='__main__':
                 exec("nmin = ( gsw_cv."+comp_value+" - STP."+method+"() )[~np.isnan(gsw_cv."+comp_value+")].min()")
                 print "%s: Passed, but small diff ranging from: %s to %s" % ( method.rjust(width), nmax, nmin)
 
-    #load test data
+    """ test data: data/gsw_cv.pkl
+    (1) a reference cast (for the McD_Klocker streamfunction)
+    (2) three vertical profiles of (SP, t, p) at known long & lat
+    (3) the outputs of all the GSW functions for these 3 profiles
+    (4) the required accuracy of all these outputs.
+    """
+
     data = pickle.load( open(os.path.join(datadir + 'gsw_cv.pkl'),'rb') )
     gsw_cv = Dict2Struc(data) # then type data.<tab> to navigate through your variables
 
