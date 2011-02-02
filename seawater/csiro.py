@@ -2515,7 +2515,7 @@ def temp(s, pt, p, pr=0):
     s, pt, p, pr = np.asanyarray(s), np.asanyarray(pt), np.asanyarray(p), np.asanyarray(pr)
 
     # Carry out inverse calculation by swapping p0 & pr
-    t = ptmp(s, pt, pr, p);
+    t = ptmp(s, pt, pr, p)
 
     return t
 
@@ -2552,7 +2552,7 @@ def swvel(length, depth):
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    lenth, depth = np.asanyarray(length), np.asanyarray(depth)
+    length, depth = np.asanyarray(length), np.asanyarray(depth)
 
     k = 2.0 * np.pi / length
     speed = ( cte.gdef * np.tanh(k * depth) / k )**0.5
