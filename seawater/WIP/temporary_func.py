@@ -1,8 +1,65 @@
 #FIXME: temporary_func.py is a place for functions without a home yet...
+#TODO: compare SIGMAS
+#TODO: create term25 class
 
 import numpy as np
 from seawater import constants as cte
-from seawater import library as lib
+
+def _infunnel(SA, CT, p):
+    r"""
+    Calculates Absolute Salinity in the Baltic Sea, from Practical Salinity.
+    Since SP is non-negative by definition, this function changes any negative input values of SP to be zero.
+
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+    CT : array_like
+         Conservative Temperature [:math:`^\circ` C (TEOS-10)]
+    p : array_like
+        pressure [dbar]
+
+    Returns
+    -------
+    in_funnel : bool
+                False, if SA, CT and p are outside the "funnel"
+                True, if SA, CT and p are inside the "funnel"
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    The term "funnel" describes the range of SA, CT and p over which the error in the fit of the computationally-efficient 25-term expression for density in terms of SA, CT and p was calculated (McDougall et al., 2010).
+
+    References
+    ----------
+    .. [1] McDougall, T.J., D.R. Jackett and F.J. Millero, 2010: An algorithm for estimating Absolute Salinity in the global ocean. Submitted to Ocean Science. A preliminary version is available at Ocean Sci. Discuss., 6, 215-242.
+    http://www.ocean-sci-discuss.net/6/215/2009/osd-6-215-2009-print.pdf
+
+    Modifications:
+    2010-07-23. Trevor McDougall and Paul Barker
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    SA, CT, p = np.asanyarray(SA), np.asanyarray(CT), np.asanyarray(p)
+
+    in_funnel = np.ones( SA.shape )
+    Inan = ( np.isnan(SA) | np.isnan(CT) | np.isnan(p) )
+
+    Ifunnel = (p > 8000) | (SA < 0) | (SA > 42.2) | \
+        ( CT < ( -0.3595467 - 0.0553734 * SA ) ) | \
+        ( (p < 5500) & ( SA < 0.006028 * ( p - 500 ) ) ) | \
+        ( (p < 5500) & ( CT > ( 33.0 - 0.003818181818182 * p ) ) ) | \
+        ( (p > 5500) & ( SA < 30.14 ) ) | \
+        ( (p > 5500) & ( CT > 12.0 ) )
+
+    Ifunnel = (Ifunnel == False) # reverse True <-> False
+    # TODO: Nans will become False, change to mask array
+    Ifunnel[Inan] = False
+
+    return Ifunnel
 
 def  _interp_McD_Klocker(spycnl, A='gn'):
     """
