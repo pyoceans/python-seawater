@@ -46,19 +46,6 @@ Modules:
 .. toctree::
    :maxdepth: 4
 
-csiro Seawater Documentation
-============================
-
-This page contains the Csiro Module documentation.
-
-The :mod:`csiro` module
------------------------
-
-.. automodule:: seawater.csiro
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 
 gibbs Seawater Documentation
 ============================
@@ -72,6 +59,21 @@ The :mod:`gibbs` module
     :members:
     :undoc-members:
     :show-inheritance:
+
+
+csiro Seawater Documentation
+============================
+
+This page contains the Csiro Module documentation.
+
+The :mod:`csiro` module
+-----------------------
+
+.. automodule:: seawater.csiro
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 extras Documentation
 ====================
