@@ -4,11 +4,11 @@ import numpy as np
 import seawater.csiro as sw
 
 class Waves():
-    """
+    r"""
     Solves the wave dispersion relationship.
 
     .. math::
-        \Omega = ...
+        \omega^2 = gk\tanh kh
 
     Parameters
     ----------
