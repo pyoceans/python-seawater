@@ -803,6 +803,7 @@ def _delta_SA(p, lon, lat):
     The Absolute Salinity Anomaly in the Baltic Sea is evaluated separately, since it is a function of Practical Salinity, not of space. The present function returns a delta_SA of zero for data in the Baltic Sea. The correct way of calculating Absolute Salinity in the Baltic Sea is by calling _SA_from_SP.
 
     The in_ocean flag is only set when the observation is well and truly on dry land; often the warning flag is not set until one is several hundred kilometers inland from the coast.
+    TODO: the best approach should be a complete re-write using masked array and elimination in_ocean
 
     Examples
     --------
@@ -813,7 +814,7 @@ def _delta_SA(p, lon, lat):
     (array([ 0.00016779,  0.00026868,  0.00066554,  0.0026943 ,  0.00562666,
             0.00939665]), array([ True,  True,  True,  True,  True,  True], dtype=bool))
     >>> gsw._delta_SA(p, -80, 45)[1]
-    array([ True,  True,  True,  True,  True, True], dtype=bool)
+    array([ True,  True,  True,  True,  True,  True], dtype=bool)
 
     References
     ----------
@@ -856,7 +857,7 @@ def _delta_SA(p, lon, lat):
     #FIXME: Ugly matlab matrix dot multiplication, there must be a better way...
     P_REF = np.dot( np.ones(p_ref.size)[:,np.newaxis], p[np.newaxis,:] )
     P = np.dot( p_ref[:,np.newaxis], np.ones(p.size)[np.newaxis,:] )
-    indsz0 = np.sum( (P_REF >= P), axis=0 ) -1 #FIXME: -1(?)
+    indsz0 = np.sum( (P_REF >= P), axis=0 )-1
 
     nmax = np.c_[ ndepth_ref[indsy0, indsx0], \
                   ndepth_ref[indsy0, indsx0+1], \
@@ -872,7 +873,7 @@ def _delta_SA(p, lon, lat):
     #FIXME: Ugly matlab matrix dot multiplication, there must be a better way...
     P_REF = np.dot( np.ones(p_ref.size)[:,np.newaxis], p[np.newaxis,:] )
     P = np.dot( p_ref[:,np.newaxis], np.ones(p.size)[np.newaxis,:] )
-    indsz0 = np.sum( (P_REF >= P), axis=0 ) -1
+    indsz0 = np.sum( (P_REF >= P), axis=0 )-1
 
     inds = (indsz0 == p_ref.size-1)
     indsz0[inds] = p_ref.size - 2
@@ -893,7 +894,6 @@ def _delta_SA(p, lon, lat):
     sa_lower = np.nan * ( np.ones(data_inds.shape) )
     delta_SA = np.nan * ( np.ones(data_inds.shape) )
 
-    #for k in range(0, p_ref.size-1):
     for k in range(0, p_ref.size):
         inds_k = np.where(indsz0 == k)[0]
         nk = inds_k.size
@@ -907,25 +907,19 @@ def _delta_SA(p, lon, lat):
             dsa = np.nan * np.ones( (4, p.size) )
 
             dsa[0, inds_k] = delta_SA_ref[indsz, indsy, indsx]
-            dsa[1, inds_k] = delta_SA_ref[indsz, indsy, indsx+1]   # inds0 + ny*nz
-            dsa[2, inds_k] = delta_SA_ref[indsz, indsy+1, indsx+1] # inds0 + ny*nz + nz
-            dsa[3, inds_k] = delta_SA_ref[indsz, indsy+1, indsx] #  inds0 + nz
+            dsa[1, inds_k] = delta_SA_ref[indsz, indsy, indsx+1]  # inds0 + ny*nz
+            dsa[2, inds_k] = delta_SA_ref[indsz, indsy+1, indsx+1]# inds0 + ny*nz + nz
+            dsa[3, inds_k] = delta_SA_ref[indsz, indsy+1, indsx]  # inds0 + nz
 
-            #inds = np.where( (260. <= lon) & (lon <= 295.217) & (0. <= lat) & (lat <= 19.55) & (indsz0 == k) )[0]
             inds = ( (260. <= lon) & (lon <= 295.217) & (0. <= lat) & (lat <= 19.55) & (indsz0 == k) )
             """ TODO: describe add_barrier """
             if inds.any():
                 dsa[:,inds] = _dsa_add_barrier( dsa[:,inds], lon[inds], lat[inds], longs_ref[indsx0[inds]], lats_ref[indsy0[inds]], dlongs_ref, dlats_ref)
-                #print "add_barrier %s" % dsa
 
             inds = np.where( ( np.isnan( np.sum(dsa, axis=0) ) ) & (indsz0==k))[0]
-            #print "inds = %s" % inds
-            #raw_input("Press Enter to continue...")
             """ TODO: describe add_mean """
             if inds.size !=0:
-                #print "dsa = %s" % dsa[:,inds]
                 dsa[:,inds] = _dsa_add_mean(dsa[:,inds])
-                #print "add_mean %s" % dsa
 
             sa_upper[inds_di] = ( 1 - s1[inds_di] ) * ( dsa[0, inds_k] + \
             r1[inds_di] * ( dsa[1, inds_k] - dsa[0, inds_k] ) ) + \
@@ -934,30 +928,28 @@ def _delta_SA(p, lon, lat):
 
             dsa = np.nan * np.ones( (4, p.size) )
             dsa[0, inds_k] = delta_SA_ref[indsz+1, indsy, indsx]
-            dsa[1, inds_k] = delta_SA_ref[indsz+1, indsy, indsx+1] # inds1 + ny*nz
+            dsa[1, inds_k] = delta_SA_ref[indsz+1, indsy, indsx+1]   # inds1 + ny*nz
             dsa[2, inds_k] = delta_SA_ref[indsz+1, indsy+1, indsx+1] # inds1 + ny*nz + nz
-            dsa[3, inds_k] = delta_SA_ref[indsz+1, indsy+1, indsx] # inds1 + nz
+            dsa[3, inds_k] = delta_SA_ref[indsz+1, indsy+1, indsx]   # inds1 + nz
 
-            inds = np.where( (260. <= lon) & (lon <= 295.217) & (0 <= lat) & (lat <= 19.55) & (indsz0 == k) )[0]
-
+            inds = ( (260. <= lon) & (lon <= 295.217) & (0 <= lat) & (lat <= 19.55) & (indsz0 == k) )
             """ TODO: describe add_barrier """
             if inds.any():
                 dsa[:,inds] = _dsa_add_barrier( dsa[:,inds], lon[inds], lat[inds], longs_ref[indsx0[inds]], lats_ref[indsy0[inds]], dlongs_ref, dlats_ref)
-                #print "add_barrier %s" % dsa
 
             inds = ( np.isnan( np.sum(dsa, axis=0) ) ) & (indsz0==k)
-
             """ TODO: describe add_mean """
             dsa[:,inds] = _dsa_add_mean(dsa[:,inds])
-            #print "add_mean %s" % dsa
 
             sa_lower[inds_di] = ( 1 - s1[inds_di] ) * ( dsa[0, inds_k] + \
             r1[inds_di] * ( dsa[1, inds_k] - dsa[0,inds_k] ) ) + \
             s1[inds_di] * ( dsa[3, inds_k] + \
             r1[inds_di] * ( dsa[2, inds_k] - dsa[3, inds_k] ) )
 
-            inds_different = np.isfinite(sa_upper[inds_di]) & np.isnan(sa_lower[inds_di])
-            sa_lower[inds_di[inds_different]] = sa_upper[inds_di[inds_different]]
+            inds_different = np.where(np.isfinite(sa_upper[inds_di]) & np.isnan(sa_lower[inds_di]))[0]
+            inds_di = np.where(inds_di)[0] #TODO: terrible solution, but works
+            if inds_different.size != 0:
+                sa_lower[inds_di[inds_different]] = sa_upper[inds_di[inds_different]]
 
             delta_SA[inds_di] = sa_upper[inds_di] + t1[inds_di] * ( sa_lower[inds_di] - sa_upper[inds_di] )
         else:
@@ -1001,18 +993,12 @@ def _dsa_add_barrier(dsa, lon, lat, longs_ref, lats_ref, dlongs_ref, dlats_ref):
     Modifications:
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
-    dsa = np.asanyarray(dsa)
-    lon, lat = np.asanyarray(lon), np.asanyarray(lat)
-    longs_ref, lats_ref = np.asanyarray(longs_ref), np.asanyarray(lats_ref)
-    dlongs_ref, dlats_ref = np.asanyarray(dlongs_ref), np.asanyarray(dlats_ref)
-
     longs_pan = np.array([260.0000, 272.5900, 276.5000, 278.6500, 280.7300, 295.2170])
     lats_pan = np.array([19.5500, 13.9700, 9.6000, 8.1000, 9.3300, 0])
 
-    lats_lines0 = np.interp(lon, longs_pan, lats_pan)
-
-    lats_lines1 = np.interp( longs_ref, lats_pan, longs_pan)
-    lats_lines2 = np.interp( (longs_ref+dlongs_ref), lats_pan, longs_pan)
+    lats_lines0 = np.interp( lon, longs_pan, lats_pan )
+    lats_lines1 = np.interp( longs_ref, lats_pan, longs_pan )
+    lats_lines2 = np.interp( (longs_ref+dlongs_ref), lats_pan, longs_pan )
 
     above_line = np.bool_( np.ones(4) )
     for k0 in range(0, len(lon.shape) ):
@@ -1085,13 +1071,7 @@ def _dsa_add_mean(dsa):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    dsa = np.asanyarray(dsa)
-
-    #FIXME: should be nanmean here in the original
-    # the best approach should be a complete re-write using masked array and elimination in_ocean
-    #print "dsa%s" % dsa
     dsa_mean = dsa.mean(axis = 0)
-    #print "dsa_mean %s" % dsa_mean
     inds_nan = np.where( np.isnan(dsa_mean) )[0]
     no_nan = len(inds_nan)
 
@@ -3596,10 +3576,6 @@ def SA_from_SP(SP, p, lon, lat):
     lon, lat = _check_dim(lon, SP), _check_dim(lat, SP)
 
     SP[SP < 0] = 0
-
-    if (lon < 0).any():
-        lon[lon < 0] = lon[lon < 0] + 360.
-
     inds = np.isfinite(SP)
 
     SA = np.NaN * np.zeros( SP.shape )
@@ -3608,6 +3584,7 @@ def SA_from_SP(SP, p, lon, lat):
     in_ocean = np.bool_( np.ones( SP.shape ) )
 
     dSA[inds], in_ocean[inds] = _delta_SA( p[inds], lon[inds], lat[inds] )
+
     SA[inds] = ( cte.SSO / 35 ) * SP[inds] + dSA[inds]
     SA_baltic = _SA_from_SP_Baltic( SP, lon, lat )
 
@@ -3669,11 +3646,7 @@ def SA_from_Sstar(Sstar, p, lon, lat):
     Sstar, p, lon, lat = np.asanyarray(Sstar), np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
 
     p = _check_dim(p, Sstar)
-    lon = _check_dim(lon, Sstar)
-    lat = _check_dim(lat, Sstar)
-
-    if (lon < 0).any():
-        lon[lon < 0] = lon[lon < 0] + 360.
+    lon, lat = _check_dim(lon, Sstar), _check_dim(lat, Sstar)
 
     inds = np.isfinite(Sstar)
     SA = np.NaN * np.zeros( Sstar.shape )
@@ -3741,11 +3714,7 @@ def SP_from_SA(SA, p, lon, lat):
     SA, p, lon, lat = np.asanyarray(SA), np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
 
     p = _check_dim(p, SA)
-    lat = _check_dim(lat, SA)
-    lon = _check_dim(lon, SA)
-
-    if (lon < 0).any():
-        lon[lon < 0] = lon[lon < 0] + 360.
+    lon, lat = _check_dim(lon, SA),_check_dim(lat, SA)
 
     inds = np.isfinite(SA)
     SP = np.NaN * np.zeros( SA.shape )
@@ -3817,11 +3786,7 @@ def Sstar_from_SA(SA, p, lon, lat):
     SA, p, lon, lat = np.asanyarray(SA), np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
 
     p = _check_dim(p, SA)
-    lon = _check_dim(lon, SA)
-    lat = _check_dim(lat, SA)
-
-    if (lon < 0).any():
-        lon[lon < 0] = lon[lon < 0] + 360.
+    lon, lat = _check_dim(lon, SA), _check_dim(lat, SA)
 
     inds = np.isfinite(SA)
     Sstar = np.NaN * np.zeros( SA.shape )
@@ -3888,11 +3853,7 @@ def SP_from_Sstar(Sstar, p, lon, lat):
     Sstar, p, lon, lat = np.asanyarray(Sstar), np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
 
     p = _check_dim(p, Sstar)
-    lon = _check_dim(lon, Sstar)
-    lat = _check_dim(lat, Sstar)
-
-    if (lon < 0).any():
-        lon[lon < 0] = lon[lon < 0] + 360.
+    lon, lat = _check_dim(lon, Sstar), _check_dim(lat, Sstar)
 
     inds = np.isfinite(Sstar)
     SP = np.NaN * np.zeros( Sstar.shape )
@@ -3968,13 +3929,9 @@ def Sstar_from_SP(SP, p, lon, lat):
     SP, p, lon, lat = np.asanyarray(SP), np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
 
     p = _check_dim(p, SP)
-    lon = _check_dim(lon, SP)
-    lat = _check_dim(lat, SP)
+    lon, lat = _check_dim(lon, SP), _check_dim(lat, SP)
 
     SP[SP < 0] = 0
-
-    if (lon < 0).any():
-        lon[lon < 0] = lon[lon < 0] + 360.
 
     inds = np.isfinite(SP)
     Sstar = np.NaN * np.zeros( SP.shape )
@@ -4054,13 +4011,9 @@ def SA_Sstar_from_SP(SP, p, lon, lat):
     SP, p, lon, lat = np.asanyarray(SP), np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
 
     p = _check_dim(p, SP)
-    lat = _check_dim(lat, SP)
-    lon = _check_dim(lon, SP)
+    lon, lat = _check_dim(lon, SP), _check_dim(lat, SP)
 
     SP[SP < 0] = 0
-
-    if (lon < 0).any():
-        lon[lon < 0] = lon[lon < 0] + 360.
 
     inds = np.isfinite(SP)
 
