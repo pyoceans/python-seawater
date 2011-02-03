@@ -804,6 +804,8 @@ def _delta_SA(p, lon, lat):
 
     The in_ocean flag is only set when the observation is well and truly on dry land; often the warning flag is not set until one is several hundred kilometers inland from the coast.
     TODO: the best approach should be a complete re-write using masked array and elimination in_ocean
+    TODO: try python bisect for the lookupt table, should reduce the code size
+    and import speed.
 
     Examples
     --------
