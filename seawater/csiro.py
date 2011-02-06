@@ -56,7 +56,11 @@ def T68conv(T90):
 
 def T90conv(t, t_type='T68'):
     r"""
-    Convert IPTS-68 or IPTS-48 to temperature to ITS-90
+    Convert IPTS-68 or IPTS-48 to temperature to ITS-90.
+
+    T48 conversion should be applied to all in-situ data collected prior to 31/12/1967.
+    T68 conversion should be applied to all in-situ data collected between 1/1/1968 and 31/12/1989.
+
 
     ..math:
         T90 = T68 / 1.00024
