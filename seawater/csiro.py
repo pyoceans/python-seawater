@@ -495,19 +495,20 @@ def bfrq(s, t, p, lat=None):
     """
 
     #TODO: Check S and T have length at least of 2
-    s, t, p, lat = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p), np.asanyarray(lat)
+    s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
 
     # if pressure is a vector and t-s aren't 'make it a array of the same size as t-s
     if p.ndim == 1 and t.ndim != 1:
         p = np.repeat(p[np.newaxis,:], t.shape[1], axis=1).reshape(t.shape)
-    if lat is not None:
-        z = depth(p, lat)
-        g = grav(lat, -z) # note that grav expects height as argument
-        f = cor(lat)
-    else: # TODO: test this "if" logic
+    if lat is None:
         z = p
         f = np.nan
         g = cte.gdef*np.ones(p.shape)
+    else:
+        lat = np.asanyarray(lat)
+        z = depth(p, lat)
+        g = grav(lat, -z) # note that grav expects height as argument
+        f = cor(lat)
 
     m   = p.shape[0] # TODO: check where depth increases to automagically find which dimension to operate
     iup = np.arange(0, m-1)
