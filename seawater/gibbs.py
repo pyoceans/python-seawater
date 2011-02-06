@@ -3515,9 +3515,15 @@ TODO: study the possibility of transforming this into a DataSet like class with 
 NOTE: ---
 """
 
-""" cndr_from_SP == sw.cndr """
+"""cndr_from_SP == sw.cndr
+Calculates Practical Salinity from conductivity ratio (R), using the PSS-78 algorithm. Note that the PSS-78 algorithm for Practical Salinity
+is only valid in the range 2 < SP < 42.  The output, SP, of this function is constrained to be non-negative.
+"""
 from  seawater.csiro import cndr as cndr_from_SP
-""" SP_from_cndr == sw.salt """
+
+"""SP_from_cndr == sw.salt
+Calculates conductivity ratio (R) from (SP,t,p) using PSS-78. Note that the PSS-78 algorithm for Practical Salinity is only valid in the range 2 < SP < 42.
+"""
 from  seawater.csiro import salt as SP_from_cndr
 
 def SA_from_SP(SP, p, lon, lat):
