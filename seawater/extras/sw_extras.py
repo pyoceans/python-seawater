@@ -164,6 +164,46 @@ def N(bvfr2):
     bvfr  = np.sqrt( np.abs( bvfr2 ) ) * np.sign( bvfr2 )
     return bvfr
 
+def cph(bvfr2):
+    """
+    Buoyancy frequency in Cycles Per Hour.
+
+    Parameters
+    ----------
+    n2 : array_like
+         Brünt-Väisälä Frequency squared [s :sup:`-2`]
+
+    Returns
+    -------
+    cph : array_like
+          Brünt-Väisälä Frequency [ cylcles hour :sup:`-1`]
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import seawater.extras.sw_extras as swe
+    >>> s = np.array([[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]])
+    >>> t = np.repeat(15, s.size).reshape(s.shape)
+    >>> p = [0, 250, 500, 1000]
+    >>> lat = [30,32,35]
+    >>> swe.cph(sw.bfrq(s, t, p, lat)[0])
+    TODO
+
+    References
+    ----------
+    .. [1] A.E. Gill 1982. p.54  eqn 3.7.15 "Atmosphere-Ocean Dynamics" Academic Press: New York. ISBN: 0-12-283522-0
+
+    Modifications: Filipe Fernandes, 2010
+                   2011-02-04. Filipe Fernandes, first version.
+    """
+
+    # Convert input to numpy arrays
+    bvfr2 = np.asarray(bvfr2)
+
+    bvfr  = np.sqrt( np.abs( bvfr2 ) ) * np.sign( bvfr2 )
+    cph = bvfr * 60 *60 / (2 * np.pi)
+    return cph
+
 def shear(p, u, v=0):
     """
     Calculates the vertical shear for u, v velocity section.
