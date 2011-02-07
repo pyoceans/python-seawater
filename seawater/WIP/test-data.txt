@@ -1,0 +1,17 @@
+# A short demonstration of the GSW Oceanographic Toolbox now follows. The following vertical profile, from the North Pacific, is of Practical Salinity, SP, and in situ temperature, t, as a function of pressure, p.
+
+# TODO: Use this with the Gibbs class in the docs webpage:
+    >>> SA = [34.5075, 34.7165, 34.8083, 34.8465, 34.8636, 34.8707, 34.8702]
+    >>> t  = [27.9620, 4.4726, 2.1178, 1.6031, 1.4601, 1.4753, 1.5998]
+    >>> p  = [0, 1010, 2025, 3045, 4069, 5098, 6131]
+    >>> pt = [27.962, 4.39213553, 1.97720541, 1.37935217, 1.13406152, 1.02869512, 1.01460895]
+    >>> CT = [27.9948, 4.3913, 1.9771, 1.3795, 1.1343, 1.0290, 1.0150]
+    >>> SP = [34.3454, 34.5427, 34.6289, 34.6663, 34.6839, 34.6915, 34.6914]
+    >>> lon = [142, 183, 20]
+    >>> lat = [11, 9.5, 59]
+
+# TODO: add aurguments with nan and extreme values (e.g. 2 < SP 42)
+# TODO: test more dimensions and scalars
+>>> SA = [[53., 30, 10., 20.],[10., -5., 15., 8.]]
+>>> t = [[5., 15., 22., 32.],[15., 0., 25., 28.]]
+>>> p = [0., 500., 1500., 2000.]
