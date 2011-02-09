@@ -1,0 +1,6 @@
+Bjørn Ådlandsvik - Testing unit and several bug fixes
+Eric Firing - for the support on this project
+Trevor J. McDougall (and all of SCOR/IAPSO WG127) for making available the Matlab and Fortran versions
+
+
+We also would like acknowledge SCOR/IAPSO WG127, most of this code is derived from the GSW Oceanographic Toolbox of TEOS-10.
