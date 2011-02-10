@@ -8,7 +8,7 @@ Filipe P. A. Fernandes
 e-mail:   ocefpaf@gmail.com
 web:      http://ocefpaf.tiddlyspot.com/
 date:     14-Jan-2010
-modified: 23-Jan-2010
+modified: Thu 10 Feb 2011 03:57:49 PM EST
 obs:      fixme (flags what needs attention)
           some keywords and default values are hardcoded!!!
           create proper docstrings
@@ -188,6 +188,48 @@ from platform import uname
 from time  import asctime, localtime
 from sys   import version
 
+def SRConv(SP):
+    r"""
+    Convert measurements made in Practical Salinity Scale to the Refence Salinity Scale.
+
+    Parameters
+    ----------
+    SP : array_like
+         salinity [psu (PSS-78)]
+
+    Returns
+    -------
+    SR : array_like
+         salinity  [g kg :sup:`-1`]
+
+    See Also
+    --------
+    SA_from_SP
+
+    Notes
+    -----
+    This is an alternative for those that do not wish to use SA_from_SP. Here the delta_SA is not added.
+
+    One might wish to do this if delta_SA is going to be computed from Silicate data or if the data are in Coastal areas where delta_SA is not recommended.
+
+    Examples
+    --------
+    >>> import seawater.csiro as sw
+    >>> SP = 35
+    >>> sw.SRConv(SP)
+    TODO
+
+    References
+    ----------
+    .. [1] Millero, F. J., R. Feistel, D. G. Wright, and T. J. McDougall, 2008: The composition of Standard Seawater and the definition of the Reference-Composition Salinity Scale, Deep-Sea Res. I, 55, 50-72.
+
+    Modifications: 2011-02-10. Filipe Fernandes, Python translation.
+    """
+
+    SP = np.asanyarray(SP)
+
+    SR = cte.SSO / 35 * SP
+    return SR
 
 def T68conv(T90):
     r"""
