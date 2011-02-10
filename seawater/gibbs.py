@@ -17,7 +17,7 @@ try:
 except:
     import pickle
 
-datadir = os.sep.join([os.path.dirname(__file__), 'data/'])
+datadir = os.path.join(os.path.dirname(__file__), 'data')
 
 """
 Section A: Library functions
@@ -831,34 +831,117 @@ def _delta_SA(p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    p, lon, lat = np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
-    lon, lat = _check_dim(lon, p), _check_dim(lat, p)
 
+
+def _delta_SA(p, lon, lat):
+    r"""
+    Calculates the Absolute Salinity anomaly, SA - SR, in the open ocean by spatially interpolating the global reference data set of delta_SA to the location of the seawater sample.
+
+    Parameters
+    ----------
+    p : array_like, maximum 1D
+        pressure [dbar]
+    lon : array_like, maximum 1D
+          decimal degrees east [0..+360] or [-180..+180]
+    lat : array_like, maximum 1D
+          decimal degrees (+ve N, -ve S) [-90..+90]
+
+    Returns
+    -------
+    delta_SA : array_like
+               Absolute Salinity anomaly [g kg :sup:`-1`]
+    in_ocean : False, if [lon, lat] are a long way from the ocean
+               True, [lon, lat] are in the ocean.
+
+    See Also
+    --------
+    _dsa_add_barrier, _dsa_add_mean
+
+    Notes
+    -----
+    The Absolute Salinity Anomaly in the Baltic Sea is evaluated separately, since it is a function of Practical Salinity, not of space. The present function returns a delta_SA of zero for data in the Baltic Sea. The correct way of calculating Absolute Salinity in the Baltic Sea is by calling _SA_from_SP.
+
+    The in_ocean flag is only set when the observation is well and truly on dry land; often the warning flag is not set until one is several hundred kilometers inland from the coast.
+    TODO: the best approach should be a complete re-write using masked array and elimination in_ocean
+    TODO: try python bisect for the lookupt table, should reduce the code size
+    and import speed.
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> p = [10, 50, 125, 250, 600, 1000]
+    >>> lon, lat = 188, 4
+    >>> gsw._delta_SA(p, lon, lat)
+    (array([ 0.00016779,  0.00026868,  0.00066554,  0.0026943 ,  0.00562666,
+            0.00939665]), array([ True,  True,  True,  True,  True,  True], dtype=bool))
+    >>> gsw._delta_SA(p, -80, 45)[1]
+    array([ True,  True,  True,  True,  True,  True], dtype=bool)
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp.
+
+    .. [2] McDougall, T.J., D.R. Jackett and F.J. Millero, 2010: An algorithm for estimating Absolute Salinity in the global ocean.  Submitted to Ocean Science. A preliminary version is available at Ocean Sci. Discuss., 6, 215-242.
+    http://www.ocean-sci-discuss.net/6/215/2009/osd-6-215-2009-print.pdf
+
+    Modifications:
+    ????-??-??. David Jackett.
+    2010-07-23. Paul Barker and Trevor McDougall
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    # Input argument handling
+    # -----------------------
+    p   = np.atleast_1d(p)
+    # Make all arrays of same shape, raise ValueError if not compatible
+    p, lon, lat = np.broadcast_arrays(p, lon, lat)
+    # Check 1D
+    if p.ndim != 1:
+        raise ValueError, 'Arguments must be scalars or 1D arrays'
+
+    # Convert longitudes from -180 to 0 range
     if (lon < 0).any():
         lon[lon < 0] = lon[lon < 0] + 360.
 
-    data = pickle.load( open(os.path.join(datadir + 'gsw_data_v2_0.pkl'), 'rb') )
+    # Read data file
+    # --------------
+    data = pickle.load(open(os.path.join(datadir,'gsw_data_v2_0.pkl'), 'rb'))
 
-    delta_SA_ref = data['delta_SA_ref']
+    delta_SA_ref = data['delta_SA_ref']  
     lats_ref = data['lats_ref']
     longs_ref = data['longs_ref']
-    p_ref = data['p_ref']
-    ndepth_ref = data['ndepth_ref']
+    p_ref = data['p_ref']                # Depth levels
+    ndepth_ref = data['ndepth_ref']      # Local number of depth levels 
 
+    # Grid resolution
     dlongs_ref = longs_ref[1] - longs_ref[0]
     dlats_ref = lats_ref[1] - lats_ref[0]
 
-    indsx0 = np.floor( float( longs_ref.size - 1 ) * (lon - longs_ref[0] ) / (longs_ref[-1]- longs_ref[0] ) )
+    # Find horisontal indices bracketing the position
+    # -----------------------------------------------
+
+    # Find indsx0 such that
+    #   lons_ref[indsx0] <= lon < lons_ref[indsx0+1]
+    # Border cases:
+    #   indsx0 = lons_ref.size - 2 for 
+    indsx0 = (lon-longs_ref[0]) / dlongs_ref
     indsx0 = np.int64(indsx0)
-    indsx0[indsx0 == longs_ref.size] = longs_ref.size - 1
+    indsx0 = np.clip(indsx0, 0, longs_ref.size-2) 
 
-    indsy0 = np.floor( float(lats_ref.size - 1 ) * ( lat - lats_ref[0] ) / (lats_ref[-1]- lats_ref[0] ) )
+    # Find indsy0 such that
+    #   lats_ref[indsy0] <= lat < lats_ref[indsy0+1]
+    # Border cases:
+    #   indsy0 = 0                 for lat < -86 = lats_refs[0]
+    #   indsy0 = lats_ref.size - 2 for lat = 90 = lats_refs[-1]
+    indsy0 = (lat-lats_ref[0]) / dlats_ref
     indsy0 = np.int64(indsy0)
-    indsy0[indsy0 == lats_ref.size] = lats_ref.size - 1
+    indsy0 = np.clip(indsy0, 0, lats_ref.size-2) 
 
-    #FIXME: Ugly matlab matrix dot multiplication, there must be a better way...
-    P_REF = np.dot( np.ones(p_ref.size)[:,np.newaxis], p[np.newaxis,:] )
-    P = np.dot( p_ref[:,np.newaxis], np.ones(p.size)[np.newaxis,:] )
+    # Extend the input pressure to all reference pressure levels
+    P_REF = np.add.outer(np.zeros(p_ref.size), p)
+    # Extend the reference pressure levels to all inputs
+    P = np.add.outer(p_ref, np.zeros(p.size))
+
     indsz0 = np.sum( (P_REF >= P), axis=0 )-1
 
     nmax = np.c_[ ndepth_ref[indsy0, indsx0], \
@@ -872,9 +955,10 @@ def _delta_SA(p, lon, lat):
         # have reset p here to reset indsz0
         p[inds1] = p_ref[nmax[inds1]-1]
 
-    #FIXME: Ugly matlab matrix dot multiplication, there must be a better way...
-    P_REF = np.dot( np.ones(p_ref.size)[:,np.newaxis], p[np.newaxis,:] )
-    P = np.dot( p_ref[:,np.newaxis], np.ones(p.size)[np.newaxis,:] )
+    # Is this needed again ???
+    P_REF = np.add.outer(np.zeros(p_ref.size), p)
+    P = np.add.outer(p_ref, np.zeros(p.size))
+
     indsz0 = np.sum( (P_REF >= P), axis=0 )-1
 
     inds = (indsz0 == p_ref.size-1)
@@ -885,9 +969,9 @@ def _delta_SA(p, lon, lat):
     data_indices = np.c_[indsx0, indsy0, indsz0, inds0]
     data_inds = data_indices[:,2]
 
-    r1 = ( lon - longs_ref[indsx0] ) / ( longs_ref[indsx0+1] - longs_ref[indsx0] )
-    s1 = ( lat - lats_ref[indsy0] ) / ( lats_ref[indsy0+1] - lats_ref[indsy0] )
-    t1 = np.float64( ( p - p_ref[indsz0] ) ) / np.float64( ( p_ref[indsz0+1] - p_ref[indsz0] ) )
+    r1 = ( lon - longs_ref[indsx0] ) / dlongs_ref
+    s1 = ( lat - lats_ref[indsy0] )  / dlats_ref
+    t1 = ( p - p_ref[indsz0] ) / ( p_ref[indsz0+1] - p_ref[indsz0] ) 
 
     nksum = 0
     no_levels_missing = 0
@@ -3578,29 +3662,47 @@ def SA_from_SP(SP, p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SP, p, lon, lat = np.asanyarray(SP), np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
+    scalar = np.isscalar(SP) and np.isscalar(p) and np.isscalar(lon) and np.isscalar(lat)
 
-    p = _check_dim(p, SP)
-    lon, lat = _check_dim(lon, SP), _check_dim(lat, SP)
+    #SP, p, lon, lat = np.asanyarray(SP), np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
+    # Bevarer ikke shape hvis alle er 0D
+    SP, p, lon, lat = np.atleast_1d(SP), np.atleast_1d(p), np.atleast_1d(lon), np.atleast_1d(lat)
 
-    SP[SP < 0] = 0
-    inds = np.isfinite(SP)
+    shape = np.broadcast(SP, p, lon, lat).shape
+    
 
-    SA = np.NaN * np.zeros( SP.shape )
-    dSA = np.NaN * np.zeros( SP.shape )
+    # BAA: Not needed with tests above
+    #p = _check_dim(p, SP)
+    #lon, lat = _check_dim(lon, SP), _check_dim(lat, SP)
+
+    # BAA maximum works for zero-dimensional arrays
+    # OK with atleast_1D
+    #SP[SP < 0] = 0
+    SP = np.maximum(SP, 0) 
+
+    #inds = np.isfinite(SP)
+
+    #SA = np.NaN * np.zeros( SP.shape )
+    #dSA = np.NaN * np.zeros( SP.shape )
 
     in_ocean = np.bool_( np.ones( SP.shape ) )
 
-    dSA[inds], in_ocean[inds] = _delta_SA( p[inds], lon[inds], lat[inds] )
+    #dSA[inds], in_ocean[inds] = _delta_SA( p[inds], lon[inds], lat[inds] )
+    dSA, in_ocean =  _delta_SA( p, lon, lat )
 
-    SA[inds] = ( cte.SSO / 35 ) * SP[inds] + dSA[inds]
-    SA_baltic = _SA_from_SP_Baltic( SP, lon, lat )
+    SA = ( cte.SSO / 35 ) * SP + dSA
+    #SA[inds] = ( cte.SSO / 35 ) * SP[inds] + dSA[inds]
+    #SA_baltic = _SA_from_SP_Baltic( SP, lon, lat )
 
-    indsbaltic = ~np.isnan(SA_baltic)
+    #indsbaltic = ~np.isnan(SA_baltic)
 
-    SA[indsbaltic] = SA_baltic[indsbaltic]
+    #SA[indsbaltic] = SA_baltic[indsbaltic]
 
-    return SA, in_ocean
+    #return SA, in_ocean
+    if scalar:
+        SA = np.float(SA)
+
+    return SA
 
 def SA_from_Sstar(Sstar, p, lon, lat):
     r"""
@@ -4350,7 +4452,7 @@ if __name__=='__main__':
     (4) the required accuracy of all these outputs.
     """
 
-    data = pickle.load( open(os.path.join(datadir + 'gsw_cv.pkl'),'rb') )
+    data = pickle.load( open(os.path.join(datadir, 'gsw_cv.pkl'),'rb') )
     gsw_cv = Dict2Struc(data) # then type data.<tab> to navigate through your variables
 
     STP = Gibbs(gsw_cv.SA_from_SP, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
