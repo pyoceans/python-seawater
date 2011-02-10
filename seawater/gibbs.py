@@ -3662,47 +3662,30 @@ def SA_from_SP(SP, p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    scalar = np.isscalar(SP) and np.isscalar(p) and np.isscalar(lon) and np.isscalar(lat)
+    SP, p, lon, lat = np.asanyarray(SP), np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
 
-    #SP, p, lon, lat = np.asanyarray(SP), np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
-    # Bevarer ikke shape hvis alle er 0D
-    SP, p, lon, lat = np.atleast_1d(SP), np.atleast_1d(p), np.atleast_1d(lon), np.atleast_1d(lat)
+    p = _check_dim(p, SP)
+    lon, lat = _check_dim(lon, SP), _check_dim(lat, SP)
 
-    shape = np.broadcast(SP, p, lon, lat).shape
-    
+    SP[SP < 0] = 0
+    inds = np.isfinite(SP)
 
-    # BAA: Not needed with tests above
-    #p = _check_dim(p, SP)
-    #lon, lat = _check_dim(lon, SP), _check_dim(lat, SP)
-
-    # BAA maximum works for zero-dimensional arrays
-    # OK with atleast_1D
-    #SP[SP < 0] = 0
-    SP = np.maximum(SP, 0) 
-
-    #inds = np.isfinite(SP)
-
-    #SA = np.NaN * np.zeros( SP.shape )
-    #dSA = np.NaN * np.zeros( SP.shape )
+    SA = np.NaN * np.zeros( SP.shape )
+    dSA = np.NaN * np.zeros( SP.shape )
 
     in_ocean = np.bool_( np.ones( SP.shape ) )
 
-    #dSA[inds], in_ocean[inds] = _delta_SA( p[inds], lon[inds], lat[inds] )
-    dSA, in_ocean =  _delta_SA( p, lon, lat )
+    dSA[inds], in_ocean[inds] = _delta_SA( p[inds], lon[inds], lat[inds] )
 
-    SA = ( cte.SSO / 35 ) * SP + dSA
-    #SA[inds] = ( cte.SSO / 35 ) * SP[inds] + dSA[inds]
-    #SA_baltic = _SA_from_SP_Baltic( SP, lon, lat )
+    SA[inds] = ( cte.SSO / 35 ) * SP[inds] + dSA[inds]
+    SA_baltic = _SA_from_SP_Baltic( SP, lon, lat )
 
-    #indsbaltic = ~np.isnan(SA_baltic)
+    indsbaltic = ~np.isnan(SA_baltic)
 
-    #SA[indsbaltic] = SA_baltic[indsbaltic]
+    SA[indsbaltic] = SA_baltic[indsbaltic]
 
-    #return SA, in_ocean
-    if scalar:
-        SA = np.float(SA)
+    return SA, in_ocean
 
-    return SA
 
 def SA_from_Sstar(Sstar, p, lon, lat):
     r"""
