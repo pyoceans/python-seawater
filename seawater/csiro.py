@@ -8,7 +8,7 @@ Filipe P. A. Fernandes
 e-mail:   ocefpaf@gmail.com
 web:      http://ocefpaf.tiddlyspot.com/
 date:     14-Jan-2010
-modified: Thu 10 Feb 2011 03:57:49 PM EST
+modified: Thu 10 Feb 2011 04:13:31 PM EST
 obs:      fixme (flags what needs attention)
           some keywords and default values are hardcoded!!!
           create proper docstrings
@@ -217,7 +217,7 @@ def SRConv(SP):
     >>> import seawater.csiro as sw
     >>> SP = 35
     >>> sw.SRConv(SP)
-    TODO
+    35.165039999999998
 
     References
     ----------
