@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 #TODO: create a CTD class that will take Conductive, in situ t and Pressure (lon, lat) and output SA
 #TODO: check_dim for p in all "p" functions
 #FIXME: some function return values even with NaN in the input, check this behavior (also present in the original). print doctest to check which one
@@ -781,11 +783,11 @@ def _delta_SA(p, lon, lat):
 
     Parameters
     ----------
-    p : array_like
+    p : array_like, maximum 1D
         pressure [dbar]
-    lon : array_like
+    lon : array_like, maximum 1D
           decimal degrees east [0..+360] or [-180..+180]
-    lat : array_like
+    lat : array_like, maximum 1D
           decimal degrees (+ve N, -ve S) [-90..+90]
 
     Returns
@@ -830,6 +832,7 @@ def _delta_SA(p, lon, lat):
     ????-??-??. David Jackett.
     2010-07-23. Paul Barker and Trevor McDougall
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    2011-02-10. Bjørn Ådlandsvik, Several bug fixes. Arguments must be scalars or 1D arrays.
     """
 
     # Input argument handling
@@ -843,7 +846,7 @@ def _delta_SA(p, lon, lat):
 
     # Convert longitudes from -180 to 0 range
     if (lon < 0).any():
-        lon[lon < 0] = lon[lon < 0] + 360.
+        lon[lon < 0] = lon[lon < 0] + 360
 
     # Read data file
     # --------------
