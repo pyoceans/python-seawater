@@ -556,7 +556,7 @@ def _enthalpy_SSO_0_CT25(p):
 
     p = np.asanyarray(p)
 
-    SSO = cte.SSO * np.ones( p.shape )
+    SSO = cte.SSO
 
     a0 = 1 + SSO * (2.0777716085618458e-3 + np.sqrt(SSO) * 3.4688210757917340e-6)
     a1 = 6.8314629554123324e-6
@@ -596,7 +596,7 @@ def _specvol_SSO_0_CT25(p):
 
     p = np.asanyarray(p)
 
-    SSO = cte.SSO * np.ones( p.shape )
+    SSO = cte.SSO
     specvol_SSO_0_CT25 = (1.00000000e+00 + SSO * ( 2.0777716085618458e-003 +np.sqrt(SSO) * 3.4688210757917340e-006) + p * 6.8314629554123324e-006) / (9.9984380290708214e+002 + SSO * ( 2.8925731541277653e+000 + SSO * 1.9457531751183059e-003) + p * ( 1.1930681818531748e-002 + SSO * 5.9355685925035653e-006 + p * -2.5943389807429039e-008) )
 
     return specvol_SSO_0_CT25
@@ -774,6 +774,7 @@ def _SA_from_SP_Baltic(SP, lon, lat):
 
     return SA_baltic
 
+
 def _delta_SA(p, lon, lat):
     r"""
     Calculates the Absolute Salinity anomaly, SA - SR, in the open ocean by spatially interpolating the global reference data set of delta_SA to the location of the seawater sample.
@@ -785,65 +786,6 @@ def _delta_SA(p, lon, lat):
     lon : array_like
           decimal degrees east [0..+360] or [-180..+180]
     lat : array_like
-          decimal degrees (+ve N, -ve S) [-90..+90]
-
-    Returns
-    -------
-    delta_SA : array_like
-               Absolute Salinity anomaly [g kg :sup:`-1`]
-    in_ocean : False, if [lon, lat] are a long way from the ocean
-               True, [lon, lat] are in the ocean.
-
-    See Also
-    --------
-    _dsa_add_barrier, _dsa_add_mean
-
-    Notes
-    -----
-    The Absolute Salinity Anomaly in the Baltic Sea is evaluated separately, since it is a function of Practical Salinity, not of space. The present function returns a delta_SA of zero for data in the Baltic Sea. The correct way of calculating Absolute Salinity in the Baltic Sea is by calling _SA_from_SP.
-
-    The in_ocean flag is only set when the observation is well and truly on dry land; often the warning flag is not set until one is several hundred kilometers inland from the coast.
-    TODO: the best approach should be a complete re-write using masked array and elimination in_ocean
-    TODO: try python bisect for the lookupt table, should reduce the code size
-    and import speed.
-
-    Examples
-    --------
-    >>> import seawater.gibbs as gsw
-    >>> p = [10, 50, 125, 250, 600, 1000]
-    >>> lon, lat = 188, 4
-    >>> gsw._delta_SA(p, lon, lat)
-    (array([ 0.00016779,  0.00026868,  0.00066554,  0.0026943 ,  0.00562666,
-            0.00939665]), array([ True,  True,  True,  True,  True,  True], dtype=bool))
-    >>> gsw._delta_SA(p, -80, 45)[1]
-    array([ True,  True,  True,  True,  True,  True], dtype=bool)
-
-    References
-    ----------
-    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation of seawater - 2010: Calculation and use of thermodynamic properties. Intergovernmental Oceanographic Commission, Manuals and Guides No. 56, UNESCO (English), 196 pp.
-
-    .. [2] McDougall, T.J., D.R. Jackett and F.J. Millero, 2010: An algorithm for estimating Absolute Salinity in the global ocean.  Submitted to Ocean Science. A preliminary version is available at Ocean Sci. Discuss., 6, 215-242.
-    http://www.ocean-sci-discuss.net/6/215/2009/osd-6-215-2009-print.pdf
-
-    Modifications:
-    ????-??-??. David Jackett.
-    2010-07-23. Paul Barker and Trevor McDougall
-    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
-    """
-
-
-
-def _delta_SA(p, lon, lat):
-    r"""
-    Calculates the Absolute Salinity anomaly, SA - SR, in the open ocean by spatially interpolating the global reference data set of delta_SA to the location of the seawater sample.
-
-    Parameters
-    ----------
-    p : array_like, maximum 1D
-        pressure [dbar]
-    lon : array_like, maximum 1D
-          decimal degrees east [0..+360] or [-180..+180]
-    lat : array_like, maximum 1D
           decimal degrees (+ve N, -ve S) [-90..+90]
 
     Returns
@@ -907,11 +849,11 @@ def _delta_SA(p, lon, lat):
     # --------------
     data = pickle.load(open(os.path.join(datadir,'gsw_data_v2_0.pkl'), 'rb'))
 
-    delta_SA_ref = data['delta_SA_ref']  
+    delta_SA_ref = data['delta_SA_ref']
     lats_ref = data['lats_ref']
     longs_ref = data['longs_ref']
     p_ref = data['p_ref']                # Depth levels
-    ndepth_ref = data['ndepth_ref']      # Local number of depth levels 
+    ndepth_ref = data['ndepth_ref']      # Local number of depth levels
 
     # Grid resolution
     dlongs_ref = longs_ref[1] - longs_ref[0]
@@ -923,10 +865,10 @@ def _delta_SA(p, lon, lat):
     # Find indsx0 such that
     #   lons_ref[indsx0] <= lon < lons_ref[indsx0+1]
     # Border cases:
-    #   indsx0 = lons_ref.size - 2 for 
+    #   indsx0 = lons_ref.size - 2 for
     indsx0 = (lon-longs_ref[0]) / dlongs_ref
     indsx0 = np.int64(indsx0)
-    indsx0 = np.clip(indsx0, 0, longs_ref.size-2) 
+    indsx0 = np.clip(indsx0, 0, longs_ref.size-2)
 
     # Find indsy0 such that
     #   lats_ref[indsy0] <= lat < lats_ref[indsy0+1]
@@ -935,7 +877,7 @@ def _delta_SA(p, lon, lat):
     #   indsy0 = lats_ref.size - 2 for lat = 90 = lats_refs[-1]
     indsy0 = (lat-lats_ref[0]) / dlats_ref
     indsy0 = np.int64(indsy0)
-    indsy0 = np.clip(indsy0, 0, lats_ref.size-2) 
+    indsy0 = np.clip(indsy0, 0, lats_ref.size-2)
 
     # Extend the input pressure to all reference pressure levels
     P_REF = np.add.outer(np.zeros(p_ref.size), p)
@@ -971,7 +913,7 @@ def _delta_SA(p, lon, lat):
 
     r1 = ( lon - longs_ref[indsx0] ) / dlongs_ref
     s1 = ( lat - lats_ref[indsy0] )  / dlats_ref
-    t1 = ( p - p_ref[indsz0] ) / ( p_ref[indsz0+1] - p_ref[indsz0] ) 
+    t1 = ( p - p_ref[indsz0] ) / ( p_ref[indsz0+1] - p_ref[indsz0] )
 
     nksum = 0
     no_levels_missing = 0
@@ -2326,9 +2268,9 @@ def specvol_anom(SA, t, p):
 
     n0, n1 = 0, 1
 
-    SSO = cte.SSO * np.ones( SA.shape )
+    SSO = np.array([cte.SSO], dtype=np.float)
 
-    CT0 = np.zeros( SSO.shape )
+    CT0 = np.zeros((1,), dtype=np.float)
 
     pt_zero = pt_from_CT(SSO, CT0)
 
