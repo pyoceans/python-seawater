@@ -844,32 +844,33 @@ def _delta_SA(p, lon, lat):
 
     # Input argument handling
     # -----------------------
-    p   = np.atleast_1d(p)
+    # (Worry about masked p later if at all.)
+    p   = np.atleast_1d(p).astype(np.float) # must be float for interpolation
     # Make all arrays of same shape, raise ValueError if not compatible
     p, lon, lat = np.broadcast_arrays(p, lon, lat)
     # Check 1D
     if p.ndim != 1:
         raise ValueError, 'Arguments must be scalars or 1D arrays'
 
-    # Convert longitudes from -180 to 0 range
-    if (lon < 0).any():
-        lon[lon < 0] = lon[lon < 0] + 360
+    # Put longitudes in 0-360
+    lon %= 360
 
     # Read data file
     # --------------
     data = read_data("gsw_data_v2_0.npz")
 
-    delta_SA_ref = data.delta_SA_ref
+    delta_SA_ref = np.ma.masked_invalid(data.delta_SA_ref)
     lats_ref = data.lats_ref
     longs_ref = data.longs_ref
     p_ref = data.p_ref                # Depth levels
-    ndepth_ref = data.ndepth_ref      # Local number of depth levels
+    ndepth_ref = np.ma.masked_invalid(data.ndepth_ref).astype(np.int8) # Local number of depth levels
+    ndepth_ref -= 1 # change to 0-based index
 
     # Grid resolution
     dlongs_ref = longs_ref[1] - longs_ref[0]
     dlats_ref = lats_ref[1] - lats_ref[0]
 
-    # Find horisontal indices bracketing the position
+    # Find horizontal indices bracketing the position
     # -----------------------------------------------
 
     # Find indsx0 such that
@@ -877,7 +878,7 @@ def _delta_SA(p, lon, lat):
     # Border cases:
     #   indsx0 = lons_ref.size - 2 for
     indsx0 = (lon-longs_ref[0]) / dlongs_ref
-    indsx0 = np.int64(indsx0)
+    indsx0 = indsx0.astype(np.int)
     indsx0 = np.clip(indsx0, 0, longs_ref.size-2)
 
     # Find indsy0 such that
@@ -886,37 +887,25 @@ def _delta_SA(p, lon, lat):
     #   indsy0 = 0                 for lat < -86 = lats_refs[0]
     #   indsy0 = lats_ref.size - 2 for lat = 90 = lats_refs[-1]
     indsy0 = (lat-lats_ref[0]) / dlats_ref
-    indsy0 = np.int64(indsy0)
+    indsy0 = indsy0.astype(np.int)
     indsy0 = np.clip(indsy0, 0, lats_ref.size-2)
 
-    # Extend the input pressure to all reference pressure levels
-    P_REF = np.add.outer(np.zeros(p_ref.size), p)
-    # Extend the reference pressure levels to all inputs
-    P = np.add.outer(p_ref, np.zeros(p.size))
+    indsz0 = np.searchsorted(p_ref, p)
 
-    indsz0 = np.sum( (P_REF >= P), axis=0 )-1
-
-    nmax = np.c_[ ndepth_ref[indsy0, indsx0], \
-                  ndepth_ref[indsy0, indsx0+1], \
-                  ndepth_ref[indsy0+1, indsx0+1], \
+    nmax = np.c_[ ndepth_ref[indsy0, indsx0],
+                  ndepth_ref[indsy0, indsx0+1],
+                  ndepth_ref[indsy0+1, indsx0+1],
                   ndepth_ref[indsy0+1, indsx0] ]
-    nmax = np.int64( np.nanmax(nmax, axis=1) )
+    nmax = nmax.max(axis=1)
 
-    inds1 = np.where(indsz0 > nmax)[0] # casts deeper than GK maximum
-    if inds1.size != 0:
-        # have reset p here to reset indsz0
-        p[inds1] = p_ref[nmax[inds1]-1]
+    deepmask = indsz0 > nmax
+    p[deepmask] = p_ref[nmax[deepmask]]
 
-    # Is this needed again ???
-    P_REF = np.add.outer(np.zeros(p_ref.size), p)
-    P = np.add.outer(p_ref, np.zeros(p.size))
+    indsz0 = np.clip(indsz0, 0, p_ref.size-2)
+    print indsz0
 
-    indsz0 = np.sum( (P_REF >= P), axis=0 )-1
-
-    inds = (indsz0 == p_ref.size-1)
-    indsz0[inds] = p_ref.size - 2
-
-    inds0 = indsz0 + indsy0 * delta_SA_ref.shape[0] + indsx0 * delta_SA_ref.shape[0] * delta_SA_ref.shape[1]
+    inds0 = (indsz0 + indsy0 * delta_SA_ref.shape[0]
+                    + indsx0 * delta_SA_ref.shape[0] * delta_SA_ref.shape[1])
 
     data_indices = np.c_[indsx0, indsy0, indsz0, inds0]
     data_inds = data_indices[:,2]
@@ -932,7 +921,7 @@ def _delta_SA(p, lon, lat):
     sa_lower = np.nan * ( np.ones(data_inds.shape) )
     delta_SA = np.nan * ( np.ones(data_inds.shape) )
 
-    for k in range(0, p_ref.size):
+    for k in range(indsz0.min(), indsz0.max()+1):
         inds_k = np.where(indsz0 == k)[0]
         nk = inds_k.size
 
