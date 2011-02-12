@@ -14,12 +14,19 @@ import os
 data/gsw_data_v2_0.pkl
 TODO: Add a option for a local Atlas
 """
-try:
-    import cPickle as pickle
-except:
-    import pickle
 
-datadir = os.path.join(os.path.dirname(__file__), 'data')
+class Dict2Struc(object):
+    r"""
+    Open variables from a dictionary in a "matlab-like-structure"
+    """
+    def __init__(self, adict):
+        self.__dict__.update(adict)
+
+
+def read_data(fname):
+    datadir = os.path.join(os.path.dirname(__file__), 'data')
+    d = np.load(os.path.join(datadir, fname))
+    return Dict2Struc(d)
 
 """
 Section A: Library functions
@@ -850,13 +857,13 @@ def _delta_SA(p, lon, lat):
 
     # Read data file
     # --------------
-    data = pickle.load(open(os.path.join(datadir,'gsw_data_v2_0.pkl'), 'rb'))
+    data = read_data("gsw_data_v2_0.npz")
 
-    delta_SA_ref = data['delta_SA_ref']
-    lats_ref = data['lats_ref']
-    longs_ref = data['longs_ref']
-    p_ref = data['p_ref']                # Depth levels
-    ndepth_ref = data['ndepth_ref']      # Local number of depth levels
+    delta_SA_ref = data.delta_SA_ref
+    lats_ref = data.lats_ref
+    longs_ref = data.longs_ref
+    p_ref = data.p_ref                # Depth levels
+    ndepth_ref = data.ndepth_ref      # Local number of depth levels
 
     # Grid resolution
     dlongs_ref = longs_ref[1] - longs_ref[0]
@@ -4338,12 +4345,6 @@ class Gibbs:
         """
         return ionic_strength(self.SA)
 
-class Dict2Struc(object):
-    r"""
-    Open variables from a dictionary in a "matlab-like-structure"
-    """
-    def __init__(self, adict):
-        self.__dict__.update(adict)
 
 if __name__=='__main__':
     r"""
@@ -4380,8 +4381,7 @@ if __name__=='__main__':
     (4) the required accuracy of all these outputs.
     """
 
-    data = pickle.load( open(os.path.join(datadir, 'gsw_cv.pkl'),'rb') )
-    gsw_cv = Dict2Struc(data) # then type data.<tab> to navigate through your variables
+    gsw_cv = read_data("gsw_cv.npz")
 
     STP = Gibbs(gsw_cv.SA_from_SP, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 
