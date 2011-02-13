@@ -18,14 +18,14 @@ class Test_delta_SA(unittest.TestCase):
         # May be changed to return scalar
         p = 0.0
         lon, lat = 2.0, 66.0
-        dsa = gsw._delta_SA(p, lon, lat)[0]
+        dsa = gsw._delta_SA(p, lon, lat)
         self.assertTrue(dsa.shape == (1,))
 
     def test_single_array_input(self):
         """Accept and return single element arrays"""
         p = np.array([0.0])
         lon, lat = np.array([2.0]), np.array([66.0])
-        dsa = gsw._delta_SA(p, lon, lat)[0]
+        dsa = gsw._delta_SA(p, lon, lat)
         self.assertTrue(dsa.shape == (1,))
 
     def test_not_1D(self):
@@ -47,10 +47,10 @@ class Test_delta_SA(unittest.TestCase):
         lon, lat = 188, 4
         gsa_fasit = np.array([ 0.00016779, 0.00026868, 0.00066554,
                                0.0026943 , 0.00562666, 0.00939665])
-        gsa = gsw._delta_SA(p, lon, lat)[0]
-        print gsa
-        print gsa_fasit
-        print gsa_fasit - gsa
+        gsa = gsw._delta_SA(p, lon, lat)
+        #print gsa
+        #print gsa_fasit
+        #print gsa_fasit - gsa
 
         self.assertTrue(np.all(np.abs(gsa - gsa_fasit) < 1.0E-8))
 
@@ -60,10 +60,10 @@ class Test_delta_SA(unittest.TestCase):
         p    = 0.0
         lon1 = [ -200, -180.0, 0.0, 180.0, 359.9, 360.0, 400.0]
         lat1 = 66.0
-        gsa1 = gsw._delta_SA(p, lon1, lat1)[0]
+        gsa1 = gsw._delta_SA(p, lon1, lat1)
         lon2 = -10.0
         lat2 = [ -110, -90.0, -89.0, 0.0, 89.9, 90.0, 130.0]
-        gsa2 = gsw._delta_SA(p, lon2, lat2)[0]
+        gsa2 = gsw._delta_SA(p, lon2, lat2)
 
     def test_callable_(self):
         """test that call from SA_from_SP works"""

@@ -2,7 +2,9 @@
 
 #TODO: create a CTD class that will take Conductive, in situ t and Pressure (lon, lat) and output SA
 #TODO: check_dim for p in all "p" functions
-#FIXME: some function return values even with NaN in the input, check this behavior (also present in the original). print doctest to check which one
+#FIXME: some function return values even with NaN in the
+#       input, check this behavior (also present in the original).
+#       print doctest to check which one
 
 from __future__ import division
 
@@ -27,6 +29,40 @@ def read_data(fname):
     datadir = os.path.join(os.path.dirname(__file__), 'data')
     d = np.load(os.path.join(datadir, fname))
     return Dict2Struc(d)
+
+def _check_dim(prop1, prop2):
+    r"""
+    Broadcast prop1 to the shape of prop2.
+    Prop1 can be scalar, row equal or column equal to prop2.
+    """
+    ## (I suspect this is basically a Matlab-ism that we will
+    ##  do well to dump.)
+    ## Not sure this is exactly what we want; we can think about
+    ## that later.  It may be that built-in broadcasting is all
+    ## we need, or that in some cases we may want to use a slight
+    ## modification of np.broadcast_arrays to support masked arrays.
+
+    # Comic book guy would say: "Worst function ever!"
+    if prop1.ndim == 1:
+        prop1 = prop1.flatten()
+
+    if (prop1.ndim == 1) & (prop1.size == 1):
+        prop1 = prop1 * np.ones( prop2.shape )
+    elif (prop1.ndim == 1) & (prop2.ndim != 1):
+        if prop1.size == prop2.shape[1]:
+            prop1 = prop1 * np.ones(prop2.shape)
+        elif prop1.size == prop2.shape[0]:
+            prop1 = prop1[:,np.newaxis] * np.ones(prop2.shape)
+        else:
+            raise NameError('Blahrg')
+
+    if prop1.ndim == 0:
+        prop1 = prop1 * np.ones(prop2.shape)
+
+    return prop1
+
+
+
 
 """
 Section A: Library functions
@@ -610,31 +646,6 @@ def _specvol_SSO_0_CT25(p):
 
     return specvol_SSO_0_CT25
 
-def _check_dim(prop1, prop2):
-    r"""
-    Broadcast prop1 to the shape of prop2.
-    Prop1 can be scalar, row equal or column equal to prop2.
-    """
-
-    # Comic book guy would say: "Worst function ever!"
-    if prop1.ndim == 1:
-        prop1 = prop1.flatten()
-
-    if (prop1.ndim == 1) & (prop1.size == 1):
-        prop1 = prop1 * np.ones( prop2.shape )
-    elif (prop1.ndim == 1) & (prop2.ndim != 1):
-        if prop1.size == prop2.shape[1]:
-            prop1 = prop1 * np.ones(prop2.shape)
-        elif prop1.size == prop2.shape[0]:
-            prop1 = prop1[:,np.newaxis] * np.ones(prop2.shape)
-        else:
-            raise NameError('Blahrg')
-
-    if prop1.ndim == 0:
-        prop1 = prop1 * np.ones(prop2.shape)
-
-    return prop1
-
 """
 Salinity lib functions
 """
@@ -729,7 +740,7 @@ def _SA_from_SP_Baltic(SP, lon, lat):
 
     Returns
     -------
-    SA_baltic : array_like
+    SA_baltic : masked array, or None if there are no Baltic positions
                 Absolute salinity [g kg :sup:`-1`]
 
     See Also
@@ -765,21 +776,29 @@ def _SA_from_SP_Baltic(SP, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SP, lon, lat = np.asanyarray(SP), np.asanyarray(lon), np.asanyarray(lat)
+    SP, lon, lat = map(np.ma.masked_invalid, (SP, lon, lat))
     lon, lat = _check_dim(lon, SP), _check_dim(lat, SP)
 
-    xb1, xb2, xb3 = 12.6, 7., 26.
-    xb1a, xb3a = 45., 26.
-    yb1, yb2, yb3 = 50., 59., 69.
+    xb1, xb2, xb3 = 12.6, 7.0, 26.0
+    xb1a, xb3a = 45.0, 26.0
+    yb1, yb2, yb3 = 50.0, 59.0, 69.0
 
     inds_baltic = (xb2 < lon) & (lon < xb1a) & (yb1 < lat) & (lat < yb3)
-    SA_baltic = np.ones( SP.shape ) * np.nan
+    if not inds_baltic.sum():
+        return None
 
-    if list(inds_baltic):
-        xx_left = np.interp( lat[inds_baltic], [yb1,yb2,yb3], [xb1,xb2,xb3])
-        xx_right = np.interp( lat[inds_baltic], [yb1,yb3], [xb1a,xb3a] )
-        inds_baltic1 = (xx_left <= lon[inds_baltic]) & (lon[inds_baltic] <= xx_right)
-        SA_baltic[inds_baltic[inds_baltic1]] = ( ( cte.SSO - 0.087 ) / 35 ) * SP[inds_baltic[inds_baltic1]] + 0.087
+    SA_baltic = np.ma.masked_all(SP.shape, dtype=np.float)
+
+    xx_left = np.interp( lat[inds_baltic], [yb1,yb2,yb3], [xb1,xb2,xb3])
+    xx_right = np.interp( lat[inds_baltic], [yb1,yb3], [xb1a,xb3a] )
+
+    inds_baltic1 = (   (xx_left <= lon[inds_baltic])
+                     & (lon[inds_baltic] <= xx_right))
+    if not inds_baltic1.sum():
+        return None
+
+    SA_baltic[inds_baltic[inds_baltic1]] = ((( cte.SSO - 0.087 ) / 35 )
+                                    * SP[inds_baltic[inds_baltic1]] + 0.087)
 
     return SA_baltic
 
@@ -799,10 +818,8 @@ def _delta_SA(p, lon, lat):
 
     Returns
     -------
-    delta_SA : array_like
+    delta_SA : masked array; masked where no nearby ocean is found in data
                Absolute Salinity anomaly [g kg :sup:`-1`]
-    in_ocean : False, if [lon, lat] are a long way from the ocean
-               True, [lon, lat] are in the ocean.
 
     See Also
     --------
@@ -844,7 +861,10 @@ def _delta_SA(p, lon, lat):
 
     # Input argument handling
     # -----------------------
-    # (Worry about masked p later if at all.)
+
+    # For now, convert masked to unmasked, and use nan internally.
+    # Maybe reverse the strategy later.
+    p, lon, lat = [np.ma.filled(var, np.nan) for var in (p, lon, lat)]
     p   = np.atleast_1d(p).astype(np.float) # must be float for interpolation
     # Make all arrays of same shape, raise ValueError if not compatible
     p, lon, lat = np.broadcast_arrays(p, lon, lat)
@@ -981,10 +1001,8 @@ def _delta_SA(p, lon, lat):
         else:
             no_levels_missing = no_levels_missing + 1
 
-    in_ocean = ~np.isfinite(delta_SA)
-    delta_SA[in_ocean] = 0
-    in_ocean = (in_ocean == False) # reverse True <-> False
-    return delta_SA, in_ocean
+    delta_SA = np.ma.masked_invalid(delta_SA)
+    return delta_SA
 
 def _dsa_add_barrier(dsa, lon, lat, longs_ref, lats_ref, dlongs_ref, dlats_ref):
     r"""
@@ -3567,10 +3585,8 @@ def SA_from_SP(SP, p, lon, lat):
 
     Returns
     -------
-    SA : array_like
+    SA : masked array
          Absolute salinity [g kg :sup:`-1`]
-    in_ocean : False, if [lon, lat] are a long way from the ocean
-               True, [lon, lat] are in the ocean.
 
     See Also
     --------
@@ -3578,7 +3594,8 @@ def SA_from_SP(SP, p, lon, lat):
 
     Notes
     -----
-    Since SP is non-negative by definition, this function changes any negative input values of SP to be zero.
+    Since SP is non-negative by definition, this function changes
+    any negative input values of SP to be zero.
 
     Examples
     --------
@@ -3588,7 +3605,8 @@ def SA_from_SP(SP, p, lon, lat):
     >>> lon, lat = 188, 4
     >>> gsw.SA_from_SP(SP, p, lon, lat)
     (array([ 34.71177971,  34.89152372,  35.02554774,  34.84723008,
-            34.7366296 ,  34.73236186]), array([ True,  True,  True,  True,  True,  True], dtype=bool))
+            34.7366296 ,  34.73236186]),
+            array([ True,  True,  True,  True,  True,  True], dtype=bool))
 
     References
     ----------
@@ -3602,29 +3620,22 @@ def SA_from_SP(SP, p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SP, p, lon, lat = np.asanyarray(SP), np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
+    SP, p, lon, lat = map(np.ma.masked_invalid, (SP, p, lon, lat))
 
     p = _check_dim(p, SP)
     lon, lat = _check_dim(lon, SP), _check_dim(lat, SP)
 
     SP[SP < 0] = 0
-    inds = np.isfinite(SP)
 
-    SA = np.NaN * np.zeros( SP.shape )
-    dSA = np.NaN * np.zeros( SP.shape )
+    dSA = _delta_SA( p, lon, lat )
 
-    in_ocean = np.bool_( np.ones( SP.shape ) )
-
-    dSA[inds], in_ocean[inds] = _delta_SA( p[inds], lon[inds], lat[inds] )
-
-    SA[inds] = ( cte.SSO / 35 ) * SP[inds] + dSA[inds]
+    SA = ( cte.SSO / 35 ) * SP + dSA
     SA_baltic = _SA_from_SP_Baltic( SP, lon, lat )
 
-    indsbaltic = ~np.isnan(SA_baltic)
+    if SA_baltic is not None:
+        SA[~SA_baltic.mask] = SA_baltic[~SA_baltic.mask]
 
-    SA[indsbaltic] = SA_baltic[indsbaltic]
-
-    return SA, in_ocean
+    return SA
 
 
 def SA_from_Sstar(Sstar, p, lon, lat):
@@ -3644,10 +3655,8 @@ def SA_from_Sstar(Sstar, p, lon, lat):
 
     Returns
     -------
-    SA : array_like
+    SA : masked array
          Absolute salinity [g kg :sup:`-1`]
-    in_ocean : False, if [lon, lat] are a long way from the ocean
-               True, [lon, lat] are in the ocean.
 
     See Also
     --------
@@ -3676,24 +3685,18 @@ def SA_from_Sstar(Sstar, p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    Sstar, p, lon, lat = np.asanyarray(Sstar), np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
+    Sstar, p, lon, lat = map(np.ma.masked_invalid, (Sstar, p, lon, lat))
 
     p = _check_dim(p, Sstar)
     lon, lat = _check_dim(lon, Sstar), _check_dim(lat, Sstar)
 
-    inds = np.isfinite(Sstar)
-    SA = np.NaN * np.zeros( Sstar.shape )
-    dSA = np.NaN * np.zeros( Sstar.shape )
+    dSA = _delta_SA( p, lon, lat )
 
-    in_ocean = np.bool_( np.ones( Sstar.shape ) )
-
-    dSA[inds], in_ocean[inds] = _delta_SA( p[inds], lon[inds], lat[inds] )
-
-    SA[inds] = Sstar[inds] + ( 1 + cte.r1 ) * dSA[inds]
+    SA = Sstar + ( 1 + cte.r1 ) * dSA
 
     #NOTE: In the Baltic Sea, SA = Sstar, and note that _delta_SA returns zero for dSA in the Baltic.
 
-    return SA, in_ocean
+    return SA
 
 def SP_from_SA(SA, p, lon, lat):
     r"""
@@ -3712,10 +3715,8 @@ def SP_from_SA(SA, p, lon, lat):
 
     Returns
     -------
-    SP : array_like
+    SP : masked array
          salinity [psu (PSS-78)], unitless
-    in_ocean : False, if [lon, lat] are a long way from the ocean
-               True, [lon, lat] are in the ocean.
 
     See Also
     --------
@@ -3744,28 +3745,21 @@ def SP_from_SA(SA, p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, p, lon, lat = np.asanyarray(SA), np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
+    SA, p, lon, lat = map(np.ma.masked_invalid, (SA, p, lon, lat))
 
     p = _check_dim(p, SA)
     lon, lat = _check_dim(lon, SA),_check_dim(lat, SA)
 
-    inds = np.isfinite(SA)
-    SP = np.NaN * np.zeros( SA.shape )
-    dSA = np.NaN * np.zeros( SA.shape )
+    dSA = _delta_SA( p, lon, lat )
 
-    in_ocean = np.bool_( np.ones( SA.shape ) )
-
-    dSA[inds], in_ocean[inds] = _delta_SA( p[inds], lon[inds], lat[inds] )
-
-    SP[inds] = (35./cte.SSO) * ( SA[inds] - dSA[inds] )
+    SP = (35./cte.SSO) * ( SA - dSA )
 
     SP_baltic = _SP_from_SA_Baltic( SA, lon, lat )
 
-    indsbaltic = ~np.isnan(SP_baltic)
+    if SA_baltic is not None:
+        SP[~SP_baltic.mask] = SP_baltic[~SP_baltic.mask]
 
-    SP[indsbaltic] = SP_baltic[indsbaltic]
-
-    return SP, in_ocean
+    return SP
 
 def Sstar_from_SA(SA, p, lon, lat):
     r"""
@@ -3784,10 +3778,8 @@ def Sstar_from_SA(SA, p, lon, lat):
 
     Returns
     -------
-    Sstar : array_like
+    Sstar : masked array
             Preformed Salinity [g kg :sup:`-1`]
-    in_ocean : False, if [lon, lat] are a long way from the ocean
-               True, [lon, lat] are in the ocean.
 
     See Also
     --------
@@ -3816,23 +3808,18 @@ def Sstar_from_SA(SA, p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, p, lon, lat = np.asanyarray(SA), np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
+    SA, p, lon, lat = map(np.ma.masked_invalid, (SA, p, lon, lat))
 
     p = _check_dim(p, SA)
     lon, lat = _check_dim(lon, SA), _check_dim(lat, SA)
 
-    inds = np.isfinite(SA)
-    Sstar = np.NaN * np.zeros( SA.shape )
-    dSA = np.NaN * np.zeros( SA.shape )
+    dSA = _delta_SA( p, lon, lat )
 
-    in_ocean = np.bool_( np.ones( SA.shape ) )
+    Sstar =  SA - ( 1 + cte.r1 ) * dSA
+    #NOTE: In the Baltic Sea, SA = Sstar, and note that
+    # _delta_SA returns zero for dSA in the Baltic.
 
-    dSA[inds], in_ocean[inds] = _delta_SA( p[inds], lon[inds], lat[inds] )
-
-    Sstar[inds] =  SA[inds] - ( 1 + cte.r1 ) * dSA[inds]
-    #NOTE: In the Baltic Sea, SA = Sstar, and note that _delta_SA returns zero for dSA in the Baltic.
-
-    return Sstar, in_ocean
+    return Sstar
 
 def SP_from_Sstar(Sstar, p, lon, lat):
     r"""
@@ -3851,10 +3838,8 @@ def SP_from_Sstar(Sstar, p, lon, lat):
 
     Returns
     -------
-    SP : array_like
+    SP : masked array
          salinity [psu (PSS-78)], unitless
-    in_ocean : False, if [lon, lat] are a long way from the ocean
-               True, [lon, lat] are in the ocean.
 
     See Also
     --------
@@ -3883,26 +3868,19 @@ def SP_from_Sstar(Sstar, p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    Sstar, p, lon, lat = np.asanyarray(Sstar), np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
+    Sstar, p, lon, lat = map(np.ma.masked_invalid, (Sstar, p, lon, lat))
 
     p = _check_dim(p, Sstar)
     lon, lat = _check_dim(lon, Sstar), _check_dim(lat, Sstar)
 
-    inds = np.isfinite(Sstar)
-    SP = np.NaN * np.zeros( Sstar.shape )
-    dSA = np.NaN * np.zeros( Sstar.shape )
-
-    in_ocean = np.bool_( np.ones( Sstar.shape ) )
-
-    dSA[inds], in_ocean[inds] = _delta_SA( p[inds], lon[inds], lat[inds] )
-    SP[inds] = (35/cte.SSO) * ( Sstar[inds] + cte.r1 * dSA[inds] )
+    dSA = _delta_SA( p, lon, lat )
+    SP = (35/cte.SSO) * ( Sstar + cte.r1 * dSA )
 
     # In the Baltic Sea, SA = Sstar.
     SP_baltic = _SP_from_SA_Baltic( Sstar, lon, lat )
 
-    indsbaltic = ~np.isnan(SP_baltic)
-
-    SP[indsbaltic] = SP_baltic[indsbaltic]
+    if SA_baltic is not None:
+        SP[indsbaltic] = SP_baltic[indsbaltic]
 
     return SP, in_ocean
 
@@ -3923,10 +3901,8 @@ def Sstar_from_SP(SP, p, lon, lat):
 
     Returns
     -------
-    Sstar : array_like
+    Sstar : masked array
             Preformed Salinity [g kg :sup:`-1`]
-    in_ocean : False, if [lon, lat] are a long way from the ocean
-               True, [lon, lat] are in the ocean.
 
     See Also
     --------
@@ -3972,15 +3948,14 @@ def Sstar_from_SP(SP, p, lon, lat):
 
     in_ocean = np.bool_( np.ones( SP.shape ) )
 
-    dSA[inds], in_ocean[inds] = _delta_SA( p[inds], lon[inds], lat[inds] )
-    Sstar[inds] = (cte.SSO/35.) * SP[inds] - cte.r1 * dSA[inds]
+    dSA, in_ocean = _delta_SA( p, lon, lat )
+    Sstar = (cte.SSO/35.) * SP - cte.r1 * dSA
 
     # In the Baltic Sea, SA == Sstar.
     Sstar_baltic = _SA_from_SP_Baltic( SP, lon, lat )
 
-    indsbaltic = ~np.isnan(Sstar_baltic)
-
-    Sstar[indsbaltic] = Sstar_baltic[indsbaltic]
+    if Sstar_baltic is not None:
+        Sstar[~Sstar_baltic.mask] = Sstar_baltic[~Sstar_baltic.mask]
 
     return Sstar, in_ocean
 
@@ -4001,12 +3976,10 @@ def SA_Sstar_from_SP(SP, p, lon, lat):
 
     Returns
     -------
-    SA : array_like
+    SA : masked array
          Absolute salinity [g kg :sup:`-1`]
-    Sstar : array_like
+    Sstar : masked array
             Preformed Salinity [g kg :sup:`-1`]
-    in_ocean : False, if [lon, lat] are a long way from the ocean
-               True, [lon, lat] are in the ocean.
 
     See Also
     --------
@@ -4048,28 +4021,20 @@ def SA_Sstar_from_SP(SP, p, lon, lat):
 
     SP[SP < 0] = 0
 
-    inds = np.isfinite(SP)
+    dSA = _delta_SA( p, lon, lat )
 
-    SA = np.NaN * np.zeros( SP.shape )
-    Sstar = np.NaN * np.zeros( SP.shape )
-    dSA = np.NaN * np.zeros( SP.shape )
-
-    in_ocean = np.bool_( np.ones( SP.shape ) )
-
-    dSA[inds], in_ocean[inds] = _delta_SA( p[inds], lon[inds], lat[inds] )
-
-    SA[inds] = ( cte.SSO / 35 ) * SP[inds] + dSA[inds]
-    Sstar[inds] = ( cte.SSO / 35 ) * SP[inds] - cte.r1 * dSA[inds]
+    SA = ( cte.SSO / 35 ) * SP + dSA
+    Sstar = ( cte.SSO / 35 ) * SP - cte.r1 * dSA
 
     SA_baltic = _SA_from_SP_Baltic( SP, lon, lat )
+    if SA_baltic is not None:
+        indsbaltic = ~SA_baltic.mask
 
-    indsbaltic = ~np.isnan(SA_baltic)
+        SA[indsbaltic] = SA_baltic[indsbaltic]
+        Sstar[indsbaltic] = SA_baltic[indsbaltic]
+        #NOTE: In the Baltic Sea, Sstar == SA.
 
-    SA[indsbaltic] = SA_baltic[indsbaltic]
-    Sstar[indsbaltic] = SA_baltic[indsbaltic]
-    #NOTE: In the Baltic Sea, Sstar == SA.
-
-    return SA, Sstar, in_ocean
+    return SA, Sstar
 
 def SA_from_rho(rho, t, p):
     r"""
