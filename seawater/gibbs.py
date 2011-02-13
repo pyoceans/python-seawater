@@ -890,7 +890,7 @@ def _delta_SA(p, lon, lat):
     indsy0 = indsy0.astype(np.int)
     indsy0 = np.clip(indsy0, 0, lats_ref.size-2)
 
-    indsz0 = np.searchsorted(p_ref, p)
+    indsz0 = np.searchsorted(p_ref, p, side='right') - 1
 
     nmax = np.c_[ ndepth_ref[indsy0, indsx0],
                   ndepth_ref[indsy0, indsx0+1],
@@ -902,7 +902,6 @@ def _delta_SA(p, lon, lat):
     p[deepmask] = p_ref[nmax[deepmask]]
 
     indsz0 = np.clip(indsz0, 0, p_ref.size-2)
-    print indsz0
 
     inds0 = (indsz0 + indsy0 * delta_SA_ref.shape[0]
                     + indsx0 * delta_SA_ref.shape[0] * delta_SA_ref.shape[1])

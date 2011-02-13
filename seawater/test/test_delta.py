@@ -40,7 +40,7 @@ class Test_delta_SA(unittest.TestCase):
         lon = [0.0, 2.0]
         lat = 66.0
         self.assertRaises(ValueError, gsw._delta_SA, p, lon, lat)
-        
+
     def test_check_values(self):
         """Check some standard values"""
         p = np.array([10, 50, 125, 250, 600, 1000])
@@ -48,8 +48,12 @@ class Test_delta_SA(unittest.TestCase):
         gsa_fasit = np.array([ 0.00016779, 0.00026868, 0.00066554,
                                0.0026943 , 0.00562666, 0.00939665])
         gsa = gsw._delta_SA(p, lon, lat)[0]
+        print gsa
+        print gsa_fasit
+        print gsa_fasit - gsa
+
         self.assertTrue(np.all(np.abs(gsa - gsa_fasit) < 1.0E-8))
-                             
+
     def test_extreme_positions(self):
         """Test that extreme positions works"""
         # May include test with value error for illegal positions
@@ -68,15 +72,15 @@ class Test_delta_SA(unittest.TestCase):
         lon, lat = 2, 66
         SA = gsw.SA_from_SP(SP, p, lon, lat)
 
-    
+
 
 
 if __name__ == '__main__':
     unittest.main()
 
-  
 
 
 
 
-  
+
+
