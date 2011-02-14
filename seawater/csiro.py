@@ -188,49 +188,6 @@ from platform import uname
 from time  import asctime, localtime
 from sys   import version
 
-def SRConv(SP):
-    r"""
-    Convert measurements made in Practical Salinity Scale to the Refence Salinity Scale.
-
-    Parameters
-    ----------
-    SP : array_like
-         salinity [psu (PSS-78)]
-
-    Returns
-    -------
-    SR : array_like
-         salinity  [g kg :sup:`-1`]
-
-    See Also
-    --------
-    SA_from_SP
-
-    Notes
-    -----
-    This is an alternative for those that do not wish to use SA_from_SP. Here the delta_SA is not added.
-
-    One might wish to do this if delta_SA is going to be computed from Silicate data or if the data are in Coastal areas where delta_SA is not recommended.
-
-    Examples
-    --------
-    >>> import seawater.csiro as sw
-    >>> SP = 35
-    >>> sw.SRConv(SP)
-    35.165039999999998
-
-    References
-    ----------
-    .. [1] Millero, F. J., R. Feistel, D. G. Wright, and T. J. McDougall, 2008: The composition of Standard Seawater and the definition of the Reference-Composition Salinity Scale, Deep-Sea Res. I, 55, 50-72.
-
-    Modifications: 2011-02-10. Filipe Fernandes, Python translation.
-    """
-
-    SP = np.asanyarray(SP)
-
-    SR = cte.SSO / 35 * SP
-    return SR
-
 def T68conv(T90):
     r"""
     Convert ITS-90 temperature to IPTS-68

@@ -9,8 +9,51 @@ import numpy as np
 import seawater.csiro as sw
 from seawater import constants as cte
 
-def sigma_t(s, t, p):
+def SRConv(SP):
+    r"""
+    Convert measurements made in Practical Salinity Scale to the Refence Salinity Scale.
+
+    Parameters
+    ----------
+    SP : array_like
+         salinity [psu (PSS-78)]
+
+    Returns
+    -------
+    SR : array_like
+         salinity  [g kg :sup:`-1`]
+
+    See Also
+    --------
+    SA_from_SP
+
+    Notes
+    -----
+    This is an alternative for those that do not wish to use SA_from_SP. Here the delta_SA is not added.
+
+    One might wish to do this if delta_SA is going to be computed from Silicate data or if the data are in Coastal areas where delta_SA is not recommended.
+
+    Examples
+    --------
+    >>> import seawater.csiro as sw
+    >>> SP = 35
+    >>> sw.SRConv(SP)
+    35.165039999999998
+
+    References
+    ----------
+    .. [1] Millero, F. J., R. Feistel, D. G. Wright, and T. J. McDougall, 2008: The composition of Standard Seawater and the definition of the Reference-Composition Salinity Scale, Deep-Sea Res. I, 55, 50-72.
+
+    Modifications: 2011-02-10. Filipe Fernandes, Python translation.
     """
+
+    SP = np.asanyarray(SP)
+
+    SR = cte.SSO / 35 * SP
+    return SR
+
+def sigma_t(s, t, p):
+    r"""
     :math:`\\sigma_{t}` is the remainder of subtracting 1000 kg m :sup:`-3` from the density of a sea water sample at atmospheric pressure.
 
     Parameters
@@ -64,7 +107,7 @@ def sigma_t(s, t, p):
     return sgmt
 
 def sigmatheta(s, t, p, pr=0):
-    """
+    r"""
     :math:`\\sigma_{\\theta}` is a measure of the density of ocean water where the quantity :math:`\\sigma_{t}` is calculated using the potential temperature (:math:`\\theta`) rather than the in situ temperature and potential density of water mass relative to the specified reference pressure.
 
     Parameters
@@ -120,7 +163,7 @@ def sigmatheta(s, t, p, pr=0):
     return sgmte
 
 def N(bvfr2):
-    """
+    r"""
     Buoyancy frequency is the frequency with which a parcel or particle of fluid displaced a small vertical distance from its equilibrium position in a stable environment will oscillate. It will oscillate in simple harmonic motion with an angular frequency defined by
 
     .. math:: N = \\left(\\frac{-g}{\\sigma_{\\theta}} \\frac{d\\sigma_{\\theta}}{dz}\\right)^{2}
@@ -165,7 +208,7 @@ def N(bvfr2):
     return bvfr
 
 def cph(bvfr2):
-    """
+    r"""
     Buoyancy frequency in Cycles Per Hour.
 
     Parameters
@@ -205,7 +248,7 @@ def cph(bvfr2):
     return cph
 
 def shear(p, u, v=0):
-    """
+    r"""
     Calculates the vertical shear for u, v velocity section.
 
     .. math::
@@ -269,7 +312,7 @@ def shear(p, u, v=0):
     return shr, p_ave
 
 def richnumb(n, s):
-    """
+    r"""
     Calculates  the ratio of buoyancy to inertial forces which measures the stability of a fluid layer.
     this functions computes the gradient Richardson number in the form of:
 
@@ -321,7 +364,7 @@ def richnumb(n, s):
     return ri
 
 def cor_beta(lat):
-    """
+    r"""
     Calculates the Coriolis :math:`\\beta` factor defined by:
 
     .. math::
@@ -371,7 +414,7 @@ def cor_beta(lat):
     return beta
 
 def inertial_period(lat):
-    """
+    r"""
     Calculate the inertial period as:
 
     .. math::
@@ -405,7 +448,7 @@ def inertial_period(lat):
     return Ti
 
 def strat_period(N):
-    """
+    r"""
     Stratifitcation period is the inverse of the Bouyancy frequency, defined by
 
     .. math:: Tn = \\frac{2\\pi}{N}
@@ -448,7 +491,7 @@ def strat_period(N):
     return Tn
 
 def visc(s, t, p):
-    """
+    r"""
     Calculates kinematic viscosity of sea-water.
 
     Parameters
@@ -493,7 +536,7 @@ def visc(s, t, p):
     return viscw
 
 def tcond(s, t, p):
-    """
+    r"""
     Calculates thermal conductivity of sea-water.
 
     Parameters
@@ -548,7 +591,7 @@ def tcond(s, t, p):
     return therm
 
 def mlife():
-    """
+    r"""
     >>> import seawater.extras.sw_extras as swe
     >>> swe.mlife()
     42
