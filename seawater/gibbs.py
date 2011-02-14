@@ -17,6 +17,36 @@ data/gsw_data_v2_0.pkl
 TODO: Add a option for a local Atlas
 """
 
+class match_args_return(object):
+    """
+    Function decorator to homogenize input arguments and to
+    make the output match the original input with respect to
+    scalar versus array, and masked versus ndarray.
+    """
+    def __init__(self, func):
+        self.func = func
+        self.__doc__ = func.__doc__
+        self.__name__ = func.__name__
+
+    def __call__(self, *args, **kw):
+        p = kw.get('p', None)
+        if p is not None:
+            args = list(args)
+            args.append(p)
+        self.array = np.any([hasattr(a, '__iter__') for a in args])
+        self.masked = np.any([np.ma.isMaskedArray(a) for a in args])
+        newargs = [np.ma.atleast_1d(np.ma.masked_invalid(a)) for a in args]
+        newargs = [a.astype(np.float) for a in newargs]
+        if p is not None:
+            kw['p'] = newargs.pop()
+        ret = self.func(*newargs, **kw)
+        if not self.masked:
+            ret = np.ma.filled(ret, np.nan)
+        if not self.array:
+            ret = ret[0]
+        return ret
+
+
 class Dict2Struc(object):
     r"""
     Open variables from a dictionary in a "matlab-like-structure"
@@ -129,11 +159,38 @@ def _gibbs(ns, nt, npr, SA, t, p):
     # trick to use single number
     if SA.ndim == 0:
         SA = SA[np.newaxis]
+    if (SA.size == 1 and SA[0] <= 0) or np.ma.all(SA <=0):
+        nonzero_SA = False
+    else:
+        nonzero_SA = True
+        SA = np.ma.masked_less_equal(SA, 0)
+    _SA = SA
+    _t = t
+    _p = p
 
-    SA[SA < 0] = 0 # ensure that SA is non-negative.
+    SA = np.ma.filled(SA, 0)
+    t = np.ma.filled(t, 20)
+    p = np.ma.filled(p, 10)
+
+    SA, t, p = np.broadcast_arrays(SA, t, p)
+
+    gibbs = np.zeros(SA.shape, dtype=np.float) #use if all_masked becomes True
+    all_masked = False
+
+    # Ensure a full mask, so we can set elements if necessary.
+    mask = np.ma.mask_or(np.ma.getmaskarray(_SA), np.ma.getmask(_t))
+    mask = np.ma.mask_or(mask, np.ma.getmask(_p))
+    mask = np.ma.mask_or(mask, SA<0)
+
+    ipos = (SA > 0)
+    inpos = ~ipos
+    if np.all(ipos):
+        ipos = slice(None) # more efficient for usual case
+
 
     x2 = cte.sfac * SA
     x = np.sqrt(x2)
+
     y = t * 0.025
     z = p * 1e-4 # The input pressure (p) is sea pressure in units of dbar.
 
@@ -154,57 +211,62 @@ def _gibbs(ns, nt, npr, SA, t, p):
         y * ( -18.9843846514172 + y * ( 3.05081646487967 - 9.63108119393062 * z ) + \
         z * ( 63.5113936641785 + z * ( -22.2897317140459 + 8.17060541818112 * z ) ) ) ) ) ) ) )
 
-        g08 = x2 * ( 1416.27648484197 + z * ( -3310.49154044839 + \
-        z * ( 384.794152978599 + z * ( -96.5324320107458 + ( 15.8408172766824 - 2.62480156590992 * z ) * z ) ) ) + \
-        x * ( -2432.14662381794 + x * ( 2025.80115603697 + \
-        y * ( 543.835333000098 + y * ( -68.5572509204491 + \
-        y * ( 49.3667694856254 + y * ( -17.1397577419788 + 2.49697009569508 * y ) ) ) - 22.6683558512829 * z ) + \
-        x * ( -1091.66841042967 - 196.028306689776 * y + \
-        x * ( 374.60123787784 - 48.5891069025409 * x + 36.7571622995805 * y ) + 36.0284195611086 * z ) + \
-        z * ( -54.7919133532887 + ( -4.08193978912261 - 30.1755111971161 * z ) * z ) ) + \
-        z * ( 199.459603073901 + z * ( -52.2940909281335 + ( 68.0444942726459 - 3.41251932441282 * z ) * z ) ) + \
-        y * ( -493.407510141682 + z * ( -175.292041186547 + ( 83.1923927801819 - 29.483064349429 * z ) * z ) + \
-        y * ( -43.0664675978042 + z * ( 383.058066002476 + z * ( -54.1917262517112 + 25.6398487389914 * z ) ) + \
-        y * ( -10.0227370861875 - 460.319931801257 * z + y * ( 0.875600661808945 + 234.565187611355 * z ) ) ) ) )  + \
-        y * ( 168.072408311545 + z * ( 729.116529735046 + \
-        z * ( -343.956902961561 + z * ( 124.687671116248 + z * ( -31.656964386073 + 7.04658803315449 * z ) ) ) ) + \
-        y * ( 880.031352997204 + y * ( -225.267649263401 + \
-        y * ( 91.4260447751259 + y * ( -21.6603240875311 + 2.13016970847183 * y ) + \
-        z * ( -297.728741987187 + ( 74.726141138756 - 36.4872919001588 * z ) * z ) ) + \
-        z * ( 694.244814133268 + z * ( -204.889641964903 + ( 113.561697840594 - 11.1282734326413 * z ) * z ) ) ) + \
-        z * ( -860.764303783977 + z * ( 337.409530269367 + \
-        z * ( -178.314556207638 + ( 44.2040358308 - 7.92001547211682 * z ) * z ) ) ) ) ) )
+        if nonzero_SA:
+            g08 = x2 * ( 1416.27648484197 + z * ( -3310.49154044839 + \
+            z * ( 384.794152978599 + z * ( -96.5324320107458 + ( 15.8408172766824 - 2.62480156590992 * z ) * z ) ) ) + \
+            x * ( -2432.14662381794 + x * ( 2025.80115603697 + \
+            y * ( 543.835333000098 + y * ( -68.5572509204491 + \
+            y * ( 49.3667694856254 + y * ( -17.1397577419788 + 2.49697009569508 * y ) ) ) - 22.6683558512829 * z ) + \
+            x * ( -1091.66841042967 - 196.028306689776 * y + \
+            x * ( 374.60123787784 - 48.5891069025409 * x + 36.7571622995805 * y ) + 36.0284195611086 * z ) + \
+            z * ( -54.7919133532887 + ( -4.08193978912261 - 30.1755111971161 * z ) * z ) ) + \
+            z * ( 199.459603073901 + z * ( -52.2940909281335 + ( 68.0444942726459 - 3.41251932441282 * z ) * z ) ) + \
+            y * ( -493.407510141682 + z * ( -175.292041186547 + ( 83.1923927801819 - 29.483064349429 * z ) * z ) + \
+            y * ( -43.0664675978042 + z * ( 383.058066002476 + z * ( -54.1917262517112 + 25.6398487389914 * z ) ) + \
+            y * ( -10.0227370861875 - 460.319931801257 * z + y * ( 0.875600661808945 + 234.565187611355 * z ) ) ) ) )  + \
+            y * ( 168.072408311545 + z * ( 729.116529735046 + \
+            z * ( -343.956902961561 + z * ( 124.687671116248 + z * ( -31.656964386073 + 7.04658803315449 * z ) ) ) ) + \
+            y * ( 880.031352997204 + y * ( -225.267649263401 + \
+            y * ( 91.4260447751259 + y * ( -21.6603240875311 + 2.13016970847183 * y ) + \
+            z * ( -297.728741987187 + ( 74.726141138756 - 36.4872919001588 * z ) * z ) ) + \
+            z * ( 694.244814133268 + z * ( -204.889641964903 + ( 113.561697840594 - 11.1282734326413 * z ) * z ) ) ) + \
+            z * ( -860.764303783977 + z * ( 337.409530269367 + \
+            z * ( -178.314556207638 + ( 44.2040358308 - 7.92001547211682 * z ) * z ) ) ) ) ) )
 
-        g08[x>0] = g08[x>0] + x2[x>0] * ( 5812.81456626732 + 851.226734946706 * y[x>0] ) * np.log( x[x>0] )
-
+            g08[ipos] +=  x2[ipos] * ( 5812.81456626732 + 851.226734946706 * y[ipos] ) * np.log( x[ipos] )
+        else:
+            g08 = 0
         gibbs = g03 + g08
 
+
     elif (ns==1) & (nt==0) & (npr==0):
-        g08 = 8645.36753595126 + z * ( -6620.98308089678 + \
-        z * ( 769.588305957198 + z * ( -193.0648640214916 + ( 31.6816345533648 - 5.24960313181984 * z ) * z ) ) ) + \
-        x * ( -7296.43987145382 + x * ( 8103.20462414788 + \
-        y * ( 2175.341332000392 + y * ( -274.2290036817964 + \
-        y * ( 197.4670779425016 + y * ( -68.5590309679152 + 9.98788038278032 * y ) ) ) - 90.6734234051316 * z ) + \
-        x * ( -5458.34205214835 - 980.14153344888 * y + \
-        x * ( 2247.60742726704 - 340.1237483177863 * x + 220.542973797483 * y ) + 180.142097805543 * z ) + \
-        z * ( -219.1676534131548 + ( -16.32775915649044 - 120.7020447884644 * z ) * z ) ) + \
-        z * ( 598.378809221703 + z * ( -156.8822727844005 + ( 204.1334828179377 - 10.23755797323846 * z ) * z ) ) + \
-        y * ( -1480.222530425046 + z * ( -525.876123559641 + ( 249.57717834054571 - 88.449193048287 * z ) * z ) + \
-        y * ( -129.1994027934126 + z * ( 1149.174198007428 + z * ( -162.5751787551336 + 76.9195462169742 * z ) ) + \
-        y * ( -30.0682112585625 - 1380.9597954037708 * z + y * ( 2.626801985426835 + 703.695562834065 * z ) ) ) ) ) + \
-        y * ( 1187.3715515697959 + z * ( 1458.233059470092 + \
-        z * ( -687.913805923122 + z * ( 249.375342232496 + z * ( -63.313928772146 + 14.09317606630898 * z ) ) ) ) + \
-        y * ( 1760.062705994408 + y * ( -450.535298526802 + \
-        y * ( 182.8520895502518 + y * ( -43.3206481750622 + 4.26033941694366 * y ) + \
-        z * ( -595.457483974374 + ( 149.452282277512 - 72.9745838003176 * z ) * z ) ) + \
-        z * ( 1388.489628266536 + z * ( -409.779283929806 + ( 227.123395681188 - 22.2565468652826 * z ) * z ) ) ) + \
-        z * ( -1721.528607567954 + z * ( 674.819060538734 + \
-        z * ( -356.629112415276 + ( 88.4080716616 - 15.84003094423364 * z ) * z ) ) ) ) )
+        if nonzero_SA:
+            g08 = 8645.36753595126 + z * ( -6620.98308089678 + \
+            z * ( 769.588305957198 + z * ( -193.0648640214916 + ( 31.6816345533648 - 5.24960313181984 * z ) * z ) ) ) + \
+            x * ( -7296.43987145382 + x * ( 8103.20462414788 + \
+            y * ( 2175.341332000392 + y * ( -274.2290036817964 + \
+            y * ( 197.4670779425016 + y * ( -68.5590309679152 + 9.98788038278032 * y ) ) ) - 90.6734234051316 * z ) + \
+            x * ( -5458.34205214835 - 980.14153344888 * y + \
+            x * ( 2247.60742726704 - 340.1237483177863 * x + 220.542973797483 * y ) + 180.142097805543 * z ) + \
+            z * ( -219.1676534131548 + ( -16.32775915649044 - 120.7020447884644 * z ) * z ) ) + \
+            z * ( 598.378809221703 + z * ( -156.8822727844005 + ( 204.1334828179377 - 10.23755797323846 * z ) * z ) ) + \
+            y * ( -1480.222530425046 + z * ( -525.876123559641 + ( 249.57717834054571 - 88.449193048287 * z ) * z ) + \
+            y * ( -129.1994027934126 + z * ( 1149.174198007428 + z * ( -162.5751787551336 + 76.9195462169742 * z ) ) + \
+            y * ( -30.0682112585625 - 1380.9597954037708 * z + y * ( 2.626801985426835 + 703.695562834065 * z ) ) ) ) ) + \
+            y * ( 1187.3715515697959 + z * ( 1458.233059470092 + \
+            z * ( -687.913805923122 + z * ( 249.375342232496 + z * ( -63.313928772146 + 14.09317606630898 * z ) ) ) ) + \
+            y * ( 1760.062705994408 + y * ( -450.535298526802 + \
+            y * ( 182.8520895502518 + y * ( -43.3206481750622 + 4.26033941694366 * y ) + \
+            z * ( -595.457483974374 + ( 149.452282277512 - 72.9745838003176 * z ) * z ) ) + \
+            z * ( 1388.489628266536 + z * ( -409.779283929806 + ( 227.123395681188 - 22.2565468652826 * z ) * z ) ) ) + \
+            z * ( -1721.528607567954 + z * ( 674.819060538734 + \
+            z * ( -356.629112415276 + ( 88.4080716616 - 15.84003094423364 * z ) * z ) ) ) ) )
 
-        g08[x>0] = g08[x>0] + ( 11625.62913253464 + 1702.453469893412 * y[x>0] ) * np.log( x[x>0] )
-        g08[x==0] = np.nan
+            g08[ipos] = g08[ipos] + ( 11625.62913253464 + 1702.453469893412 * y[ipos] ) * np.log( x[ipos] )
 
-        gibbs = 0.5 * cte.sfac * g08
+            gibbs = 0.5 * cte.sfac * g08
+        else:
+            all_masked = True
 
     elif (ns==0) & (nt==1) & (npr==0):
         g03 = 5.90578347909402 + z * ( -270.983805184062 + \
@@ -220,23 +282,26 @@ def _gibbs(ns, nt, npr, SA, t, p):
         y * ( -113.90630790850321 + y * ( 21.35571525415769 - 67.41756835751434 * z ) + \
         z * ( 381.06836198507096 + z * ( -133.7383902842754 + 49.023632509086724 * z ) ) ) ) ) ) )
 
-        g08 = x2 * ( 168.072408311545 + z * ( 729.116529735046 + \
-        z * ( -343.956902961561 + z * ( 124.687671116248 + z * ( -31.656964386073 + 7.04658803315449 * z ) ) ) ) + \
-        x * ( -493.407510141682 + x * ( 543.835333000098 + x * ( -196.028306689776 + 36.7571622995805 * x ) + \
-        y * ( -137.1145018408982 + y * ( 148.10030845687618 + y * ( -68.5590309679152 + 12.4848504784754 * y ) ) ) - \
-        22.6683558512829 * z ) + z * ( -175.292041186547 + ( 83.1923927801819 - 29.483064349429 * z ) * z ) + \
-        y * ( -86.1329351956084 + z * ( 766.116132004952 + z * ( -108.3834525034224 + 51.2796974779828 * z ) ) + \
-        y * ( -30.0682112585625 - 1380.9597954037708 * z + y * ( 3.50240264723578 + 938.26075044542 * z ) ) ) ) + \
-        y * ( 1760.062705994408 + y * ( -675.802947790203 + \
-        y * ( 365.7041791005036 + y * ( -108.30162043765552 + 12.78101825083098 * y ) + \
-        z * ( -1190.914967948748 + ( 298.904564555024 - 145.9491676006352 * z ) * z ) ) + \
-        z * ( 2082.7344423998043 + z * ( -614.668925894709 + ( 340.685093521782 - 33.3848202979239 * z ) * z ) ) ) + \
-        z * ( -1721.528607567954 + z * ( 674.819060538734 + \
-        z * ( -356.629112415276 + ( 88.4080716616 - 15.84003094423364 * z ) * z ) ) ) ) )
+        if nonzero_SA:
+            g08 = x2 * ( 168.072408311545 + z * ( 729.116529735046 + \
+            z * ( -343.956902961561 + z * ( 124.687671116248 + z * ( -31.656964386073 + 7.04658803315449 * z ) ) ) ) + \
+            x * ( -493.407510141682 + x * ( 543.835333000098 + x * ( -196.028306689776 + 36.7571622995805 * x ) + \
+            y * ( -137.1145018408982 + y * ( 148.10030845687618 + y * ( -68.5590309679152 + 12.4848504784754 * y ) ) ) - \
+            22.6683558512829 * z ) + z * ( -175.292041186547 + ( 83.1923927801819 - 29.483064349429 * z ) * z ) + \
+            y * ( -86.1329351956084 + z * ( 766.116132004952 + z * ( -108.3834525034224 + 51.2796974779828 * z ) ) + \
+            y * ( -30.0682112585625 - 1380.9597954037708 * z + y * ( 3.50240264723578 + 938.26075044542 * z ) ) ) ) + \
+            y * ( 1760.062705994408 + y * ( -675.802947790203 + \
+            y * ( 365.7041791005036 + y * ( -108.30162043765552 + 12.78101825083098 * y ) + \
+            z * ( -1190.914967948748 + ( 298.904564555024 - 145.9491676006352 * z ) * z ) ) + \
+            z * ( 2082.7344423998043 + z * ( -614.668925894709 + ( 340.685093521782 - 33.3848202979239 * z ) * z ) ) ) + \
+            z * ( -1721.528607567954 + z * ( 674.819060538734 + \
+            z * ( -356.629112415276 + ( 88.4080716616 - 15.84003094423364 * z ) * z ) ) ) ) )
 
-        g08[x>0] = g08[x>0] + 851.226734946706 * x2[x>0] * np.log( x[x>0] )
+            g08[ipos] += 851.226734946706 * x2[ipos] * np.log( x[ipos] )
 
-        gibbs = (g03 + g08) * 0.025
+            gibbs = (g03 + g08) * 0.025
+        else:
+            gibbs = g03
 
     elif (ns==0) & (nt==0) & (npr==1):
         g03 = 100015.695367145 + z * ( -5089.1530840726 + \
@@ -252,42 +317,47 @@ def _gibbs(ns, nt, npr, SA, t, p):
         z * ( -44.5794634280918 + 24.511816254543362 * z ) ) + \
         z * ( 241.04130980405 + z * ( -165.8169157020456 + 25.92762672308884 * z ) ) ) ) ) ) )
 
-        g08 = x2 * ( -3310.49154044839 + z * ( 769.588305957198 + \
-        z * ( -289.5972960322374 + ( 63.3632691067296 - 13.1240078295496 * z ) * z ) ) + \
-        x * ( 199.459603073901 + x * ( -54.7919133532887 + 36.0284195611086 * x - 22.6683558512829 * y + \
-        ( -8.16387957824522 - 90.52653359134831 * z ) * z ) + \
-        z * ( -104.588181856267 + ( 204.1334828179377 - 13.65007729765128 * z ) * z ) + \
-        y * ( -175.292041186547 + ( 166.3847855603638 - 88.449193048287 * z ) * z + \
-        y * ( 383.058066002476 + y * ( -460.319931801257 + 234.565187611355 * y ) + \
-        z * ( -108.3834525034224 + 76.9195462169742 * z ) ) ) ) + \
-        y * ( 729.116529735046 + z * ( -687.913805923122 + \
-        z * ( 374.063013348744 + z * ( -126.627857544292 + 35.23294016577245 * z ) ) )  + \
-        y * ( -860.764303783977 + y * ( 694.244814133268 + \
-        y * ( -297.728741987187 + ( 149.452282277512 - 109.46187570047641 * z ) * z ) + \
-        z * ( -409.779283929806 + ( 340.685093521782 - 44.5130937305652 * z ) * z ) ) + \
-        z * ( 674.819060538734 + z * ( -534.943668622914 + ( 176.8161433232 - 39.600077360584095 * z ) * z ) ) ) ) )
-
+        if nonzero_SA:
+            g08 = x2 * ( -3310.49154044839 + z * ( 769.588305957198 + \
+            z * ( -289.5972960322374 + ( 63.3632691067296 - 13.1240078295496 * z ) * z ) ) + \
+            x * ( 199.459603073901 + x * ( -54.7919133532887 + 36.0284195611086 * x - 22.6683558512829 * y + \
+            ( -8.16387957824522 - 90.52653359134831 * z ) * z ) + \
+            z * ( -104.588181856267 + ( 204.1334828179377 - 13.65007729765128 * z ) * z ) + \
+            y * ( -175.292041186547 + ( 166.3847855603638 - 88.449193048287 * z ) * z + \
+            y * ( 383.058066002476 + y * ( -460.319931801257 + 234.565187611355 * y ) + \
+            z * ( -108.3834525034224 + 76.9195462169742 * z ) ) ) ) + \
+            y * ( 729.116529735046 + z * ( -687.913805923122 + \
+            z * ( 374.063013348744 + z * ( -126.627857544292 + 35.23294016577245 * z ) ) )  + \
+            y * ( -860.764303783977 + y * ( 694.244814133268 + \
+            y * ( -297.728741987187 + ( 149.452282277512 - 109.46187570047641 * z ) * z ) + \
+            z * ( -409.779283929806 + ( 340.685093521782 - 44.5130937305652 * z ) * z ) ) + \
+            z * ( 674.819060538734 + z * ( -534.943668622914 + ( 176.8161433232 - 39.600077360584095 * z ) * z ) ) ) ) )
+        else:
+            g08 = 0
         # Pressure derivative of the Gibbs function in units of (J kg :sup:`-1`) (Pa :sup:`-1`) = m :sup:`3` kg :sup:`-1`
         gibbs = (g03 + g08) * 1e-8
 
     elif (ns==1) & (nt==1) & (npr==0):
-        g08 = 1187.3715515697959 + z * ( 1458.233059470092 + \
-        z * ( -687.913805923122 + z * ( 249.375342232496 + z * ( -63.313928772146 + 14.09317606630898 * z ) ) ) ) + \
-        x * ( -1480.222530425046 + x * ( 2175.341332000392 + x * ( -980.14153344888 + 220.542973797483 * x ) + \
-        y * ( -548.4580073635929 + y * ( 592.4012338275047 + y * ( -274.2361238716608 + 49.9394019139016 * y ) ) ) - \
-        90.6734234051316 * z ) + z * ( -525.876123559641 + ( 249.57717834054571 - 88.449193048287 * z ) * z ) + \
-        y * ( -258.3988055868252 + z * ( 2298.348396014856 + z * ( -325.1503575102672 + 153.8390924339484 * z ) ) + \
-        y * ( -90.2046337756875 - 4142.8793862113125 * z + y * ( 10.50720794170734 + 2814.78225133626 * z ) ) ) ) + \
-        y * ( 3520.125411988816 + y * ( -1351.605895580406 + \
-        y * ( 731.4083582010072 + y * ( -216.60324087531103 + 25.56203650166196 * y ) + \
-        z * ( -2381.829935897496 + ( 597.809129110048 - 291.8983352012704 * z ) * z ) ) + \
-        z * ( 4165.4688847996085 + z * ( -1229.337851789418 + ( 681.370187043564 - 66.7696405958478 * z ) * z ) ) ) + \
-        z * ( -3443.057215135908 + z * ( 1349.638121077468 + \
-        z * ( -713.258224830552 + ( 176.8161433232 - 31.68006188846728 * z ) * z ) ) ) )
+        if nonzero_SA:
+            g08 = 1187.3715515697959 + z * ( 1458.233059470092 + \
+            z * ( -687.913805923122 + z * ( 249.375342232496 + z * ( -63.313928772146 + 14.09317606630898 * z ) ) ) ) + \
+            x * ( -1480.222530425046 + x * ( 2175.341332000392 + x * ( -980.14153344888 + 220.542973797483 * x ) + \
+            y * ( -548.4580073635929 + y * ( 592.4012338275047 + y * ( -274.2361238716608 + 49.9394019139016 * y ) ) ) - \
+            90.6734234051316 * z ) + z * ( -525.876123559641 + ( 249.57717834054571 - 88.449193048287 * z ) * z ) + \
+            y * ( -258.3988055868252 + z * ( 2298.348396014856 + z * ( -325.1503575102672 + 153.8390924339484 * z ) ) + \
+            y * ( -90.2046337756875 - 4142.8793862113125 * z + y * ( 10.50720794170734 + 2814.78225133626 * z ) ) ) ) + \
+            y * ( 3520.125411988816 + y * ( -1351.605895580406 + \
+            y * ( 731.4083582010072 + y * ( -216.60324087531103 + 25.56203650166196 * y ) + \
+            z * ( -2381.829935897496 + ( 597.809129110048 - 291.8983352012704 * z ) * z ) ) + \
+            z * ( 4165.4688847996085 + z * ( -1229.337851789418 + ( 681.370187043564 - 66.7696405958478 * z ) * z ) ) ) + \
+            z * ( -3443.057215135908 + z * ( 1349.638121077468 + \
+            z * ( -713.258224830552 + ( 176.8161433232 - 31.68006188846728 * z ) * z ) ) ) )
 
-        g08[x>0] = g08[x>0] + 1702.453469893412 * np.log( x[x>0] )
-        g08[SA==0] = np.nan
-        gibbs = 0.5 * cte.sfac * 0.025 * g08
+            g08[ipos] = g08[ipos] + 1702.453469893412 * np.log( x[ipos] )
+            gibbs = 0.5 * cte.sfac * 0.025 * g08
+            mask[inpos] = True
+        else:
+            all_masked = True
 
     elif (ns==1) & (nt==0) & (npr==1):
         g08 = -6620.98308089678 + z * ( 1539.176611914396 + \
@@ -319,16 +389,18 @@ def _gibbs(ns, nt, npr, SA, t, p):
         y * ( -973.091553087975 + z * ( 1205.20654902025 + z * ( -829.084578510228 + 129.6381336154442 * z ) ) + \
         y * ( 381.06836198507096 - 67.41756835751434 * y + z * ( -267.4767805685508 + 147.07089752726017 * z ) ) ) ) ) )
 
-        g08 = x2 * ( 729.116529735046 + z * ( -687.913805923122 + \
-        z * ( 374.063013348744 + z * ( -126.627857544292 + 35.23294016577245 * z ) ) ) + \
-        x * ( -175.292041186547 - 22.6683558512829 * x + ( 166.3847855603638 - 88.449193048287 * z ) * z + \
-        y * ( 766.116132004952 + y * ( -1380.9597954037708 + 938.26075044542 * y ) + \
-        z * ( -216.7669050068448 + 153.8390924339484 * z ) ) ) + \
-        y * ( -1721.528607567954 + y * ( 2082.7344423998043 + \
-        y * ( -1190.914967948748 + ( 597.809129110048 - 437.84750280190565 * z ) * z ) + \
-        z * ( -1229.337851789418 + ( 1022.055280565346 - 133.5392811916956 * z ) * z ) ) + \
-        z * ( 1349.638121077468 + z * ( -1069.887337245828 + ( 353.6322866464 - 79.20015472116819 * z ) * z ) ) ) )
-
+        if nonzero_SA:
+            g08 = x2 * ( 729.116529735046 + z * ( -687.913805923122 + \
+            z * ( 374.063013348744 + z * ( -126.627857544292 + 35.23294016577245 * z ) ) ) + \
+            x * ( -175.292041186547 - 22.6683558512829 * x + ( 166.3847855603638 - 88.449193048287 * z ) * z + \
+            y * ( 766.116132004952 + y * ( -1380.9597954037708 + 938.26075044542 * y ) + \
+            z * ( -216.7669050068448 + 153.8390924339484 * z ) ) ) + \
+            y * ( -1721.528607567954 + y * ( 2082.7344423998043 + \
+            y * ( -1190.914967948748 + ( 597.809129110048 - 437.84750280190565 * z ) * z ) + \
+            z * ( -1229.337851789418 + ( 1022.055280565346 - 133.5392811916956 * z ) * z ) ) + \
+            z * ( 1349.638121077468 + z * ( -1069.887337245828 + ( 353.6322866464 - 79.20015472116819 * z ) * z ) ) ) )
+        else:
+            g08 = 0
         # Derivative of the Gibbs function is in units of (m :sup:`3` (K kg) ) that is, the pressure of the derivative in Pa.
         gibbs = (g03 + g08) * 2.5e-10
 
@@ -341,17 +413,17 @@ def _gibbs(ns, nt, npr, SA, t, p):
         180.142097805543 * z ) + \
         z * ( -219.1676534131548 + ( -16.32775915649044 - 120.7020447884644 * z ) * z ) )
 
-        g08[x>0] = g08[x>0] + ( -7296.43987145382 + z[x>0] * ( 598.378809221703 + \
-        z[x>0] * ( -156.8822727844005 + ( 204.1334828179377 - 10.23755797323846 * z[x>0] ) * z[x>0] ) ) + \
-        y[x>0] * ( -1480.222530425046 + z[x>0] * ( -525.876123559641 + \
-        ( 249.57717834054571 - 88.449193048287 * z[x>0] ) * z[x>0] ) + \
-        y[x>0] * ( -129.1994027934126 + z[x>0] * ( 1149.174198007428 + \
-        z[x>0] * ( -162.5751787551336 + 76.9195462169742 * z[x>0] ) ) + \
-        y[x>0] * ( -30.0682112585625 - 1380.9597954037708 * z[x>0] + \
-        y[x>0] * ( 2.626801985426835 + 703.695562834065 * z[x>0] ) ) ) ) ) / x[x>0] + \
-        ( 11625.62913253464 + 1702.453469893412 * y[x>0] ) / x2[x>0]
-
-        g08[x==0] = np.nan
+        if nonzero_SA:
+            tmp =   ( -7296.43987145382 + z * ( 598.378809221703 + \
+            z * ( -156.8822727844005 + ( 204.1334828179377 - 10.23755797323846 * z ) * z ) ) + \
+            y * ( -1480.222530425046 + z * ( -525.876123559641 + \
+            ( 249.57717834054571 - 88.449193048287 * z ) * z ) + \
+            y * ( -129.1994027934126 + z * ( 1149.174198007428 + \
+            z * ( -162.5751787551336 + 76.9195462169742 * z ) ) + \
+            y * ( -30.0682112585625 - 1380.9597954037708 * z + \
+            y * ( 2.626801985426835 + 703.695562834065 * z ) ) ) ) ) / x + \
+            ( 11625.62913253464 + 1702.453469893412 * y )
+            g08[ipos] += tmp[ipos] / x2[ipos]
 
         gibbs = 0.25 * cte.sfac**2 * g08
 
@@ -367,16 +439,18 @@ def _gibbs(ns, nt, npr, SA, t, p):
         y * ( -569.531539542516 + y * ( 128.13429152494615 - 404.50541014508605 * z ) + \
         z * ( 1905.341809925355 + z * ( -668.691951421377 + 245.11816254543362 * z ) ) ) ) ) )
 
-        g08 = x2 * ( 1760.062705994408 + x * ( -86.1329351956084 + \
-        x * ( -137.1145018408982 + y * ( 296.20061691375236 + y * ( -205.67709290374563 + 49.9394019139016 * y ) ) )  + \
-        z * ( 766.116132004952 + z * ( -108.3834525034224 + 51.2796974779828 * z ) ) + \
-        y * ( -60.136422517125 - 2761.9195908075417 * z + y * ( 10.50720794170734 + 2814.78225133626 * z ) ) ) + \
-        y * ( -1351.605895580406 + y * ( 1097.1125373015109 + y * ( -433.20648175062206 + 63.905091254154904 * y ) + \
-        z * ( -3572.7449038462437 + ( 896.713693665072 - 437.84750280190565 * z ) * z ) ) + \
-        z * ( 4165.4688847996085 + z * ( -1229.337851789418 + ( 681.370187043564 - 66.7696405958478 * z ) * z ) ) ) + \
-        z * ( -1721.528607567954 + z * ( 674.819060538734 + \
-        z * ( -356.629112415276 + ( 88.4080716616 - 15.84003094423364 * z ) * z ) ) ) )
-
+        if nonzero_SA:
+            g08 = x2 * ( 1760.062705994408 + x * ( -86.1329351956084 + \
+            x * ( -137.1145018408982 + y * ( 296.20061691375236 + y * ( -205.67709290374563 + 49.9394019139016 * y ) ) )  + \
+            z * ( 766.116132004952 + z * ( -108.3834525034224 + 51.2796974779828 * z ) ) + \
+            y * ( -60.136422517125 - 2761.9195908075417 * z + y * ( 10.50720794170734 + 2814.78225133626 * z ) ) ) + \
+            y * ( -1351.605895580406 + y * ( 1097.1125373015109 + y * ( -433.20648175062206 + 63.905091254154904 * y ) + \
+            z * ( -3572.7449038462437 + ( 896.713693665072 - 437.84750280190565 * z ) * z ) ) + \
+            z * ( 4165.4688847996085 + z * ( -1229.337851789418 + ( 681.370187043564 - 66.7696405958478 * z ) * z ) ) ) + \
+            z * ( -1721.528607567954 + z * ( 674.819060538734 + \
+            z * ( -356.629112415276 + ( 88.4080716616 - 15.84003094423364 * z ) * z ) ) ) )
+        else:
+            g08 = 0
         gibbs = (g03 + g08) * 0.000625
 
     elif (ns==0) & (nt==0) & (npr==2):
@@ -389,20 +463,25 @@ def _gibbs(ns, nt, npr, SA, t, p):
         y * ( 241.04130980405 + y * ( -44.5794634280918 + 49.023632509086724 * z ) + \
         z * ( -331.6338314040912 + 77.78288016926652 * z ) ) ) ) ) )
 
-        g08 = x2 * ( 769.588305957198 + z * ( -579.1945920644748 + ( 190.08980732018878 - 52.4960313181984 * z ) * z ) + \
-        x * ( -104.588181856267 + x * ( -8.16387957824522 - 181.05306718269662 * z ) + \
-        ( 408.2669656358754 - 40.95023189295384 * z ) * z + \
-        y * ( 166.3847855603638 - 176.898386096574 * z + y * ( -108.3834525034224 + 153.8390924339484 * z ) ) ) + \
-        y * ( -687.913805923122 + z * ( 748.126026697488 + z * ( -379.883572632876 + 140.9317606630898 * z ) ) + \
-        y * ( 674.819060538734 + z * ( -1069.887337245828 + ( 530.4484299696 - 158.40030944233638 * z ) * z ) + \
-        y * ( -409.779283929806 + y * ( 149.452282277512 - 218.92375140095282 * z ) + \
-        ( 681.370187043564 - 133.5392811916956 * z ) * z ) ) ) )
-
+        if nonzero_SA:
+            g08 = x2 * ( 769.588305957198 + z * ( -579.1945920644748 + ( 190.08980732018878 - 52.4960313181984 * z ) * z ) + \
+            x * ( -104.588181856267 + x * ( -8.16387957824522 - 181.05306718269662 * z ) + \
+            ( 408.2669656358754 - 40.95023189295384 * z ) * z + \
+            y * ( 166.3847855603638 - 176.898386096574 * z + y * ( -108.3834525034224 + 153.8390924339484 * z ) ) ) + \
+            y * ( -687.913805923122 + z * ( 748.126026697488 + z * ( -379.883572632876 + 140.9317606630898 * z ) ) + \
+            y * ( 674.819060538734 + z * ( -1069.887337245828 + ( 530.4484299696 - 158.40030944233638 * z ) * z ) + \
+            y * ( -409.779283929806 + y * ( 149.452282277512 - 218.92375140095282 * z ) + \
+            ( 681.370187043564 - 133.5392811916956 * z ) * z ) ) ) )
+        else:
+            g08 = 0
         # Second derivative of the Gibbs function with respect to pressure, measured in Pa; units of (J kg :sup:`-1`) (Pa :sup:`-2`).
         gibbs = (g03 + g08) * 1e-16
     else:
         raise NameError('Wrong Combination of order/variables')
 
+    gibbs = np.ma.array(gibbs, mask=mask, copy=False)
+    if all_masked:
+        gibbs[:] = np.ma.masked
     return gibbs
 
 def _entropy_part(SA, t, p):
@@ -863,7 +942,8 @@ def _delta_SA(p, lon, lat):
     # -----------------------
 
     # For now, convert masked to unmasked, and use nan internally.
-    # Maybe reverse the strategy later.
+    # Maybe reverse the strategy later, or, more likely, use separate
+    # data and mask internally.
     p, lon, lat = [np.ma.filled(var, np.nan) for var in (p, lon, lat)]
     p   = np.atleast_1d(p).astype(np.float) # must be float for interpolation
     # Make all arrays of same shape, raise ValueError if not compatible
@@ -1134,6 +1214,7 @@ def _dsa_add_mean(dsa):
 Section B: functions
 """
 
+@match_args_return
 def entropy(SA, t, p):
     r"""
     Calculates specific entropy of seawater.
@@ -1186,14 +1267,12 @@ def entropy(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
-
     n0, n1 = 0, 1
-
     entropy = -_gibbs(n0, n1, n0, SA, t, p)
 
     return entropy
 
+@match_args_return
 def rho(SA, t, p):
     r"""
     Calculates in situ density of seawater from Absolute Salinity and in situ temperature.
@@ -1239,14 +1318,12 @@ def rho(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
-
     n0, n1 = 0, 1
-
     rho = 1. / _gibbs(n0, n0, n1, SA, t, p)
 
     return rho
 
+@match_args_return
 def cp(SA, t, p):
     r"""
     Calculates the isobaric heat capacity of seawater.
@@ -1290,14 +1367,12 @@ def cp(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
-
     n0, n2 = 0, 2
-
     cp = -( t + cte.Kelvin ) * _gibbs(n0, n2, n0, SA, t, p)
 
     return cp
 
+@match_args_return
 def helmholtz_energy(SA, t, p):
     r"""
     Calculates the Helmholtz energy of seawater.
@@ -1349,15 +1424,13 @@ def helmholtz_energy(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
-
     n0, n1 = 0, 1
-
     helmholtz_energy = _gibbs(n0, n0, n0, SA, t, p) - \
                     ( cte.db2Pascal * p + 101325 ) * _gibbs(n0, n0, n1, SA, t, p)
 
     return helmholtz_energy
 
+@match_args_return
 def internal_energy(SA, t, p):
     r"""
     Calculates the Helmholtz energy of seawater.
@@ -1410,16 +1483,14 @@ def internal_energy(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
-
     n0, n1 = 0, 1
-
     internal_energy = _gibbs(n0, n0, n0, SA, t, p) - \
                     (cte.Kelvin + t) * _gibbs(n0, n1, n0, SA, t, p) - \
                     (cte.db2Pascal * p + 101325) * _gibbs(n0, n0, n1, SA, t, p)
 
     return internal_energy
 
+@match_args_return
 def sound_speed(SA, t, p):
     r"""
     Calculates the speed of sound in seawater.
@@ -1473,18 +1544,16 @@ def sound_speed(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
-
     n0, n1, n2 = 0, 1, 2
-
     g_tt = _gibbs(n0, n2, n0, SA, t, p)
     g_tp = _gibbs(n0, n1, n1, SA, t, p)
-
-    sound_speed = _gibbs(n0, n0, n1, SA, t, p) * \
-    np.sqrt( g_tt / ( g_tp * g_tp - g_tt * _gibbs(n0, n0, n2, SA, t, p ) ) )
+    g001 = _gibbs(n0, n0, n1, SA, t, p)
+    g002 = _gibbs(n0, n0, n2, SA, t, p)
+    sound_speed = g001 * np.ma.sqrt(g_tt / ( g_tp**2  - g_tt * g002))
 
     return sound_speed
 
+@match_args_return
 def adiabatic_lapse_rate(SA, t, p):
     r"""
     Calculates the adiabatic lapse rate of sea water.
@@ -1530,14 +1599,14 @@ def adiabatic_lapse_rate(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
-
     n0, n1, n2 = 0, 1, 2
-
-    adiabatic_lapse_rate = - _gibbs(n0, n1, n1, SA, t, p) / ( _gibbs(n0, n2, n0, SA, t, p ) )
+    g011 = _gibbs(n0, n1, n1, SA, t, p)
+    g020 = _gibbs(n0, n2, n0, SA, t, p )
+    adiabatic_lapse_rate = - g011 / g020
 
     return adiabatic_lapse_rate
 
+@match_args_return
 def chem_potential_relative(SA, t, p):
     r"""
     Calculates the adiabatic lapse rate of sea water.
@@ -1583,14 +1652,12 @@ def chem_potential_relative(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
-
     n0, n1 = 0, 1
-
     chem_potential_relative = _gibbs(n1, n0, n0, SA, t, p)
 
     return chem_potential_relative
 
+@match_args_return
 def specvol(SA, t, p):
     r"""
     Calculates the specific volume of seawater.
@@ -1636,14 +1703,12 @@ def specvol(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
-
     n0, n1 = 0, 1
-
     specvol = _gibbs(n0, n0, n1, SA, t, p)
 
     return specvol
 
+@match_args_return
 def conservative_t(SA, t, p):
     r"""
     Calculates Conservative Temperature of seawater from in situ temperature.
@@ -1689,15 +1754,15 @@ def conservative_t(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
-
-    #pt0 = potential_t(SA, t, p) #NOTE: original call a faster version (pt0_from_t) instead of potential_t
+    #pt0 = potential_t(SA, t, p) #NOTE: original call a
+                                 # faster version (pt0_from_t)
+                                 # instead of potential_t
     pt0 = pt0_from_t(SA, t, p)
-
     CT = CT_from_pt(SA, pt0)
 
     return CT
 
+@match_args_return
 def potential_t(SA, t, p, pr=0):
     r"""
     Calculates potential temperature with the general reference pressure, pr, from in situ temperature.
@@ -1750,7 +1815,6 @@ def potential_t(SA, t, p, pr=0):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
     pr = np.asanyarray(pr)
 
     n0, n2 = 0, 2
@@ -1785,6 +1849,7 @@ def potential_t(SA, t, p, pr=0):
 
     return pt
 
+@match_args_return
 def enthalpy(SA, t, p):
     r"""
     Calculates the specific enthalpy of seawater.
@@ -1836,14 +1901,14 @@ def enthalpy(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
-
     n0, n1 = 0, 1
-
-    enthalpy = _gibbs(n0, n0, n0, SA, t, p) - ( t + cte.Kelvin ) * _gibbs(n0, n1, n0, SA, t, p)
+    g000 = _gibbs(n0, n0, n0, SA, t, p)
+    g010 = _gibbs(n0, n1, n0, SA, t, p)
+    enthalpy = g000 - (t + cte.Kelvin) * g010
 
     return enthalpy
 
+@match_args_return
 def chem_potential_water(SA, t, p):
     r"""
     Calculates the chemical potential of water in seawater.
@@ -1888,8 +1953,6 @@ def chem_potential_water(SA, t, p):
     2010-09-28. Trevor McDougall and Paul Barker
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
-
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
     SA[ SA < 0] = 0 # ensure that SA is non-negative
 
@@ -1946,6 +2009,7 @@ def chem_potential_water(SA, t, p):
 
     return chem_potential_water
 
+@match_args_return
 def chem_potential_salt(SA, t, p):
     r"""
     Calculates the chemical potential of salt in seawater.
@@ -1991,13 +2055,12 @@ def chem_potential_salt(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
-
     chem_potential_salt = chem_potential_relative(SA, t, p) + \
                           chem_potential_water(SA, t, p)
 
     return chem_potential_salt
 
+@match_args_return
 def isochoric_heat_cap(SA, t, p):
     r"""
     Calculates the isochoric heat capacity of seawater.
@@ -2043,8 +2106,6 @@ def isochoric_heat_cap(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
-
     n0, n1, n2 = 0, 1, 2
 
     g_tt = _gibbs(n0, n2, n0, SA, t, p)
@@ -2055,6 +2116,7 @@ def isochoric_heat_cap(SA, t, p):
 
     return isochoric_heat_cap
 
+@match_args_return
 def kappa(SA, t, p):
     r"""
     Calculates the isentropic compressibility of seawater.
@@ -2108,8 +2170,6 @@ def kappa(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
-
     n0, n1, n2 = 0, 1, 2
 
     g_tt = _gibbs(n0, n2, n0, SA, t, p)
@@ -2119,6 +2179,7 @@ def kappa(SA, t, p):
 
     return kappa
 
+@match_args_return
 def kappa_const_t(SA, t, p):
     r"""
     Calculates isothermal compressibility of seawater at constant in situ temperature.
@@ -2167,14 +2228,13 @@ def kappa_const_t(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
-
     n0, n1, n2 = 0, 1, 2
 
     kappa = - _gibbs(n0, n0, n2, SA, t, p) / _gibbs(n0, n0, n1, SA, t, p)
 
     return kappa
 
+@match_args_return
 def pot_rho(SA, t, p, pr=0):
     r"""
     Calculates potential density of seawater.
@@ -2225,14 +2285,13 @@ def pot_rho(SA, t, p, pr=0):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
-
     pt = potential_t(SA, t, p, pr=pr)
 
     pot_rho = rho(SA, pt, pr)
 
     return pot_rho
 
+@match_args_return
 def specvol_anom(SA, t, p):
     r"""
     Calculates specific volume anomaly from Absolute Salinity, in situ temperature and pressure, using the full TEOS-10 Gibbs function.
@@ -2280,13 +2339,11 @@ def specvol_anom(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
-
     n0, n1 = 0, 1
 
-    SSO = np.array([cte.SSO], dtype=np.float)
+    SSO = cte.SSO
 
-    CT0 = np.zeros((1,), dtype=np.float)
+    CT0 = 0
 
     pt_zero = pt_from_CT(SSO, CT0)
 
@@ -2297,6 +2354,7 @@ def specvol_anom(SA, t, p):
 
     return specvol_anom
 
+@match_args_return
 def alpha_wrt_t(SA, t, p):
     r"""
     Calculates the thermal expansion coefficient of seawater with respect to in situ temperature.
@@ -2344,14 +2402,13 @@ def alpha_wrt_t(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
-
     n0, n1 = 0, 1
 
     alpha_wrt_t = _gibbs(n0, n1, n1, SA, t, p) / _gibbs(n0, n0, n1, SA, t, p)
 
     return alpha_wrt_t
 
+@match_args_return
 def alpha_wrt_CT(SA, t, p):
     r"""
     Calculates the thermal expansion coefficient of seawater with respect to Conservative Temperature.
@@ -2397,8 +2454,6 @@ def alpha_wrt_CT(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
-
     n0, n1, n2 = 0, 1, 2
 
     #pt0 = potential_t(SA, t, p) #NOTE: original call a faster version "pt0_from_t" instead of potential_t
@@ -2410,6 +2465,7 @@ def alpha_wrt_CT(SA, t, p):
 
     return alpha_wrt_CT
 
+@match_args_return
 def alpha_wrt_pt(SA, t, p):
     r"""
     Calculates the thermal expansion coefficient of seawater with respect to potential temperature, with a reference pressure of zero.
@@ -2455,8 +2511,6 @@ def alpha_wrt_pt(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
-
     n0, n1, n2 = 0, 1, 2
 
     #pt0 = potential_t(SA, t, p) #NOTE: original call a faster version (pt0_from_t) instead of potential_t
@@ -2468,6 +2522,7 @@ def alpha_wrt_pt(SA, t, p):
 
     return alpha_wrt_pt
 
+@match_args_return
 def beta_const_t(SA, t, p):
     r"""
     Calculates the saline (i.e. haline) contraction coefficient of seawater at constant in situ temperature.
@@ -2513,14 +2568,13 @@ def beta_const_t(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
-
     n0, n1 = 0, 1
 
     beta_const_t = -_gibbs(n1, n0, n1, SA, t, p) / _gibbs(n0, n0, n1, SA, t, p)
 
     return beta_const_t
 
+@match_args_return
 def beta_const_CT(SA, t, p):
     r"""
     Calculates the saline (i.e. haline) contraction coefficient of seawater at constant Conservative Temperature.
@@ -2566,8 +2620,6 @@ def beta_const_CT(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
-
     n0, n1, n2 = 0, 1, 2
 
     #pt0 = potential_t(SA, t, p) #NOTE: original call a faster version (pt0_from_t) instead of potential_t
@@ -2585,6 +2637,7 @@ def beta_const_CT(SA, t, p):
 
     return beta_const_CT
 
+@match_args_return
 def beta_const_pt(SA, t, p):
     r"""
     Calculates the saline (i.e. haline) contraction coefficient of seawater at constant potential temperature with a reference pressure of 0 dbar.
@@ -2630,8 +2683,6 @@ def beta_const_pt(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
-
     n0, n1, n2 = 0, 1, 2
 
     #pt0 = potential_t(SA, t, p) #NOTE: original call a faster version "pt0_from_t" instead of potential_t
@@ -2649,6 +2700,7 @@ def beta_const_pt(SA, t, p):
 
     return beta_const_pt
 
+@match_args_return
 def osmotic_coefficient(SA, t, p):
     r"""
     Calculates the osmotic coefficient of seawater.
@@ -2694,20 +2746,18 @@ def osmotic_coefficient(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
-
     n0 = 0
 
     molal = molality(SA) # molality of seawater in mol kg :sup:`-1`
     part = molal * cte.R * ( cte.Kelvin + t )
 
-    #FIXME: SAzero: ValueError: shape mismatch: objects cannot be broadcast to a single shape
-    SAzero = np.zeros( SA.shape )
+    SAzero = 0
 
     osmotic_coefficient = ( _gibbs(n0, n0, n0, SAzero, t, p) - chem_potential_water(SA, t, p) ) / part
 
     return osmotic_coefficient
 
+@match_args_return
 def molality(SA):
     r"""
     Calculates the molality of seawater.
@@ -2747,17 +2797,13 @@ def molality(SA):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA = np.asanyarray(SA)
-
-    # only >= than zero
-    Isalty = (SA >= 0)
-
-    molal = np.nan * np.zeros( SA.shape )
     # molality of seawater in mol kg :sup:`-1`
-    molal[Isalty] = SA[Isalty] / (cte.M_S * ( 1000 - SA[Isalty] ) )
+    molal = SA / (cte.M_S * ( 1000 - SA ) )
+    molal[SA < 0] = np.ma.masked
 
     return molal
 
+@match_args_return
 def ionic_strength(SA):
     r"""
     Calculates the ionic strength of seawater.
@@ -2799,8 +2845,6 @@ def ionic_strength(SA):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA = np.asanyarray(SA)
-
     Z_2 = 1.2452898 # the valence factor of sea salt
 
     molal = molality(SA) # molality of seawater in mol kg :sup:`-1`
@@ -2816,6 +2860,7 @@ NOTE: section B calls: CT_from_pt(SA, pt0), pt_from_CT(SSO, CT0), pt0_from_t(SA,
 pt_from_t(SA, t, p, pr=0) was renamed to potential_t(SA, t, p, pr=0) in Section B
 """
 
+@match_args_return
 def CT_from_pt(SA, pt): #NOTE: used in conservative_t(SA, t, p)
     r"""
     Calculates Conservative Temperature of seawater from potential temperature (whose reference sea pressure is zero dbar).
@@ -2858,12 +2903,10 @@ def CT_from_pt(SA, pt): #NOTE: used in conservative_t(SA, t, p)
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, pt = np.asanyarray(SA), np.asanyarray(pt)
-
     SA[SA < 0] = 0
 
     x2 = cte.sfac * SA
-    x = np.sqrt(x2)
+    x = np.ma.sqrt(x2)
     y = pt * 0.025 # normalize for F03 and F08
 
     pot_enthalpy =  61.01362420681071 + y * ( 168776.46138048015 + \
@@ -2901,6 +2944,7 @@ def CT_from_pt(SA, pt): #NOTE: used in conservative_t(SA, t, p)
 
     return CT
 
+@match_args_return
 def pt_from_CT(SA, CT): #NOTE: used in specvol_anom(SA,t, p) inside gibbs.py
     r"""
     Calculates potential temperature (with a reference sea pressure of zero dbar) from Conservative Temperature.
@@ -2945,8 +2989,6 @@ def pt_from_CT(SA, CT): #NOTE: used in specvol_anom(SA,t, p) inside gibbs.py
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, CT = np.asanyarray(SA), np.asanyarray(CT)
-
     SA[SA < 0] = 0
 
     s1 = SA * 35. / cte.SSO
@@ -2988,6 +3030,7 @@ def pt_from_CT(SA, CT): #NOTE: used in specvol_anom(SA,t, p) inside gibbs.py
 
     return pt
 
+@match_args_return
 def t_from_CT(SA, CT, p):
     r"""
     Calculates in situ temperature from Conservative Temperature of seawater.
@@ -3033,15 +3076,14 @@ def t_from_CT(SA, CT, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, CT, p = np.asanyarray(SA), np.asanyarray(CT), np.asanyarray(p)
-
     pt0 = pt_from_CT(SA, CT)
 
     t = potential_t(SA, pt0, 0, p)
 
     return t
 
-def pt0_from_t(SA, t, p): #NOTE: potential_t does has the same result (only slower)
+@match_args_return
+def pt0_from_t(SA, t, p): #NOTE: potential_t  has the same result (only slower)
     r"""
     Calculates potential temperature with reference pressure, pr = 0 dbar. The present routine is computationally faster than the more general function "potential_t(SA, t, p, pr)" which can be used for any reference pressure value.
 
@@ -3088,8 +3130,6 @@ def pt0_from_t(SA, t, p): #NOTE: potential_t does has the same result (only slow
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
-
     s1 = SA * (35. / cte.SSO)
 
     pt0 = t + p * ( 8.65483913395442e-6 - \
@@ -3121,6 +3161,7 @@ def pt0_from_t(SA, t, p): #NOTE: potential_t does has the same result (only slow
 
     return pt0
 
+@match_args_return
 def t_from_entropy(SA, entropy, t_type='pt'):
     r"""
     Calculates potential temperature with reference pressure pr = 0 dbar or Conservative temperature from entropy.
@@ -3170,8 +3211,6 @@ def t_from_entropy(SA, entropy, t_type='pt'):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, entropy = np.asanyarray(SA), np.asanyarray(entropy)
-
     SA[SA < 0] = 0
 
     n0 = 0
@@ -3197,6 +3236,7 @@ def t_from_entropy(SA, entropy, t_type='pt'):
 
     return t
 
+@match_args_return
 def entropy_from_t(SA, t, t_type='pt'):
     r"""
     Calculates specific entropy of seawater.
@@ -3246,8 +3286,6 @@ def entropy_from_t(SA, t, t_type='pt'):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t = np.asanyarray(SA), np.asanyarray(t)
-
     SA[SA < 0] = 0
 
     n0, n1 = 0, 1
@@ -3265,6 +3303,7 @@ Section D: extra functions for Depth, Pressure and Distance
 TODO: create a class for Depth pressure conversions
 """
 
+@match_args_return
 def  z_from_p(p, lat):
     r"""
     Calculates height from sea pressure using the computationally-efficient 25-term expression for density in terms of SA, CT and p.
@@ -3312,8 +3351,6 @@ def  z_from_p(p, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    p, lat = np.asanyarray(p), np.asanyarray(lat)
-
     X     = np.sin( np.deg2rad(lat) )
     sin2  = X**2
     B     = 9.780327 * ( 1.0 + ( 5.2792e-3 + ( 2.32e-5 * sin2 ) ) * sin2 )
@@ -3323,6 +3360,7 @@ def  z_from_p(p, lat):
 
     return z
 
+@match_args_return
 def  p_from_z(z, lat):
     r"""
     Calculates sea pressure from height using computationally-efficient 25-term expression for density, in terms of SA, CT and p.
@@ -3374,14 +3412,12 @@ def  p_from_z(z, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    z, lat = np.asanyarray(z), np.asanyarray(lat)
-
     X     = np.sin( np.deg2rad(lat) )
     sin2  = X**2
     gs    = 9.780327 * ( 1.0 + ( 5.2792e-3 + ( 2.32e-5 * sin2 ) ) * sin2 )
     # get the first estimate of p from Saunders (1981)
     c1 =  5.25e-3 * sin2 + 5.92e-3
-    p  = -2 * z / ( (1-c1) + np.sqrt( (1-c1) * (1-c1) + 8.84e-6 * z ) )
+    p  = -2 * z / ( (1-c1) + np.ma.sqrt( (1-c1) * (1-c1) + 8.84e-6 * z ) )
     # end of the first estimate from Saunders (1981)
     df_dp = cte.db2Pascal * _specvol_SSO_0_CT25(p) # initial value of the derivative of f
     f     = _enthalpy_SSO_0_CT25(p) + gs * ( z - 0.5 * cte.gamma * ( z**2 ) )
@@ -3393,6 +3429,7 @@ def  p_from_z(z, lat):
 
     return p
 
+@match_args_return
 def grav(lat, p=0):
     r"""
     Calculates acceleration due to gravity as a function of latitude and as a function of pressure in the ocean.
@@ -3440,8 +3477,6 @@ def grav(lat, p=0):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    lat, p, = np.asanyarray(lat), np.asanyarray(p)
-
     X = np.sin( np.deg2rad(lat) )
     sin2 = X**2
     gs = 9.780327 * ( 1.0 + ( 5.2792e-3 + ( 2.32e-5 * sin2 ) ) * sin2)
@@ -3449,7 +3484,8 @@ def grav(lat, p=0):
     grav = gs * (1 - cte.gamma * z) # z is the height corresponding to p
     return grav
 
-def distance(lon, lat, p=None):
+@match_args_return
+def distance(lon, lat, p=0):
     r"""
     Calculates the distance in met res between successive points in the vectors lon and lat, computed using the Haversine formula on a spherical earth of radius 6,371 km, being the radius of a sphere having the same volume as Earth. For a spherical Earth of radius 6,371,000 m, one nautical mile is 1,853.2488 m, thus one degree of latitude is 111,194.93 m.
 
@@ -3506,13 +3542,15 @@ def distance(lon, lat, p=None):
     2010-07-28. Paul Barker and Trevor McDougall
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
-
-    lon, lat = np.asanyarray(lon), np.asanyarray(lat)
+    #FIXME? The argument handling seems much too complicated.
+    # Maybe we can come up with some simple specifications of
+    # what argument combinations are permitted, and handle everything
+    # with broadcasting. - EF
 
     if (lon.size == 1) & (lat.size == 1):
-        raise NameError('more than one point is needed to compute distance')
+        raise ValueError('more than one point is needed to compute distance')
     elif lon.ndim != lat.ndim:
-        raise NameError('lon, lat must have the same dimension')
+        raise ValueError('lon, lat must have the same dimension')
 
     if (lon.size == 1) & (lat.size != 1): # fill lon with lat size
         lon = _check_dim(lon, lat)
@@ -3524,10 +3562,6 @@ def distance(lon, lat, p=None):
         lat = lat[np.newaxis,:]
 
     # check for lon/lat and p dimensions
-    if p == None:
-        p = np.zeros( lon.shape )
-    else:
-        p = np.asanyarray(p)
 
     if p.ndim > lat.ndim:
         lon = _check_dim(lon, p)
@@ -3540,7 +3574,7 @@ def distance(lon, lat, p=None):
 
     a = ( np.sin(dlat/2.) )**2 + np.cos( np.deg2rad( lat[:,:-1] ) ) * np.cos( np.deg2rad( lat[:,1:] ) ) * ( np.sin(dlon/2.) )**2
 
-    angles = 2. * np.arctan2( np.sqrt(a), np.sqrt(1-a) )
+    angles = 2. * np.arctan2( np.ma.sqrt(a), np.ma.sqrt(1-a) )
 
     p_mid = 0.5 * (   p[:,0:-1] +   p[:,0:-1] )
     lat_mid = 0.5 * ( lat[:,:-1] + lat[:,1:] )
@@ -3568,6 +3602,7 @@ Calculates conductivity ratio (R) from (SP,t,p) using PSS-78. Note that the PSS-
 """
 from  seawater.csiro import salt as SP_from_cndr
 
+@match_args_return
 def SA_from_SP(SP, p, lon, lat):
     r"""
     Calculates Absolute Salinity from Practical Salinity.
@@ -3619,9 +3654,6 @@ def SA_from_SP(SP, p, lon, lat):
     2010-07-23. David Jackett, Trevor McDougall & Paul Barker.
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
-
-    SP, p, lon, lat = map(np.ma.masked_invalid, (SP, p, lon, lat))
-
     p = _check_dim(p, SP)
     lon, lat = _check_dim(lon, SP), _check_dim(lat, SP)
 
@@ -3638,6 +3670,7 @@ def SA_from_SP(SP, p, lon, lat):
     return SA
 
 
+@match_args_return
 def SA_from_Sstar(Sstar, p, lon, lat):
     r"""
     Calculates Absolute Salinity from Preformed Salinity.
@@ -3684,9 +3717,6 @@ def SA_from_Sstar(Sstar, p, lon, lat):
     2010-07-23. David Jackett, Trevor McDougall and Paul Barker.
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
-
-    Sstar, p, lon, lat = map(np.ma.masked_invalid, (Sstar, p, lon, lat))
-
     p = _check_dim(p, Sstar)
     lon, lat = _check_dim(lon, Sstar), _check_dim(lat, Sstar)
 
@@ -3698,6 +3728,7 @@ def SA_from_Sstar(Sstar, p, lon, lat):
 
     return SA
 
+@match_args_return
 def SP_from_SA(SA, p, lon, lat):
     r"""
     Calculates Practical Salinity from Absolute Salinity.
@@ -3745,8 +3776,6 @@ def SP_from_SA(SA, p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, p, lon, lat = map(np.ma.masked_invalid, (SA, p, lon, lat))
-
     p = _check_dim(p, SA)
     lon, lat = _check_dim(lon, SA),_check_dim(lat, SA)
 
@@ -3761,6 +3790,7 @@ def SP_from_SA(SA, p, lon, lat):
 
     return SP
 
+@match_args_return
 def Sstar_from_SA(SA, p, lon, lat):
     r"""
     Converts Preformed Salinity from Absolute Salinity.
@@ -3808,8 +3838,6 @@ def Sstar_from_SA(SA, p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, p, lon, lat = map(np.ma.masked_invalid, (SA, p, lon, lat))
-
     p = _check_dim(p, SA)
     lon, lat = _check_dim(lon, SA), _check_dim(lat, SA)
 
@@ -3821,6 +3849,7 @@ def Sstar_from_SA(SA, p, lon, lat):
 
     return Sstar
 
+@match_args_return
 def SP_from_Sstar(Sstar, p, lon, lat):
     r"""
     Calculates Practical Salinity from Preformed Salinity.
@@ -3868,8 +3897,6 @@ def SP_from_Sstar(Sstar, p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    Sstar, p, lon, lat = map(np.ma.masked_invalid, (Sstar, p, lon, lat))
-
     p = _check_dim(p, Sstar)
     lon, lat = _check_dim(lon, Sstar), _check_dim(lat, Sstar)
 
@@ -3884,6 +3911,7 @@ def SP_from_Sstar(Sstar, p, lon, lat):
 
     return SP, in_ocean
 
+@match_args_return
 def Sstar_from_SP(SP, p, lon, lat):
     r"""
     Calculates Preformed Salinity from Absolute Salinity.
@@ -3935,18 +3963,10 @@ def Sstar_from_SP(SP, p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SP, p, lon, lat = np.asanyarray(SP), np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
-
     p = _check_dim(p, SP)
     lon, lat = _check_dim(lon, SP), _check_dim(lat, SP)
 
     SP[SP < 0] = 0
-
-    inds = np.isfinite(SP)
-    Sstar = np.NaN * np.zeros( SP.shape )
-    dSA = np.NaN * np.zeros( SP.shape )
-
-    in_ocean = np.bool_( np.ones( SP.shape ) )
 
     dSA, in_ocean = _delta_SA( p, lon, lat )
     Sstar = (cte.SSO/35.) * SP - cte.r1 * dSA
@@ -3957,8 +3977,9 @@ def Sstar_from_SP(SP, p, lon, lat):
     if Sstar_baltic is not None:
         Sstar[~Sstar_baltic.mask] = Sstar_baltic[~Sstar_baltic.mask]
 
-    return Sstar, in_ocean
+    return Sstar
 
+@match_args_return
 def SA_Sstar_from_SP(SP, p, lon, lat):
     r"""
     Calculates Absolute Salinity and Preformed Salinity from Practical Salinity.
@@ -4014,8 +4035,6 @@ def SA_Sstar_from_SP(SP, p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SP, p, lon, lat = np.asanyarray(SP), np.asanyarray(p), np.asanyarray(lon), np.asanyarray(lat)
-
     p = _check_dim(p, SP)
     lon, lat = _check_dim(lon, SP), _check_dim(lat, SP)
 
@@ -4036,6 +4055,7 @@ def SA_Sstar_from_SP(SP, p, lon, lat):
 
     return SA, Sstar
 
+@match_args_return
 def SA_from_rho(rho, t, p):
     r"""
     Calculates the Absolute Salinity of a seawater sample, for given values of its density, in situ temperature and sea pressure (in dbar).
@@ -4086,9 +4106,6 @@ def SA_from_rho(rho, t, p):
     2010-08-23. Trevor McDougall & Paul Barker.
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
-
-    rho, t, p = np.asanyarray(rho), np.asanyarray(t), np.asanyarray(p)
-
     n0, n1 = 0, 1
     v_lab = np.ones( rho.shape ) / rho
     v_0 = _gibbs(n0, n0, n1, 0, t, p)
@@ -4105,7 +4122,7 @@ def SA_from_rho(rho, t, p):
         v_SA = _gibbs(n1, n0, n1, SA_mean, t, p)
         SA = SA_old - delta_v / v_SA
 
-    SA[Ior] = np.NaN
+    SA[Ior] = np.ma.masked
 
     return SA
 
