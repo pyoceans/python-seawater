@@ -1,10 +1,6 @@
-try:
-    import cPickle as pickle
-except:
-    import pickle
-
 import numpy as np
 import seawater.gibbs as gsw
+import os
 
 class Dict2Struc(object):
     """
@@ -12,6 +8,11 @@ class Dict2Struc(object):
     """
     def __init__(self, adict):
         self.__dict__.update(adict)
+
+def read_data(fname):
+    datadir = os.path.join(os.path.dirname(__file__), '../data')
+    d = np.load(os.path.join(datadir, fname))
+    return Dict2Struc(d)
 
 def test_print(method, comp_value=None):
     """
@@ -39,8 +40,8 @@ def test_print(method, comp_value=None):
             print "%s: Passed, but small diff ranging from: %s to %s" % ( method.rjust(width), nmax, nmin)
 
 # load test data
-data = pickle.load( open('data/gsw_cv.pkl','rb') )
-gsw_cv = Dict2Struc(data) # then type dat.<tab> to navigate through your variables
+gsw_cv = read_data("gsw_cv.npz")
+
 # somehow longitude is store as uint8
 gsw_cv.long_chck_cast = np.float64(gsw_cv.long_chck_cast)
 
