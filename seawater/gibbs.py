@@ -46,6 +46,34 @@ class match_args_return(object):
             ret = ret[0]
         return ret
 
+def strip_mask(*args):
+    """
+    Process the standard arguments for efficient calculation.
+
+    Return unmasked argments, plus a mask.
+
+    The first argument, SA, is handled specially so that it can be
+
+    This could be absorbed into a decorator, but it would
+    require redefining functions to take the additional
+    mask argument or kwarg.
+    """
+    mask = np.ma.getmaskarray(args[-1])
+    SA = args[0]
+    if SA.shape:
+        SA = np.ma.asarray(SA)
+        SA[ SA < 0] = np.ma.masked
+        for a in args[:-1]:
+            mask = np.ma.mask_or(mask, np.ma.getmask(a))
+        newargs = [SA.filled(0)]
+    elif SA < 0:
+        SA = 0
+        for a in args[1:-1]:
+            mask = np.ma.mask_or(mask, np.ma.getmask(a))
+        newargs = [SA]
+    newargs.extend([np.ma.filled(a, 0) for a in args[1:]])
+    newargs.append(mask)
+    return newargs
 
 class Dict2Struc(object):
     r"""
@@ -510,12 +538,7 @@ def _entropy_part(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
-
-    if SA.shape:
-        SA[SA < 0] = 0
-    elif SA < 0:
-        SA = 0
+    SA, t, p, mask = strip_mask(SA, t, p)
 
     x2 = cte.sfac * SA
     x = np.sqrt(x2)
@@ -535,6 +558,7 @@ def _entropy_part(SA, t, p):
     y * ( -113.90630790850321 + y * ( 21.35571525415769 - 67.41756835751434 * z ) + \
     z * ( 381.06836198507096 + z * ( -133.7383902842754 + 49.023632509086724 * z ) ) ) ) ) ) )
 
+    # TODO? short-circuit this if SA is zero
     g08 = x2 * ( z * ( 729.116529735046 + \
     z * ( -343.956902961561 + z * ( 124.687671116248 + z * ( -31.656964386073 + 7.04658803315449 * z ) ) ) ) + \
     x * ( x * ( y * ( -137.1145018408982 + y * ( 148.10030845687618 + y * ( -68.5590309679152 + 12.4848504784754 * y ) ) ) - \
@@ -550,7 +574,7 @@ def _entropy_part(SA, t, p):
 
     entropy_part = -( g03 + g08 )  * 0.025
 
-    return entropy_part
+    return np.ma.array(entropy_part, mask=mask, copy=False)
 
 def _gibbs_pt0_pt0(SA, pt0):
     r"""
@@ -577,13 +601,7 @@ def _gibbs_pt0_pt0(SA, pt0):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, pt0 = np.asanyarray(SA), np.asanyarray(pt0)
-
-    # Ensure that SA is non-negative. Allows for array and single number
-    if SA.shape:
-        SA[SA < 0] = 0
-    elif SA < 0:
-        SA = 0
+    SA, pt0, mask = strip_mask(SA, pt0)
 
     x2 = cte.sfac * SA
     x = np.sqrt(x2)
@@ -604,7 +622,7 @@ def _gibbs_pt0_pt0(SA, pt0):
 
     gibbs_pt0_pt0 = ( g03 + g08 ) * 0.000625
 
-    return gibbs_pt0_pt0
+    return np.ma.array(gibbs_pt0_pt0, mask=mask, copy=False)
 
 def _entropy_part_zerop(SA, pt0):
     r"""
@@ -630,13 +648,7 @@ def _entropy_part_zerop(SA, pt0):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA, pt0 = np.asanyarray(SA), np.asanyarray(pt0)
-
-    # Ensure that SA is non-negative
-    if SA.shape:
-        SA[SA < 0] = 0
-    elif SA < 0:
-        SA = 0
+    SA, pt0, mask = strip_mask(SA, pt0)
 
     x2 = cte.sfac * SA
     x = np.sqrt(x2)
@@ -654,7 +666,7 @@ def _entropy_part_zerop(SA, pt0):
 
     entropy_part_zerop = -( g03 + g08 ) * 0.025
 
-    return entropy_part_zerop
+    return np.ma.array(entropy_part_zerop, mask=mask, copy=False)
 
 def _enthalpy_SSO_0_CT25(p):
     r"""
@@ -679,6 +691,8 @@ def _enthalpy_SSO_0_CT25(p):
     """
 
     p = np.asanyarray(p)
+    mask = np.ma.getmask(p)
+    p = np.ma.filled(p, 0)
 
     SSO = cte.SSO
 
@@ -694,7 +708,7 @@ def _enthalpy_SSO_0_CT25(p):
 
     enthalpy_SSO_0_CT25 = cte.db2Pascal * ( ( a1 / (2*b2) ) * np.log( 1 + p * ( 2 * b1 + b2 * p ) / b0 ) + part * np.log( 1 + ( b2 * p * (B - A) ) / (A * (B + b2 * p ) ) ) )
 
-    return enthalpy_SSO_0_CT25
+    return np.ma.array(enthalpy_SSO_0_CT25, mask=mask, copy=False)
 
 def _specvol_SSO_0_CT25(p):
     r"""
@@ -719,6 +733,7 @@ def _specvol_SSO_0_CT25(p):
     """
 
     p = np.asanyarray(p)
+    # No need to strip mask and replace it here; the calculation is simple.
 
     SSO = cte.SSO
     specvol_SSO_0_CT25 = (1.00000000e+00 + SSO * ( 2.0777716085618458e-003 +np.sqrt(SSO) * 3.4688210757917340e-006) + p * 6.8314629554123324e-006) / (9.9984380290708214e+002 + SSO * ( 2.8925731541277653e+000 + SSO * 1.9457531751183059e-003) + p * ( 1.1930681818531748e-002 + SSO * 5.9355685925035653e-006 + p * -2.5943389807429039e-008) )
@@ -1953,8 +1968,7 @@ def chem_potential_water(SA, t, p):
     2010-09-28. Trevor McDougall and Paul Barker
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
-
-    SA[ SA < 0] = 0 # ensure that SA is non-negative
+    SA, t, p, mask = strip_mask(SA, t, p)
 
     x2 = cte.sfac * SA
 
@@ -2007,7 +2021,7 @@ def chem_potential_water(SA, t, p):
 
     chem_potential_water =  g03_g + g08_g  - 0.5 * cte.sfac * SA * g_SA_part
 
-    return chem_potential_water
+    return np.ma.array(chem_potential_water, mask=mask, copy=False)
 
 @match_args_return
 def chem_potential_salt(SA, t, p):
@@ -2903,7 +2917,7 @@ def CT_from_pt(SA, pt): #NOTE: used in conservative_t(SA, t, p)
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA[SA < 0] = 0
+    SA, pt, mask = strip_mask(SA, pt)
 
     x2 = cte.sfac * SA
     x = np.ma.sqrt(x2)
@@ -2942,7 +2956,7 @@ def CT_from_pt(SA, pt): #NOTE: used in conservative_t(SA, t, p)
 
     CT = pot_enthalpy / cte.cp0
 
-    return CT
+    return np.ma.array(CT, mask=mask, copy=False)
 
 @match_args_return
 def pt_from_CT(SA, CT): #NOTE: used in specvol_anom(SA,t, p) inside gibbs.py
@@ -2989,7 +3003,7 @@ def pt_from_CT(SA, CT): #NOTE: used in specvol_anom(SA,t, p) inside gibbs.py
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA[SA < 0] = 0
+    SA, CT, mask = strip_mask(SA, CT)
 
     s1 = SA * 35. / cte.SSO
 
@@ -3028,7 +3042,7 @@ def pt_from_CT(SA, CT): #NOTE: used in specvol_anom(SA,t, p) inside gibbs.py
     pt_old = pt
     pt = pt_old - CT_diff / dCT_dpt # 1.5 iterations of the modified N-R method
 
-    return pt
+    return np.ma.array(pt, mask=mask, copy=False)
 
 @match_args_return
 def t_from_CT(SA, CT, p):
