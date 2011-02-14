@@ -32,7 +32,7 @@ This python package contains a python translation for two Matlab user contribute
       classifiers      = filter(None, classifiers.split("\n")),
       platforms        = 'any',
       packages = find_packages(),
-      package_data     = {'':['data/*.pkl']},
+      package_data     = {'':['data/*.npz']},
       zip_safe = False,
       license          = 'MIT',
       keywords         = 'oceanography seawater',
