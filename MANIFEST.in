@@ -8,8 +8,8 @@ include seawater/csiro.py
 include seawater/gibbs.py
 include seawater/gibbs-test.py
 include seawater/__init__.py
-include seawater/data/gsw_cv.pkl
-include seawater/data/gsw_data_v2_0.pkl
+include seawater/data/gsw_cv.npz
+include seawater/data/gsw_data_v2_0.npz
 include seawater/extras/__init__.py
 include seawater/extras/sw_extras.py
 include seawater/extras/waves/__init__.py
