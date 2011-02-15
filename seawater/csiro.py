@@ -171,7 +171,9 @@ DISCLAIMER:
 
   Computational routines for the properties of sea water
 
-SEAWATER - developed by Phil Morgan, CSIRO
+SEAWATER - developed by Phil Morgan and
+           Lindsay Pender (Lindsay.Pender@csiro.au) CSIRO
+
 
 DESCRIPTION:
    SEAWATER is a toolkit of PYTHON routines for calculating the
@@ -183,10 +185,12 @@ DESCRIPTION:
 import numpy as np
 from seawater import constants as cte
 
-""" only used on the test routine """
+# only used on the test routine
+import sys
 from platform import uname
 from time  import asctime, localtime
-from sys   import version
+
+__version__ = '3.3' # matlab version
 
 def T68conv(T90):
     r"""
@@ -210,8 +214,10 @@ def T68conv(T90):
 
     Notes
     -----
-    The International Practical Temperature Scale of 1968 (IPTS-68) need to be correct to the ITS-90.
-    This linear transformation is accurate within 0.5 :math:`^\circ` C for conversion between IPTS-68 and ITS-90 over the oceanographic temperature range.
+    The International Practical Temperature Scale of 1968 (IPTS-68) need to be
+    correct to the ITS-90. This linear transformation is accurate within
+    0.5 :math:`^\circ` C for conversion between IPTS-68 and ITS-90 over the
+    oceanographic temperature range.
 
     Examples
     --------
@@ -221,11 +227,12 @@ def T68conv(T90):
 
     References
     ----------
-    .. [1] Saunders, P. M., 1991: The International Temperature Scale of 1990, ITS-90. WOCE Newsletter, No. 10, WOCE International Project Office, Southampton, United Kingdom, 10.
+    .. [1] Saunders, P. M., 1991: The International Temperature Scale of 1990,
+    ITS-90. WOCE Newsletter, No. 10, WOCE International Project Office,
+    Southampton, United Kingdom, 10.
 
     Modifications: Filipe Fernandes, 2010
-                   10-11-24. Filipe Fernandes, first version.
-
+                   #10-11-24. Filipe Fernandes, first version.
     """
 
     T90 = np.asanyarray(T90)
@@ -237,8 +244,8 @@ def T90conv(t, t_type='T68'):
     r"""
     Convert IPTS-68 or IPTS-48 to temperature to ITS-90.
 
-    T48 conversion should be applied to all in-situ data collected prior to 31/12/1967.
-    T68 conversion should be applied to all in-situ data collected between 1/1/1968 and 31/12/1989.
+    T48 apply to all data collected prior to 31/12/1967.
+    T68 apply to all data collected between 01/10/1968 and 31/12/1989.
 
 
     ..math:
@@ -264,8 +271,10 @@ def T90conv(t, t_type='T68'):
 
     Notes
     -----
-    The International Practical Temperature Scale of 1968 (IPTS-68) need to be correct to the ITS-90.
-    This linear transformation is accurate within 0.5 :math:`^\circ` C for conversion between IPTS-68 and ITS-90 over the oceanographic temperature range.
+    The International Practical Temperature Scale of 1968 (IPTS-68) need to be
+    correct to the ITS-90. This linear transformation is accurate within
+    0.5 :math:`^\circ` C for conversion between IPTS-68 and ITS-90 over the
+    oceanographic temperature range.
 
     Examples
     --------
@@ -277,14 +286,16 @@ def T90conv(t, t_type='T68'):
 
     References
     ----------
-    .. [1] Saunders, P. M., 1991: The International Temperature Scale of 1990, ITS-90. WOCE Newsletter, No. 10, WOCE International Project Office, Southampton, United Kingdom, 10.
+    .. [1] Saunders, P. M., 1991: The International Temperature Scale of 1990,
+    ITS-90. WOCE Newsletter, No. 10, WOCE International Project Office,
+    Southampton, United Kingdom, 10.
 
-    .. [2] International Temperature Scales of 1948, 1968 and 1990, an ICES note, available from http://www.ices.dk/ocean/procedures/its.htm
+    .. [2] International Temperature Scales of 1948, 1968 and 1990, an ICES
+    note, available from http://www.ices.dk/ocean/procedures/its.htm
 
     Modifications: Filipe Fernandes, 2010
                    2010-11-24. Filipe Fernandes, first version.
                    2010-12-24. Filipe Fernandes, added T48.
-
     """
 
     t = np.asanyarray(t)
@@ -299,10 +310,7 @@ def T90conv(t, t_type='T68'):
 
     return T90
 
-"""
-Original seawater functions
-===========================
-"""
+# Original seawater functions
 def adtg(s, t, p):
     r"""
     Calculates adiabatic temperature gradient as per UNESCO 1983 routines.
@@ -314,7 +322,7 @@ def adtg(s, t, p):
     t(p) : array_like
            temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]. The shape can be "broadcasted"
+        pressure [db]
 
     Returns
     -------
@@ -327,7 +335,7 @@ def adtg(s, t, p):
 
     Notes
     -----
-    TODO: Pressure broadcast feature need to be tested.
+
 
     Examples
     --------
@@ -351,11 +359,16 @@ def adtg(s, t, p):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+    Mar. Sci., No. 44, 53 pp.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    .. [2] Bryden, H. 1973. New Polynomials for thermal expansion, adiabatic temperature gradient and potential temperature of sea water. Deep-Sea Res. Vol20,401-408. doi:10.1016/0011-7471(73)90063-6
+    .. [2] Bryden, H. 1973. New Polynomials for thermal expansion, adiabatic
+    temperature gradient and potential temperature of sea water. Deep-Sea Res.
+    Vol20,401-408. doi:10.1016/0011-7471(73)90063-6
 
-    Modifications: Phil Morgan, Lindsay Pender (Lindsay.Pender@csiro.au)
+    Modifications: 93-04-22. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    10-01-14. Filipe Fernandes, Python translation.
@@ -386,11 +399,11 @@ def adtg(s, t, p):
     e1 =  1.8676E-14
     e2 = -2.1687E-16
 
-    adtg = a0 + ( a1 + ( a2 + a3 * T68 ) * T68) * T68 \
-            + ( b0 + b1 * T68 ) * ( s-35 ) \
-            + ( ( c0 + ( c1 + ( c2 + c3 * T68 ) * T68 ) * T68 ) \
-            + ( d0 + d1 * T68 ) * ( s-35 ) ) * p \
-            + (  e0 + (e1 + e2 * T68) * T68 )*p*p
+    adtg = ( a0 + ( a1 + ( a2 + a3 * T68 ) * T68) * T68
+            + ( b0 + b1 * T68 ) * ( s-35 )
+            + ( ( c0 + ( c1 + ( c2 + c3 * T68 ) * T68 ) * T68 )
+            + ( d0 + d1 * T68 ) * ( s-35 ) ) * p
+            + (  e0 + (e1 + e2 * T68) * T68 )*p*p )
 
     return adtg
 
@@ -405,14 +418,14 @@ def alpha(s, t, p, pt=False):
     t(p) : array_like
            temperature or potential temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]. The shape can be "broadcasted"
+        pressure [db].
     pt : bool
          True if temperature is potential, default is False
 
     Returns
     -------
     alpha : array_like
-            thermal expansion coeff (:math:`\alpha`) [:math:`^\circ` C :sup:`-1`]
+            thermal expansion coeff :math:`\alpha` [:math:`^\circ` C :sup:`-1`]
 
     See Also
     --------
@@ -420,7 +433,7 @@ def alpha(s, t, p, pt=False):
 
     Notes
     -----
-    TODO: Pressure broadcast feature need to be tested.
+
 
     Examples
     --------
@@ -433,12 +446,13 @@ def alpha(s, t, p, pt=False):
 
     References
     ----------
-    .. [1] McDougall, Trevor J., 1987: Neutral Surfaces. J. Phys. Oceanogr., 17, 1950-1964 doi: 10.1175/1520-0485(1987)017<1950:NS>2.0.CO;2
+    .. [1] McDougall, Trevor J., 1987: Neutral Surfaces. J. Phys.
+    Oceanogr., 17, 1950-1964. doi: 10.1175/1520-0485(1987)017<1950:NS>2.0.CO;2
 
-    Modifications: N.L. Bindoff  1993, Lindsay Pender (Lindsay.Pender@csiro.au)
-                   93-04-22. Phil Morgan, Help display modified to suit library
-                   93-04-23. Phil Morgan, Input argument checking
-                   94-10-15. Phil Morgan, Pass S,T,P and keyword for 'ptmp'
+    Modifications: 93-xx-xx. N.L. Bindoff.
+                   93-04-22. Phil Morgan, Help display modified to suit library.
+                   93-04-23. Phil Morgan, Input argument checking.
+                   94-10-15. Phil Morgan, Pass S,T,P and keyword for 'ptmp'.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    10-01-14. Filipe Fernandes, Python translation.
@@ -446,7 +460,8 @@ def alpha(s, t, p, pt=False):
     """
 
 
-    s, t, p, pt = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p), np.asanyarray(pt)
+    s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
+    pt = np.asanyarray(pt)
 
     alpha = aonb(s, t, p, pt) * beta(s, t, p, pt)
     return alpha
@@ -462,7 +477,7 @@ def aonb(s, t, p, pt=False):
     t(p) : array_like
            temperature or potential temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]. The shape can be "broadcasted"
+        pressure [db].
     pt : bool
          True if temperature is potential, default is False
 
@@ -477,7 +492,7 @@ def aonb(s, t, p, pt=False):
 
     Notes
     -----
-    TODO: Pressure broadcast feature need to be tested.
+
 
     TODO: Test pt=False
 
@@ -492,12 +507,13 @@ def aonb(s, t, p, pt=False):
 
     References
     ----------
-    .. [1] McDougall, Trevor J., 1987: Neutral Surfaces. J. Phys. Oceanogr., 17, 1950-1964 doi: 10.1175/1520-0485(1987)017<1950:NS>2.0.CO;2
+    .. [1] McDougall, Trevor J., 1987: Neutral Surfaces. J. Phys.
+    Oceanogr., 17, 1950-1964. doi: 10.1175/1520-0485(1987)017<1950:NS>2.0.CO;2
 
-    Modifications: N.L. Bindoff  1993, Lindsay Pender (Lindsay.Pender@csiro.au)
-                   93-04-22. Phil Morgan, Help display modified to suit library
-                   93-04-23. Phil Morgan, Input argument checking
-                   94-10-15. Phil Morgan, Pass S,T,P and keyword for 'ptmp'
+    Modifications: 93-xx-xx. N.L. Bindoff.
+                   93-04-22. Phil Morgan, Help display modified to suit library.
+                   93-04-23. Phil Morgan, Input argument checking.
+                   94-10-15. Phil Morgan, Pass S,T,P and keyword for 'ptmp'.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    10-01-14. Filipe Fernandes, Python translation.
@@ -505,15 +521,16 @@ def aonb(s, t, p, pt=False):
     """
 
     # Ensure we use ptmp in calculations
-    s, t, p, pt = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p), np.asanyarray(pt)
+    s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
+    pt = np.asanyarray(pt)
 
-    if pt==False:
+    if not pt:
         t = ptmp(s, t, p, 0) # now we have ptmp
 
     p = np.float32(p)
     t = T68conv(t)
 
-    c1  = np.array([-0.255019e-7, 0.298357e-5, -0.203814e-3, \
+    c1  = np.array([-0.255019e-7, 0.298357e-5, -0.203814e-3,
                     0.170907e-1, 0.665157e-1])
     c2  = np.array([-0.846960e-4, 0.378110e-2])
     c2a = np.array([-0.251520e-11, -0.164759e-6, 0.0])
@@ -524,16 +541,17 @@ def aonb(s, t, p, pt=False):
 
     # Now calculate the thermal expansion saline contraction ratio aonb
     sm35  = s - 35.0
-    aonb  = np.polyval(c1, t) + sm35 * ( np.polyval(c2, t) \
-            + np.polyval(c2a, p) ) \
-            + sm35**2 * c3 + p * np.polyval(c4, t) \
-            + c5 * (p**2) * (t**2) + c6 * p**3
+    aonb  = ( np.polyval(c1, t) + sm35 * ( np.polyval(c2, t)
+            + np.polyval(c2a, p) )
+            + sm35**2 * c3 + p * np.polyval(c4, t)
+            + c5 * (p**2) * (t**2) + c6 * p**3 )
 
     return aonb
 
 def beta(s, t, p, pt=False):
     r"""
-    Calculate the saline contraction coefficient :math:`\beta` as defined by T.J. McDougall.
+    Calculate the saline contraction coefficient :math:`\beta` as defined by
+    T.J. McDougall.
 
     Parameters
     ----------
@@ -542,7 +560,7 @@ def beta(s, t, p, pt=False):
     t(p) : array_like
            temperature or potential temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]. The shape can be "broadcasted"
+        pressure [db].
     pt : bool
          True if temperature is potential, default is False
 
@@ -562,28 +580,30 @@ def beta(s, t, p, pt=False):
 
     Notes
     -----
-    TODO: Pressure broadcast feature need to be tested.
+
 
     TODO: Test pt=False for alpha, beta and aonb.
 
     References
     ----------
-    .. [1] McDougall, Trevor J., 1987: Neutral Surfaces. J. Phys. Oceanogr., 17, 1950-1964 doi: 10.1175/1520-0485(1987)017<1950:NS>2.0.CO;2
+    .. [1] McDougall, Trevor J., 1987: Neutral Surfaces. J. Phys.
+    Oceanogr., 17, 1950-1964. doi: 10.1175/1520-0485(1987)017<1950:NS>2.0.CO;2
 
-    Modifications: N.L. Bindoff 1993, Lindsay Pender (Lindsay.pender@csiro.au)
-                   93-04-22. Phil Morgan, Help display modified to suit library
-                   93-04-23. Phil Morgan, Input argument checking
-                   94-10-15. Phil Morgan, Pass S,T,P and keyword for 'ptmp'
+    Modifications: 93-xx-xx. N.L. Bindoff.
+                   93-04-22. Phil Morgan, Help display modified to suit library.
+                   93-04-23. Phil Morgan, Input argument checking.
+                   94-10-15. Phil Morgan, Pass S,T,P and keyword for 'ptmp'.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-16. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t, p, pt = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p), np.asanyarray(pt)
+    s, t, p, = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
+    pt = np.asanyarray(pt)
 
     # Ensure we use ptmp in calculations
-    if pt==False:
+    if not pt:
         t = ptmp(s, t, p, 0) # now we have ptmp
 
     p = np.float32(p)
@@ -598,17 +618,18 @@ def beta(s, t, p, pt=False):
     c7 = 0.121551e-17
 
     # Now calculate the thermal expansion saline contraction ratio adb
-    sm35  = s - 35
-    beta  = np.polyval(c1, t) + sm35 * (np.polyval(c2, t) + \
-            np.polyval(c3, p) ) + c4 * (sm35**2) + \
-            p * np.polyval(c5, t) + (p**2) * np.polyval(c6, t) \
-            + c7 * (p**3)
+    sm35 = s - 35
+    beta = ( np.polyval(c1, t) + sm35 * (np.polyval(c2, t) +
+            np.polyval(c3, p) ) + c4 * (sm35**2) +
+            p * np.polyval(c5, t) + (p**2) * np.polyval(c6, t)
+            + c7 * (p**3) )
 
     return beta
 
 def bfrq(s, t, p, lat=None):
     r"""
-    Calculates Brünt-Väisälä Frequency squared (N :sup:`2`) at the mid depths from the equation:
+    Calculates Brünt-Väisälä Frequency squared (N :sup:`2`) at the mid depths
+    from the equation:
 
     .. math::
         N^{2} = \frac{-g}{\sigma_{\theta}} \frac{d\sigma_{\theta}}{dz}
@@ -625,11 +646,12 @@ def bfrq(s, t, p, lat=None):
     t(p) : array_like
            temperature or potential temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]. The shape can be "broadcasted"
+        pressure [db].
 
     lat : number or array_like, optional
           latitude in decimal degrees north [-90..+90].
-          Will grav instead of the default g = 9.8 m :sup:`2` s :sup:`-1`) and d(z) instead of d(p)
+          Will grav instead of the default g = 9.8 m :sup:`2` s :sup:`-1`) and
+          d(z) instead of d(p)
 
     Returns
     -------
@@ -648,15 +670,15 @@ def bfrq(s, t, p, lat=None):
     -----
     The value of gravity is a global constant if lat is not provided.
 
-    TODO: Pressure broadcast feature need to be tested.
+
 
     Examples
     --------
     >>> import numpy as np
     >>> import seawater.csiro as sw
-    >>> s = np.array([[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]])
-    >>> t = np.repeat(15, s.size).reshape(s.shape)
-    >>> p = [0, 250, 500, 1000]
+    >>> s = [[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]]
+    >>> t = [[15]*3]*4
+    >>> p = [[0], [250], [500], [1000]]
     >>> lat = [30,32,35]
     >>> sw.bfrq(s, t, p, lat)[0]
     array([[  4.51543648e-04,   4.51690708e-04,   4.51920753e-04],
@@ -665,24 +687,27 @@ def bfrq(s, t, p, lat=None):
 
     References
     ----------
-    .. [1] A.E. Gill 1982. p.54  eqn 3.7.15 "Atmosphere-Ocean Dynamics" Academic Press: New York. ISBN: 0-12-283522-0
+    .. [1] A.E. Gill 1982. p.54  eqn 3.7.15 "Atmosphere-Ocean Dynamics"
+    Academic Press: New York. ISBN: 0-12-283522-0
 
-    .. [2] Jackett, David R., Trevor J. Mcdougall, 1995: Minimal Adjustment of Hydrographic Profiles to Achieve Static Stability. J. Atmos. Oceanic Technol., 12, 381-389. doi: 10.1175/1520-0426(1995)012<0381:MAOHPT>2.0.CO;2
+    .. [2] Jackett, David R., Trevor J. Mcdougall, 1995: Minimal Adjustment of
+    Hydrographic Profiles to Achieve Static Stability. J. Atmos. Oceanic
+    Technol., 12, 381-389. doi: 10.1175/1520-0426(1995)012<0381:MAOHPT>2.0.CO;2
 
-    Modifications: Phil Morgan 93-06-24, Lindsay Pender (Lindsay.Pender@csiro.au)
-                   Greg Johnson (gjohnson@pmel.noaa.gov) added potential vorticity calculation
+    Modifications: 93-06-24. Phil Morgan.
+                   Greg Johnson (gjohnson@pmel.noaa.gov) pot. vort. calculation.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    06-04-19. Lindsay Pender, Corrected sign of PV.
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-17. Filipe Fernandes, Reformulated docstring.
     """
 
-    #TODO: Check S and T have length at least of 2
     s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
+    s, t, p = np.broadcast_arrays(s, t, p)
 
-    # if pressure is a vector and t-s aren't 'make it a array of the same size as t-s
-    if p.ndim == 1 and t.ndim != 1:
-        p = np.repeat(p[np.newaxis,:], t.shape[1], axis=1).reshape(t.shape)
+    if (s.ndim != 2)  and (t.ndim != 2):
+        raise ValueError, 'Arguments must be 2D arrays (n_depths, n_profiles)'
+
     if lat is None:
         z = p
         f = np.nan
@@ -693,7 +718,7 @@ def bfrq(s, t, p, lat=None):
         g = grav(lat, -z) # note that grav expects height as argument
         f = cor(lat)
 
-    m   = p.shape[0] # TODO: check where depth increases to automagically find which dimension to operate
+    m   = p.shape[0]
     iup = np.arange(0, m-1)
     ilo = np.arange(1, m)
 
@@ -703,7 +728,7 @@ def bfrq(s, t, p, lat=None):
     mid_pden = ( pden_up + pden_lo )/2
     dif_pden = pden_up - pden_lo
     mid_g    = ( g[iup,:] + g[ilo,:] )/2
-    dif_z    = np.diff(z, axis=0) # TODO: check where depth increases to automagically find which dimension to operate
+    dif_z    = np.diff(z, axis=0)
     n2       = -mid_g * dif_pden / ( dif_z * mid_pden )
     q        = -f * dif_pden / ( dif_z * mid_pden )
 
@@ -718,7 +743,7 @@ def depth(p, lat):
     p : array_like
         pressure [db].
     lat : number or array_like
-          latitude in decimal degrees north [-90..+90]. The shape can be "broadcasted"
+          latitude in decimal degrees north [-90..+90].
 
     Returns
     -------
@@ -743,9 +768,12 @@ def depth(p, lat):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech.
+    Pap. in Mar. Sci., No. 44, 53 pp.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    Modifications: Phil Morgan 92-04-06  (morgan@ml.csiro.au)
+    Modifications: 92-04-06. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
@@ -765,8 +793,8 @@ def depth(p, lat):
     X   = np.sin( np.deg2rad(lat) )
     X   = X * X
 
-    bot_line = 9.780318 * ( 1.0 + ( 5.2788E-3 + 2.36E-5 * X ) * X ) + \
-               gam_dash * 0.5 * p
+    bot_line = ( 9.780318 * ( 1.0 + ( 5.2788E-3 + 2.36E-5 * X ) * X ) +
+               gam_dash * 0.5 * p )
     top_line = ( ( ( c4 * p + c3 ) * p + c2 ) * p + c1 ) * p
     depthm   = top_line / bot_line
     return depthm
@@ -804,11 +832,15 @@ def grav(lat, z=0):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap.
+    in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    .. [2] A.E. Gill 1982. p.54  eqn 3.7.15 "Atmosphere-Ocean Dynamics" Academic Press: New York. ISBN: 0-12-283522-0
+    .. [2] A.E. Gill 1982. p.54  eqn 3.7.15 "Atmosphere-Ocean Dynamics"
+    Academic Press: New York. ISBN: 0-12-283522-0
 
-    Modifications: Phil Morgan 93-04-20  (morgan@ml.csiro.au)
+    Modifications: 93-04-20. Phil Morgan.
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
@@ -862,12 +894,17 @@ def cor(lat):
 
     References
     ----------
-    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
+    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical
+    Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
 
-    .. [2] A.E. Gill 1982. p.54  eqn 3.7.15 "Atmosphere-Ocean Dynamics" Academic Press: New York. ISBN: 0-12-283522-0
-    .. [3] Groten, E., 2004: Fundamental Parameters and Current (2004) Best Estimates of the Parameters of Common Relevance to Astronomy, Geodesy, and Geodynamics. Journal of Geodesy, 77, pp. 724-797.
+    .. [2] A.E. Gill 1982. p.54  eqn 3.7.15 "Atmosphere-Ocean Dynamics"
+    Academic Press: New York. ISBN: 0-12-283522-0
 
-    Modifications: Phil Morgan 93-04-20 (morgan@ml.csiro.au)
+    .. [3] Groten, E., 2004: Fundamental Parameters and Current (2004) Best
+    Estimates of the Parameters of Common Relevance to Astronomy, Geodesy,
+    and Geodynamics. Journal of Geodesy, 77, pp. 724-797.
+
+    Modifications: 93-04-20. Phil Morgan.
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
@@ -922,9 +959,12 @@ def cndr(s, t, p):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap.
+    in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    Modifications: Phil Morgan 93-04-21, Lindsay Pender (Lindsay.Pender@csiro.au)
+    Modifications: 93-04-21. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    10-01-14. Filipe Fernandes, Python translation.
@@ -936,10 +976,9 @@ def cndr(s, t, p):
     T68 = T68conv(t)
 
     # DO A NEWTON-RAPHSON ITERATION FOR INVERSE INTERPOLATION OF Rt FROM S.
-    Rx = np.sqrt( s / 35.0 ) # first guess at Rx = sqrt(Rt) NOTE: gibbs isn't taking the square root here!
+    Rx = np.sqrt( s / 35.0 ) # first guess at Rx = sqrt(Rt)
     SInc = sals( Rx**2, t ) # S Increment (guess) from Rx
     iloop = 0
-    end_loop = 0
     while True:
         Rx = Rx + ( s - SInc ) / salds( Rx, t - 15 )
         SInc = sals( Rx**2, t )
@@ -966,12 +1005,13 @@ def cndr(s, t, p):
     # eqn(6) p.9 UNESCO 1983.
     Rt    = Rx**2
     rt    = salrt(t)
-    #Rtrt  = rt * Rt # TODO: unused in the code, but present in the original
+    #Rtrt  = rt * Rt # NOTE: unused in the code, but present in the original
     D     = B - A * rt * Rt
     E     = rt * Rt * A * ( B + C )
     r     = np.sqrt( np.abs( D**2 + 4 * E ) ) - D
     r     = 0.5 * r/A
     return r
+
 
 def sals(rt, t):
     r"""
@@ -1010,9 +1050,12 @@ def sals(rt, t):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    Modifications: Phil Morgan 93-04-17, Lindsay Pender (Lindsay.Pender@csiro.au)
+    Modifications: 93-04-17. Phil Morgan.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
@@ -1039,12 +1082,12 @@ def sals(rt, t):
 
     k  =  0.0162
 
-    Rtx   = (rt)**0.5
-    del_S = ( del_T68 / ( 1 + k * del_T68 ) ) * \
-            ( b0 + ( b1 + ( b2 + ( b3 + ( b4 + b5 * Rtx ) \
-            * Rtx ) * Rtx ) * Rtx ) * Rtx)
+    Rtx = (rt)**0.5
+    del_S = ( ( del_T68 / ( 1 + k * del_T68 ) ) *
+            ( b0 + ( b1 + ( b2 + ( b3 + ( b4 + b5 * Rtx )
+            * Rtx ) * Rtx ) * Rtx ) * Rtx) )
 
-    s = a0 + ( a1 + ( a2 + ( a3 + ( a4 + a5 * Rtx) * \
+    s = a0 + ( a1 + ( a2 + ( a3 + ( a4 + a5 * Rtx) *
                Rtx) * Rtx ) * Rtx ) * Rtx
 
     s = s + del_S
@@ -1053,7 +1096,8 @@ def sals(rt, t):
 
 def salds(rtx, delt):
     r"""
-    Calculates Salinity differential (:math:`\frac{dS}{d(\sqrt{Rt})}`) at constant temperature.
+    Calculates Salinity differential (:math:`\frac{dS}{d(\sqrt{Rt})}`) at
+    constant temperature.
 
     Parameters
     ----------
@@ -1088,9 +1132,12 @@ def salds(rtx, delt):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    Modifications: Phil Morgan 93-04-21, Lindsay Pender (Lindsay.Pender@csiro.au)
+    Modifications: 93-04-21. Phil Morgan.
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
@@ -1113,10 +1160,10 @@ def salds(rtx, delt):
 
     k  =  0.0162
 
-    ds =  a1 + ( 2 * a2 + ( 3 * a3 + ( 4 * a4 + 5 * a5 * rtx ) * rtx ) \
-          * rtx ) * rtx + ( delt / ( 1 + k * delt ) ) * \
-          ( b1 + ( 2 * b2 + ( 3 * b3 + ( 4 * b4 + 5 * b5 * rtx ) \
-          * rtx ) * rtx) * rtx)
+    ds = ( a1 + ( 2 * a2 + ( 3 * a3 + ( 4 * a4 + 5 * a5 * rtx ) * rtx )
+          * rtx ) * rtx + ( delt / ( 1 + k * delt ) ) *
+          ( b1 + ( 2 * b2 + ( 3 * b3 + ( 4 * b4 + 5 * b5 * rtx )
+          * rtx ) * rtx) * rtx) )
 
     return ds
 
@@ -1157,9 +1204,12 @@ def salrt(t):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    Modifications: Phil Morgan 93-04-17, Lindsay Pender (Lindsay.Pender@csiro.au)
+    Modifications: 93-04-17. Phil Morgan.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
@@ -1186,7 +1236,7 @@ def salt(r, t, p):
     Parameters
     ----------
     r : array_like
-            conductivity ratio :math:`R = \frac{C(S,T,P)}{C(35,15(IPTS-68),0)}` [no units]
+        conductivity ratio :math:`R = \frac{C(S,T,P)}{C(35,15(IPTS-68),0)}`
     t : array_like
         temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
@@ -1218,9 +1268,12 @@ def salt(r, t, p):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    Modifications: Phil Morgan 93-04-17, Lindsay Pender (Lindsay.Pender@csiro.au)
+    Modifications: 93-04-17. Phil Morgan.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
@@ -1246,7 +1299,7 @@ def salrp(r, t, p):
     Parameters
     ----------
     r : array_like
-        conductivity ratio :math:`R = \frac{C(S,T,P)}{C(35,15(IPTS-68),0)}` [no units]
+        conductivity ratio :math:`R = \frac{C(S,T,P)}{C(35,15(IPTS-68),0)}`
     t : array_like
         temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
@@ -1255,7 +1308,7 @@ def salrp(r, t, p):
     Returns
     -------
     rp : array_like
-        conductivity ratio :math:`Rp(S,T,P) = \frac{C(S,T,P)}{C(S,T,0)}` [no units]
+        conductivity ratio :math:`Rp(S,T,P) = \frac{C(S,T,P)}{C(S,T,0)}`
 
     See Also
     --------
@@ -1277,9 +1330,12 @@ def salrp(r, t, p):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    Modifications: Phil Morgan 93-04-17, Lindsay Pender (Lindsay.Pender@csiro.au)
+    Modifications: 93-04-17. Phil Morgan.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
@@ -1299,8 +1355,8 @@ def salrp(r, t, p):
     e2 = -6.370e-10
     e3 =  3.989e-15
 
-    rp = 1 + ( p * ( e1 + e2 * p + e3 * p**2 ) ) \
-         / ( 1 + d1 * T68 + d2 * T68**2 + ( d3 + d4 * T68 ) * r)
+    rp = ( 1 + ( p * ( e1 + e2 * p + e3 * p**2 ) )
+         / ( 1 + d1 * T68 + d2 * T68**2 + ( d3 + d4 * T68 ) * r) )
 
     return rp
 
@@ -1343,9 +1399,12 @@ def fp(s, p):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    Modifications: Phil Morgan 93-04-20, Lindsay Pender (Lindsay.Pender@csiro.au)
+    Modifications: 93-04-20. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    10-01-14. Filipe Fernandes, Python translation.
@@ -1355,7 +1414,7 @@ def fp(s, p):
     s, p = np.asanyarray(s), np.asanyarray(p)
 
 
-    #TODO: P = P/10; # to convert db to Bar as used in UNESCO routines (was commented in the original)
+    #NOTE: P = P/10 # to convert db to Bar as used in UNESCO routines
 
     # eqn  p.29
     a0 = -0.0575
@@ -1378,7 +1437,7 @@ def svel(s, t, p):
     t(p) : array_like
            temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]. The shape can be "broadcasted"
+        pressure [db].
 
     Returns
     -------
@@ -1392,7 +1451,7 @@ def svel(s, t, p):
 
     Notes
     -----
-    TODO: Pressure broadcast feature need to be tested.
+
 
     TODO: Add equation to docstring.
 
@@ -1418,9 +1477,12 @@ def svel(s, t, p):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    Modifications: Phil Morgan 93-04-20, Lindsay Pender (Lindsay.Pender@csiro.au)
+    Modifications: 93-04-20. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    10-01-14. Filipe Fernandes, Python translation.
@@ -1457,10 +1519,10 @@ def svel(s, t, p):
     c31 =  3.8504e-10
     c32 = -2.3643e-12
 
-    Cw  = ( ( ( ( c32 * T68 + c31 ) * T68 + c30 ) * p + \
-          ( ( ( ( c24 * T68 + c23 ) * T68 + c22 ) * T68 + c21 ) * T68 + c20 ) ) * p + \
-          ( ( ( ( c14 * T68 + c13 ) * T68 + c12 ) * T68 + c11 ) * T68 + c10 ) ) * p + \
-          ( ( ( ( c05 * T68 + c04 ) * T68 + c03 ) * T68 + c02 ) * T68 + c01 ) * T68 + c00
+    Cw  =( ((((c32 * T68 + c31) * T68 + c30) * p +
+          ((((c24 * T68 + c23) * T68 + c22) * T68 + c21) * T68 + c20)) * p +
+          ((((c14 * T68 + c13) * T68 + c12) * T68 + c11) * T68 + c10)) * p +
+          ((((c05 * T68 + c04) * T68 + c03) * T68 + c02) * T68 + c01)*T68+c00 )
 
     # eqn 35. p.47
     a00 =  1.389
@@ -1484,10 +1546,10 @@ def svel(s, t, p):
     a31 =  6.649e-12
     a32 = -3.389e-13
 
-    A = ( ( ( ( a32 * T68 + a31 ) * T68 + a30 ) * p + \
-        ( ( ( a23 * T68 + a22 ) * T68 + a21 ) * T68 + a20 ) ) * p + \
-        ( ( ( ( a14 * T68 + a13 ) * T68 + a12 ) * T68 + a11 ) * T68 + a10 ) ) * p + \
-        ( ( ( a04 * T68 + a03 ) * T68 + a02 ) * T68 + a01 ) * T68 + a00
+    A = ( ((((a32 * T68 + a31) * T68 + a30) * p +
+        (((a23 * T68 + a22) * T68 + a21) * T68 + a20)) * p +
+        ((((a14 * T68 + a13) * T68 + a12) * T68 + a11) * T68 + a10)) * p +
+        (((a04 * T68 + a03) * T68 + a02) * T68 + a01) * T68 + a00 )
 
     # eqn 36 p.47
     b00 = -1.922e-2
@@ -1518,7 +1580,7 @@ def pres(depth, lat):
             depth [meters]
     lat : array_like
           latitude in decimal degrees north [-90..+90]
-          The shape can be "broadcasted"
+
 
     Returns
     -------
@@ -1532,7 +1594,7 @@ def pres(depth, lat):
 
     Notes
     -----
-    TODO: lat broadcast feature need to be tested.
+
 
     Examples
     --------
@@ -1543,9 +1605,11 @@ def pres(depth, lat):
 
     References
     ----------
-    .. [1] Saunders, Peter M., 1981: Practical Conversion of Pressure to Depth. J. Phys. Oceanogr., 11, 573-574. doi: 10.1175/1520-0485(1981)011<0573:PCOPTD>2.0.CO;2
+    .. [1] Saunders, Peter M., 1981: Practical Conversion of Pressure to Depth.
+    J. Phys. Oceanogr., 11, 573-574.
+    doi: 10.1175/1520-0485(1981)011<0573:PCOPTD>2.0.CO;2
 
-    Modifications: Phil Morgan 93-06-25  (morgan@ml.csiro.au)
+    Modifications: 93-06-25. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
@@ -1553,9 +1617,9 @@ def pres(depth, lat):
 
     depth, lat = np.asanyarray(depth), np.asanyarray(lat)
 
-    X       = np.sin( abs( np.deg2rad(lat) ) )
-    C1      = 5.92E-3 + X**2 * 5.25E-3
-    pres    = ( ( 1 - C1 ) - ( ( ( 1 - C1 )**2 ) - ( 8.84E-6 * depth ) )**0.5 ) / 4.42E-6
+    X = np.sin( abs( np.deg2rad(lat) ) )
+    C1 = 5.92E-3 + X**2 * 5.25E-3
+    pres = ( (1-C1) - ( ( (1-C1)**2 ) - ( 8.84E-6 * depth ) )**0.5 ) / 4.42E-6
     return pres
 
 def dist(lon, lat, units='km'):
@@ -1578,7 +1642,8 @@ def dist(lon, lat, units='km'):
     dist : array_like
            distance between positions in units
     phaseangle : array_like
-                 angle of line between stations with x axis (East). Range of values are -180..+180. (E=0, N=90, S=-90)
+                 angle of line between stations with x axis (East).
+                 Range of values are -180..+180. (E=0, N=90, S=-90)
 
     See Also
     --------
@@ -1586,10 +1651,11 @@ def dist(lon, lat, units='km'):
 
     Notes
     -----
-    Usually used to create a distance vector to plot hydrographic data. However, pay attention to the phaseangle to avoid apples and oranges!
+    Usually used to create a distance vector to plot hydrographic data. However,
+    pay attention to the phaseangle to avoid apples and oranges!
 
-    Also not that the input order for the matlab version is lat,lon (alphabetic order),
-    while this version is lon,lat (geometric order).
+    Also not that the input order for the matlab version is lat,lon
+    (alphabetic order), while this version is lon,lat (geometric order).
 
     Examples
     --------
@@ -1610,10 +1676,11 @@ def dist(lon, lat, units='km'):
 
     References
     ----------
-    .. [1] The PLANE SAILING method as described in "CELESTIAL NAVIGATION" 1989 by Dr. P. Gormley. The Australian Antarctic Division.
+    .. [1] The PLANE SAILING method as described in "CELESTIAL NAVIGATION" 1989
+    by Dr. P. Gormley. The Australian Antarctic Division.
 
-    Modifications: Phil Morgan and Steve Rintoul 92-02-10
-                   99-06-25. Lindsay Pender, Function name change from distance to sw_dist.
+    Modifications: 92-02-10. Phil Morgan and Steve Rintoul.
+                   99-06-25. Lindsay Pender, name change distance to sw_dist.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
@@ -1686,9 +1753,11 @@ def satAr(s, t):
 
     References
     ----------
-    .. [1] Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in Water and Seawater Deep-Sea Research Vol. 17, p. 721-735 doi:10.1016/0011-7471(70)90037-9
+    .. [1] Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in
+    Water and Seawater Deep-Sea Research Vol. 17, p. 721-735.
+    doi:10.1016/0011-7471(70)90037-9
 
-    Modifications: Phil Morgan 97-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
+    Modifications: 97-11-05. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    10-01-14. Filipe Fernandes, Python translation.
@@ -1710,8 +1779,8 @@ def satAr(s, t):
     b3 =   -0.0017729
 
     # Eqn (4) of Weiss 1970
-    lnC = a1 + a2 * ( 100/t ) + a3 * np.log( t/100 ) + a4 * ( t/100 ) + \
-          s * ( b1 + b2 * ( t/100 ) + b3 * ( ( t/100 )**2) )
+    lnC = ( a1 + a2 * ( 100/t ) + a3 * np.log( t/100 ) + a4 * ( t/100 ) +
+          s * ( b1 + b2 * ( t/100 ) + b3 * ( ( t/100 )**2) ) )
 
     c = np.exp(lnC)
 
@@ -1757,9 +1826,11 @@ def satN2(s, t):
 
     References
     ----------
-    .. [1] Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in Water and Seawater Deep-Sea Research Vol. 17, p. 721-735 doi:10.1016/0011-7471(70)90037-9
+    .. [1] Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in
+    Water and Seawater Deep-Sea Research Vol. 17, p. 721-735.
+    doi:10.1016/0011-7471(70)90037-9
 
-    Modifications: Phil Morgan 97-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
+    Modifications: 97-11-05. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    10-01-14. Filipe Fernandes, Python translation.
@@ -1781,8 +1852,8 @@ def satN2(s, t):
     b3 =   -0.0034861
 
     # Eqn (4) of Weiss 1970
-    lnC = a1 + a2 * ( 100/t ) + a3 * np.log( t/100 ) + a4 * ( t/100 ) + \
-          s * ( b1 + b2 * ( t/100 ) + b3 * ( ( t/100 )**2 ) )
+    lnC = ( a1 + a2 * ( 100/t ) + a3 * np.log( t/100 ) + a4 * ( t/100 ) +
+            s * ( b1 + b2 * ( t/100 ) + b3 * ( ( t/100 )**2 ) ) )
 
     c = np.exp(lnC)
     return c
@@ -1822,9 +1893,11 @@ def satO2(s, t):
 
     References
     ----------
-    .. [1] Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in Water and Seawater Deep-Sea Research Vol. 17, p. 721-735 doi:10.1016/0011-7471(70)90037-9
+    .. [1] Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in
+    Water and Seawater Deep-Sea Research Vol. 17, p. 721-735.
+    doi:10.1016/0011-7471(70)90037-9
 
-    Modifications: Phil Morgan 97-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
+    Modifications: 97-11-05. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    10-01-14. Filipe Fernandes, Python translation.
@@ -1846,8 +1919,8 @@ def satO2(s, t):
     b3 =   -0.0017000
 
     # Eqn (4) of Weiss 1970
-    lnC = a1 + a2 * ( 100/t ) + a3 * np.log( t/100 ) + a4 * ( t/100 ) + \
-          s * ( b1 + b2 * ( t/100 ) + b3 * ( ( t/100 )**2 ) )
+    lnC = ( a1 + a2 * ( 100/t ) + a3 * np.log( t/100 ) + a4 * ( t/100 ) +
+            s * ( b1 + b2 * ( t/100 ) + b3 * ( ( t/100 )**2 ) ) )
 
     c = np.exp(lnC)
     return c
@@ -1866,7 +1939,8 @@ def dens0(s, t):
     Returns
     -------
     dens0(s, t) : array_like
-                  density  [kg m :sup:`3`] of salt water with properties (s, t, p=0) 0 db gauge pressure
+                  density  [kg m :sup:`3`] of salt water with properties
+                  (s, t, p=0) 0 db gauge pressure
 
     See Also
     --------
@@ -1889,11 +1963,16 @@ def dens0(s, t):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    .. [2] Millero, F.J. and  Poisson, A. International one-atmosphere equation of state of seawater. Deep-Sea Res. 1981. Vol28A(6) pp625-629. doi:10.1016/0198-0149(81)90122-9
+    .. [2] Millero, F.J. and  Poisson, A. International one-atmosphere equation
+    of state of seawater. Deep-Sea Res. 1981. Vol28A(6) pp625-629.
+    doi:10.1016/0198-0149(81)90122-9
 
-    Modifications: Phil Morgan 92-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
+    Modifications: 92-11-05. Phil Morgan.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
@@ -1915,8 +1994,8 @@ def dens0(s, t):
     c2 = -1.6546e-6
 
     d0 = 4.8314e-4
-    dens0 = smow(t) + ( b0 + ( b1 + ( b2 + ( b3 + b4 * T68 ) * T68 ) * T68 ) * T68 ) * \
-    s + ( c0 + ( c1 + c2 * T68 ) * T68 ) * s * (s)**0.5 + d0 * s**2
+    dens0 =( smow(t) + ( b0 + ( b1 + ( b2 + ( b3 + b4 * T68 ) * T68 ) * T68 )
+    * T68 ) * s + ( c0 + ( c1 + c2 * T68 ) * T68 ) * s * (s)**0.5 + d0 * s**2 )
     return dens0
 
 def smow(t):
@@ -1939,7 +2018,8 @@ def smow(t):
 
     Notes
     -----
-    Standard Mean Ocean Water (SMOW) is the water collected in the deep ocean used as a reference.
+    Standard Mean Ocean Water (SMOW) is the water collected in the deep ocean
+    used as a reference.
 
     Examples
     --------
@@ -1953,11 +2033,16 @@ def smow(t):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    .. [2] Millero, F.J. and  Poisson, A. International one-atmosphere equation of state of seawater. Deep-Sea Res. 1981. Vol28A(6) pp625-629. doi:10.1016/0198-0149(81)90122-9
+    .. [2] Millero, F.J. and  Poisson, A. International one-atmosphere equation
+    of state of seawater. Deep-Sea Res. 1981. Vol28A(6) pp625-629.
+    doi:10.1016/0198-0149(81)90122-9
 
-    Modifications: Phil Morgan 92-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
+    Modifications: 92-11-05. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    10-01-14. Filipe Fernandes, Python translation.
@@ -1974,12 +2059,14 @@ def smow(t):
     a5 =   6.536332e-9
 
     T68  = T68conv(t)
-    dens = a0 + ( a1 + ( a2 + ( a3 + ( a4 + a5 * T68 ) * T68 ) * T68 ) * T68 ) * T68
+    dens = ( a0 + ( a1 + ( a2 + ( a3 + ( a4 + a5 * T68 ) * T68 ) * T68 )
+             * T68 ) * T68 )
     return dens
 
 def seck(s, t, p=0):
     r"""
-    Secant Bulk Modulus (K) of Sea Water using Equation of state 1980. UNESCO polynomial implementation.
+    Secant Bulk Modulus (K) of Sea Water using Equation of state 1980. UNESCO
+    polynomial implementation.
 
     Parameters
     ----------
@@ -1988,7 +2075,7 @@ def seck(s, t, p=0):
     t(p) : array_like
            temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]. The shape can be "broadcasted"
+        pressure [db].
 
     Returns
     -------
@@ -2017,11 +2104,16 @@ def seck(s, t, p=0):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    .. [2] Millero, F.J. and  Poisson, A. International one-atmosphere equation of state of seawater. Deep-Sea Res. 1981. Vol28A(6) pp625-629. doi:10.1016/0198-0149(81)90122-9
+    .. [2] Millero, F.J. and  Poisson, A. International one-atmosphere equation
+    of state of seawater. Deep-Sea Res. 1981. Vol28A(6) pp625-629.
+    doi:10.1016/0198-0149(81)90122-9
 
-    Modifications: Phil Morgan 92-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
+    Modifications: 92-11-05. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    10-01-14. Filipe Fernandes, Python translation.
@@ -2083,8 +2175,8 @@ def seck(s, t, p=0):
     g1 =  1.6483E-2
     g0 =  7.944E-2
 
-    K0 = KW + ( f0 + ( f1 + ( f2 + f3 * T68 ) * T68 ) * T68 \
-            + ( g0 + ( g1 + g2 * T68 ) * T68 ) * SR ) * s # eqn 16
+    K0 = ( KW + ( f0 + ( f1 + ( f2 + f3 * T68 ) * T68 ) * T68
+            + ( g0 + ( g1 + g2 * T68 ) * T68 ) * SR ) * s ) # eqn 16
 
     K = K0 + ( A + B * p ) * p # eqn 15
     return K
@@ -2100,7 +2192,7 @@ def dens(s, t, p):
     t(p) : array_like
            temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]. The shape can be "broadcasted"
+        pressure [db].
 
     Returns
     -------
@@ -2129,11 +2221,16 @@ def dens(s, t, p):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    .. [2] Millero, F.J., Chen, C.T., Bradshaw, A., and Schleicher, K. A new high pressure equation of state for seawater. Deap-Sea Research., 1980, Vol27A, pp255-264. doi:10.1016/0198-0149(80)90016-3
+    .. [2] Millero, F.J., Chen, C.T., Bradshaw, A., and Schleicher, K. A new
+    high pressure equation of state for seawater. Deap-Sea Research., 1980,
+    Vol27A, pp255-264. doi:10.1016/0198-0149(80)90016-3
 
-    Modifications: Phil Morgan 92-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
+    Modifications: 92-11-05. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    10-01-14. Filipe Fernandes, Python translation.
@@ -2151,7 +2248,8 @@ def dens(s, t, p):
 
 def pden(s, t, p, pr=0):
     r"""
-    Calculates potential density of water mass relative to the specified reference pressure by pden = dens(S, ptmp, PR).
+    Calculates potential density of water mass relative to the specified
+    reference pressure by pden = dens(S, ptmp, PR).
 
     Parameters
     ----------
@@ -2160,7 +2258,7 @@ def pden(s, t, p, pr=0):
     t(p) : array_like
            temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]. The shape can be "broadcasted"
+        pressure [db].
     pr : number
          reference pressure [db], default = 0
 
@@ -2175,7 +2273,8 @@ def pden(s, t, p, pr=0):
 
     Notes
     -----
-    The reference pressure is in "oceanographic" standards, so 0 db means at surface or 1 atm.
+    The reference pressure is in "oceanographic" standards, so 0 db means at
+    surface or 1 atm.
 
     Examples
     --------
@@ -2197,15 +2296,17 @@ def pden(s, t, p, pr=0):
 
     References
     ----------
-    .. [1] A.E. Gill 1982. p.54  eqn 3.7.15 "Atmosphere-Ocean Dynamics" Academic Press: New York. ISBN: 0-12-283522-0
+    .. [1] A.E. Gill 1982. p.54  eqn 3.7.15 "Atmosphere-Ocean Dynamics"
+    Academic Press: New York. ISBN: 0-12-283522-0
 
-    Modifications: Phil Morgan 1992/04/06, Lindsay Pender (Lindsay.Pender@csiro.au)
+    Modifications: 92-04-06. Phil Morgan.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t, p, pr = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p), np.asanyarray(pr)
+    s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
+    pr = np.asanyarray(pr)
 
     pt   = ptmp(s, t, p, pr)
     pden = dens(s, pt, pr)
@@ -2213,7 +2314,7 @@ def pden(s, t, p, pr=0):
 
 def svan(s, t, p=0):
     r"""
-    Specific Volume Anomaly calculated as svan = 1/dens(s, t, p) - 1/dens(35, 0, p).
+    Specific Volume Anomaly calculated as svan = 1/dens(s,t,p) - 1/dens(35,0,p).
 
     Note that it is often quoted in literature as 1e8*units.
 
@@ -2224,7 +2325,7 @@ def svan(s, t, p=0):
     t(p) : array_like
            temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]. The shape can be "broadcasted"
+        pressure [db].
 
     Returns
     -------
@@ -2254,11 +2355,15 @@ def svan(s, t, p=0):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    .. [2] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
+    .. [2] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical
+    Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
 
-    Modifications: Phil Morgan 92-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
+    Modifications: 92-11-05. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    10-01-14. Filipe Fernandes, Python translation.
@@ -2282,15 +2387,13 @@ def gpan(s, t, p):
     t(p) : array_like
            temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]. The shape can be "broadcasted"
-    axis : int, optional
-           Axis along which the means are computed. The default is to compute using axis=1 or stations.
-           Usually arrays are 2D MxN where M is depth and M stations.
+        pressure [db].
 
     Returns
     -------
     gpan : array_like
-           geopotential anomaly [m :sup:`3` kg :sup:`-1` Pa == m  :sup:`2` s :sup:`-2` == J kg :sup:`-1`]
+           geopotential anomaly
+           [m :sup:`3` kg :sup:`-1` Pa = m :sup:`2` s :sup:`-2` = J kg :sup:`-1`]
 
     See Also
     --------
@@ -2298,7 +2401,9 @@ def gpan(s, t, p):
 
     Notes
     -----
-    Adapted method from Pond and Pickard (p76) to calculate gpan relative to sea surface whereas P&P calculated relative to the deepest common depth. Note that older literature may use units of "dynamic decimeter" for above.
+    Adapted method from Pond and Pickard (p76) to calculate gpan relative to
+    sea surface whereas P&P calculated relative to the deepest common depth.
+    Note that older literature may use units of "dynamic decimeter" for above.
 
     TODO: example with values that make some sense
 
@@ -2310,9 +2415,9 @@ def gpan(s, t, p):
 
     >>> import numpy as np
     >>> import seawater.csiro as sw
-    >>> s = np.array([[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]])
-    >>> t = np.repeat(15, s.size).reshape(s.shape)
-    >>> p = [0, 250, 500, 1000]
+    >>> s = [[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]]
+    >>> t = [[15]*3]*4
+    >>> p = [[0], [250], [500], [1000]]
     >>> sw.gpan(s, t, p)
     array([[   0.        ,    0.        ,    0.        ],
            [  56.35465209,   56.35465209,   56.35465209],
@@ -2321,31 +2426,28 @@ def gpan(s, t, p):
 
     References
     ----------
-    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
+    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical
+    Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
 
-    Modifications: Phil Morgan 92-11-05, Lindsay Pender (Lindsay.Pender@csiro.au)
+    Modifications: 92-11-05. Phil Morgan.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
     s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
+    s, t, p = np.broadcast_arrays(s, t, p)
 
+    if (s.ndim != 2)  and (t.ndim != 2):
+        raise ValueError, 'Arguments must be 2D arrays (n_depths, n_profiles)'
 
-    if t.ndim == 1:
-        print "need at least to profiles to compute geopotential anomaly"
-        return
-
-    if p.ndim == 1:
-        p = np.repeat(p[np.newaxis,:], t.shape[1], axis=1).reshape(t.shape)
-
-    svn        = svan(s, t, p)
+    svn = svan(s, t, p)
     mean_svan  = 0.5*(svn[1:,:] + svn[0:-1,:])
 
     top = svn[0,:] * p[0,:] * cte.db2Pascal
 
-    delta_ga   = ( mean_svan * np.diff(p, axis=0) ) * cte.db2Pascal
-    ga         = np.cumsum( np.vstack( ( top, delta_ga ) ), axis=0 ) # TODO: test different integration methods
+    delta_ga = ( mean_svan * np.diff(p, axis=0) ) * cte.db2Pascal
+    ga = np.cumsum( np.vstack( ( top, delta_ga ) ), axis=0 )
 
     return ga
 
@@ -2375,13 +2477,12 @@ def gvel(ga, distm, lat):
 
     Notes
     -----
-    The original matlab version had gvel and gvel2 only, here the logic is "gvel2", where one must compute the distance first.
+    The original matlab version had gvel and gvel2 only, here the logic is
+    "gvel2", where one must compute the distance first.
 
     TODO: dim(m, nstations-1) or pass axis?
-
-    TODO: add example with a reference level.
-
-    TODO: example with values that make some sense.
+          add example with a reference level.
+          example with values that make some sense.
 
     Examples
     --------
@@ -2391,7 +2492,7 @@ def gvel(ga, distm, lat):
     >>> lat = [30, 32, 35]
     >>> s = np.array([[0, 1, 2], [15, 16, 17], [30, 31, 32],[35,35,35]])
     >>> t = np.repeat(15, s.size).reshape(s.shape)
-    >>> p = [0, 250, 500, 1000]
+    >>> p = [[0], [250], [500], [1000]]
     >>> ga = sw.gpan(s,t,p)
     >>> distm = 1000.0 * sw.dist(lon, lat, units='km')[0]
     >>> sw.gvel(ga, distm, lat)
@@ -2400,12 +2501,12 @@ def gvel(ga, distm, lat):
            [ 0.22436555,  0.14112761],
            [ 0.33366412,  0.20996272]])
 
-
     References
     ----------
-    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
+    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical
+    Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
 
-    Modifications: Phil Morgan 1992/03/26 (morgan@ml.csiro.au)
+    Modifications: 92-03-26. Phil Morgan.
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
@@ -2429,7 +2530,7 @@ def cp(s, t, p):
     t(p) : array_like
            temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]. The shape can be "broadcasted"
+        pressure [db].
 
     Returns
     -------
@@ -2466,9 +2567,12 @@ def cp(s, t, p):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    Modifications: Phil Morgan, Lindsay Pender (Lindsay.Pender@csiro.au)
+    Modifications: Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    10-01-14. Filipe Fernandes, Python translation.
@@ -2495,9 +2599,9 @@ def cp(s, t, p):
     b1 = -4.07718e-3
     b2 =  5.148e-5
 
-    Cpst0 = ( ( ( c4 * T68 + c3 ) * T68 + c2 ) * T68 + c1 ) * T68 + c0 + \
-            ( a0 + a1 * T68 + a2 * T68**2 ) * s + \
-            ( b0 + b1 * T68 + b2 * T68**2 ) * s *(s)**0.5
+    Cpst0 = ( ( ( ( c4 * T68 + c3 ) * T68 + c2 ) * T68 + c1 ) * T68 + c0 +
+            ( a0 + a1 * T68 + a2 * T68**2 ) * s +
+            ( b0 + b1 * T68 + b2 * T68**2 ) * s *(s)**0.5 )
 
     # eqn 28 p.33
     a0 = -4.9592e-1
@@ -2517,9 +2621,9 @@ def cp(s, t, p):
     c2 = -6.5637e-11
     c3 =  6.136e-13
 
-    del_Cp0t0 = ( ( ( ( ( c3 * T68 + c2 ) * T68 + c1 ) * T68 + c0 ) * p + \
-                ( ( ( ( b4 * T68 + b3 ) * T68 + b2 ) * T68 + b1 ) * T68 + b0 ) ) * p + \
-                ( ( ( ( a4 * T68 + a3 ) * T68 + a2 ) * T68 + a1 ) * T68 + a0 ) ) * p
+    del_Cp0t0 = ( (((((c3 * T68 + c2) * T68 + c1) * T68 + c0) * p +
+                ((((b4 * T68 + b3) * T68 + b2) * T68 + b1) * T68 + b0)) * p +
+                ((((a4 * T68 + a3) * T68 + a2) * T68 + a1) * T68 + a0)) * p )
 
     # eqn 29 p.34
     d0 =  4.9247e-3
@@ -2547,21 +2651,12 @@ def cp(s, t, p):
 
     S3_2 = s * (s)**0.5
 
-    """
-    del_Cpstp = [ ( ( ( ( d4 * T68 + d3 ) * T68 + d2 ) * T68 + d1 ) * T68 + d0 ) * S + \
-                ( ( e2 * T68 + e1 ) * T68 + e0 ) * S3_2 ] * P + \
-                [ ( ( ( f3 * T68 + f2 ) * T68 + f1 ) * T68 + f0 ) * S + \
-                g0 * S3_2 ] * P**2 + \
-                [ ( ( h2 * T68 + h1 ) * T68 + h0 ) * S + \
-                j1 * T68 * S3_2 ] * P**3
-    """
-
-    del_Cpstp = ( ( ( ( ( d4 * T68 + d3 ) * T68 + d2 ) * T68 + d1 ) * T68 + d0 ) * s + \
-                ( ( e2 * T68 + e1 ) * T68 + e0 ) * S3_2 ) * p + \
-                ( ( ( ( f3 * T68 + f2 ) * T68 + f1 ) * T68 + f0 ) * s + \
-                 g0 * S3_2 ) * p**2 + \
-                ( ( ( h2 * T68 + h1 ) * T68 + h0 ) * s + \
-                j1 * T68 * S3_2 ) * p**3
+    del_Cpstp = ( (((((d4 * T68 + d3) * T68 + d2) * T68 + d1) * T68 + d0) * s +
+                ((e2 * T68 + e1) * T68 + e0) * S3_2) * p +
+                ((((f3 * T68 + f2) * T68 + f1) * T68 + f0) * s +
+                 g0 * S3_2 ) * p**2 +
+                (((h2 * T68 + h1) * T68 + h0) * s +
+                j1 * T68 * S3_2) * p**3 )
 
     cp = Cpst0 + del_Cp0t0 + del_Cpstp
 
@@ -2578,7 +2673,7 @@ def ptmp(s, t, p, pr=0):
     t(p) : array_like
            temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]. The shape can be "broadcasted"
+        pressure [db].
     pr : array_like
         reference pressure [db], default = 0
 
@@ -2615,18 +2710,24 @@ def ptmp(s, t, p, pr=0):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    .. [2] Bryden, H. 1973. New Polynomials for thermal expansion, adiabatic temperature gradient and potential temperature of sea water. Deep-Sea Res. Vol20,401-408. doi:10.1016/0011-7471(73)90063-6
+    .. [2] Bryden, H. 1973. New Polynomials for thermal expansion, adiabatic
+    temperature gradient and potential temperature of sea water.
+    Deep-Sea Res. Vol20,401-408. doi:10.1016/0011-7471(73)90063-6
 
-    Modifications: Phil Morgan 92-04-06, Lindsay Pender (Lindsay.Pender@csiro.au)
+    Modifications: 92-04-06. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t, p, pr = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p), np.asanyarray(pr)
+    s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
+    pr = np.asanyarray(pr)
 
     # theta1
     del_P  = pr - p
@@ -2651,7 +2752,8 @@ def ptmp(s, t, p, pr=0):
 
 def temp(s, pt, p, pr=0):
     r"""
-    Calculates temperature from potential temperature at the reference pressure PR and in situ pressure P.
+    Calculates temperature from potential temperature at the reference pressure
+    PR and in situ pressure P.
 
     Parameters
     ----------
@@ -2660,7 +2762,7 @@ def temp(s, pt, p, pr=0):
     pt(p) : array_like
          potential temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
-        pressure [db]. The shape can be "broadcasted"
+        pressure [db].
     pr : array_like
          reference pressure [db]
 
@@ -2686,17 +2788,23 @@ def temp(s, pt, p, pr=0):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    .. [2] Bryden, H. 1973. New Polynomials for thermal expansion, adiabatic temperature gradient and potential temperature of sea water. Deep-Sea Res. Vol20,401-408. doi:10.1016/0011-7471(73)90063-6
+    .. [2] Bryden, H. 1973. New Polynomials for thermal expansion, adiabatic
+    temperature gradient and potential temperature of sea water. Deep-Sea Res.
+    Vol20,401-408. doi:10.1016/0011-7471(73)90063-6
 
-    Modifications: Phil Morgan 92-04-06, Lindsay Pender (Lindsay.Pender@csiro.au)
+    Modifications: 92-04-06. Phil Morgan.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    10-01-14. Filipe Fernandes, Python translation.
                    10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, pt, p, pr = np.asanyarray(s), np.asanyarray(pt), np.asanyarray(p), np.asanyarray(pr)
+    s, pt, p = np.asanyarray(s), np.asanyarray(pt), np.asanyarray(p)
+    pr  = np.asanyarray(pr)
 
     # Carry out inverse calculation by swapping p0 & pr
     t = ptmp(s, pt, pr, p)
@@ -2744,13 +2852,15 @@ def swvel(length, depth):
 
 def test(fileout):
     r"""
-    Execute test routines to test and verify SEAWATER Library routines for your platform. Prints output to file.
+    Execute test routines to test and verify SEAWATER Library routines for your
+    platform. Prints output to file.
 
     Notes
     ------
-    This is only to reproduce sw_test.m from the original. A better more complete test is performed via doctest.
+    This is only to reproduce sw_test.m from the original. A better more
+    complete test is performed via doctest.
 
-    Modifications: Phil Morgan, Lindsay Pender (Lindsay.Pender@csiro.au)
+    Modifications: Phil Morgan
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    10-01-14. Filipe Fernandes, Python translation.
     """
@@ -2759,12 +2869,11 @@ def test(fileout):
     print >>f, '**********************************************'
     print >>f, '    TEST REPORT    '
     print >>f, ''
-    print >>f, ' SEA WATER LIBRARY '
+    print >>f, ' SEA WATER LIBRARY ', __version__
     print >>f, ''
-    #ver() #TODO get version from somewhere!
     print >>f, ''
     # Show some info about this Python
-    print >>f, 'version:', version
+    print >>f, 'python version:', sys.version
     print >>f, ' on ', uname()[0],uname()[-1], ' computer'
     print >>f, ''
     print >>f,  asctime( localtime() )
@@ -2781,33 +2890,32 @@ def test(fileout):
     print >>f, '*************************************'
 
     # test 1 - data from Unesco 1983 p45
-    T = np.array([[ 0,  0,  0,  0,  0,  0], \
-            [10, 10, 10, 10, 10, 10], \
-            [20, 20, 20, 20, 20, 20], \
-            [30, 30, 30, 30, 30, 30], \
+    T = np.array([[ 0,  0,  0,  0,  0,  0],
+            [10, 10, 10, 10, 10, 10],
+            [20, 20, 20, 20, 20, 20],
+            [30, 30, 30, 30, 30, 30],
             [40, 40, 40, 40, 40, 40]])
 
     T = T / 1.00024
 
-
-    S = np.array([[25, 25, 25, 35, 35, 35], \
-            [25, 25, 25, 35, 35, 35], \
-            [25, 25, 25, 35, 35, 35], \
-            [25, 25, 25, 35, 35, 35], \
+    S = np.array([[25, 25, 25, 35, 35, 35],
+            [25, 25, 25, 35, 35, 35],
+            [25, 25, 25, 35, 35, 35],
+            [25, 25, 25, 35, 35, 35],
             [25, 25, 25, 35, 35, 35]])
 
-    P = np.array([[0, 5000, 10000, 0, 5000, 10000], \
-            [0, 5000, 10000, 0, 5000, 10000], \
-            [0, 5000, 10000, 0, 5000, 10000], \
-            [0, 5000, 10000, 0, 5000, 10000], \
+    P = np.array([[0, 5000, 10000, 0, 5000, 10000],
+            [0, 5000, 10000, 0, 5000, 10000],
+            [0, 5000, 10000, 0, 5000, 10000],
+            [0, 5000, 10000, 0, 5000, 10000],
             [0, 5000, 10000, 0, 5000, 10000]])
 
     Pr = np.array([0, 0, 0, 0, 0, 0])
 
-    UN_ptmp = np.array([[ 0, -0.3061, -0.9667,  0, -0.3856, -1.0974], \
-                    [10,  9.3531,  8.4684, 10,  9.2906,  8.3643], \
-                    [20, 19.0438, 17.9426, 20, 18.9985, 17.8654], \
-                    [30, 28.7512, 27.4353, 30, 28.7231, 27.3851], \
+    UN_ptmp = np.array([[ 0, -0.3061, -0.9667,  0, -0.3856, -1.0974],
+                    [10,  9.3531,  8.4684, 10,  9.2906,  8.3643],
+                    [20, 19.0438, 17.9426, 20, 18.9985, 17.8654],
+                    [30, 28.7512, 27.4353, 30, 28.7231, 27.3851],
                     [40, 38.4607, 36.9254, 40, 38.4498, 36.9023]])
 
     PT = ptmp(S, T, P, Pr)*1.00024
@@ -2823,7 +2931,8 @@ def test(fileout):
     for icol in range(0, n):
         print >>f, '   Sal  Temp  Press     PTMP       ptmp'
         print >>f, '  (psu)  (C)   (db)     (C)          (C)'
-        result = np.vstack( ( S[:,icol], T[:,icol], P[:,icol], UN_ptmp[:,icol], PT[:,icol] ) )
+        result = np.vstack( ( S[:,icol], T[:,icol], P[:,icol],
+        UN_ptmp[:,icol], PT[:,icol] ) )
         for iline in range(0, m):
             print >>f, " %4.0f  %4.0f   %5.0f   %8.4f  %11.5f" % tuple(result[:,iline])
 
@@ -2843,7 +2952,7 @@ def test(fileout):
     p = np.array([0, 10000,  0, 10000,  0, 10000,  0, 10000])
     t = np.array([0,     0, 30,    30,  0,     0, 30,    30]) / 1.00024
 
-    UN_svan = np.array([2749.54, 2288.61, 3170.58, 3147.85, \
+    UN_svan = np.array([2749.54, 2288.61, 3170.58, 3147.85,
                         0.0,    0.00,  607.14,  916.34])
 
     SVAN    = svan(s, t, p)
@@ -2873,7 +2982,7 @@ def test(fileout):
     R    = np.array([  1,       1.2,       0.65]) # cndr = R
     T    = np.array([ 15,        20,          5]) / 1.00024
     P    = np.array([  0,      2000,       1500])
-    #Rt   = np.array([  1, 1.0568875, 0.81705885]) #TODO: unused in the code, but present in the original
+    #Rt   = np.array([  1, 1.0568875, 0.81705885])
     UN_S = np.array([35, 37.245628,  27.995347])
 
     S    = salt(R, T, P)
@@ -2901,9 +3010,9 @@ def test(fileout):
     print >>f, '*************************************'
 
     # test 1 - data from Unesco 1983 p9
-    T    = np.array([  0, 10,    0,   10, 10, 30]) / 1.00024
-    P    = np.array([        0,        0,     1000,     1000,        0,       0])
-    S    = np.array([       25,       25,       25,       25,       40,       40])
+    T    = np.array([  0, 10, 0, 10, 10, 30]) / 1.00024
+    P    = np.array([  0,  0, 1000, 1000, 0, 0])
+    S    = np.array([ 25, 25, 25, 25, 40, 40])
     UN_R = np.array([ 0.498088, 0.654990, 0.506244, 0.662975, 1.000073, 1.529967])
     R    = cndr(S, T, P)
 
@@ -2930,12 +3039,12 @@ def test(fileout):
 
     # test DATA - matrix "pressure", vector "lat"  Unesco 1983 data p30.
     lat = np.array([0, 30, 45, 90])
-    P   = np.array([[  500,   500,   500,  500], \
-                 [ 5000,  5000,  5000, 5000], \
+    P   = np.array([[  500,   500,   500,  500],
+                 [ 5000,  5000,  5000, 5000],
                  [10000, 10000, 10000, 10000]])
 
-    UN_dpth = np.array([[  496.65,  496.00,  495.34,  494.03], \
-                    [ 4915.04, 4908.56, 4902.08, 4889.13], \
+    UN_dpth = np.array([[  496.65,  496.00,  495.34,  494.03],
+                    [ 4915.04, 4908.56, 4902.08, 4889.13],
                     [ 9725.47, 9712.65, 9699.84, 9674.23]])
 
     dpth = depth(P, lat)
@@ -2971,7 +3080,7 @@ def test(fileout):
                     [500, 500, 500, 500, 500, 500, 500, 500] ])
 
 
-    UN_fp = np.array([ [-0.274, -0.542, -0.812, -1.083, -1.358, -1.638, -1.922, -2.212],
+    UN_fp = np.array([[-0.274, -0.542, -0.812, -1.083, -1.358, -1.638, -1.922, -2.212],
                     [-0.650, -0.919, -1.188, -1.460, -1.735, -2.014, -2.299, -2.589] ])
 
     FP    = fp(S, P)
@@ -3039,7 +3148,8 @@ def test(fileout):
         print >>f, ''
         print >>f, '   Sal  Temp  Press      Cp        cp'
         print >>f, '  (psu)  (C)   (db)    (J/kg.C)   (J/kg.C)'
-        result = np.vstack( [ S[:,icol], T[:,icol], P[:,icol], UN_cp[:,icol], CP[:,icol] ] )
+        result = np.vstack( [ S[:,icol], T[:,icol], P[:,icol],
+                            UN_cp[:,icol], CP[:,icol] ] )
         for iline in range(0, m):
             print >>f, " %4.0f  %4.0f   %5.0f   %8.1f  %11.2f" % tuple(result[:,iline])
 
@@ -3177,18 +3287,19 @@ def test(fileout):
 
     # DISPLAY RESULTS
     print >>f, ''
-    print >>f, '********************************************************'
+    print >>f, '************************************************************'
     print >>f, 'Comparison of accepted values from Weiss, R.F. 1979 '
-    print >>f, '"The solubility of nitrogen, oxygen and argon in water and seawater."'
-    print >>f, ' Deep-Sea Research., 1970, Vol 17, pp721-735.'
-    print >>f, '********************************************************'
+    print >>f, '"The solubility of nitrogen, oxygen and argon in water'
+    print >>f, ' and seawater." Deep-Sea Research., 1970, Vol 17, pp721-735.'
+    print >>f, '************************************************************'
 
     m,n = S.shape
     for icol in range(0, n):
         print >>f, ''
         print >>f, '   Sal  Temp      O2         satO2'
         print >>f, '  (psu)  (C)      (ml/l)     (ml/l)'
-        result = np.vstack( [ S[:,icol], T[:,icol], lit_O2[:,icol], O2[:,icol] ] )
+        result = np.vstack( [ S[:,icol], T[:,icol],
+                            lit_O2[:,icol], O2[:,icol] ] )
         for iline in range(0, m):
             print >>f, " %4.0f  %4.0f    %8.2f   %9.3f" % tuple(result[:,iline])
 
@@ -3196,7 +3307,8 @@ def test(fileout):
         print >>f, ''
         print >>f, '   Sal  Temp      N2         satN2'
         print >>f, '  (psu)  (C)      (ml/l)     (ml/l)'
-        result = np.vstack( [ S[:,icol], T[:,icol],  lit_N2[:,icol], N2[:,icol] ] )
+        result = np.vstack( [ S[:,icol], T[:,icol],
+                            lit_N2[:,icol], N2[:,icol] ] )
         for iline in range(0, m):
             print >>f, " %4.0f  %4.0f    %8.2f  %9.3f" % tuple(result[:,iline])
 
@@ -3204,6 +3316,7 @@ def test(fileout):
         print >>f, ''
         print >>f, '   Sal  Temp      Ar         satAr'
         print >>f, '  (psu)  (C)      (ml/l)     (ml/l)'
-        result = np.vstack( [ S[:,icol], T[:,icol], lit_Ar[:,icol], Ar[:,icol] ] )
+        result = np.vstack( [ S[:,icol], T[:,icol],
+                              lit_Ar[:,icol], Ar[:,icol] ] )
         for iline in range(0, m):
             print >>f, " %4.0f  %4.0f     %8.4f  %9.4f" % tuple(result[:,iline])
