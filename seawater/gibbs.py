@@ -491,7 +491,7 @@ def _gibbs(ns, nt, npr, SA, t, p):
 
             g08[ipos] = g08[ipos] + 1702.453469893412 * np.log( x[ipos] )
             gibbs = 0.5 * cte.sfac * 0.025 * g08
-            mask[inpos] = True
+            #mask[inpos] = True FIXME: commented by FF, g110 without nan didn't pass
         else:
             all_masked = True
 
@@ -1161,7 +1161,7 @@ def _delta_SA(p, lon, lat):
     way of calculating Absolute Salinity in the Baltic Sea is by calling
     SA_from_SP.
 
-    The in_ocean flag is only set when the observation is well and truly on dry
+    The mask is only set when the observation is well and truly on dry
     land; often the warning flag is not set until one is several hundred
     kilometers inland from the coast.
 
@@ -4206,7 +4206,7 @@ def SA_from_Sstar(Sstar, p, lon, lat):
 
     Notes
     -----
-    The in_ocean flag is only set when the observation is well and truly on dry
+    The mask is only set when the observation is well and truly on dry
     land; often the warning flag is not set until one is several hundred
     kilometers inland from the coast.
 
@@ -4270,7 +4270,7 @@ def SP_from_SA(SA, p, lon, lat):
 
     Notes
     -----
-    The in_ocean flag is only set when the observation is well and truly on dry
+    The mask is only set when the observation is well and truly on dry
     land; often the warning flag is not set until one is several hundred
     kilometers inland from the coast.
 
@@ -4337,7 +4337,7 @@ def Sstar_from_SA(SA, p, lon, lat):
 
     Notes
     -----
-    The in_ocean flag is only set when the observation is well and truly on dry
+    The mask is only set when the observation is well and truly on dry
     land; often the warning flag is not set until one is several hundred
     kilometers inland from the coast.
 
@@ -4401,7 +4401,7 @@ def SP_from_Sstar(Sstar, p, lon, lat):
 
     Notes
     -----
-    The in_ocean flag is only set when the observation is well and truly on dry
+    The mask is only set when the observation is well and truly on dry
     land; often the warning flag is not set until one is several hundred
     kilometers inland from the coast.
 
@@ -4439,7 +4439,7 @@ def SP_from_Sstar(Sstar, p, lon, lat):
     if SA_baltic is not None:
         SP[indsbaltic] = SP_baltic[indsbaltic]
 
-    return SP, in_ocean
+    return SP
 
 @match_args_return
 def Sstar_from_SP(SP, p, lon, lat):
@@ -4468,7 +4468,7 @@ def Sstar_from_SP(SP, p, lon, lat):
 
     Notes
     -----
-    The in_ocean flag is only set when the observation is well and truly on dry
+    The mask is only set when the observation is well and truly on dry
     land; often the warning flag is not set until one is several hundred
     kilometers inland from the coast.
 
@@ -4492,7 +4492,7 @@ def Sstar_from_SP(SP, p, lon, lat):
     Intergovernmental Oceanographic Commission, Manuals and Guides No. 56,
     UNESCO (English), 196 pp. See section 2.5 and appendices A.4 and A.5.
 
-    ,, [2] McDougall, T.J., D.R. Jackett and F.J. Millero, 2010: An algorithm
+    .. [2] McDougall, T.J., D.R. Jackett and F.J. Millero, 2010: An algorithm
     for estimating Absolute Salinity in the global ocean. Submitted to Ocean
     Science. A preliminary version is available at Ocean Sci. Discuss.,
     6, 215-242.
@@ -4547,7 +4547,7 @@ def SA_Sstar_from_SP(SP, p, lon, lat):
 
     Notes
     -----
-    The in_ocean flag is only set when the observation is well and truly on dry
+    The mask is only set when the observation is well and truly on dry
     land; often the warning flag is not set until one is several hundred
     kilometers inland from the coast.
 
