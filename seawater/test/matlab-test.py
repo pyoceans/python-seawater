@@ -80,29 +80,34 @@ SA_SA_Sstar_from_SP, Sstar_SA_Sstar_from_SP = gsw.SA_Sstar_from_SP(SP_chck_cast,
 test_print("SA_SA_Sstar_from_SP")
 test_print("Sstar_SA_Sstar_from_SP")
 
-#FIXME: fails with nans, passes without
-#FIXME: match_args_return ?
 """ Conservative Temperature (CT) """
+SA_shaped = np.reshape( SA_chck_cast, gsw_cv.z_from_p.shape ) #FIXME: won't be need once _delta_SA is fixed
 #CT_chck_cast = gsw.conservative_t(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
-#test_print("CT_chck_cast", "CT_from_t")
+CT_chck_cast = gsw.conservative_t(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+test_print("CT_chck_cast", "CT_from_t")
 
 """ other conversions between temperatures, salinities, pressure and height """
 #t_from_CT =  gsw.t_from_CT(SA_chck_cast, CT_chck_cast, gsw_cv.p_chck_cast)
-#test_print("t_from_CT", "t_chck_cast") #NOTE: diffs are also found in the original
+t_from_CT =  gsw.t_from_CT(SA_shaped, CT_chck_cast, gsw_cv.p_chck_cast)
+test_print("t_from_CT", "t_chck_cast") #NOTE: diffs are also found in the original
 
 #pt = gsw.potential_t(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast,gsw_cv.pr)
+pt = gsw.potential_t(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast,gsw_cv.pr)
 #test_print("pt", "pt_from_t")
 
 #CT_from_pt = gsw.CT_from_pt(SA_chck_cast, pt)
+CT_from_pt = gsw.CT_from_pt(SA_shaped, pt)
 #test_print("CT_from_pt") #NOTE: diffs are also found in the original
 
 #pot_enthalpy = gsw.pot_enthalpy_from_pt(SA_chck_cast, pt)
 #test_print("pot_enthalpy")
 
 #pt0 = gsw.pt0_from_t(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+pt0 = gsw.pt0_from_t(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 #test_print("pt0")
 
 #pt_from_CT = gsw.pt_from_CT(SA_chck_cast,CT_chck_cast)
+pt_from_CT = gsw.pt_from_CT(SA_shaped, CT_chck_cast)
 #test_print("pt_from_CT", "pt")
 
 """ More on salinity """
@@ -220,76 +225,98 @@ test_print("t90_from_t48")
 #test_print("ntpptCT_CT25")
 
 """ basic thermodynamic properties """
-SA_chck_cast = np.reshape( SA_chck_cast, gsw_cv.z_from_p.shape ) #FIXME: won't be need once _delta_SA is fixed
 gsw_cv.p_chck_cast = np.reshape( gsw_cv.p_chck_cast, gsw_cv.z_from_p.shape )
 
-rho = gsw.rho(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+#rho = gsw.rho(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+rho = gsw.rho(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 test_print("rho")
 
-pot_rho = gsw.pot_rho(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast, gsw_cv.pr)
+#pot_rho = gsw.pot_rho(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast, gsw_cv.pr)
+pot_rho = gsw.pot_rho(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast, gsw_cv.pr)
 test_print("pot_rho")
 
-specvol = gsw.specvol(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+#specvol = gsw.specvol(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+specvol = gsw.specvol(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 test_print("specvol")
 
-specvol_anom = gsw.specvol_anom(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+#specvol_anom = gsw.specvol_anom(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+specvol_anom = gsw.specvol_anom(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 test_print("specvol_anom")
 
-alpha_wrt_CT = gsw.alpha_wrt_CT(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+#alpha_wrt_CT = gsw.alpha_wrt_CT(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+alpha_wrt_CT = gsw.alpha_wrt_CT(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 test_print("alpha_wrt_CT")
 
-alpha_wrt_pt = gsw.alpha_wrt_pt(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+#alpha_wrt_pt = gsw.alpha_wrt_pt(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+alpha_wrt_pt = gsw.alpha_wrt_pt(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 test_print("alpha_wrt_pt")
 
-alpha_wrt_t = gsw.alpha_wrt_t(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+#alpha_wrt_t = gsw.alpha_wrt_t(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+alpha_wrt_t = gsw.alpha_wrt_t(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 test_print("alpha_wrt_t")
 
-beta_const_CT = gsw.beta_const_CT(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+#beta_const_CT = gsw.beta_const_CT(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+beta_const_CT = gsw.beta_const_CT(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 test_print("beta_const_CT")
 
-beta_const_pt = gsw.beta_const_pt(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+#beta_const_pt = gsw.beta_const_pt(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+beta_const_pt = gsw.beta_const_pt(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 test_print("beta_const_pt")
 
-beta_const_t = gsw.beta_const_t(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+#beta_const_t = gsw.beta_const_t(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+beta_const_t = gsw.beta_const_t(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 test_print("beta_const_t")
 
-entropy = gsw.entropy(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+#entropy = gsw.entropy(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+entropy = gsw.entropy(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 test_print("entropy")
 
-internal_energy = gsw.internal_energy(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+#internal_energy = gsw.internal_energy(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+internal_energy = gsw.internal_energy(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 test_print("internal_energy")
 
-enthalpy = gsw.enthalpy(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+#enthalpy = gsw.enthalpy(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+enthalpy = gsw.enthalpy(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 test_print("enthalpy")
 
-cp = gsw.cp(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+#cp = gsw.cp(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+cp = gsw.cp(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 test_print("cp")
 
-isochoric_heat_cap = gsw.isochoric_heat_cap(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+#isochoric_heat_cap = gsw.isochoric_heat_cap(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+isochoric_heat_cap = gsw.isochoric_heat_cap(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 test_print("isochoric_heat_cap")
 
-chem_potential =  gsw.chem_potential_relative(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+#chem_potential = gsw.chem_potential_relative(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+chem_potential = gsw.chem_potential_relative(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 test_print("chem_potential")
 
-chem_potential_water =  gsw.chem_potential_water(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+#chem_potential_water = gsw.chem_potential_water(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+chem_potential_water = gsw.chem_potential_water(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 test_print("chem_potential_water")
 
-chem_potential_salt =  gsw.chem_potential_salt(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+#chem_potential_salt = gsw.chem_potential_salt(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+chem_potential_salt = gsw.chem_potential_salt(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 test_print("chem_potential_salt")
 
-Helmholtz_energy = gsw.helmholtz_energy(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+#Helmholtz_energy = gsw.helmholtz_energy(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+Helmholtz_energy = gsw.helmholtz_energy(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 test_print("Helmholtz_energy")
 
-sound_speed = gsw.sound_speed(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+#sound_speed = gsw.sound_speed(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+sound_speed = gsw.sound_speed(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 test_print("sound_speed")
 
-kappa = gsw.kappa(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+#kappa = gsw.kappa(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+kappa = gsw.kappa(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 test_print("kappa")
 
-kappa_const_t = gsw.kappa_const_t(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+#kappa_const_t = gsw.kappa_const_t(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+kappa_const_t = gsw.kappa_const_t(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 test_print("kappa_const_t")
 
-adiabatic_lapse_rate = gsw.adiabatic_lapse_rate(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+#adiabatic_lapse_rate = gsw.adiabatic_lapse_rate(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+adiabatic_lapse_rate = gsw.adiabatic_lapse_rate(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 test_print("adiabatic_lapse_rate")
 
 molality = gsw.molality(SA_chck_cast)
@@ -298,7 +325,8 @@ test_print("molality")
 ionic_strength = gsw.ionic_strength(SA_chck_cast)
 test_print("ionic_strength")
 
-osmotic_coefficient = gsw.osmotic_coefficient(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+#osmotic_coefficient = gsw.osmotic_coefficient(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
+osmotic_coefficient = gsw.osmotic_coefficient(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 test_print("osmotic_coefficient")
 
 #t_maxden, pt_maxden, CT_maxden = gsw.temps_maxdensity(SA_chck_cast, gsw_cv.p_chck_cast)
@@ -350,10 +378,12 @@ test_print("osmotic_coefficient")
 #entropy_from_CT =  gsw.entropy_from_t(SA_chck_cast, CT_chck_cast, t_type='CT')
 #test_print("entropy_from_CT")
 
-CT_from_entropy =  gsw.t_from_entropy(SA_chck_cast, entropy, t_type='CT')
+#CT_from_entropy =  gsw.t_from_entropy(SA_chck_cast, entropy, t_type='CT')
+CT_from_entropy =  gsw.t_from_entropy(SA_shaped, entropy, t_type='CT')
 test_print("CT_from_entropy") #FIXME: diffs are not found in the original
 
-pt_from_entropy =  gsw.t_from_entropy(SA_chck_cast, entropy, t_type='pt')
+#pt_from_entropy =  gsw.t_from_entropy(SA_chck_cast, entropy, t_type='pt')
+pt_from_entropy =  gsw.t_from_entropy(SA_shaped, entropy, t_type='pt')
 test_print("pt_from_entropy") #FIXME: diffs are not found in the original
 
 """ derivatives of enthalpy,  entropy,  CT and pt """
