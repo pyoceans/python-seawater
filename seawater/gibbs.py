@@ -1014,28 +1014,30 @@ def _SP_from_SA_Baltic(SA, lon, lat):
     2010-07-23. David Jackett, Trevor McDougall & Paul Barker
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
-
-    SA, lon, lat = np.asanyarray(SA), np.asanyarray(lon), np.asanyarray(lat)
+    SA, lon, lat = map(np.ma.masked_invalid, (SA, lon, lat))
     lon, lat = _check_dim(lon, SA), _check_dim(lat, SA)
 
     xb1, xb2, xb3 = 12.6, 7., 26.
     xb1a, xb3a = 45., 26.
     yb1, yb2, yb3 = 50., 59., 69.
 
-    inds = (xb2 < lon) & (lon < xb1a) & (yb1 < lat) & (lat < yb3)
+    inds_baltic = (xb2 < lon) & (lon < xb1a) & (yb1 < lat) & (lat < yb3)
+    if not inds_baltic.sum():
+        return None
 
-    SP_baltic = np.ones( SA.shape )*np.nan
+    SP_baltic = np.ma.masked_all(SA.shape, dtype=np.float)
 
-    if np.any(inds):
-        xx_left = np.interp( lat[inds], [yb1,yb2,yb3], [xb1,xb2,xb3])
-        xx_right = np.interp( lat[inds], [yb1,yb3], [xb1a,xb3a] )
-        inds1 = (xx_left <= lon[inds]) & (lon[inds] <= xx_right)
+    xx_left = np.interp( lat[inds_baltic], [yb1,yb2,yb3], [xb1,xb2,xb3])
+    xx_right = np.interp( lat[inds_baltic], [yb1,yb3], [xb1a,xb3a] )
 
-        if np.any(inds1):
-            SP_baltic[inds[inds1]] = ( ( 35 / ( cte.SSO - 0.087 ) ) *
-            ( SA[inds[inds1]] - 0.087) )
+    inds_baltic1 = (   (xx_left <= lon[inds_baltic])
+                     & (lon[inds_baltic] <= xx_right))
 
-        SP_baltic = np.reshape( SP_baltic, lon.shape )
+    if not inds_baltic1.sum():
+        return None
+
+    SP_baltic[inds_baltic[inds_baltic1]] = ( ( 35 / ( cte.SSO - 0.087 ) )
+                             * ( SA[inds_baltic[inds_baltic1]] - 0.087) )
 
     return SP_baltic
 
@@ -1171,8 +1173,6 @@ def _delta_SA(p, lon, lat):
     >>> gsw._delta_SA(p, lon, lat)
     (array([ 0.00016779,  0.00026868,  0.00066554,  0.0026943 ,  0.00562666,
             0.00939665]), array([ True,  True,  True,  True,  True,  True], dtype=bool))
-    >>> gsw._delta_SA(p, -80, 45)[1]
-    array([ True,  True,  True,  True,  True,  True], dtype=bool)
 
     References
     ----------
@@ -4305,7 +4305,7 @@ def SP_from_SA(SA, p, lon, lat):
 
     SP_baltic = _SP_from_SA_Baltic( SA, lon, lat )
 
-    if SA_baltic is not None:
+    if SP_baltic is not None:
         SP[~SP_baltic.mask] = SP_baltic[~SP_baltic.mask]
 
     return SP
@@ -4507,7 +4507,7 @@ def Sstar_from_SP(SP, p, lon, lat):
 
     SP[SP < 0] = 0
 
-    dSA, in_ocean = _delta_SA( p, lon, lat )
+    dSA = _delta_SA( p, lon, lat )
     Sstar = (cte.SSO/35.) * SP - cte.r1 * dSA
 
     # In the Baltic Sea, SA == Sstar.
@@ -4881,74 +4881,43 @@ if __name__=='__main__':
     r"""
     This test only the Gibbs class
     """
-    def test_print(STP, func, comp=None):
+    from seawater.gibbs import Gibbs
+    SA = [34.5075, 34.7165, 34.8083, 34.8465, 34.8636, 34.8707, 34.8702]
+    t  = [27.9620, 4.4726, 2.1178, 1.6031, 1.4601, 1.4753, 1.5998]
+    p  = [0., 1010., 2025., 3045., 4069., 5098., 6131.]
+    STP = Gibbs(SA, t, p)
+    def ptest(method):
         """
-        Run a function test mimicking the original logic. This is done to allow
-        for a direct comparison of the result from the Matlab to the python
-        package.
+        just print out method result, not a real test.
         """
+        exec( "res = STP."+method+"()" )
+        print "Testing %s:\n %s" % (method, res)
 
-        if comp is None:
-            comp = func
-
-        # test floating differences: computed - check value >= defined precision
-        exec("uneq=(gsw_cv."+comp+"-STP."+func+"())>=gsw_cv."+comp+"_ca")
-
-        width = 23
-        if uneq.any():
-            print "%s: Failed" % func.rjust(width)
-        else:
-            # test if check value is identical to computed value
-            if eval("(gsw_cv."+comp+"[~np.isnan(gsw_cv."+comp+")]==STP."+func+
-            "()[~np.isnan(STP."+func+"())] ).all()" ):
-                print "%s: Passed" % func.rjust(width)
-            else:
-                # test for differences in case their aren't equal. This is an
-                # attempt to place all tests together (i.e. term25 and small
-                # float differences that will appear)
-                exec("nmax = (gsw_cv."+comp+" - STP."+func+
-                     "() )[~np.isnan(gsw_cv."+comp+")].max()")
-                exec("nmin = (gsw_cv."+comp+" - STP."+func+
-                     "() )[~np.isnan(gsw_cv."+comp+")].min()")
-                print( "%s: Passed, but small diff ranging from: %s to %s" %
-                                            ( func.rjust(width), nmax, nmin) )
-
-    """ test data: data/gsw_cv.pkl
-    (1) a reference cast (for the McD_Klocker streamfunction)
-    (2) three vertical profiles of (SP, t, p) at known long & lat
-    (3) the outputs of all the GSW functions for these 3 profiles
-    (4) the required accuracy of all these outputs.
-    """
-
-    gsw_cv = read_data("gsw_cv.npz")
-
-    STP = Gibbs(gsw_cv.SA_from_SP, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
-
-    test_print(STP, "entropy")
-    test_print(STP, "rho")
-    test_print(STP, "cp")
-    test_print(STP, "helmholtz_energy", "Helmholtz_energy")
-    test_print(STP, "internal_energy")
-    test_print(STP, "sound_speed")
-    test_print(STP, "adiabatic_lapse_rate")
-    test_print(STP, "chem_potential_relative", "chem_potential")
-    test_print(STP, "specvol")
-    test_print(STP, "molality")
-    test_print(STP, "ionic_strength")
-    test_print(STP, "potential_t", "pt_from_t")
-    test_print(STP, "conservative_t", "CT_from_t")
-    test_print(STP, "enthalpy")
-    test_print(STP, "alpha_wrt_t")
-    test_print(STP, "alpha_wrt_CT")
-    test_print(STP, "alpha_wrt_pt")
-    test_print(STP, "beta_const_t")
-    test_print(STP, "beta_const_CT")
-    test_print(STP, "beta_const_pt")
-    test_print(STP, "chem_potential_water")
-    test_print(STP, "chem_potential_salt")
-    test_print(STP, "isochoric_heat_cap")
-    test_print(STP, "kappa")
-    test_print(STP, "kappa_const_t")
-    test_print(STP, "osmotic_coefficient")
-    test_print(STP, "pot_rho")
-    test_print(STP, "specvol_anom")
+    ptest("entropy")
+    ptest("rho")
+    ptest("cp")
+    ptest("helmholtz_energy")
+    ptest("internal_energy")
+    ptest("sound_speed")
+    ptest("adiabatic_lapse_rate")
+    ptest("chem_potential_relative")
+    ptest("specvol")
+    ptest("molality")
+    ptest("ionic_strength")
+    ptest("potential_t")
+    ptest("conservative_t")
+    ptest("enthalpy")
+    ptest("alpha_wrt_t")
+    ptest("alpha_wrt_CT")
+    ptest("alpha_wrt_pt")
+    ptest("beta_const_t")
+    ptest("beta_const_CT")
+    ptest("beta_const_pt")
+    ptest("chem_potential_water")
+    ptest("chem_potential_salt")
+    ptest("isochoric_heat_cap")
+    ptest("kappa")
+    ptest("kappa_const_t")
+    ptest("osmotic_coefficient")
+    ptest("pot_rho")
+    ptest("specvol_anom")
