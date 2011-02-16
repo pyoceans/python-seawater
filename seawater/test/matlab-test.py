@@ -100,7 +100,8 @@ CT_from_pt = gsw.CT_from_pt(SA_shaped, pt)
 #test_print("CT_from_pt") #NOTE: diffs are also found in the original
 
 #pot_enthalpy = gsw.pot_enthalpy_from_pt(SA_chck_cast, pt)
-#test_print("pot_enthalpy")
+pot_enthalpy = gsw.pot_enthalpy_from_pt(SA_shaped, pt)
+test_print("pot_enthalpy") #NOTE: diffs are also found in the original
 
 #pt0 = gsw.pt0_from_t(SA_chck_cast, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
 pt0 = gsw.pt0_from_t(SA_shaped, gsw_cv.t_chck_cast, gsw_cv.p_chck_cast)
