@@ -3339,6 +3339,62 @@ def CT_from_pt(SA, pt): #NOTE: used in conservative_t(SA, t, p)
 
     SA, pt, mask = strip_mask(SA, pt)
 
+    pot_enthalpy =  pot_enthalpy_from_pt(SA, pt)
+
+    CT = pot_enthalpy / cte.cp0
+
+    return np.ma.array(CT, mask=mask, copy=False)
+
+@match_args_return
+def pot_enthalpy_from_pt(SA, pt):
+    r"""
+    Calculates the potential enthalpy of seawater from potential temperature
+    (whose reference sea pressure is zero dbar).
+
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+    pt : array_like
+         potential temperature referenced to a sea pressure of zero dbar
+         [:math:`^\circ` C (ITS-90)]
+
+    Returns
+    -------
+    pot_enthalpy : array_like
+                   potential enthalpy [J kg :sup:`-1`]
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    TODO
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> pt = [28.7832, 28.4209, 22.7850, 10.2305, 6.8292, 4.3245]
+    >>> gsw.pot_enthalpy(SA, pt)
+    array([ 28.80992302,  28.43914426,  22.78624661,  10.22616561,
+             6.82718342,   4.32356518])
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation
+    of seawater - 2010: Calculation and use of thermodynamic properties.
+    Intergovernmental Oceanographic Commission, Manuals and Guides No. 56,
+    UNESCO (English), 196 pp. See section 3.2.
+
+    Modifications:
+    2010-08-26. David Jackett, Trevor McDougall and Paul Barker
+    2011-02-16. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    SA, pt, mask = strip_mask(SA, pt)
+
     x2 = cte.sfac * SA
     x = np.ma.sqrt(x2)
     y = pt * 0.025 # normalize for F03 and F08
@@ -3380,9 +3436,7 @@ def CT_from_pt(SA, pt): #NOTE: used in conservative_t(SA, t, p)
     #1000 loops, best of 3: 254 us per loop <- standard
     """
 
-    CT = pot_enthalpy / cte.cp0
-
-    return np.ma.array(CT, mask=mask, copy=False)
+    return np.ma.array(pot_enthalpy, mask=mask, copy=False)
 
 @match_args_return
 def pt_from_CT(SA, CT):
