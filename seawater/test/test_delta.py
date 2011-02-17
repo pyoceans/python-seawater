@@ -8,7 +8,7 @@
 
 import unittest
 import numpy as np
-import seawater.gibbs as gsw
+import seawater.library as gsw
 
 class Test_delta_SA(unittest.TestCase):
     """Test the interface to the SA_from_SP function"""
