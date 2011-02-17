@@ -3479,48 +3479,49 @@ class Gibbs:
         """
         return ionic_strength(self.SA)
 
-
 if __name__=='__main__':
-    r"""
-    This test only the Gibbs class
-    """
-    from seawater.gibbs import Gibbs
-    SA = [34.5075, 34.7165, 34.8083, 34.8465, 34.8636, 34.8707, 34.8702]
-    t  = [27.9620, 4.4726, 2.1178, 1.6031, 1.4601, 1.4753, 1.5998]
-    p  = [0., 1010., 2025., 3045., 4069., 5098., 6131.]
-    STP = Gibbs(SA, t, p)
-    def ptest(method):
-        """
-        just print out method result, not a real test.
-        """
-        exec( "res = STP."+method+"()" )
-        print "Testing %s:\n %s" % (method, res)
+    import doctest
+    doctest.testmod()
+    #r"""
+    #This test only the Gibbs class
+    #"""
+    #from seawater.gibbs import Gibbs
+    #SA = [34.5075, 34.7165, 34.8083, 34.8465, 34.8636, 34.8707, 34.8702]
+    #t  = [27.9620, 4.4726, 2.1178, 1.6031, 1.4601, 1.4753, 1.5998]
+    #p  = [0., 1010., 2025., 3045., 4069., 5098., 6131.]
+    #STP = Gibbs(SA, t, p)
+    #def ptest(method):
+        #"""
+        #just print out method result, not a real test.
+        #"""
+        #exec( "res = STP."+method+"()" )
+        #print "Testing %s:\n %s" % (method, res)
 
-    ptest("entropy")
-    ptest("rho")
-    ptest("cp")
-    ptest("helmholtz_energy")
-    ptest("internal_energy")
-    ptest("sound_speed")
-    ptest("adiabatic_lapse_rate")
-    ptest("chem_potential_relative")
-    ptest("specvol")
-    ptest("molality")
-    ptest("ionic_strength")
-    ptest("potential_t")
-    ptest("conservative_t")
-    ptest("enthalpy")
-    ptest("alpha_wrt_t")
-    ptest("alpha_wrt_CT")
-    ptest("alpha_wrt_pt")
-    ptest("beta_const_t")
-    ptest("beta_const_CT")
-    ptest("beta_const_pt")
-    ptest("chem_potential_water")
-    ptest("chem_potential_salt")
-    ptest("isochoric_heat_cap")
-    ptest("kappa")
-    ptest("kappa_const_t")
-    ptest("osmotic_coefficient")
-    ptest("pot_rho")
-    ptest("specvol_anom")
+    #ptest("entropy")
+    #ptest("rho")
+    #ptest("cp")
+    #ptest("helmholtz_energy")
+    #ptest("internal_energy")
+    #ptest("sound_speed")
+    #ptest("adiabatic_lapse_rate")
+    #ptest("chem_potential_relative")
+    #ptest("specvol")
+    #ptest("molality")
+    #ptest("ionic_strength")
+    #ptest("potential_t")
+    #ptest("conservative_t")
+    #ptest("enthalpy")
+    #ptest("alpha_wrt_t")
+    #ptest("alpha_wrt_CT")
+    #ptest("alpha_wrt_pt")
+    #ptest("beta_const_t")
+    #ptest("beta_const_CT")
+    #ptest("beta_const_pt")
+    #ptest("chem_potential_water")
+    #ptest("chem_potential_salt")
+    #ptest("isochoric_heat_cap")
+    #ptest("kappa")
+    #ptest("kappa_const_t")
+    #ptest("osmotic_coefficient")
+    #ptest("pot_rho")
+    #ptest("specvol_anom")
