@@ -1,5 +1,5 @@
 Bjørn Ådlandsvik - Testing unit and several bug fixes
-Eric Firing - for the support on this project
+Eric Firing - Support for masked arrays
 Trevor J. McDougall (and all of SCOR/IAPSO WG127) for making available the Matlab and Fortran versions
 
 
