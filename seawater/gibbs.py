@@ -77,40 +77,6 @@ def read_data(fname):
     d = np.load(os.path.join(datadir, fname))
     return Dict2Struc(d)
 
-def _check_dim(prop1, prop2):
-    r"""
-    Broadcast prop1 to the shape of prop2.
-    Prop1 can be scalar, row equal or column equal to prop2.
-    """
-    ## (I suspect this is basically a Matlab-ism that we will
-    ##  do well to dump.)
-    ## Not sure this is exactly what we want; we can think about
-    ## that later.  It may be that built-in broadcasting is all
-    ## we need, or that in some cases we may want to use a slight
-    ## modification of np.broadcast_arrays to support masked arrays.
-
-    # Comic book guy would say: "Worst function ever!"
-    if prop1.ndim == 1:
-        prop1 = prop1.flatten()
-
-    if (prop1.ndim == 1) & (prop1.size == 1):
-        prop1 = prop1 * np.ones( prop2.shape )
-    elif (prop1.ndim == 1) & (prop2.ndim != 1):
-        if prop1.size == prop2.shape[1]:
-            prop1 = prop1 * np.ones(prop2.shape)
-        elif prop1.size == prop2.shape[0]:
-            prop1 = prop1[:,np.newaxis] * np.ones(prop2.shape)
-        else:
-            raise NameError('Blahrg')
-
-    if prop1.ndim == 0:
-        prop1 = prop1 * np.ones(prop2.shape)
-
-    return prop1
-
-
-
-
 """
 Section A: Library functions
 """
@@ -986,11 +952,14 @@ def _SP_from_SA_Baltic(SA, lon, lat):
     --------
     >>> import seawater.gibbs as gsw
     >>> SA = [6.6699, 6.7738, 6.9130, 7.3661, 7.5862, 10.3895]
-    >>> lon = 20
+    >>> lon, lat = 20, 59
     >>> lat = 59
     >>> gsw._SP_from_SA_Baltic(SA, lon, lat)
-    array([  6.56825467,   6.67192352,   6.81081383,   7.2629058 ,
-             7.48251613,  10.27957947])
+    masked_array(data = [6.56825466873 6.67192351682 6.8108138311 7.26290579519 7.4825161269
+     10.2795794748],
+                 mask = [False False False False False False],
+           fill_value = 1e+20)
+    <BLANKLINE>
 
     References
     ----------
@@ -1015,7 +984,7 @@ def _SP_from_SA_Baltic(SA, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
     SA, lon, lat = map(np.ma.masked_invalid, (SA, lon, lat))
-    lon, lat = _check_dim(lon, SA), _check_dim(lat, SA)
+    lon, lat, SA = np.broadcast_arrays(lon, lat, SA)
 
     xb1, xb2, xb3 = 12.6, 7., 26.
     xb1a, xb3a = 45., 26.
@@ -1073,11 +1042,13 @@ def _SA_from_SP_Baltic(SP, lon, lat):
     --------
     >>> import seawater.gibbs as gsw
     >>> SP = [6.5683, 6.6719, 6.8108, 7.2629, 7.4825, 10.2796]
-    >>> lon = 20
-    >>> lat = 59
+    >>> lon, lat = 20, 59
     >>> gsw._SA_from_SP_Baltic(SP, lon, lat)
-    array([  6.66994543,   6.77377643,   6.91298614,   7.36609419,
-             7.58618384,  10.38952057])
+    masked_array(data = [6.66994543234 6.77377643074 6.91298613806 7.36609419189 7.58618383714
+     10.389520571],
+                 mask = [False False False False False False],
+           fill_value = 1e+20)
+    <BLANKLINE>
 
     References
     ----------
@@ -1103,7 +1074,7 @@ def _SA_from_SP_Baltic(SP, lon, lat):
     """
 
     SP, lon, lat = map(np.ma.masked_invalid, (SP, lon, lat))
-    lon, lat = _check_dim(lon, SP), _check_dim(lat, SP)
+    lon, lat, SP = np.broadcast_arrays(lon, lat, SP)
 
     xb1, xb2, xb3 = 12.6, 7.0, 26.0
     xb1a, xb3a = 45.0, 26.0
@@ -1171,8 +1142,11 @@ def _delta_SA(p, lon, lat):
     >>> p = [10, 50, 125, 250, 600, 1000]
     >>> lon, lat = 188, 4
     >>> gsw._delta_SA(p, lon, lat)
-    (array([ 0.00016779,  0.00026868,  0.00066554,  0.0026943 ,  0.00562666,
-            0.00939665]), array([ True,  True,  True,  True,  True,  True], dtype=bool))
+    masked_array(data = [0.000167785807437 0.00026867590804 0.000665539507353 0.00269430342286
+     0.00562666390947 0.00939665321653],
+                 mask = [False False False False False False],
+           fill_value = 1e+20)
+    <BLANKLINE>
 
     References
     ----------
@@ -4078,9 +4052,13 @@ def distance(lon, lat, p=0):
 
     Notes
     -----
+    z is height and is negative in the oceanographic.
+
     Distances are probably good to better than 1\% of the "true" distance on the
     ellipsoidal earth.
-    The check value below differ from the original online docs at "http://www.teos-10.org/pubs/gsw/html/gsw_distance.html" but agree with the
+
+    The check value below differ from the original online docs at
+    "http://www.teos-10.org/pubs/gsw/html/gsw_distance.html" but agree with the
     result.
 
     Examples
@@ -4093,6 +4071,10 @@ def distance(lon, lat, p=0):
     >>> p = [200, 1000]
     >>> gsw.distance(lon, lat, p)
     array([[ 10030661.63878009]])
+    >>> p = [[200], [1000]]
+    >>> gsw.distance(lon, lat, p)
+    array([[ 10030661.63878009],
+           [ 10029412.58776001]])
 
     References
     ----------
@@ -4108,30 +4090,18 @@ def distance(lon, lat, p=0):
     # what argument combinations are permitted, and handle everything
     # with broadcasting. - EF
 
+    #FIXME: Eric what do you think? This assume p(stations, depth)
+    lon, lat, = np.atleast_2d(lon), np.atleast_2d(lat)
+
     if (lon.size == 1) & (lat.size == 1):
         raise ValueError('more than one point is needed to compute distance')
     elif lon.ndim != lat.ndim:
         raise ValueError('lon, lat must have the same dimension')
 
-    if (lon.size == 1) & (lat.size != 1): # fill lon with lat size
-        lon = _check_dim(lon, lat)
-    elif (lat.size == 1) & (lon.size != 1): # fill lat with lon size
-        lat = _check_dim(lat, lon)
+    lon, lat, p = np.broadcast_arrays(lon, lat, p)
 
-    if (lon.ndim == 1) & (lat.ndim == 1): #NOTE: Ugly way to "matlabsize it"
-        lon = lon[np.newaxis,:]
-        lat = lat[np.newaxis,:]
-
-    # check for lon/lat and p dimensions
-
-    if p.ndim > lat.ndim:
-        lon = _check_dim(lon, p)
-        lat = _check_dim(lat, p)
-    elif p.ndim == 1:
-        p = _check_dim(p, lon)
-
-    dlon = np.deg2rad( np.diff(lon, axis=1) )
-    dlat = np.deg2rad( np.diff(lat, axis=1) )
+    dlon = np.deg2rad( np.diff(lon) )
+    dlat = np.deg2rad( np.diff(lat) )
 
     a = ( ( np.sin(dlat/2.) )**2 + np.cos( np.deg2rad( lat[:,:-1] ) ) *
     np.cos( np.deg2rad( lat[:,1:] ) ) * ( np.sin(dlon/2.) )**2 )
@@ -4141,7 +4111,7 @@ def distance(lon, lat, p=0):
     p_mid = 0.5 * (   p[:,0:-1] +   p[:,0:-1] )
     lat_mid = 0.5 * ( lat[:,:-1] + lat[:,1:] )
 
-    z = z_from_p(p_mid, lat_mid) #NOTE: z is height and is negative in the ocean
+    z = z_from_p(p_mid, lat_mid)
 
     distance = (cte.a + z) * angles
 
@@ -4202,9 +4172,8 @@ def SA_from_SP(SP, p, lon, lat):
     >>> p = [10, 50, 125, 250, 600, 1000]
     >>> lon, lat = 188, 4
     >>> gsw.SA_from_SP(SP, p, lon, lat)
-    (array([ 34.71177971,  34.89152372,  35.02554774,  34.84723008,
-            34.7366296 ,  34.73236186]),
-            array([ True,  True,  True,  True,  True,  True], dtype=bool))
+    array([ 34.71177971,  34.89152372,  35.02554774,  34.84723008,
+            34.7366296 ,  34.73236186])
 
     References
     ----------
@@ -4264,6 +4233,9 @@ def SA_from_Sstar(Sstar, p, lon, lat):
 
     Notes
     -----
+    In the Baltic Sea, SA = Sstar, and note that _delta_SA returns zero for dSA
+    in the Baltic.
+
     The mask is only set when the observation is well and truly on dry
     land; often the warning flag is not set until one is several hundred
     kilometers inland from the coast.
@@ -4275,8 +4247,8 @@ def SA_from_Sstar(Sstar, p, lon, lat):
     >>> p = [10, 50, 125, 250, 600, 1000]
     >>> lon, lat = 188, 4
     >>> gsw.SA_from_Sstar(Sstar, p, lon, lat)
-    (array([ 34.71172651,  34.89156271,  35.02559848,  34.84723731,
-            34.736696  ,  34.73238548]), array([ True,  True,  True,  True,  True,  True], dtype=bool))
+    array([ 34.71172651,  34.89156271,  35.02559848,  34.84723731,
+            34.736696  ,  34.73238548])
 
     References
     ----------
@@ -4289,15 +4261,12 @@ def SA_from_Sstar(Sstar, p, lon, lat):
     2010-07-23. David Jackett, Trevor McDougall and Paul Barker.
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
-    p = _check_dim(p, Sstar)
-    lon, lat = _check_dim(lon, Sstar), _check_dim(lat, Sstar)
+
+    lon, lat, p, Sstar = np.broadcast_arrays(lon, lat, p, Sstar)
 
     dSA = _delta_SA( p, lon, lat )
 
     SA = Sstar + ( 1 + cte.r1 ) * dSA
-
-    #NOTE: In the Baltic Sea, SA = Sstar, and note that _delta_SA returns
-    # zero for dSA in the Baltic.
 
     return SA
 
@@ -4339,8 +4308,8 @@ def SP_from_SA(SA, p, lon, lat):
     >>> p = [10, 50, 125, 250, 600, 1000]
     >>> lon, lat =  188, 4
     >>> gsw.SP_from_SA(SA, p, lon, lat)
-    (array([ 34.54872019,  34.72747639,  34.86055202,  34.68097006,
-            34.56797054,  34.56003796]), array([ True,  True,  True,  True,  True,  True], dtype=bool))
+    array([ 34.54872019,  34.72747639,  34.86055202,  34.68097006,
+            34.56797054,  34.56003796])
 
     References
     ----------
@@ -4354,8 +4323,7 @@ def SP_from_SA(SA, p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    p = _check_dim(p, SA)
-    lon, lat = _check_dim(lon, SA),_check_dim(lat, SA)
+    lon, lat, p, SA = np.broadcast_arrays(lon, lat, p, SA)
 
     dSA = _delta_SA( p, lon, lat )
 
@@ -4395,6 +4363,9 @@ def Sstar_from_SA(SA, p, lon, lat):
 
     Notes
     -----
+    In the Baltic Sea, SA = Sstar, and note that _delta_SA returns zero for dSA
+    in the Baltic.
+
     The mask is only set when the observation is well and truly on dry
     land; often the warning flag is not set until one is several hundred
     kilometers inland from the coast.
@@ -4406,8 +4377,8 @@ def Sstar_from_SA(SA, p, lon, lat):
     >>> p = [10, 50, 125, 250, 600, 1000]
     >>> lon, lat =  188, 4
     >>> gsw.Sstar_from_SA(SA, p, lon, lat)
-    (array([ 34.71157349,  34.89113729,  35.02470152,  34.84356269,
-            34.729004  ,  34.71971452]), array([ True,  True,  True,  True,  True,  True], dtype=bool))
+    array([ 34.71157349,  34.89113729,  35.02470152,  34.84356269,
+            34.729004  ,  34.71971452])
 
     References
     ----------
@@ -4421,14 +4392,11 @@ def Sstar_from_SA(SA, p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    p = _check_dim(p, SA)
-    lon, lat = _check_dim(lon, SA), _check_dim(lat, SA)
+    lon, lat, p, SA = np.broadcast_arrays(lon, lat, p, SA)
 
     dSA = _delta_SA( p, lon, lat )
 
     Sstar =  SA - ( 1 + cte.r1 ) * dSA
-    #NOTE: In the Baltic Sea, SA = Sstar, and note that
-    # _delta_SA returns zero for dSA in the Baltic.
 
     return Sstar
 
@@ -4470,8 +4438,8 @@ def SP_from_Sstar(Sstar, p, lon, lat):
     >>> p = [10, 50, 125, 250, 600, 1000]
     >>> lon, lat =  188, 4
     >>> gsw.SP_from_Sstar(Sstar, p, lon, lat)
-    (array([ 34.54864705,  34.72753881,  34.8605505 ,  34.68100719,
-            34.56806609,  34.56002351]), array([ True,  True,  True,  True,  True,  True], dtype=bool))
+    array([ 34.54864705,  34.72753881,  34.8605505 ,  34.68100719,
+            34.56806609,  34.56002351])
 
     References
     ----------
@@ -4485,8 +4453,7 @@ def SP_from_Sstar(Sstar, p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    p = _check_dim(p, Sstar)
-    lon, lat = _check_dim(lon, Sstar), _check_dim(lat, Sstar)
+    lon, lat, p, Sstar = np.broadcast_arrays(lon, lat, p, Sstar)
 
     dSA = _delta_SA( p, lon, lat )
     SP = (35/cte.SSO) * ( Sstar + cte.r1 * dSA )
@@ -4494,7 +4461,7 @@ def SP_from_Sstar(Sstar, p, lon, lat):
     # In the Baltic Sea, SA = Sstar.
     SP_baltic = _SP_from_SA_Baltic( Sstar, lon, lat )
 
-    if SA_baltic is not None:
+    if SP_baltic is not None:
         SP[indsbaltic] = SP_baltic[indsbaltic]
 
     return SP
@@ -4540,8 +4507,8 @@ def Sstar_from_SP(SP, p, lon, lat):
     >>> p = [10, 50, 125, 250, 600, 1000]
     >>> lon, lat =  188, 4
     >>> gsw.Sstar_from_SP(SP, p, lon, lat)
-    (array([ 34.7115532 ,  34.89116101,  35.02464926,  34.84359277,
-            34.7290336 ,  34.71967638]), array([ True,  True,  True,  True,  True,  True], dtype=bool))
+    array([ 34.7115532 ,  34.89116101,  35.02464926,  34.84359277,
+            34.7290336 ,  34.71967638])
 
     References
     ----------
@@ -4560,8 +4527,7 @@ def Sstar_from_SP(SP, p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    p = _check_dim(p, SP)
-    lon, lat = _check_dim(lon, SP), _check_dim(lat, SP)
+    lon, lat, p, SP = np.broadcast_arrays(lon, lat, p, SP)
 
     SP[SP < 0] = 0
 
@@ -4605,6 +4571,8 @@ def SA_Sstar_from_SP(SP, p, lon, lat):
 
     Notes
     -----
+    In the Baltic Sea, Sstar == SA.
+
     The mask is only set when the observation is well and truly on dry
     land; often the warning flag is not set until one is several hundred
     kilometers inland from the coast.
@@ -4619,9 +4587,10 @@ def SA_Sstar_from_SP(SP, p, lon, lat):
     >>> p = [10, 50, 125, 250, 600, 1000]
     >>> lon, lat =  188, 4
     >>> gsw.SA_Sstar_from_SP(SP, p, lon, lat)
-    (array([ 34.71177971,  34.89152372,  35.02554774,  34.84723008,
-            34.7366296 ,  34.73236186]), array([ 34.7115532 ,  34.89116101,  35.02464926,  34.84359277,
-            34.7290336 ,  34.71967638]), array([ True,  True,  True,  True,  True,  True], dtype=bool))
+    array([[ 34.71177971,  34.89152372,  35.02554774,  34.84723008,
+            34.7366296 ,  34.73236186],
+          [ 34.7115532 ,  34.89116101,  35.02464926,  34.84359277,
+            34.7290336 ,  34.71967638]])
 
     References
     ----------
@@ -4641,8 +4610,7 @@ def SA_Sstar_from_SP(SP, p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    p = _check_dim(p, SP)
-    lon, lat = _check_dim(lon, SP), _check_dim(lat, SP)
+    lon, lat, p, SP = np.broadcast_arrays(lon, lat, p, SP)
 
     SP[SP < 0] = 0
 
@@ -4657,7 +4625,6 @@ def SA_Sstar_from_SP(SP, p, lon, lat):
 
         SA[indsbaltic] = SA_baltic[indsbaltic]
         Sstar[indsbaltic] = SA_baltic[indsbaltic]
-        #NOTE: In the Baltic Sea, Sstar == SA.
 
     return SA, Sstar
 
