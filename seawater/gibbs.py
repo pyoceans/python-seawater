@@ -35,6 +35,27 @@ class match_args_return(object):
             ret = ret[0]
         return ret
 
+#from functools import wraps
+#def match_args_return(func):
+
+    #@wraps(func)
+    #def deco(*args, **kw):
+        #p = kw.get('p', None)
+        #if p is not None:
+            #args = list(args)
+            #args.append(p)
+        #array = np.any([hasattr(a, '__iter__') for a in args])
+        #masked = np.any([np.ma.isMaskedArray(a) for a in args])
+        #newargs = [np.ma.atleast_1d(np.ma.masked_invalid(a)) for a in args]
+        #newargs = [a.astype(np.float) for a in newargs]
+        #if p is not None:
+            #kw['p'] = newargs.pop()
+        #if not masked:
+            #return np.ma.filled(func(*args, **kw), np.nan)
+        #if not array:
+            #return func(*args, **kwargs)[0]
+    #return deco
+
 """
 Section B: functions
 """
