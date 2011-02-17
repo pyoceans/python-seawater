@@ -1204,6 +1204,11 @@ def _delta_SA(p, lon, lat):
     p   = np.atleast_1d(p).astype(np.float) # must be float for interpolation
     # Make all arrays of same shape, raise ValueError if not compatible
     p, lon, lat = np.broadcast_arrays(p, lon, lat)
+
+    # hack to force 1-D (FIXME)
+    shape = p.shape
+    p, lon, lat = p.flatten(), lon.flatten(), lat.flatten()
+
     # Check 1D
     if p.ndim != 1:
         raise ValueError, 'Arguments must be scalars or 1D arrays'
@@ -1348,7 +1353,8 @@ def _delta_SA(p, lon, lat):
             no_levels_missing = no_levels_missing + 1
 
     delta_SA = np.ma.masked_invalid(delta_SA)
-    return delta_SA
+    # hack to force 1-D (FIXME)
+    return np.reshape(delta_SA, shape)
 
 def _dsa_add_barrier(dsa, lon, lat, longs_ref, lats_ref, dlongs_ref, dlats_ref):
     r"""
@@ -4217,8 +4223,6 @@ def SA_from_SP(SP, p, lon, lat):
     2010-07-23. David Jackett, Trevor McDougall & Paul Barker.
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
-    p = _check_dim(p, SP)
-    lon, lat = _check_dim(lon, SP), _check_dim(lat, SP)
 
     SP[SP < 0] = 0
 
