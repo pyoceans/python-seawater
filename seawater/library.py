@@ -1424,3 +1424,7 @@ def _dsa_add_mean(dsa):
     delta_SA = dsa
 
     return delta_SA
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
