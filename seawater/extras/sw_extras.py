@@ -9,6 +9,7 @@ import numpy as np
 import seawater.csiro as sw
 from seawater import constants as cte
 
+
 def SRConv(SP):
     r"""
     Convert measurements made in Practical Salinity Scale to the Refence Salinity Scale.
@@ -35,9 +36,9 @@ def SRConv(SP):
 
     Examples
     --------
-    >>> import seawater.csiro as sw
+    >>> import seawater.extras.sw_extras as swe
     >>> SP = 35
-    >>> sw.SRConv(SP)
+    >>> swe.SRConv(SP)
     35.165039999999998
 
     References
@@ -184,7 +185,7 @@ def N(bvfr2):
     >>> import seawater.extras.sw_extras as swe
     >>> s = np.array([[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]])
     >>> t = np.repeat(15, s.size).reshape(s.shape)
-    >>> p = [0, 250, 500, 1000]
+    >>> p = [[0], [250], [500], [1000]]
     >>> lat = [30,32,35]
     >>> swe.N(sw.bfrq(s, t, p, lat)[0])
     array([[ 0.02124956,  0.02125302,  0.02125843],
@@ -227,10 +228,12 @@ def cph(bvfr2):
     >>> import seawater.extras.sw_extras as swe
     >>> s = np.array([[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]])
     >>> t = np.repeat(15, s.size).reshape(s.shape)
-    >>> p = [0, 250, 500, 1000]
+    >>> p = [[0], [250], [500], [1000]]
     >>> lat = [30,32,35]
     >>> swe.cph(sw.bfrq(s, t, p, lat)[0])
-    TODO
+    array([[ 12.17509899,  12.17708145,  12.18018192],
+           [ 12.09467754,  12.09664676,  12.09972655],
+           [  4.93208775,   4.9328907 ,   4.93414649]])
 
     References
     ----------
@@ -342,7 +345,7 @@ def richnumb(n, s):
     >>> import seawater.csiro as sw
     >>> s   = np.array([[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]])
     >>> t   = np.repeat(15, s.size).reshape(s.shape)
-    >>> p   = [0, 250, 500, 1000]
+    >>> p   = [[0], [250], [500], [1000]]
     >>> lat = [30, 32, 35]
     >>> n   = swe.N(sw.bfrq(s, t, p, lat)[0])
     >>> vel = [[0.5, 0.5, 0.5], [0.15, 0.15, 0.15], [0.03, 0.03, .03],[0.,0.,0.]]
@@ -470,7 +473,7 @@ def strat_period(N):
     >>> import seawater.extras.sw_extras as swe
     >>> s = np.array([[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]])
     >>> t = np.repeat(15, s.size).reshape(s.shape)
-    >>> p = [0, 250, 500, 1000]
+    >>> p = [[0], [250], [500], [1000]]
     >>> lat = [30,32,35]
     >>> swe.strat_period( swe.N( sw.bfrq(s, t, p, lat)[0] ) )
     array([[ 295.68548089,  295.63734267,  295.56208791],
@@ -597,3 +600,7 @@ def mlife():
     42
     """
     print 42
+
+if __name__=='__main__':
+    import doctest
+    doctest.testmod()
