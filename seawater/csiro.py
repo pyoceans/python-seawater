@@ -3320,3 +3320,7 @@ def test(fileout):
                               lit_Ar[:,icol], Ar[:,icol] ] )
         for iline in range(0, m):
             print >>f, " %4.0f  %4.0f     %8.4f  %9.4f" % tuple(result[:,iline])
+
+if __name__=='__main__':
+    import doctest
+    doctest.testmod()
