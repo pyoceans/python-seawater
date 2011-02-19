@@ -13,10 +13,35 @@ class Dict2Struc(object):
     def __init__(self, adict):
         self.__dict__.update(adict)
 
-def read_data(fname):
-    datadir = os.path.join(os.path.dirname(__file__), 'data')
-    d = np.load(os.path.join(datadir, fname))
-    return Dict2Struc(d)
+class Cache_npz(object):
+    def __init__(self):
+        self._cache = dict()
+        self._default_path = os.path.join(os.path.dirname(__file__), 'data')
+
+    def __call__(self, fname, datadir=None):
+        if datadir is None:
+            datadir = self._default_path
+        fpath = os.path.join(datadir, fname)
+        try:
+            return self._cache[fpath]
+        except KeyError:
+            pass
+        d = np.load(fpath)
+        ret = Dict2Struc(d)
+        self._cache[fpath] = ret
+        return ret
+
+_npz_cache = Cache_npz()
+
+def read_data(fname, datadir=None):
+    """
+    Read variables from a numpy '.npz' file into a minimal
+    class providing attribute access.
+
+    A cache is used to avoid re-reading the same file.
+    """
+    return _npz_cache(fname, datadir=datadir)
+
 
 def strip_mask(*args):
     """
