@@ -9,17 +9,17 @@
 import unittest
 import numpy as np
 import seawater.library as gsw
+import seawater.gibbs as gibbs
 
 class Test_delta_SA(unittest.TestCase):
     """Test the interface to the SA_from_SP function"""
 
     def test_scalar_input(self):
-        """Accept scalar input, return sigle element array"""
-        # May be changed to return scalar
+        """Accept scalar input, return scalar output"""
         p = 0.0
         lon, lat = 2.0, 66.0
         dsa = gsw._delta_SA(p, lon, lat)
-        self.assertTrue(dsa.shape == (1,))
+        self.assertFalse(hasattr(dsa, '__iter__'))
 
     def test_single_array_input(self):
         """Accept and return single element arrays"""
@@ -27,12 +27,6 @@ class Test_delta_SA(unittest.TestCase):
         lon, lat = np.array([2.0]), np.array([66.0])
         dsa = gsw._delta_SA(p, lon, lat)
         self.assertTrue(dsa.shape == (1,))
-
-    def test_not_1D(self):
-        """Raise ValueError for nD, n > 1"""
-        p = np.array([[10, 100], [20, 200]])
-        lon, lat = 2.0, 66.0
-        self.assertRaises(ValueError, gsw._delta_SA, p, lon, lat)
 
     def test_non_compatible(self):
         """Raise ValueError if input not broadcastable to same shape"""
@@ -70,7 +64,7 @@ class Test_delta_SA(unittest.TestCase):
         SP = [33, 34, 35]
         p = 100
         lon, lat = 2, 66
-        SA = gsw.SA_from_SP(SP, p, lon, lat)
+        SA = gibbs.SA_from_SP(SP, p, lon, lat)
 
 
 

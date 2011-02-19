@@ -6,6 +6,35 @@ import numpy as np
 from seawater import constants as cte
 import os
 
+class match_args_return(object):
+    """
+    Function decorator to homogenize input arguments and to
+    make the output match the original input with respect to
+    scalar versus array, and masked versus ndarray.
+    """
+    def __init__(self, func):
+        self.func = func
+        self.__doc__ = func.__doc__
+        self.__name__ = func.__name__
+
+    def __call__(self, *args, **kw):
+        p = kw.get('p', None)
+        if p is not None:
+            args = list(args)
+            args.append(p)
+        self.array = np.any([hasattr(a, '__iter__') for a in args])
+        self.masked = np.any([np.ma.isMaskedArray(a) for a in args])
+        newargs = [np.ma.atleast_1d(np.ma.masked_invalid(a)) for a in args]
+        newargs = [a.astype(np.float) for a in newargs]
+        if p is not None:
+            kw['p'] = newargs.pop()
+        ret = self.func(*newargs, **kw)
+        if not self.masked:
+            ret = np.ma.filled(ret, np.nan)
+        if not self.array:
+            ret = ret[0]
+        return ret
+
 class Dict2Struc(object):
     r"""
     Open variables from a dictionary in a "matlab-like-structure"
@@ -1090,7 +1119,212 @@ def _SA_from_SP_Baltic(SP, lon, lat):
 
     return SA_baltic
 
+class SA_table(object):
 
+    # Central America barrier
+    x_ca = np.array([260.0, 272.59, 276.5, 278.65, 280.73, 295.217])
+    y_ca = np.array([ 19.55, 13.97,   9.6,   8.1,    9.33,   0.0])
+
+    def __init__(self, fname="gsw_data_v2_0.npz",
+                        max_p_fudge=10000,
+                        min_frac=0):
+        self.fname = fname
+        self.max_p_fudge = max_p_fudge
+        self.min_frac = min_frac
+        data = read_data(fname)
+        # Make the order x, y, z:
+        temp = data.delta_SA_ref.transpose((2,1,0)).copy()
+        self.dsa = np.ma.masked_invalid(temp)
+        self.dsa.data[self.dsa.mask] = 0
+        self.lon = data.longs_ref.astype(np.float)
+        self.lat = data.lats_ref.astype(np.float)
+        self.p = data.p_ref                # Depth levels
+        # ndepth from the file disagrees with the unmasked count from
+        # delta_SA_ref in a few places; this should be fixed in the
+        # file, but for now we will simply calculate ndepth directly from
+        # delta_SA_ref.
+        #self.ndepth = np.ma.masked_invalid(data.ndepth_ref.T).astype(np.int8)
+        ndepth = self.dsa.count(axis=-1)
+        self.ndepth = np.ma.masked_equal(ndepth, 0)
+        self.dlon = self.lon[1] - self.lon[0]
+        self.dlat = self.lat[1] - self.lat[0]
+        self.i_ca, self.j_ca = self.xy_to_ij(self.x_ca, self.y_ca)
+
+    def xy_to_ij(self, x, y):
+        """
+        Convert from lat/lon to grid index coordinates,
+        without truncation or rounding.
+        """
+        i = (x - self.lon[0]) / self.dlon
+        j = (y - self.lat[0]) / self.dlat
+        return i, j
+
+    def _central_america(self, di, dj, ii, jj, gm):
+        """
+        Use a line running through Central America to zero
+        the goodmask for grid points in the Pacific forming
+        the grid box around input locations in the Atlantic,
+        and vice-versa.
+        """
+        ix, jy = ii[0] + di, jj[0] + dj # reconstruction: minor inefficiency
+
+        inear = ((ix >= self.i_ca[0]) & (ix <= self.i_ca[-1])
+                 & (jy >= self.j_ca[-1]) & (jy <= self.j_ca[0]))
+        if not inear.any():
+            return gm
+
+        inear_ind = inear.nonzero()[0]
+        ix = ix[inear]
+        jy = jy[inear]
+        ii = ii[:, inear]
+        jj = jj[:, inear]
+
+        jy_ca = np.interp(ix, self.i_ca, self.j_ca)
+        above = jy - jy_ca  # > 0 if input point is above dividing line
+
+        # Intersections of left and right grid lines with dividing line
+        jleft_ca = np.interp(ii[0], self.i_ca, self.j_ca)
+        jright_ca = np.interp(ii[1], self.i_ca, self.j_ca)
+
+        jgrid_ca = [jleft_ca, jright_ca, jright_ca, jleft_ca]
+
+        # Zero the goodmask for grid points on opposite side of divider
+        for i in range(4):
+            opposite = (above * (jj[i] - jgrid_ca[i])) < 0
+            gm[i, inear_ind[opposite]] = 0
+
+        return gm
+
+    def xy_interp(self, di, dj, ii, jj, k):
+        """
+        2-D interpolation, bilinear if all 4 surrounding
+        grid points are present, but treating missing points
+        as having the average value of the remaining grid
+        points. This matches the matlab V2 behavior.
+        """
+        # Array of weights, CCW around the grid box
+        w = np.vstack(((1-di) * (1-dj),   # lower left
+                      di * (1-dj),       # lower right
+                      di * dj,           # upper right
+                      (1-di) * dj))      # upper left
+
+        gm = ~self.dsa.mask[ii, jj, k]   # gm is "goodmask"
+        gm = self._central_america(di, dj, ii, jj, gm)
+
+        # Save a measure of real interpolation quality.
+        frac = (w * gm).sum(axis=0)
+
+        # Now loosen the interpolation, allowing a value to
+        # be calculated on a grid point that is masked.
+        # This matches the matlab gsw version 2 behavior.
+
+        jm_partial = gm.any(axis=0) & (~(gm.all(axis=0)))
+
+        # The weights of the unmasked points will be increased
+        # by the sum of the weights of the masked points divided
+        # by the number of unmasked points in the grid square.
+        # This is equivalent to setting the masked data values
+        # to the average of the unmasked values, and then
+        # unmasking, which is the matlab v2 implementation.
+
+        if jm_partial.any():
+            w_bad = w * (~gm)
+            w[:, jm_partial] += (w_bad[:, jm_partial].sum(axis=0) /
+                                             gm[:, jm_partial].sum(axis=0))
+        w *= gm
+
+
+        wsum = w.sum(axis=0)
+
+        valid = wsum > 0     # Only need to prevent division by zero here.
+        w[:, valid] /= wsum[:,valid]
+        w[:, ~valid] = 0
+        vv = self.dsa.data[ii, jj, k]
+        vv *= w
+        dsa = vv.sum(axis=0)
+        return dsa, frac
+
+    def delta_SA(self, p, lon, lat):
+        """
+        Table lookup of salinity anomaly, given pressure, lon, and lat.
+        """
+
+        p = np.ma.masked_less(p, 0)
+        mask_in = np.ma.mask_or(np.ma.getmask(p), np.ma.getmask(lon))
+        mask_in = np.ma.mask_or(mask_in, np.ma.getmask(lat))
+        p, lon, lat = [np.ma.filled(a, 0).astype(float) for a in (p, lon, lat)]
+
+        p, lon, lat = np.broadcast_arrays(p, lon, lat)
+        if p.ndim > 1:
+            shape_in = p.shape
+            p, lon, lat = map(np.ravel, (p, lon, lat))
+            reshaped = True
+        else:
+            reshaped = False
+
+        p_orig = p.copy() # save for comparison to clipped p
+
+        lon = lon % 360   # This copies, so we don't modify input array.
+
+        ix0, iy0 = self.xy_to_ij(lon, lat)
+        i0raw = np.floor(ix0).astype(int)
+        i0 = np.clip(i0raw, 0, len(self.lon)-2)
+        di = ix0 - i0
+        j0raw = np.floor(iy0).astype(int)
+        j0 = np.clip(j0raw, 0, len(self.lat)-2)
+        dj = iy0 - j0
+
+        # Start at lower left and go CCW; match order in _xy_interp.
+        ii = np.vstack((i0, i0+1, i0+1, i0))
+        jj = np.vstack((j0, j0, j0+1, j0+1))
+
+        k1 = np.searchsorted(self.p, p, side='right')
+
+        # Clip p and k1 at max p of grid cell.
+        kmax = (self.ndepth[ii, jj].max(axis=0) - 1)
+        mask_out = kmax.mask
+        kmax = kmax.filled(1)
+        clip_p = (p >= self.p[kmax])
+        p[clip_p] = self.p[kmax[clip_p]]
+        k1[clip_p] = kmax[clip_p]
+
+        k0 = k1 - 1
+
+        dsa0, frac0 = self.xy_interp(di, dj, ii, jj, k0)
+        dsa1, frac1 = self.xy_interp(di, dj, ii, jj, k1)
+
+        dp = np.diff(self.p)
+        pfrac = (p - self.p[k0])/ dp[k0]
+        delta_SA = dsa0 * (1 - pfrac) + dsa1 * pfrac
+
+        # Save intermediate results in case we are curious about
+        # them; the frac values are most likely to be useful.
+        # We won't bother to reshape them, though, and we may
+        # delete them later.
+        self.dsa0 = dsa0
+        self.frac0 = frac0
+        self.dsa1 = dsa1
+        self.frac1 = frac1
+        self.pfrac = pfrac
+
+        self.p_fudge = p_orig - p
+
+        # Editing options, in case we don't want to use
+        # values calculated from the wrong pressure, or from
+        # an incomplete SA table grid square.
+        mask_out |= self.p_fudge > self.max_p_fudge
+        mask_out |= self.frac1 < self.min_frac
+
+        delta_SA = np.ma.array(delta_SA, mask=mask_out, copy=False)
+        if reshaped:
+            delta_SA.shape = shape_in
+            self.p_fudge.shape = shape_in
+        if mask_in is not np.ma.nomask:
+            delta_SA = np.ma.array(delta_SA, mask=mask_in, copy=False)
+        return delta_SA
+
+
+@match_args_return
 def _delta_SA(p, lon, lat):
     r"""
     Calculates the Absolute Salinity anomaly, SA - SR, in the open ocean by
@@ -1099,21 +1333,17 @@ def _delta_SA(p, lon, lat):
 
     Parameters
     ----------
-    p : array_like, maximum 1D
+    p : array_like
         pressure [dbar]
-    lon : array_like, maximum 1D
-          decimal degrees east [0..+360] or [-180..+180]
-    lat : array_like, maximum 1D
+    lon : array_like
+          decimal degrees east (will be treated modulo 360)
+    lat : array_like
           decimal degrees (+ve N, -ve S) [-90..+90]
 
     Returns
     -------
     delta_SA : masked array; masked where no nearby ocean is found in data
                Absolute Salinity anomaly [g kg :sup:`-1`]
-
-    See Also
-    --------
-    _dsa_add_barrier, _dsa_add_mean
 
     Notes
     -----
@@ -1152,303 +1382,12 @@ def _delta_SA(p, lon, lat):
     6, 215-242.
     http://www.ocean-sci-discuss.net/6/215/2009/osd-6-215-2009-print.pdf
 
-    Modifications:
-    ????-??-??. David Jackett.
-    2010-07-23. Paul Barker and Trevor McDougall
-    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
-    2011-02-10. Bjørn Ådlandsvik, Several bug fixes. Arguments must be scalars or 1D arrays.
+    The algorithm is taken from the matlab implementation of the references,
+    but the numpy implementation here differs substantially from the
+    matlab implementation.
     """
+    return SA_table().delta_SA(p, lon, lat)
 
-    # Input argument handling
-    # -----------------------
-
-    # For now, convert masked to unmasked, and use nan internally.
-    # Maybe reverse the strategy later, or, more likely, use separate
-    # data and mask internally.
-    p, lon, lat = [np.ma.filled(var, np.nan) for var in (p, lon, lat)]
-    p   = np.atleast_1d(p).astype(np.float) # must be float for interpolation
-    # Make all arrays of same shape, raise ValueError if not compatible
-    p, lon, lat = np.broadcast_arrays(p, lon, lat)
-
-    # hack to force 1-D (FIXME)
-    shape = p.shape
-    p, lon, lat = p.flatten(), lon.flatten(), lat.flatten()
-
-    # Check 1D
-    if p.ndim != 1:
-        raise ValueError, 'Arguments must be scalars or 1D arrays'
-
-    # Put longitudes in 0-360
-    lon %= 360
-
-    # Read data file
-    # --------------
-    data = read_data("gsw_data_v2_0.npz")
-
-    delta_SA_ref = np.ma.masked_invalid(data.delta_SA_ref)
-    lats_ref = data.lats_ref
-    longs_ref = data.longs_ref
-    p_ref = data.p_ref                # Depth levels
-    # Local number of depth levels
-    ndepth_ref = np.ma.masked_invalid(data.ndepth_ref).astype(np.int8)
-    ndepth_ref -= 1 # change to 0-based index
-
-    # Grid resolution
-    dlongs_ref = longs_ref[1] - longs_ref[0]
-    dlats_ref = lats_ref[1] - lats_ref[0]
-
-    # Find horizontal indices bracketing the position
-    # -----------------------------------------------
-
-    # Find indsx0 such that
-    #   lons_ref[indsx0] <= lon < lons_ref[indsx0+1]
-    # Border cases:
-    #   indsx0 = lons_ref.size - 2 for
-    indsx0 = (lon-longs_ref[0]) / dlongs_ref
-    indsx0 = indsx0.astype(np.int)
-    indsx0 = np.clip(indsx0, 0, longs_ref.size-2)
-
-    # Find indsy0 such that
-    #   lats_ref[indsy0] <= lat < lats_ref[indsy0+1]
-    # Border cases:
-    #   indsy0 = 0                 for lat < -86 = lats_refs[0]
-    #   indsy0 = lats_ref.size - 2 for lat = 90 = lats_refs[-1]
-    indsy0 = (lat-lats_ref[0]) / dlats_ref
-    indsy0 = indsy0.astype(np.int)
-    indsy0 = np.clip(indsy0, 0, lats_ref.size-2)
-
-    indsz0 = np.searchsorted(p_ref, p, side='right') - 1
-
-    nmax = np.c_[ ndepth_ref[indsy0, indsx0],
-                  ndepth_ref[indsy0, indsx0+1],
-                  ndepth_ref[indsy0+1, indsx0+1],
-                  ndepth_ref[indsy0+1, indsx0] ]
-    nmax = nmax.max(axis=1)
-
-    deepmask = indsz0 > nmax
-    p[deepmask] = p_ref[nmax[deepmask]]
-
-    indsz0 = np.clip(indsz0, 0, p_ref.size-2)
-
-    inds0 = (indsz0 + indsy0 * delta_SA_ref.shape[0]
-                    + indsx0 * delta_SA_ref.shape[0] * delta_SA_ref.shape[1])
-
-    data_indices = np.c_[indsx0, indsy0, indsz0, inds0]
-    data_inds = data_indices[:,2]
-
-    r1 = ( lon - longs_ref[indsx0] ) / dlongs_ref
-    s1 = ( lat - lats_ref[indsy0] )  / dlats_ref
-    t1 = ( p - p_ref[indsz0] ) / ( p_ref[indsz0+1] - p_ref[indsz0] )
-
-    nksum = 0
-    no_levels_missing = 0
-
-    sa_upper = np.nan * ( np.ones(data_inds.shape) )
-    sa_lower = np.nan * ( np.ones(data_inds.shape) )
-    delta_SA = np.nan * ( np.ones(data_inds.shape) )
-
-    for k in range(indsz0.min(), indsz0.max()+1):
-        inds_k = np.where(indsz0 == k)[0]
-        nk = inds_k.size
-
-        if nk > 0:
-            nksum = nksum + nk
-            indsx = indsx0[inds_k]
-            indsy = indsy0[inds_k]
-            indsz = k * np.ones( indsx.shape, dtype='int64' )
-            inds_di = (data_inds == k) # level k interpolation
-            dsa = np.nan * np.ones( (4, p.size) )
-
-            dsa[0, inds_k] = delta_SA_ref[indsz, indsy, indsx]
-            dsa[1, inds_k] = delta_SA_ref[indsz, indsy, indsx+1]
-            dsa[2, inds_k] = delta_SA_ref[indsz, indsy+1, indsx+1]
-            dsa[3, inds_k] = delta_SA_ref[indsz, indsy+1, indsx]
-
-            inds = ( (260. <= lon) & (lon <= 295.217) & (0. <= lat) & (lat <=
-                      19.55) & (indsz0 == k) )
-            """ TODO: describe add_barrier """
-            if inds.any():
-                dsa[:,inds] = _dsa_add_barrier( dsa[:,inds], lon[inds],
-                lat[inds], longs_ref[indsx0[inds]], lats_ref[indsy0[inds]],
-                dlongs_ref, dlats_ref)
-
-            inds = np.where( (np.isnan(np.sum(dsa, axis=0))) & (indsz0==k) )[0]
-            """ TODO: describe add_mean """
-            if inds.size !=0:
-                dsa[:,inds] = _dsa_add_mean(dsa[:,inds])
-
-            # level k+1 interpolation
-            sa_upper[inds_di] = ( ( 1 - s1[inds_di] ) * ( dsa[0, inds_k] +
-            r1[inds_di] * ( dsa[1, inds_k] - dsa[0, inds_k] ) ) +
-            s1[inds_di] * ( dsa[3, inds_k] +
-            r1[inds_di] * ( dsa[2, inds_k] - dsa[3,inds_k] ) ) )
-
-            dsa = np.nan * np.ones( (4, p.size) )
-            dsa[0, inds_k] = delta_SA_ref[indsz+1, indsy, indsx]
-            dsa[1, inds_k] = delta_SA_ref[indsz+1, indsy, indsx+1]
-            dsa[2, inds_k] = delta_SA_ref[indsz+1, indsy+1, indsx+1]
-            dsa[3, inds_k] = delta_SA_ref[indsz+1, indsy+1, indsx]
-
-            inds = ( (260. <= lon) & (lon <= 295.217) & (0 <= lat) & (lat <=
-            19.55) & (indsz0 == k) )
-            """ TODO: describe add_barrier """
-            if inds.any():
-                dsa[:,inds] = _dsa_add_barrier( dsa[:,inds], lon[inds],
-                lat[inds], longs_ref[indsx0[inds]], lats_ref[indsy0[inds]],
-                dlongs_ref, dlats_ref)
-
-            inds = ( np.isnan( np.sum(dsa, axis=0) ) ) & (indsz0==k)
-            """ TODO: describe add_mean """
-            dsa[:,inds] = _dsa_add_mean(dsa[:,inds])
-
-            sa_lower[inds_di] = ( ( 1 - s1[inds_di] ) * ( dsa[0, inds_k] +
-            r1[inds_di] * ( dsa[1, inds_k] - dsa[0,inds_k] ) ) +
-            s1[inds_di] * ( dsa[3, inds_k] +
-            r1[inds_di] * ( dsa[2, inds_k] - dsa[3, inds_k] ) ) )
-
-            inds_diff = np.where( np.isfinite( sa_upper[inds_di] ) &
-                                       np.isnan( sa_lower[inds_di] ) )[0]
-            inds_di = np.where(inds_di)[0] #TODO: terrible solution, but works
-            if inds_diff.size != 0:
-                sa_lower[inds_di[inds_diff]] = sa_upper[inds_di[inds_diff]]
-
-            delta_SA[inds_di] = ( sa_upper[inds_di] + t1[inds_di] *
-                                ( sa_lower[inds_di] - sa_upper[inds_di] ) )
-        else:
-            no_levels_missing = no_levels_missing + 1
-
-    delta_SA = np.ma.masked_invalid(delta_SA)
-    # hack to force 1-D (FIXME)
-    return np.reshape(delta_SA, shape)
-
-def _dsa_add_barrier(dsa, lon, lat, longs_ref, lats_ref, dlongs_ref, dlats_ref):
-    r"""
-    Adds a barrier through Central America (Panama) and then averages over the
-    appropriate side of the barrier.
-
-    Parameters
-    ----------
-    dsa : array_like
-          Absolute Salinity anomaly of the 4 adjacent neighbors [g kg :sup:`-1`]
-    lon : array_like
-          decimal degrees east [0..+360]
-    lat : array_like
-          decimal degrees [-90..+90]
-    longs_ref : array_like
-          longitudes of regular grid in decimal degrees east [0..+360]
-    lats_ref : array_like
-          latitudes of regular grid in decimal degrees north [-90..+90]
-    dlongs_ref : array_like
-          longitudes difference of regular grid in decimal degrees east [0..+360]
-    dlats_ref : array_like
-          latitudes difference of regular grid in decimal degrees north [-90..+90]
-
-    Returns
-    -------
-    delta_SA : array_like
-          Absolute Salinity anomaly of the 4 adjacent neighbors  [g kg :sup:`-1`]
-
-    Notes
-    -----
-    originally inside "_delta_SA"
-
-    Modifications:
-    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
-    """
-    longs_pan = np.array([260.0000, 272.5900, 276.5000, 278.6500,
-                                              280.7300, 295.2170])
-    lats_pan = np.array([19.5500, 13.9700, 9.6000, 8.1000, 9.3300, 0])
-
-    lats_lines0 = np.interp( lon, longs_pan, lats_pan )
-    lats_lines1 = np.interp( longs_ref, lats_pan, longs_pan )
-    lats_lines2 = np.interp( (longs_ref+dlongs_ref), lats_pan, longs_pan )
-
-    above_line = np.bool_( np.ones(4) )
-    for k0 in range(0, len(lon.shape) ):
-        if lats_lines0[k0] <= lat[k0]:
-            above_line0 = True
-        else:
-            above_line0 = False
-
-        if lats_lines1[k0] <= lats_ref[k0]:
-            above_line[0] = True
-        else:
-            above_line[0] = False
-
-        if lats_lines1[k0] <= (lats_ref[k0] + dlats_ref):
-            above_line[3] = True
-        else:
-            above_line[3] = False
-
-        if lats_lines2[k0] <= lats_ref[k0]:
-            above_line[1] = True
-        else:
-            above_line[1] = False
-
-        if lats_lines2[k0] <= (lats_ref[k0] + dlats_ref):
-            above_line[2] = True
-        else:
-            above_line[2] = False
-
-        # indices of different sides of CA line
-        inds = ( above_line != above_line0 )
-        dsa[inds,k0] = np.nan
-
-    dsa_mean = dsa.mean()
-    inds_nan = np.isnan( dsa_mean )
-
-    if inds_nan.any():
-        no_nan = len(np.where(inds_nan))
-
-        for kk in range(0,no_nan):
-            col = inds_nan[kk]
-            inds_kk = np.where( np.isnan( dsa[:,col] ) )[0]
-            Inn = np.where( ~np.isnan( dsa[:,col] ) )[0]
-
-            if Inn.size == 0:
-                dsa[inds_kk,col] = dsa[Inn,col].mean()
-
-
-    delta_SA = dsa
-    return delta_SA
-
-def _dsa_add_mean(dsa):
-    r"""
-    Replaces NaN's with nanmean of the 4 adjacent neighbors
-
-    Parameters
-    ----------
-    dsa : array_like
-          Absolute Salinity anomaly of the 4 adjacent neighbors [g kg :sup:`-1`]
-
-    Returns
-    -------
-    delta_SA : array_like
-               Absolute Salinity anomaly of the 4 adjacent neighbours
-               [g kg :sup:`-1`]
-
-    Notes
-    -----
-    originally inside "_delta_SA"
-
-    Modifications:
-    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
-    """
-
-    dsa_mean = dsa.mean(axis = 0)
-    inds_nan = np.where( np.isnan(dsa_mean) )[0]
-    no_nan = len(inds_nan)
-
-    for kk in range(0, no_nan):
-        col = inds_nan[kk]
-        inds_kk = np.where( np.isnan( dsa[:,col] ) )[0]
-        Inn = np.where(~np.isnan( dsa[:,col] ) )[0]
-        if Inn.size != 0:
-            dsa[inds_kk, col] = dsa[Inn,col].mean()
-
-    delta_SA = dsa
-
-    return delta_SA
 
 if __name__ == '__main__':
     import doctest

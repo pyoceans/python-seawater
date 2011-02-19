@@ -5,35 +5,7 @@ from __future__ import division
 import numpy as np
 import seawater.constants as cte
 import seawater.library as lib
-
-class match_args_return(object):
-    """
-    Function decorator to homogenize input arguments and to
-    make the output match the original input with respect to
-    scalar versus array, and masked versus ndarray.
-    """
-    def __init__(self, func):
-        self.func = func
-        self.__doc__ = func.__doc__
-        self.__name__ = func.__name__
-
-    def __call__(self, *args, **kw):
-        p = kw.get('p', None)
-        if p is not None:
-            args = list(args)
-            args.append(p)
-        self.array = np.any([hasattr(a, '__iter__') for a in args])
-        self.masked = np.any([np.ma.isMaskedArray(a) for a in args])
-        newargs = [np.ma.atleast_1d(np.ma.masked_invalid(a)) for a in args]
-        newargs = [a.astype(np.float) for a in newargs]
-        if p is not None:
-            kw['p'] = newargs.pop()
-        ret = self.func(*newargs, **kw)
-        if not self.masked:
-            ret = np.ma.filled(ret, np.nan)
-        if not self.array:
-            ret = ret[0]
-        return ret
+from seawater.library import match_args_return
 
 #from functools import wraps
 #def match_args_return(func):
