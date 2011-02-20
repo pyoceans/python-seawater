@@ -2764,7 +2764,8 @@ def SA_from_SP(SP, p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SP[SP < 0] = 0
+    #SP[SP < 0] = 0
+    SP = np.maximum(SP, 0)
 
     dSA = lib._delta_SA( p, lon, lat )
 
