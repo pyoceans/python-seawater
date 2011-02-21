@@ -8,7 +8,7 @@ Filipe P. A. Fernandes
 e-mail:   ocefpaf@gmail.com
 web:      http://ocefpaf.tiddlyspot.com/
 date:     14-Jan-2010
-modified: Thu 10 Feb 2011 04:13:31 PM EST
+modified: Mon 21 Feb 2011 01:49:02 PM EST
 obs:      fixme (flags what needs attention)
           some keywords and default values are hardcoded!!!
           create proper docstrings
@@ -2850,9 +2850,11 @@ def swvel(length, depth):
     speed = ( cte.gdef * np.tanh(k * depth) / k )**0.5
     return speed
 
-def test(fileout):
+def test(fileout='matlab-test.txt'):
     r"""
-    Execute test routines to test and verify SEAWATER Library routines for your
+    Copy of the matlab test.
+
+    Execute test routines to verify SEAWATER Library routines for your
     platform. Prints output to file.
 
     Notes
