@@ -76,7 +76,7 @@ def strip_mask(*args):
     """
     Process the standard arguments for efficient calculation.
 
-    Return unmasked argments, plus a mask.
+    Return unmasked arguments, plus a mask.
 
     The first argument, SA, is handled specially so that it can be
 
