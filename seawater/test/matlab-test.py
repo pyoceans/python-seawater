@@ -282,7 +282,8 @@ osmotic_coefficient = gsw.osmotic_coefficient(SA_chck_cast, gsw_cv.t_chck_cast, 
 test_print("osmotic_coefficient")
 
 #t_maxden, pt_maxden, CT_maxden = gsw.temps_maxdensity(SA_chck_cast, gsw_cv.p_chck_cast)
-#test_print("t_maxden")
+t_maxden = gsw.temps_maxdensity(SA_chck_cast, gsw_cv.p_chck_cast)
+test_print("t_maxden")
 #test_print("pt_maxden")
 #test_print("CT_maxden")
 
