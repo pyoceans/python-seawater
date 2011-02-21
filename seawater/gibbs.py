@@ -7,27 +7,6 @@ import seawater.constants as cte
 import seawater.library as lib
 from seawater.library import match_args_return
 
-#from functools import wraps
-#def match_args_return(func):
-
-    #@wraps(func)
-    #def deco(*args, **kw):
-        #p = kw.get('p', None)
-        #if p is not None:
-            #args = list(args)
-            #args.append(p)
-        #array = np.any([hasattr(a, '__iter__') for a in args])
-        #masked = np.any([np.ma.isMaskedArray(a) for a in args])
-        #newargs = [np.ma.atleast_1d(np.ma.masked_invalid(a)) for a in args]
-        #newargs = [a.astype(np.float) for a in newargs]
-        #if p is not None:
-            #kw['p'] = newargs.pop()
-        #if not masked:
-            #return np.ma.filled(func(*args, **kw), np.nan)
-        #if not array:
-            #return func(*args, **kwargs)[0]
-    #return deco
-
 """
 Section B: functions
 """
@@ -1928,9 +1907,9 @@ def pot_enthalpy_from_pt(SA, pt):
     >>> import seawater.gibbs as gsw
     >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
     >>> pt = [28.7832, 28.4209, 22.7850, 10.2305, 6.8292, 4.3245]
-    >>> gsw.pot_enthalpy(SA, pt)
-    array([ 28.80992302,  28.43914426,  22.78624661,  10.22616561,
-             6.82718342,   4.32356518])
+    >>> gsw.pot_enthalpy_from_pt(SA, pt)
+    array([ 115005.40853458,  113525.30870246,   90959.68769935,
+             40821.50280454,   27253.21472227,   17259.10131183])
 
     References
     ----------
@@ -2414,7 +2393,8 @@ def temps_maxdensity(SA, p):
     >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
     >>> p = [10, 50, 125, 250, 600, 1000]
     >>> gsw.temps_maxdensity(SA, p)
-    TODO
+    array([-3.72500891, -3.85371429, -4.05143318, -4.29554251, -5.07474662,
+           -6.01170197])
 
     References
     ----------
@@ -3238,9 +3218,9 @@ def SA_Sstar_from_SP(SP, p, lon, lat):
     >>> lon, lat =  188, 4
     >>> gsw.SA_Sstar_from_SP(SP, p, lon, lat)
     array([[ 34.71177971,  34.89152372,  35.02554774,  34.84723008,
-            34.7366296 ,  34.73236186],
-          [ 34.7115532 ,  34.89116101,  35.02464926,  34.84359277,
-            34.7290336 ,  34.71967638]])
+             34.7366296 ,  34.73236186],
+           [ 34.7115532 ,  34.89116101,  35.02464926,  34.84359277,
+             34.7290336 ,  34.71967638]])
 
     References
     ----------
