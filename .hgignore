@@ -1,3 +1,4 @@
 syntax: glob
 *~
 _build
+.swp*
