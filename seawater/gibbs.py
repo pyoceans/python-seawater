@@ -2376,6 +2376,84 @@ def entropy_from_t(SA, t, t_type='pt'):
 
     return entropy
 
+@match_args_return
+def temps_maxdensity(SA, p):
+    r"""
+    Calculates the temperatures of maximum density of seawater. This function
+    returns the in-situ, potential, and Conservative temperatures at which the
+    density of seawater is a maximum, at given Absolute Salinity, SA, and sea
+    pressure, p (in dbar).
+
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+    p : array_like
+        pressure [dbar]
+
+    Returns
+    -------
+    t_maxden : array_like
+               in situ temperature [:math:`^\circ` C (ITS-90)]
+    pt_maxden : array_like
+                potential temperature [:math:`^\circ` C (ITS-90)]
+    CT_maxden : array_like
+                Conservative Temperature [:math:`^\circ` C (TEOS-10)]
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    Returning only in-situ t for now. I don't see the point in returning all 3.
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> p = [10, 50, 125, 250, 600, 1000]
+    >>> gsw.temps_maxdensity(SA, p)
+    TODO
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation
+    of seawater - 2010: Calculation and use of thermodynamic properties.
+    Intergovernmental Oceanographic Commission, Manuals and Guides No. 56,
+    UNESCO (English), 196 pp. See section 3.42
+
+    Modifications:
+    2010-08-26. Trevor McDougall & Paul Barker.
+    2010-02-21. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    SA, p, mask = lib.strip_mask(SA, p)
+
+    n0, n1 = 0, 1
+
+    dt = 0.001 # the temperature increment for the gibbs_PTT derivative
+    t = 3.978 - 0.22072*SA # the initial guess of t_maxden
+    gibbs_PTT = 1.1e-8 # the initial guess for g_PTT
+
+    for Number_of_iterations in range(0,3,1):
+        t_old = t
+        gibbs_PT = lib._gibbs(n0, n1, n1, SA, t_old, p)
+        t = t_old - gibbs_PT / gibbs_PTT # half way through the modified method
+        t_mean = 0.5*(t + t_old)
+        gibbs_PTT = ( (lib._gibbs(n0, n1, n1, SA, t_mean + dt,p) -
+        lib._gibbs(n0, n1, n1, SA, t_mean - dt, p) ) / (dt + dt) )
+        t = t_old - gibbs_PT / gibbs_PTT
+
+    # After three iterations of this modified Newton-Raphson iteration, the
+    #  error in t_maxden is typically no larger than 1x10^-15 degC
+    #t_maxden  = t
+    #pt_maxden = gsw_pt0_from_t(SA,t_maxden,p)
+    #CT_maxden = gsw_CT_from_pt(SA,pt_maxden)
+
+    #return t_maxden, pt_maxden, CT_maxden
+    return np.ma.array(t, mask=mask, copy=False)
+
 """
 Section D: extra functions for Depth, Pressure and Distance
 """
@@ -3282,196 +3360,6 @@ def SA_from_rho(rho, t, p):
     SA[Ior] = np.ma.masked
 
     return SA
-
-"""
-Section F: Classes
-"""
-
-class Gibbs:
-    r"""
-    Class that aggregate all SA, t, p functions.
-
-    Parameters
-    ----------
-    SA : array_like
-         Absolute salinity [g kg :sup:`-1`]
-    t : array_like
-        in situ temperature [:math:`^\circ` C (ITS-90)]
-    p : array_like
-        pressure [dbar]
-
-    """
-    def __init__(self, SA=None, t=None, p=None):
-        self.SA, self.t, self.p = ( np.asanyarray(SA), np.asanyarray(t),
-                                                       np.asanyarray(p) )
-
-    def entropy(self):
-        """
-        See entropy docstring
-        """
-        return entropy(self.SA, self.t, self.p)
-
-    def rho(self):
-        """
-        See rho docstring
-        """
-        return rho(self.SA, self.t, self.p)
-
-    def cp(self):
-        """
-        See cp docstring
-        """
-        return cp(self.SA, self.t, self.p)
-
-    def helmholtz_energy(self):
-        """
-        See helmholtz_energy docstring
-        """
-        return helmholtz_energy(self.SA, self.t, self.p)
-
-    def internal_energy(self):
-        """
-        See internal_energy docstring
-        """
-        return internal_energy(self.SA, self.t, self.p)
-
-    def sound_speed(self):
-        """
-        See sound_speed docstring
-        """
-        return sound_speed(self.SA, self.t, self.p)
-
-    def adiabatic_lapse_rate(self):
-        """
-        See adiabatic_lapse_rate docstring
-        """
-        return adiabatic_lapse_rate(self.SA, self.t, self.p)
-
-    def chem_potential_relative(self):
-        """
-        See chem_potential_relative docstring
-        """
-        return chem_potential_relative(self.SA, self.t, self.p)
-
-    def specvol(self):
-        """
-        See specvol docstring
-        """
-        return specvol(self.SA, self.t, self.p)
-
-    def conservative_t(self):
-        """
-        See conservative_t docstring
-        """
-        return conservative_t(self.SA, self.t, self.p)
-
-    def potential_t(self, pr=0):
-        """
-        See potential_t docstring
-        """
-        return potential_t(self.SA, self.t, self.p)
-
-    def enthalpy(self):
-        """
-        See enthalpy docstring
-        """
-        return enthalpy(self.SA, self.t, self.p)
-
-    def chem_potential_water(self):
-        """
-        See chem_potential_water docstring
-        """
-        return chem_potential_water(self.SA, self.t, self.p)
-
-    def chem_potential_salt(self):
-        """
-        See chem_potential_salt docstring
-        """
-        return chem_potential_salt(self.SA, self.t, self.p)
-
-    def isochoric_heat_cap(self):
-        """
-        See isochoric_heat_cap docstring
-        """
-        return isochoric_heat_cap(self.SA, self.t, self.p)
-
-    def kappa(self):
-        """
-        See kappa docstring
-        """
-        return kappa(self.SA, self.t, self.p)
-
-    def kappa_const_t(self):
-        """
-        See kappa_const_t docstring
-        """
-        return kappa_const_t(self.SA, self.t, self.p)
-
-    def pot_rho(self, pr=0):
-        """
-        See pot_rho docstring
-        """
-        return pot_rho(self.SA, self.t, self.p)
-
-    def specvol_anom(self):
-        """
-        See specvol_anom docstring
-        """
-        return specvol_anom(self.SA, self.t, self.p)
-
-    def alpha_wrt_t(self):
-        """
-        See alpha_wrt_t docstring
-        """
-        return alpha_wrt_t(self.SA, self.t, self.p)
-
-    def alpha_wrt_CT(self):
-        """
-        See alpha_wrt_CT docstring
-        """
-        return alpha_wrt_CT(self.SA, self.t, self.p)
-
-    def alpha_wrt_pt(self):
-        """
-        See alpha_wrt_pt docstring
-        """
-        return alpha_wrt_pt(self.SA, self.t, self.p)
-
-    def beta_const_t(self):
-        """
-        See beta_const_t docstring
-        """
-        return beta_const_t(self.SA, self.t, self.p)
-
-    def beta_const_CT(self):
-        """
-        See beta_const_CT docstring
-        """
-        return beta_const_CT(self.SA, self.t, self.p)
-
-    def beta_const_pt(self):
-        """
-        See beta_const_pt docstring
-        """
-        return beta_const_pt(self.SA, self.t, self.p)
-
-    def osmotic_coefficient(self):
-        """
-        See osmotic_coefficient docstring
-        """
-        return osmotic_coefficient(self.SA, self.t, self.p)
-
-    def molality(self):
-        """
-        See molality docstring
-        """
-        return molality(self.SA)
-
-    def ionic_strength(self):
-        """
-        See ionic_strength docstring
-        """
-        return ionic_strength(self.SA)
 
 if __name__=='__main__':
     import doctest
