@@ -284,8 +284,10 @@ test_print("osmotic_coefficient")
 #t_maxden, pt_maxden, CT_maxden = gsw.temps_maxdensity(SA_chck_cast, gsw_cv.p_chck_cast)
 t_maxden = gsw.temps_maxdensity(SA_chck_cast, gsw_cv.p_chck_cast)
 test_print("t_maxden")
-#test_print("pt_maxden")
-#test_print("CT_maxden")
+pt_maxden = gsw.potential_t(SA_chck_cast, t_maxden,gsw_cv.p_chck_cast)
+test_print("pt_maxden")
+CT_maxden = gsw.conservative_t(SA_chck_cast, t_maxden,gsw_cv.p_chck_cast)
+test_print("CT_maxden")
 
 """ basic thermodynamic properties in terms of CT and pt """
 #rho_CT = gsw.rho_CT(SA_chck_cast, CT_chck_cast, gsw_cv.p_chck_cast)
