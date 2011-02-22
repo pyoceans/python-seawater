@@ -40,7 +40,8 @@ class Dict2Struc(object):
     Open variables from a dictionary in a "matlab-like-structure"
     """
     def __init__(self, adict):
-        self.__dict__.update(adict)
+        for k in adict.files:
+            self.__dict__[k] = adict[k]
 
 class Cache_npz(object):
     def __init__(self):
