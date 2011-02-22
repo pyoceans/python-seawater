@@ -26,16 +26,6 @@ Contains the functions for evaluating the thermodynamic properties of pure water
 
 The author has no intention to do things in a "pythonic-way", it is just a "work around" from someone that couldn't afford MatlabTM anymore.
 
-GSW toolbox was rewritten in OO approach, i.e., there is a Gibbs class that contains all (SA,t,p) functions as methods.
-
-Ex.:
-        >>> from seawater.gibbs import Gibbs
-        >>> SA = [34.5075, 34.7165, 34.8083, 34.8465, 34.8636, 34.8707, 34.8702]
-        >>> t  = [27.9620, 4.4726, 2.1178, 1.6031, 1.4601, 1.4753, 1.5998]
-        >>> p  = [0., 1010., 2025., 3045., 4069., 5098., 6131.]
-        >>> STP = Gibbs(SA, t, p)
-        >>> STP.beta_const_pt()
-
 For more information:
     http://pypi.python.org/pypi/seawater/
 
