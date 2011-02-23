@@ -199,14 +199,9 @@ def _gibbs(ns, nt, npr, SA, t, p):
 
     SA, t, p = np.asanyarray(SA), np.asanyarray(t), np.asanyarray(p)
 
-    # trick to use single number
-    if SA.ndim == 0:
-        SA = SA[np.newaxis]
-    if (SA.size == 1 and SA[0] <= 0) or np.ma.all(SA <=0):
-        nonzero_SA = False
-    else:
-        nonzero_SA = True
-        SA = np.ma.masked_less_equal(SA, 0)
+    SA = np.atleast_1d(SA)
+    nonzero_SA = np.any(SA > 0)
+
     _SA = SA
     _t = t
     _p = p
@@ -656,11 +651,19 @@ def _gibbs(ns, nt, npr, SA, t, p):
         # measured in Pa; units of (J kg :sup:`-1`) (Pa :sup:`-2`).
         gibbs = (g03 + g08) * 1e-16
     else:
-        raise NameError('Wrong Combination of order/variables')
+        raise ValueError('Illegal derivative of the Gibbs function')
 
     gibbs = np.ma.array(gibbs, mask=mask, copy=False)
-    if all_masked:
-        gibbs[:] = np.ma.masked
+    
+    # BÅ: Code below is not needed?
+    #if all_masked:
+    #    gibbs[:] = np.ma.masked
+
+    # Do not allow zero salinity with salinity derivatives
+    if ns > 0:
+        gibbs = np.ma.masked_where(SA == 0, gibbs)
+
+        
     return gibbs
 
 def _entropy_part(SA, t, p):

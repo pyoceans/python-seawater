@@ -2343,7 +2343,8 @@ def entropy_from_t(SA, t, t_type='pt'):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA[SA < 0] = 0
+    #SA[SA < 0] = 0
+    SA.clip(0, np.inf)
 
     n0, n1 = 0, 1
 
