@@ -110,7 +110,6 @@ test_print("SP_from_Sstar")
 z_from_p = gsw.z_from_p(gsw_cv.p_chck_cast, gsw_cv.lat_chck_cast)
 test_print("z_from_p")
 
-#FIXME: output is 1D when input is 2D
 p_from_z = gsw.p_from_z(z_from_p, gsw_cv.lat_chck_cast)
 test_print("p_from_z") #FIXME: diffs are not found in the original
 
@@ -290,17 +289,21 @@ CT_maxden = gsw.conservative_t(SA_chck_cast, t_maxden,gsw_cv.p_chck_cast)
 test_print("CT_maxden")
 
 """ basic thermodynamic properties in terms of CT and pt """
+#NOTE: redundant
 #rho_CT = gsw.rho_CT(SA_chck_cast, CT_chck_cast, gsw_cv.p_chck_cast)
 #test_print("rho_CT")
 
+#NOTE: redundant
 #rho_CTrab, alpha_CTrab, beta_CTrab = gsw.rho_alpha_beta_CT(SA_chck_cast, CT_chck_cast, gsw_cv.p_chck_cast)
 #test_print("rho_CTrab")
 #test_print("alpha_CTrab")
 #test_print("beta_CTrab")
 
+#NOTE: redundant, I guess the cal should be to gsw.specvol_CT
 #specvol_CT = gsw.specvol_CT25(SA_chck_cast, CT_chck_cast, gsw_cv.p_chck_cast)
 #test_print("specvol_CT")
 
+#NOTE: redundant
 #specvol_anom_CT = gsw.specvol_anom_CT(SA_chck_cast, CT_chck_cast, gsw_cv.p_chck_cast)
 #test_print("specvol_anom_CT")
 
@@ -319,6 +322,7 @@ test_print("CT_maxden")
 #sigma4_CT = gsw.sigma4_CT(SA_chck_cast, CT_chck_cast)
 #test_print("sigma4_CT")
 
+#NOTE: redundant
 #enthalpy_CT =  gsw.enthalpy_CT(SA_chck_cast, CT_chck_cast, gsw_cv.p_chck_cast)
 #test_print("enthalpy_CT")
 
