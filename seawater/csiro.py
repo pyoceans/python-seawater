@@ -706,7 +706,7 @@ def bfrq(s, t, p, lat=None):
     s, t, p = np.broadcast_arrays(s, t, p)
 
     if (s.ndim != 2)  and (t.ndim != 2):
-        raise ValueError, 'Arguments must be 2D arrays (n_depths, n_profiles)'
+        raise ValueError('Arguments must be 2D arrays: n_depths, n_profiles')
 
     if lat is None:
         z = p
@@ -2439,7 +2439,7 @@ def gpan(s, t, p):
     s, t, p = np.broadcast_arrays(s, t, p)
 
     if (s.ndim != 2)  and (t.ndim != 2):
-        raise ValueError, 'Arguments must be 2D arrays (n_depths, n_profiles)'
+        raise ValueError('Arguments must be 2D arrays: n_depths, n_profiles')
 
     svn = svan(s, t, p)
     mean_svan  = 0.5*(svn[1:,:] + svn[0:-1,:])
