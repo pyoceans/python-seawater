@@ -14,7 +14,9 @@ class Dict2Struc(object):
     Open variables from a dictionary in a "matlab-like-structure"
     """
     def __init__(self, adict):
-        self.__dict__.update(adict)
+        for k in adict.files:
+            self.__dict__[k] = adict[k]
+
 
 def read_data(fname):
     datadir = os.path.join(os.path.dirname(__file__), '../data')
