@@ -90,25 +90,32 @@ class Test_SA_from_SP(unittest.TestCase):
 
 
     def test_correct(self):
-        """Test correct answer for some standard values"""
+        r"""Test correct answer for some standard values
+
+        Standard values from 
+        http://www.teos-10.org/pubs/gsw/html/gsw_SA_from_SP.html
+        """
 
         SP = [34.5487, 34.7275, 34.8605, 34.6810, 34.5680, 34.5600]
         p = [10, 50, 125, 250, 600, 1000]
         lon, lat = 188, 4
-        SA_correct = np.array([ 34.71177971,  34.89152372,
-                                35.02554774,  34.84723008,
-                                34.7366296 ,  34.73236186])
+        SA_official = np.array((34.711779712893147,
+                                34.891523721622328,
+                                35.025547737221643,
+                                34.847230081708567,
+                                34.736629598766619,
+                                34.732361864645107))
         SA = gsw.SA_from_SP(SP, p, lon, lat)
-        self.assertTrue(np.all(abs(SA-SA_correct) < 1.0e-8))
+        self.assertTrue(np.all(SA == SA_official))
 
     def test_in_baltic(self):
         """Test that the function works in the baltic"""
 
         SP = [6.5683, 6.6719, 6.8108, 7.2629, 7.4825, 10.2796]
         lon, lat = 20, 59
-        SA_correct = np.array([  6.66994543,   6.77377643,   6.91298614,
-                                 7.36609419,   7.58618384,  10.38952057])
-        p = 20
+        SA_correct = np.array([6.66994543, 6.77377643,  6.91298614,
+                               7.36609419, 7.58618384, 10.38952057])
+        p = 20  # Arbitrary value
         SA = gsw.SA_from_SP(SP, p, lon, lat)
         self.assertTrue(np.all(abs(SA - SA_correct) < 1.0E-8))
 
