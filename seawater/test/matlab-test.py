@@ -363,9 +363,9 @@ test_print("pt_from_entropy") #FIXME: diffs are not found in the original
 #test_print("h_SA_CT")
 #test_print("h_CT_CT")
 
-#eta_SA, eta_CT = gsw.entropy_first_derivatives(SA_chck_cast, CT_chck_cast)
-#test_print("eta_SA")
-#test_print("eta_CT")
+eta_SA, eta_CT = gsw.entropy_first_derivatives(SA_chck_cast, CT_chck_cast)
+test_print("eta_SA")
+test_print("eta_CT")
 
 #eta_SA_SA, eta_SA_CT, eta_CT_CT = gsw.entropy_second_derivatives(SA_chck_cast, CT_chck_cast)
 #test_print("eta_SA_SA")
