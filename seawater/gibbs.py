@@ -2212,10 +2212,10 @@ def pt0_from_t(SA, t, p):
     return pt0
 
 @match_args_return
-def t_from_entropy(SA, entropy, t_type='pt'):
+def pt_from_entropy(SA, entropy):
     r"""
-    Calculates potential temperature with reference pressure pr = 0 dbar or
-    Conservative temperature from entropy.
+    Calculates potential temperature with reference pressure pr = 0 dbar
+    from entropy.
 
     Parameters
     ----------
@@ -2223,15 +2223,11 @@ def t_from_entropy(SA, entropy, t_type='pt'):
          Absolute salinity [g kg :sup:`-1`]
     entropy : array_like
               specific entropy [J kg :sup:`-1` K :sup:`-1`]
-    t_type : str, optional
-             'pt' for potential temperature [:math:`^\circ` C (ITS-90)]
-             'CT' for Conservative Temperature [:math:`^\circ` C (TEOS-10)]
 
     Returns
     -------
-    t : array_like
-        potential temperature [:math:`^\circ` C (ITS-90)] (Default) or
-        Conservative Temperature [:math:`^\circ` C (TEOS-10)]
+    pt : array_like
+         potential temperature [:math:`^\circ` C (ITS-90)] (Default) or
 
     See Also
     --------
@@ -2246,13 +2242,9 @@ def t_from_entropy(SA, entropy, t_type='pt'):
     >>> import seawater.gibbs as gsw
     >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
     >>> entropy = [400.3892, 395.4378, 319.8668, 146.7910, 98.6471, 62.7919]
-    >>> gsw.t_from_entropy(SA, entropy)
+    >>> gsw.pt_from_entropy(SA, entropy)
     array([ 28.78317983,  28.42095483,  22.78495274,  10.23053207,
              6.82921333,   4.32453778])
-    >>> gsw.t_from_entropy(SA, entropy, t_type='CT')
-    array([ 28.80990279,  28.43919923,  22.78619927,  10.22619767,
-             6.82719674,   4.32360295])
-
 
     References
     ----------
@@ -2266,7 +2258,8 @@ def t_from_entropy(SA, entropy, t_type='pt'):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SA[SA < 0] = 0
+    SA.clip(0, np.inf)
+    #SA[SA < 0] = 0
 
     n0, n1 = 0, 1
 
@@ -2279,19 +2272,73 @@ def t_from_entropy(SA, entropy, t_type='pt'):
 
     for Number_of_iterations in range(0,3):
         pt_old = pt
-        dentropy = entropy_from_t(SA, pt_old, t_type='pt') - entropy
+        dentropy = entropy_from_pt(SA, pt_old) - entropy
         pt = pt_old - dentropy / dentropy_dt # half way through mod. method
         ptm = 0.5 * (pt + pt_old)
         dentropy_dt = -lib._gibbs_pt0_pt0(SA, ptm)
-        t = pt_old - dentropy / dentropy_dt
+        pt = pt_old - dentropy / dentropy_dt
 
-    if t_type == 'CT':
-        t = CT_from_pt(SA, t)
-
-    return t
+    return pt
 
 @match_args_return
-def entropy_from_t(SA, t, t_type='pt'):
+def CT_from_entropy(SA, entropy):
+    r"""
+    Calculates potential temperature with reference pressure pr = 0 dbar or
+    Conservative temperature from entropy.
+
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+    entropy : array_like
+              specific entropy [J kg :sup:`-1` K :sup:`-1`]
+
+    Returns
+    -------
+    CT : array_like
+         Conservative Temperature [:math:`^\circ` C (TEOS-10)]
+
+    See Also
+    --------
+    _gibbs_pt0_pt0
+
+    Notes
+    -----
+    TODO
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> entropy = [400.3892, 395.4378, 319.8668, 146.7910, 98.6471, 62.7919]
+    >>> gsw.CT_from_entropy(SA, entropy)
+    array([ 28.80990279,  28.43919923,  22.78619927,  10.22619767,
+             6.82719674,   4.32360295])
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation
+    of seawater - 2010: Calculation and use of thermodynamic properties.
+    Intergovernmental Oceanographic Commission, Manuals and Guides No. 56,
+    UNESCO (English), 196 pp. See appendix  A.10.
+
+    Modifications:
+    2010-10-13. Trevor McDougall and Paul Barker.
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    SA.clip(0, np.inf)
+    #SA[SA < 0] = 0
+
+    n0, n1 = 0, 1
+
+    pt = pt_from_entropy(SA, entropy)
+    CT = CT_from_pt(SA, pt)
+
+    return CT
+
+@match_args_return
+def entropy_from_CT(SA, CT):
     r"""
     Calculates specific entropy of seawater.
 
@@ -2299,11 +2346,8 @@ def entropy_from_t(SA, t, t_type='pt'):
     ----------
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
-    t : array_like
-        temperature [:math:`^\circ` C]
-    t_type : str, optional
-             'pt' for potential temperature [:math:`^\circ` C (ITS-90)]
-             'CT' for Conservative Temperature [:math:`^\circ` C (TEOS-10)]
+    CT : array_like
+         Conservative Temperature [:math:`^\circ` C (TEOS-10)]
 
     Returns
     -------
@@ -2322,12 +2366,8 @@ def entropy_from_t(SA, t, t_type='pt'):
     --------
     >>> import seawater.gibbs as gsw
     >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
-    >>> pt = [28.7832, 28.4210, 22.7850, 10.2305, 6.8292, 4.3245]
-    >>> gsw.entropy_from_t(SA, pt)
-    array([ 400.38946744,  395.43839949,  319.86743859,  146.79054828,
-             98.64691006,   62.79135672])
     >>> CT = [28.8099, 28.4392, 22.7862, 10.2262, 6.8272, 4.3236]
-    >>> gsw.entropy_from_t(SA, CT, t_type='CT')
+    >>> gsw.entropy_from_CT(SA, CT)
     array([ 400.38916315,  395.43781023,  319.86680989,  146.79103279,
              98.64714648,   62.79185763])
 
@@ -2348,11 +2388,63 @@ def entropy_from_t(SA, t, t_type='pt'):
 
     n0, n1 = 0, 1
 
-    if t_type == 'pt':
-        entropy = -lib._gibbs(n0, n1, n0, SA, t, 0)
-    elif t_type == 'CT':
-        pt0 = pt_from_CT(SA, t)
-        entropy = -lib._gibbs(n0, n1, n0, SA, pt0, 0)
+    pt0 = pt_from_CT(SA, CT)
+    entropy = entropy_from_pt(SA, pt0)
+
+    return entropy
+
+@match_args_return
+def entropy_from_pt(SA, pt):
+    r"""
+    Calculates specific entropy of seawater.
+
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+    pt : array_like
+         potential temperature [:math:`^\circ` C (ITS-90)]
+
+    Returns
+    -------
+    entropy : array_like
+              specific entropy [J kg :sup:`-1` K :sup:`-1`]
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    TODO
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> pt = [28.7832, 28.4210, 22.7850, 10.2305, 6.8292, 4.3245]
+    >>> gsw.entropy_from_pt(SA, pt)
+    array([ 400.38946744,  395.43839949,  319.86743859,  146.79054828,
+             98.64691006,   62.79135672])
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation
+    of seawater - 2010: Calculation and use of thermodynamic properties.
+    Intergovernmental Oceanographic Commission, Manuals and Guides No. 56,
+    UNESCO (English), 196 pp. See appendix A.10.
+
+    Modifications:
+    2010-10-13. Trevor McDougall & Paul Barker
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    #SA[SA < 0] = 0
+    SA.clip(0, np.inf)
+
+    n0, n1 = 0, 1
+
+    entropy = -lib._gibbs(n0, n1, n0, SA, pt, 0)
 
     return entropy
 
@@ -2500,6 +2592,89 @@ def entropy_first_derivatives(SA, CT):
     eta_CT = cte.cp0 / (cte.Kelvin + pt)
 
     return eta_SA, eta_CT
+
+
+@match_args_return
+def CT_first_derivatives(SA, pt):
+    r"""
+    Calculates the following two derivatives of Conservative Temperature
+    (1) CT_SA, the derivative with respect to Absolute Salinity at constant
+        potential temperature (with pr = 0 dbar), and
+    (2) CT_pt, the derivative with respect to potential temperature (the
+        regular potential temperature which is referenced to 0 dbar) at
+        constant Absolute Salinity.
+
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+    pt : array_like
+         potential temperature referenced to a sea pressure of zero dbar
+         [:math:`^\circ` C (ITS-90)]
+
+    Returns
+    -------
+    CT_SA : array_like
+            The derivative of CT with respect to SA at constant potential
+            temperature reference sea pressure of 0 dbar.
+            [K (g kg :sup:`-1`) :sup:`-1`]
+
+    CT_pt : array_like
+            The derivative of CT with respect to pt at constant SA.
+            [ unitless ]
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    TODO
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> pt = [28.7832, 28.4209, 22.7850, 10.2305, 6.8292, 4.3245]
+    >>> gsw.CT_first_derivatives(SA, pt)
+    array([[-0.04198109, -0.04155814, -0.03473921, -0.0187111 , -0.01407594,
+            -0.01057172],
+           [ 1.00281494,  1.00255482,  1.00164514,  1.00000377,  0.99971636,
+             0.99947433]])
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation
+    of seawater - 2010: Calculation and use of thermodynamic properties.
+    Intergovernmental Oceanographic Commission, Manuals and Guides No. 56,
+    UNESCO (English), 196 pp. See Eqns. (A.12.3) and (A.12.9a,b).
+
+    .. [2] McDougall T. J., D. R. Jackett, P. M. Barker, C. Roberts-Thomson, R.
+    Feistel and R. W. Hallberg, 2010:  A computationally efficient 25-term
+    expression for the density of seawater in terms of Conservative Temperature,
+    and related properties of seawater.
+
+    Modifications:
+    2010-08-05. Trevor McDougall and Paul Barker.
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    #SA, pt, mask = lib.strip_mask(SA, pt)
+
+    n0, n1, n2 = 0, 1, 2
+    abs_pt = cte.Kelvin + pt
+
+    g100 = lib._gibbs(n1, n0, n0, SA, pt, 0)
+    g110 = lib._gibbs(n1, n1, n0, SA, pt, 0)
+    CT_SA = ( g100 - abs_pt * g110 ) / cte.cp0
+
+    g020 = lib._gibbs(n0, n2, n0, SA, pt, 0)
+    CT_pt = - (abs_pt * g020 ) / cte.cp0
+
+    #CT_SA = np.ma.array(CT_SA, mask=mask, copy=False)
+    #CT_pt = np.ma.array(CT_pt, mask=mask, copy=False)
+    return CT_SA, CT_pt #FIXME: fails with NaNs (decorator?)
+
 
 """
 Section D: extra functions for Depth, Pressure and Distance
