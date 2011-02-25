@@ -1,0 +1,71 @@
+function [SA_i, CT_i] = gsw_interp_SA_CT(SA,CT,p,p_i)
+% gsw_interp_SA_CT                    linear interpolation to p_i on a cast
+%==========================================================================
+% This function interpolates the cast with respect to the interpolating
+% variable p. This function finds the values of SA, CT at p_i on this cast.
+%
+% This fuction was adapted from Matlab's interp1q.
+%==========================================================================
+
+p = p(:);
+
+[min_p,Imin_p] = min(p);
+[Ishallow] = find(p <= min_p);        % Set equal to the shallowest bottle.
+SA_i(Ishallow) = SA(Imin_p);
+CT_i(Ishallow) = CT(Imin_p);
+
+[max_p,Imax_p] = max(p);
+[Ideep] = find(p_i >= max_p);            % Set equal to the deepest bottle.
+SA_i(Ideep) = SA(Imax_p);
+CT_i(Ideep) = CT(Imax_p);
+
+[I] = find(p_i >= min_p & p_i <= max_p);
+
+xi = p_i(I);
+
+x = p;
+
+siz = size(xi);
+if ~isscalar(xi)
+   [xxi, k] = sort(xi);
+   [dum, j] = sort([x;xxi]);
+   r(j) = 1:length(j);
+   r = r(length(x)+1:end) - (1:length(xxi));
+   r(k) = r;
+   r(xi==x(end)) = length(x)-1;
+   ind = find((r>0) & (r<length(x)));
+   ind = ind(:);
+   SA_ri = NaN(length(xxi),size(SA,2),superiorfloat(x,SA,xi));
+   CT_ri = NaN(length(xxi),size(CT,2),superiorfloat(x,CT,xi));
+   rind = r(ind);
+   xrind = x(rind);
+   u = (xi(ind)-xrind)./(x(rind+1)-xrind);
+   SArind = SA(rind,:);
+   CTrind = CT(rind,:);
+   SA_ri(ind,:) = SArind + bsxfun(@times,SA(rind+1,:)-SArind,u);
+   CT_ri(ind,:) = CTrind + bsxfun(@times,CT(rind+1,:)-CTrind,u);
+else
+   % Special scalar xi case
+   r = find(x <= xi,1,'last');
+   r(xi==x(end)) = length(x)-1;
+   if isempty(r) || r<=0 || r>=length(x)
+      SA_ri = NaN(1,size(SA,2),superiorfloat(x,SA,xi));
+      CT_ri = NaN(1,size(CT,2),superiorfloat(x,CT,xi));
+   else
+      u = (xi-x(r))./(x(r+1)-x(r));
+      SAr = SA(r,:);
+      CTr = CT(r,:);
+      SA_ri = SAr + bsxfun(@times,SA(r+1,:)-SAr,u);
+      CT_ri = CTr + bsxfun(@times,CT(r+1,:)-CTr,u);
+   end
+end
+
+if min(size(SA_ri)) == 1 && numel(xi) > 1
+   SA_ri = reshape(SA_ri,siz);
+   CT_ri = reshape(CT_ri,siz);
+end
+
+SA_i(I) = SA_ri;
+CT_i(I) = CT_ri;
+
+end
