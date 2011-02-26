@@ -2595,14 +2595,11 @@ def entropy_first_derivatives(SA, CT):
 
 
 @match_args_return
-def CT_first_derivatives(SA, pt):
+def CT_first_derivatives_SA(SA, pt):
     r"""
-    Calculates the following two derivatives of Conservative Temperature
-    (1) CT_SA, the derivative with respect to Absolute Salinity at constant
-        potential temperature (with pr = 0 dbar), and
-    (2) CT_pt, the derivative with respect to potential temperature (the
-        regular potential temperature which is referenced to 0 dbar) at
-        constant Absolute Salinity.
+    Calculates the derivatives of Conservative Temperature (CT_SA), with
+    respect to Absolute Salinity at constant potential temperature
+    (with pr = 0 dbar).
 
     Parameters
     ----------
@@ -2619,10 +2616,6 @@ def CT_first_derivatives(SA, pt):
             temperature reference sea pressure of 0 dbar.
             [K (g kg :sup:`-1`) :sup:`-1`]
 
-    CT_pt : array_like
-            The derivative of CT with respect to pt at constant SA.
-            [ unitless ]
-
     See Also
     --------
     TODO
@@ -2636,11 +2629,9 @@ def CT_first_derivatives(SA, pt):
     >>> import seawater.gibbs as gsw
     >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
     >>> pt = [28.7832, 28.4209, 22.7850, 10.2305, 6.8292, 4.3245]
-    >>> gsw.CT_first_derivatives(SA, pt)
-    array([[-0.04198109, -0.04155814, -0.03473921, -0.0187111 , -0.01407594,
-            -0.01057172],
-           [ 1.00281494,  1.00255482,  1.00164514,  1.00000377,  0.99971636,
-             0.99947433]])
+    >>> gsw.CT_first_derivatives_SA(SA, pt)
+    array([-0.04198109, -0.04155814, -0.03473921, -0.0187111 , -0.01407594,
+           -0.01057172])
 
     References
     ----------
@@ -2659,22 +2650,77 @@ def CT_first_derivatives(SA, pt):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    #SA, pt, mask = lib.strip_mask(SA, pt)
-
-    n0, n1, n2 = 0, 1, 2
+    n0, n1 = 0, 1
     abs_pt = cte.Kelvin + pt
 
     g100 = lib._gibbs(n1, n0, n0, SA, pt, 0)
     g110 = lib._gibbs(n1, n1, n0, SA, pt, 0)
     CT_SA = ( g100 - abs_pt * g110 ) / cte.cp0
 
+    return CT_SA
+
+@match_args_return
+def CT_first_derivatives_pt(SA, pt):
+    r"""
+    Calculates the derivatives of Conservative Temperature (CT_pt), with
+    respect to potential temperature (the regular potential temperature which
+    is referenced to 0 dbar) at constant Absolute Salinity.
+
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+    pt : array_like
+         potential temperature referenced to a sea pressure of zero dbar
+         [:math:`^\circ` C (ITS-90)]
+
+    Returns
+    -------
+    CT_pt : array_like
+            The derivative of CT with respect to pt at constant SA.
+            [ unitless ]
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    TODO
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> pt = [28.7832, 28.4209, 22.7850, 10.2305, 6.8292, 4.3245]
+    >>> gsw.CT_first_derivatives_pt(SA, pt)
+    array([1.00281494,  1.00255482,  1.00164514,  1.00000377,  0.99971636,
+           0.99947433])
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation
+    of seawater - 2010: Calculation and use of thermodynamic properties.
+    Intergovernmental Oceanographic Commission, Manuals and Guides No. 56,
+    UNESCO (English), 196 pp. See Eqns. (A.12.3) and (A.12.9a,b).
+
+    .. [2] McDougall T. J., D. R. Jackett, P. M. Barker, C. Roberts-Thomson, R.
+    Feistel and R. W. Hallberg, 2010:  A computationally efficient 25-term
+    expression for the density of seawater in terms of Conservative Temperature,
+    and related properties of seawater.
+
+    Modifications:
+    2010-08-05. Trevor McDougall and Paul Barker.
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    n0, n2 = 0, 2
+    abs_pt = cte.Kelvin + pt
+
     g020 = lib._gibbs(n0, n2, n0, SA, pt, 0)
     CT_pt = - (abs_pt * g020 ) / cte.cp0
 
-    #CT_SA = np.ma.array(CT_SA, mask=mask, copy=False)
-    #CT_pt = np.ma.array(CT_pt, mask=mask, copy=False)
-    return CT_SA, CT_pt #FIXME: fails with NaNs (decorator?)
-
+    return CT_pt
 
 """
 Section D: extra functions for Depth, Pressure and Distance
