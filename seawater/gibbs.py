@@ -2529,7 +2529,7 @@ def temps_maxdensity(SA, p):
 
 
 @match_args_return
-def entropy_first_derivatives_SA(SA, CT):
+def _entropy_first_derivatives_SA(SA, CT):
     r"""
     Calculates the derivatives of specific entropy (eta_SA) with respect to
     Absolute Salinity at constant Conservative Temperature.
@@ -2560,7 +2560,7 @@ def entropy_first_derivatives_SA(SA, CT):
     >>> import seawater.gibbs as gsw
     >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
     >>> CT = [28.8099, 28.4392, 22.7862, 10.2262, 6.8272, 4.3236]
-    >>> gsw.entropy_first_derivatives_SA(SA, CT)
+    >>> gsw._entropy_first_derivatives_SA(SA, CT)
     array([ -0.2632868 ,  -0.26397728,  -0.2553675 ,  -0.23806659,
             -0.23443826,  -0.23282068])
 
@@ -2584,8 +2584,9 @@ def entropy_first_derivatives_SA(SA, CT):
 
     return eta_SA
 
+
 @match_args_return
-def entropy_first_derivatives_pt(SA, CT):
+def _entropy_first_derivatives_pt(SA, CT):
     r"""
     Calculates the derivatives of specific entropy (eta_CT) with respect to
     Conservative Temperature at constant Absolute Salinity.
@@ -2616,7 +2617,7 @@ def entropy_first_derivatives_pt(SA, CT):
     >>> import seawater.gibbs as gsw
     >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
     >>> CT = [28.8099, 28.4392, 22.7862, 10.2262, 6.8272, 4.3236]
-    >>> gsw.entropy_first_derivatives_pt(SA, CT)
+    >>> gsw._entropy_first_derivatives_pt(SA, CT)
     array([13.22103121,  13.23691119,  13.48900463,  14.08659902,
            14.25772958,  14.38642995])
 
@@ -2638,8 +2639,65 @@ def entropy_first_derivatives_pt(SA, CT):
 
     return eta_CT
 
+def entropy_first_derivatives(SA, CT):
+    r"""
+    Calculates the following two partial derivatives of specific entropy (eta)
+    (1) eta_SA, the derivative with respect to Absolute Salinity at constant
+        Conservative Temperature, and
+    (2) eta_CT, the derivative with respect to Conservative Temperature at
+        constant Absolute Salinity.
+
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+    CT : array_like
+         Conservative Temperature [:math:`^\circ` C (TEOS-10)]
+
+    Returns
+    -------
+    eta_SA : array_like
+             The derivative of specific entropy with respect to SA at constant
+             CT [J g :sup:`-1` K :sup:`-1`]
+    eta_CT : array_like
+             The derivative of specific entropy with respect to CT at constant
+             SA [ J (kg K :sup:`-2`) :sup:`-1` ]
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    TODO
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> CT = [28.8099, 28.4392, 22.7862, 10.2262, 6.8272, 4.3236]
+    >>> gsw.entropy_first_derivatives(SA, CT)
+    array([[ -0.2632868 ,  -0.26397728,  -0.2553675 ,  -0.23806659,
+             -0.23443826,  -0.23282068],
+           [ 13.22103121,  13.23691119,  13.48900463,  14.08659902,
+             14.25772958,  14.38642995]])
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation
+    of seawater - 2010: Calculation and use of thermodynamic properties.
+    Intergovernmental Oceanographic Commission, Manuals and Guides No. 56,
+    UNESCO (English), 196 pp. See Eqns. (A.12.8) and (P.14a,c).
+
+    Modifications:
+    2010-08-21. Trevor McDougall.
+    2010-02-25. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    return _entropy_first_derivatives_SA(SA, CT), _entropy_first_derivatives_pt(SA, CT)
+
 @match_args_return
-def CT_first_derivatives_SA(SA, pt):
+def _CT_first_derivatives_SA(SA, pt):
     r"""
     Calculates the derivatives of Conservative Temperature (CT_SA), with
     respect to Absolute Salinity at constant potential temperature
@@ -2673,7 +2731,7 @@ def CT_first_derivatives_SA(SA, pt):
     >>> import seawater.gibbs as gsw
     >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
     >>> pt = [28.7832, 28.4209, 22.7850, 10.2305, 6.8292, 4.3245]
-    >>> gsw.CT_first_derivatives_SA(SA, pt)
+    >>> gsw._CT_first_derivatives_SA(SA, pt)
     array([-0.04198109, -0.04155814, -0.03473921, -0.0187111 , -0.01407594,
            -0.01057172])
 
@@ -2704,7 +2762,7 @@ def CT_first_derivatives_SA(SA, pt):
     return CT_SA
 
 @match_args_return
-def CT_first_derivatives_pt(SA, pt):
+def _CT_first_derivatives_pt(SA, pt):
     r"""
     Calculates the derivatives of Conservative Temperature (CT_pt), with
     respect to potential temperature (the regular potential temperature which
@@ -2737,7 +2795,7 @@ def CT_first_derivatives_pt(SA, pt):
     >>> import seawater.gibbs as gsw
     >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
     >>> pt = [28.7832, 28.4209, 22.7850, 10.2305, 6.8292, 4.3245]
-    >>> gsw.CT_first_derivatives_pt(SA, pt)
+    >>> gsw._CT_first_derivatives_pt(SA, pt)
     array([1.00281494,  1.00255482,  1.00164514,  1.00000377,  0.99971636,
            0.99947433])
 
@@ -2765,6 +2823,73 @@ def CT_first_derivatives_pt(SA, pt):
     CT_pt = - (abs_pt * g020 ) / cte.cp0
 
     return CT_pt
+
+def CT_first_derivatives(SA, pt):
+    r"""
+    Calculates the following two derivatives of Conservative Temperature
+    (1) CT_SA, the derivative with respect to Absolute Salinity at constant
+        potential temperature (with pr = 0 dbar), and
+    (2) CT_pt, the derivative with respect to potential temperature (the
+        regular potential temperature which is referenced to 0 dbar) at
+        constant Absolute Salinity.
+
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+    pt : array_like
+         potential temperature referenced to a sea pressure of zero dbar
+         [:math:`^\circ` C (ITS-90)]
+
+    Returns
+    -------
+    CT_SA : array_like
+            The derivative of CT with respect to SA at constant potential
+            temperature reference sea pressure of 0 dbar.
+            [K (g kg :sup:`-1`) :sup:`-1`]
+
+    CT_pt : array_like
+            The derivative of CT with respect to pt at constant SA.
+            [ unitless ]
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    TODO
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> pt = [28.7832, 28.4209, 22.7850, 10.2305, 6.8292, 4.3245]
+    >>> gsw.CT_first_derivatives(SA, pt)
+    array([[-0.04198109, -0.04155814, -0.03473921, -0.0187111 , -0.01407594,
+            -0.01057172],
+           [ 1.00281494,  1.00255482,  1.00164514,  1.00000377,  0.99971636,
+             0.99947433]])
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation
+    of seawater - 2010: Calculation and use of thermodynamic properties.
+    Intergovernmental Oceanographic Commission, Manuals and Guides No. 56,
+    UNESCO (English), 196 pp. See Eqns. (A.12.3) and (A.12.9a,b).
+
+    .. [2] McDougall T. J., D. R. Jackett, P. M. Barker, C. Roberts-Thomson, R.
+    Feistel and R. W. Hallberg, 2010:  A computationally efficient 25-term
+    expression for the density of seawater in terms of Conservative Temperature,
+    and related properties of seawater.
+
+    Modifications:
+    2010-08-05. Trevor McDougall and Paul Barker.
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    return _CT_first_derivatives_SA(SA, pt), _CT_first_derivatives_pt(SA, pt)
+
 
 """
 Section D: extra functions for Depth, Pressure and Distance
