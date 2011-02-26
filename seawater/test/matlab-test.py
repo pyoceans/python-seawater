@@ -382,10 +382,10 @@ test_print("CT_pt")
 #test_print("h_SA_CT")
 #test_print("h_CT_CT")
 
-#FIXME: fails with NaNs
-#eta_SA, eta_CT = gsw.entropy_first_derivatives(SA_chck_cast, CT_chck_cast)
-#test_print("eta_SA")
-#test_print("eta_CT")
+eta_SA = gsw.entropy_first_derivatives_SA(SA_chck_cast, CT_chck_cast)
+test_print("eta_SA")
+eta_CT = gsw.entropy_first_derivatives_pt(SA_chck_cast, CT_chck_cast)
+test_print("eta_CT")
 
 #eta_SA_SA, eta_SA_CT, eta_CT_CT = gsw.entropy_second_derivatives(SA_chck_cast, CT_chck_cast)
 #test_print("eta_SA_SA")
