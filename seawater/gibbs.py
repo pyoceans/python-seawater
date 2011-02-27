@@ -3629,7 +3629,6 @@ def Sstar_from_SP(SP, p, lon, lat):
 
     return Sstar
 
-@match_args_return
 def SA_Sstar_from_SP(SP, p, lon, lat):
     r"""
     Calculates Absolute Salinity and Preformed Salinity from Practical Salinity.
@@ -3697,23 +3696,8 @@ def SA_Sstar_from_SP(SP, p, lon, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    lon, lat, p, SP = np.broadcast_arrays(lon, lat, p, SP)
+    return SA_from_SP(SP, p, lon, lat), Sstar_from_SP(SP, p, lon, lat)
 
-    SP[SP < 0] = 0
-
-    dSA = lib._delta_SA( p, lon, lat )
-
-    SA = ( cte.SSO / 35 ) * SP + dSA
-    Sstar = ( cte.SSO / 35 ) * SP - cte.r1 * dSA
-
-    SA_baltic = lib._SA_from_SP_Baltic( SP, lon, lat )
-    if SA_baltic is not None:
-        indsbaltic = ~SA_baltic.mask
-
-        SA[indsbaltic] = SA_baltic[indsbaltic]
-        Sstar[indsbaltic] = SA_baltic[indsbaltic]
-
-    return SA, Sstar
 
 @match_args_return
 def SA_from_rho(rho, t, p):
