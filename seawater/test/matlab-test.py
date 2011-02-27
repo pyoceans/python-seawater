@@ -362,9 +362,8 @@ CT_from_entropy =  gsw.CT_from_entropy(SA_chck_cast, entropy)
 test_print("CT_from_entropy") #FIXME: diffs are not found in the original
 
 """ derivatives of enthalpy,  entropy,  CT and pt """
-CT_SA = gsw.CT_first_derivatives_SA(SA_chck_cast, pt)
+CT_SA, CT_pt = gsw.CT_first_derivatives(SA_chck_cast, pt)
 test_print("CT_SA")
-CT_pt = gsw.CT_first_derivatives_pt(SA_chck_cast, pt)
 test_print("CT_pt")
 
 #CT_SA_SA, CT_SA_pt, CT_pt_pt = gsw.CT_second_derivatives(SA_chck_cast, pt)
@@ -382,9 +381,8 @@ test_print("CT_pt")
 #test_print("h_SA_CT")
 #test_print("h_CT_CT")
 
-eta_SA = gsw.entropy_first_derivatives_SA(SA_chck_cast, CT_chck_cast)
+eta_SA, eta_CT = gsw.entropy_first_derivatives(SA_chck_cast, CT_chck_cast)
 test_print("eta_SA")
-eta_CT = gsw.entropy_first_derivatives_pt(SA_chck_cast, CT_chck_cast)
 test_print("eta_CT")
 
 #eta_SA_SA, eta_SA_CT, eta_CT_CT = gsw.entropy_second_derivatives(SA_chck_cast, CT_chck_cast)
