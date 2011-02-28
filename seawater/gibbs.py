@@ -2529,7 +2529,7 @@ def temps_maxdensity(SA, p):
 
 
 @match_args_return
-def _entropy_first_derivatives_SA(SA, CT):
+def entropy_first_derivative_SA(SA, CT):
     r"""
     Calculates the derivatives of specific entropy (eta_SA) with respect to
     Absolute Salinity at constant Conservative Temperature.
@@ -2560,7 +2560,7 @@ def _entropy_first_derivatives_SA(SA, CT):
     >>> import seawater.gibbs as gsw
     >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
     >>> CT = [28.8099, 28.4392, 22.7862, 10.2262, 6.8272, 4.3236]
-    >>> gsw._entropy_first_derivatives_SA(SA, CT)
+    >>> gsw.entropy_first_derivative_SA(SA, CT)
     array([ -0.2632868 ,  -0.26397728,  -0.2553675 ,  -0.23806659,
             -0.23443826,  -0.23282068])
 
@@ -2586,7 +2586,7 @@ def _entropy_first_derivatives_SA(SA, CT):
 
 
 @match_args_return
-def _entropy_first_derivatives_pt(SA, CT):
+def entropy_first_derivative_CT(SA, CT):
     r"""
     Calculates the derivatives of specific entropy (eta_CT) with respect to
     Conservative Temperature at constant Absolute Salinity.
@@ -2617,7 +2617,7 @@ def _entropy_first_derivatives_pt(SA, CT):
     >>> import seawater.gibbs as gsw
     >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
     >>> CT = [28.8099, 28.4392, 22.7862, 10.2262, 6.8272, 4.3236]
-    >>> gsw._entropy_first_derivatives_pt(SA, CT)
+    >>> gsw.entropy_first_derivative_CT(SA, CT)
     array([13.22103121,  13.23691119,  13.48900463,  14.08659902,
            14.25772958,  14.38642995])
 
@@ -2694,14 +2694,14 @@ def entropy_first_derivatives(SA, CT):
     2010-02-25. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    return _entropy_first_derivatives_SA(SA, CT), _entropy_first_derivatives_pt(SA, CT)
+    return ( entropy_first_derivative_SA(SA, CT),
+             entropy_first_derivative_CT(SA, CT) )
 
 @match_args_return
-def _CT_first_derivatives_SA(SA, pt):
+def CT_first_derivative_SA(SA, pt):
     r"""
-    Calculates the derivatives of Conservative Temperature (CT_SA), with
-    respect to Absolute Salinity at constant potential temperature
-    (with pr = 0 dbar).
+    Calculates the derivatives of Conservative Temperature (CT_SA) with respect
+    to Absolute Salinity at constant potential temperature (with pr = 0 dbar).
 
     Parameters
     ----------
@@ -2731,7 +2731,7 @@ def _CT_first_derivatives_SA(SA, pt):
     >>> import seawater.gibbs as gsw
     >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
     >>> pt = [28.7832, 28.4209, 22.7850, 10.2305, 6.8292, 4.3245]
-    >>> gsw._CT_first_derivatives_SA(SA, pt)
+    >>> gsw.CT_first_derivative_SA(SA, pt)
     array([-0.04198109, -0.04155814, -0.03473921, -0.0187111 , -0.01407594,
            -0.01057172])
 
@@ -2762,11 +2762,11 @@ def _CT_first_derivatives_SA(SA, pt):
     return CT_SA
 
 @match_args_return
-def _CT_first_derivatives_pt(SA, pt):
+def CT_first_derivative_pt(SA, pt):
     r"""
-    Calculates the derivatives of Conservative Temperature (CT_pt), with
-    respect to potential temperature (the regular potential temperature which
-    is referenced to 0 dbar) at constant Absolute Salinity.
+    Calculates the derivatives of Conservative Temperature (CT_pt) with respect
+    to potential temperature (the regular potential temperature which is
+    referenced to 0 dbar) at constant Absolute Salinity.
 
     Parameters
     ----------
@@ -2795,7 +2795,7 @@ def _CT_first_derivatives_pt(SA, pt):
     >>> import seawater.gibbs as gsw
     >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
     >>> pt = [28.7832, 28.4209, 22.7850, 10.2305, 6.8292, 4.3245]
-    >>> gsw._CT_first_derivatives_pt(SA, pt)
+    >>> gsw.CT_first_derivative_pt(SA, pt)
     array([1.00281494,  1.00255482,  1.00164514,  1.00000377,  0.99971636,
            0.99947433])
 
@@ -2888,7 +2888,7 @@ def CT_first_derivatives(SA, pt):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    return _CT_first_derivatives_SA(SA, pt), _CT_first_derivatives_pt(SA, pt)
+    return CT_first_derivative_SA(SA, pt), CT_first_derivative_pt(SA, pt)
 
 
 """
