@@ -2878,7 +2878,7 @@ def entropy_derivative_SA_SA(SA, CT):
                     ( abs_pt * lib._gibbs(n1, n1, n0, SA, pt, 0 ) ) ) / cte.cp0
 
     eta_SA_CT = entropy_derivative_SA_CT(SA, CT)
-    # FIXME: bug in _gibbs(n2, n0, n0, SA, pt, 0)
+
     eta_SA_SA = -lib._gibbs(n2, n0, n0, SA, pt, 0) / abs_pt - CT_SA * eta_SA_CT
 
     return eta_SA_SA

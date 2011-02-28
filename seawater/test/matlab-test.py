@@ -386,7 +386,7 @@ test_print("eta_SA")
 test_print("eta_CT")
 
 eta_SA_SA, eta_SA_CT, eta_CT_CT = gsw.entropy_second_derivatives(SA_chck_cast, CT_chck_cast)
-#test_print("eta_SA_SA")
+test_print("eta_SA_SA") #FIXME: diffs are not found in the original
 test_print("eta_SA_CT") #FIXME: diffs are not found in the original
 test_print("eta_CT_CT") #FIXME: diffs are not found in the original
 

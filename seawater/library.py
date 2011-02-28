@@ -570,8 +570,8 @@ def _gibbs(ns, nt, npr, SA, t, p):
             z * ( -162.5751787551336 + 76.9195462169742 * z ) ) +
             y * ( -30.0682112585625 - 1380.9597954037708 * z +
             y * ( 2.626801985426835 + 703.695562834065 * z ) ) ) ) ) / x +
-            ( 11625.62913253464 + 1702.453469893412 * y ) )
-            g08[ipos] += tmp[ipos] / x2[ipos]
+            ( 11625.62913253464 + 1702.453469893412 * y ) / x2 )
+            g08[ipos] += tmp[ipos] #/ x2[ipos] NOTE: moved to line above
 
         gibbs = 0.25 * cte.sfac**2 * g08
 
@@ -654,7 +654,7 @@ def _gibbs(ns, nt, npr, SA, t, p):
         raise ValueError('Illegal derivative of the Gibbs function')
 
     gibbs = np.ma.array(gibbs, mask=mask, copy=False)
-    
+
     # BÅ: Code below is not needed?
     #if all_masked:
     #    gibbs[:] = np.ma.masked
@@ -663,7 +663,7 @@ def _gibbs(ns, nt, npr, SA, t, p):
     if ns > 0:
         gibbs = np.ma.masked_where(SA == 0, gibbs)
 
-        
+
     return gibbs
 
 def _entropy_part(SA, t, p):
