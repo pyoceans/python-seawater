@@ -22,11 +22,11 @@ class Test_gibbs(unittest.TestCase):
         g001 = _gibbs(0, 0, 1, SA, t, p)
         # Second order
         g110 = _gibbs(1, 1, 0, SA, t, p)
-        g110 = _gibbs(1, 0, 1, SA, t, p)
-        g110 = _gibbs(0, 1, 1, SA, t, p)
-        g110 = _gibbs(2, 0, 0, SA, t, p)
-        g110 = _gibbs(0, 2, 0, SA, t, p)
-        g110 = _gibbs(0, 0, 2, SA, t, p)
+        g101 = _gibbs(1, 0, 1, SA, t, p)
+        g011 = _gibbs(0, 1, 1, SA, t, p)
+        g200 = _gibbs(2, 0, 0, SA, t, p)
+        g020 = _gibbs(0, 2, 0, SA, t, p)
+        g002 = _gibbs(0, 0, 2, SA, t, p)
 
     def test_third_order_derivatives(self):
         """Test some illegal derivatives of third order"""
@@ -129,6 +129,28 @@ class Test_gibbs(unittest.TestCase):
         g011 = _gibbs(0, 1, 1, SA, t, p)
         self.assertFalse(np.all(g011.mask))   
         self.assertTrue(np.isfinite(g011[0])) 
+
+    def test_correct(self):
+        """Test against octave output of the matlab toolbox"""
+        SA, t, p = 35.0, 10.0, 1000.0
+        # Values calculated by GSW toolbox in octave
+        g_octave = {(0,0,0) : 8985.19461006389,
+                    (1,0,0) :   60.3635304254037,
+                    (0,1,0) : -141.765747745325,
+                    (0,0,1) :    9.69644671046863e-04,
+                    (1,1,0) :    0.516204397082431,
+                    (1,0,1) :   -7.24288070187722e-07,
+                    (0,1,1) :    1.78194974215707e-07,
+                    (2,0,0) :    2.10625015682819,
+                    (0,2,0) :  -14.0011829989402,
+                    (0,0,2) :   -4.16851449226714e-13}
+
+        for k in g_octave:
+            args = k + (SA,t,p)  # 6 element argument tuple
+            g = _gibbs(*args)
+            v = g_octave[k]
+            self.assertTrue(abs((g-v)/v) < 1.0e-14)
+
                 
 if __name__ == '__main__':
     unittest.main()
