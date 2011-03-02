@@ -1,4 +1,4 @@
-include DISCLAIMER.txt
+include THANKS.txt
 include README.txt
 include docs/matlab-test.txt
 include docs/python-test.txt
@@ -13,3 +13,4 @@ include seawater/data/gsw_data_v2_0.npz
 include seawater/extras/__init__.py
 include seawater/extras/sw_extras.py
 include seawater/extras/waves/__init__.py
+include seawater/test/*.py
