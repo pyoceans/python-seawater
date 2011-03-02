@@ -544,7 +544,7 @@ def specvol(SA, t, p):
     return specvol
 
 @match_args_return
-def conservative_t(SA, t, p):
+def CT_from_t(SA, t, p):
     r"""
     Calculates Conservative Temperature of seawater from in situ temperature.
 
@@ -600,8 +600,11 @@ def conservative_t(SA, t, p):
 
     return CT
 
+conservative_t = CT_from_t
+
+
 @match_args_return
-def potential_t(SA, t, p, pr=0):
+def pt_from_t(SA, t, p, pr=0):
     r"""
     Calculates potential temperature with the general reference pressure, pr,
     from in situ temperature.
@@ -698,6 +701,8 @@ def potential_t(SA, t, p, pr=0):
     # McDougall et al. (2010), which reaches down to p = 8000 dbar.
 
     return pt
+
+potential_t = pt_from_t
 
 @match_args_return
 def enthalpy(SA, t, p):
