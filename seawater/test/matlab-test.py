@@ -99,6 +99,7 @@ pt_from_CT = gsw.pt_from_CT(SA_chck_cast,CT_chck_cast)
 Sstar_from_SA = gsw.Sstar_from_SA(SA_chck_cast, gsw_cv.p_chck_cast, gsw_cv.long_chck_cast, gsw_cv.lat_chck_cast)
 test_print("Sstar_from_SA")
 
+# BUG???
 SA_from_Sstar = gsw.SA_from_Sstar(SA_chck_cast, gsw_cv.p_chck_cast, gsw_cv.long_chck_cast, gsw_cv.lat_chck_cast)
 test_print("SA_from_Sstar")
 
