@@ -576,7 +576,7 @@ def CT_from_t(SA, t, p):
     >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
     >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
     >>> p = [10, 50, 125, 250, 600, 1000]
-    >>> gsw.conservative_t(SA, t, p)
+    >>> gsw.CT_from_t(SA, t, p)
     array([ 28.80991983,  28.43922782,  22.78617689,  10.22618927,
              6.82721363,   4.32357575])
 
@@ -592,16 +592,13 @@ def CT_from_t(SA, t, p):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    #pt0 = potential_t(SA, t, p) #NOTE: original call a
+    #pt0 = pt_from_t(SA, t, p) #NOTE: original call a
                                  # faster version (pt0_from_t)
-                                 # instead of potential_t
+                                 # instead of pt_from_t
     pt0 = pt0_from_t(SA, t, p)
     CT = CT_from_pt(SA, pt0)
 
     return CT
-
-conservative_t = CT_from_t
-
 
 @match_args_return
 def pt_from_t(SA, t, p, pr=0):
@@ -641,10 +638,10 @@ def pt_from_t(SA, t, p, pr=0):
     >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
     >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
     >>> p = [10, 50, 125, 250, 600, 1000]
-    >>> gsw.potential_t(SA, t, p)
+    >>> gsw.pt_from_t(SA, t, p)
     array([ 28.78319682,  28.42098334,  22.7849304 ,  10.23052366,
              6.82923022,   4.32451057])
-    >>> gsw.potential_t(SA, t, p, pr = 1000)
+    >>> gsw.pt_from_t(SA, t, p, pr = 1000)
     array([ 29.02665528,  28.662375  ,  22.99149634,  10.35341725,
              6.92732954,   4.4036    ])
 
@@ -702,7 +699,6 @@ def pt_from_t(SA, t, p, pr=0):
 
     return pt
 
-potential_t = pt_from_t
 
 @match_args_return
 def enthalpy(SA, t, p):
@@ -1191,7 +1187,7 @@ def pot_rho(SA, t, p, pr=0):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    pt = potential_t(SA, t, p, pr=pr)
+    pt = pt_from_t(SA, t, p, pr=pr)
 
     pot_rho = rho(SA, pt, pr)
 
@@ -1258,7 +1254,7 @@ def specvol_anom(SA, t, p):
 
     pt_zero = pt_from_CT(SSO, CT0)
 
-    t_zero = potential_t(SSO, pt_zero, 0, p)
+    t_zero = pt_from_t(SSO, pt_zero, 0, p)
 
     specvol_anom = ( lib._gibbs(n0, n0, n1, SA, t, p) -
                      lib._gibbs(n0, n0, n1, SSO, t_zero, p) )
@@ -1380,8 +1376,8 @@ def alpha_wrt_CT(SA, t, p):
 
     n0, n1, n2 = 0, 1, 2
 
-    # pt0 = potential_t(SA, t, p) #NOTE: original call a faster version
-    #"pt0_from_t" instead of potential_t
+    # pt0 = pt_from_t(SA, t, p) #NOTE: original call a faster version
+    #"pt0_from_t" instead of pt_from_t
     pt0 = pt0_from_t(SA, t, p)
 
     fac = -cte.cp0 / ( (cte.Kelvin + pt0) * lib._gibbs(n0, n2, n0, SA, t, p ) )
@@ -1444,8 +1440,8 @@ def alpha_wrt_pt(SA, t, p):
 
     n0, n1, n2 = 0, 1, 2
 
-    #pt0 = potential_t(SA, t, p) #NOTE: original call a faster version
-    # (pt0_from_t) instead of potential_t
+    #pt0 = pt_from_t(SA, t, p) #NOTE: original call a faster version
+    # (pt0_from_t) instead of pt_from_t
     pt0 = pt0_from_t(SA, t, p)
 
     fac = lib._gibbs(n0, n2, n0, SA, pt0, 0) / lib._gibbs(n0, n2, n0, SA, t, p)
@@ -1565,8 +1561,8 @@ def beta_const_CT(SA, t, p):
 
     n0, n1, n2 = 0, 1, 2
 
-    # pt0 = potential_t(SA, t, p) #NOTE: original call a faster version
-    # (pt0_from_t) instead of potential_t
+    # pt0 = pt_from_t(SA, t, p) #NOTE: original call a faster version
+    # (pt0_from_t) instead of pt_from_t
     pt0 = pt0_from_t(SA, t, p)
 
     g001 = lib._gibbs(n0, n0, n1, SA, t, p)
@@ -1635,8 +1631,8 @@ def beta_const_pt(SA, t, p):
 
     n0, n1, n2 = 0, 1, 2
 
-    # pt0 = potential_t(SA, t, p) #NOTE: original call a faster version
-    # "pt0_from_t" instead of potential_t
+    # pt0 = pt_from_t(SA, t, p) #NOTE: original call a faster version
+    # "pt0_from_t" instead of pt_from_t
     pt0 = pt0_from_t(SA, t, p)
 
     g001 = lib._gibbs(n0, n0, n1, SA, t, p)
@@ -1821,11 +1817,10 @@ def ionic_strength(SA):
 """
 Section C: extra functions for Temperature
 NOTE: section B calls: CT_from_pt(SA, pt0), pt_from_CT(SSO, CT0), pt0_from_t(SA,t, p)
-pt_from_t(SA, t, p, pr=0) was renamed to potential_t(SA, t, p, pr=0) in Section B
 """
 
 @match_args_return
-def CT_from_pt(SA, pt): #NOTE: used in conservative_t(SA, t, p)
+def CT_from_pt(SA, pt): #NOTE: used in CT_from_t(SA, t, p)
     r"""
     Calculates Conservative Temperature of seawater from potential temperature
     (whose reference sea pressure is zero dbar).
@@ -2121,7 +2116,7 @@ def t_from_CT(SA, CT, p):
 
     pt0 = pt_from_CT(SA, CT)
 
-    t = potential_t(SA, pt0, 0, p)
+    t = pt_from_t(SA, pt0, 0, p)
 
     return t
 
@@ -2130,7 +2125,7 @@ def pt0_from_t(SA, t, p):
     r"""
     Calculates potential temperature with reference pressure, pr = 0 dbar.
     The present routine is computationally faster than the more general
-    function "potential_t(SA, t, p, pr)" which can be used for any reference
+    function "pt_from_t(SA, t, p, pr)" which can be used for any reference
     pressure value.
 
     Parameters
@@ -2153,7 +2148,7 @@ def pt0_from_t(SA, t, p):
 
     Notes
     -----
-    potential_t  has the same result (only slower)
+    pt_from_t  has the same result (only slower)
 
     Examples
     --------
