@@ -945,7 +945,149 @@ def _specvol_SSO_0_CT25(p):
 """
 Salinity lib functions
 """
+
+#@match_args_return
+def _in_Baltic(lon, lat):
+    """Check if positions are in the Baltic Sea
+
+    Parameters
+    ----------
+    lon, lat : array_like or masked arrays
+
+    Returns
+    -------
+    in_Baltic : boolean array (at least 1D)
+                True for points in the Baltic Sea
+                False for points outside, masked or NaN
+
+    """
+    lon, lat = np.atleast_1d(lon, lat)
+    
+    # Polygon bounding the Baltic, (xb, yb)
+    # Effective boundary is the intersection of this polygon
+    # with rectangle defined by xmin, xmax, ymin, ymax
+    # 
+    
+    # start with southwestern point and go round cyclonically
+    xb = np.array([12.6, 45.0, 26.0,  7.0, 12.6])
+    yb = np.array([50.0, 50.0, 69.0, 59.0, 50.0])
+
+    # Enclosing rectangle
+    #xmin, xmax = xb.min(), xb.max()
+    #ymin, ymax = yb.min(), yb.max()
+    xmin, xmax =  7.0, 32.0
+    ymin, ymax = 52.0, 67.0
+    
+    # First check if outside the rectangle
+    in_rectangle = ( (xmin < lon) & (lon < xmax) &
+                     (ymin < lat) & (lat < ymax) )
+
+    # Masked values are also considered outside the rectangle
+    if np.ma.is_masked(in_rectangle):
+        in_rectangle = in_rectangle.data & ~in_rectangle.mask
+
+    # Closer check for points in the rectangle
+    if np.any(in_rectangle):
+        lon, lat = np.broadcast_arrays(lon, lat)
+        in_baltic = np.zeros(lon.shape, dtype='bool') 
+        lon1 = lon[in_rectangle]
+        lat1 = lat[in_rectangle]
+
+        # There are general ways of testing for point in polygon
+        # This works for this special configuration of points
+        xx_right = np.interp(lat1, yb[1:3], xb[1:3])
+        xx_left  = np.interp(lat1, yb[-1:1:-1], xb[-1:1:-1])
+
+        in_baltic[in_rectangle] = (xx_left <= lon1) & (lon1 <= xx_right)
+
+        return in_baltic
+
+    else:  # Nothing inside the rectangle, return the False array
+        return in_rectangle
+
+
+
+
 def _SP_from_SA_Baltic(SA, lon, lat):
+    r"""
+    Calculates Practical Salinity (SP) for the Baltic Sea, from a value
+    computed analytically from Absolute Salinity.
+
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+    lon : array_like
+          decimal degrees east [0..+360]
+    lat : array_like
+          decimal degrees (+ve N, -ve S) [-90..+90]
+
+    Returns
+    -------
+    SP_baltic : array_like
+                salinity [psu (PSS-78)], unitless
+
+    See Also
+    --------
+    SP_from_SA, SP_from_Sstar
+
+    Notes
+    -----
+    This program will only produce Practical Salinity values for the Baltic Sea.
+
+    Examples
+    --------
+    >>> import seawater.library as lib
+    >>> SA = [6.6699, 6.7738, 6.9130, 7.3661, 7.5862, 10.3895]
+    >>> lon, lat = 20, 59
+    >>> lat = 59
+    >>> lib._SP_from_SA_Baltic(SA, lon, lat)
+    masked_array(data = [6.56825466873 6.67192351682 6.8108138311 7.26290579519 7.4825161269
+     10.2795794748],
+                 mask = [False False False False False False],
+           fill_value = 1e+20)
+    <BLANKLINE>
+
+    References
+    ----------
+    .. [1] Feistel, R., S. Weinreben, H. Wolf, S. Seitz, P. Spitzer, B. Adel,
+    G. Nausch, B. Schneider and D. G. Wright, 2010c: Density and Absolute
+    Salinity of the Baltic Sea 2006-2009.  Ocean Science, 6, 3-24.
+    http://www.ocean-sci.net/6/3/2010/os-6-3-2010.pdf
+
+    .. [2] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation
+    of seawater - 2010: Calculation and use of thermodynamic properties.
+    Intergovernmental Oceanographic Commission, Manuals and Guides No. 56,
+    UNESCO (English), 196 pp.
+
+    .. [3] McDougall, T.J., D.R. Jackett and F.J. Millero, 2010: An algorithm
+    for estimating Absolute Salinity in the global ocean. Submitted to Ocean
+    Science. A preliminary version is available at Ocean Sci. Discuss.,
+    6, 215-242.
+    http://www.ocean-sci-discuss.net/6/215/2009/osd-6-215-2009-print.pdf
+
+    Modifications:
+    2010-07-23. David Jackett, Trevor McDougall & Paul Barker
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+    SA, lon, lat = map(np.ma.masked_invalid, (SA, lon, lat))
+    lon, lat, SA = np.broadcast_arrays(lon, lat, SA)
+
+    inds_baltic = _in_Baltic(lon, lat)
+
+
+    if not inds_baltic.sum():
+        return None
+
+    SP_baltic = np.ma.masked_all(SA.shape, dtype=np.float)
+
+
+    SP_baltic[inds_baltic] = ( ( 35 / ( cte.SSO - 0.087 ) )
+                             * ( SA[inds_baltic] - 0.087) )
+
+    return SP_baltic
+
+def _SP_from_SA_Baltic_old(SA, lon, lat):
     r"""
     Calculates Practical Salinity (SP) for the Baltic Sea, from a value
     computed analytically from Absolute Salinity.
@@ -1034,92 +1176,51 @@ def _SP_from_SA_Baltic(SA, lon, lat):
 
     return SP_baltic
 
+
+
+#@match_args_return
 def _SA_from_SP_Baltic(SP, lon, lat):
-    r"""
-    Calculates Absolute Salinity in the Baltic Sea, from Practical Salinity.
-    Since SP is non-negative by definition, this function changes any negative
-    input values of SP to be zero.
+    """Computes absolute salinity from practical in the Baltic Sea
 
     Parameters
     ----------
-    SP : array_like
-         salinity [psu (PSS-78)], unitless
-    lon : array_like
-          decimal degrees east [0..+360]
-    lat : array_like
-          decimal degrees (+ve N, -ve S) [-90..+90]
+    SP : array_like or masked array
+        Practical salinity (PSS-78)
+    lon, lat : array_like or masked arrays
+               geographical position
 
     Returns
     -------
-    SA_baltic : masked array, or None if there are no Baltic positions
-                Absolute salinity [g kg :sup:`-1`]
+    SA : masked array, at least 1D
+         Absolute salinity   [g/kg]
+         masked where inputs are masked or position outside the Baltic
 
-    See Also
-    --------
-    SA_from_SP, Sstar_from_SP, SA_Sstar_from_SP
-
-    Notes
-    -----
-    This program will only produce Absolute Salinity values for the Baltic Sea.
-
-    Examples
-    --------
-    >>> import seawater.library as lib
-    >>> SP = [6.5683, 6.6719, 6.8108, 7.2629, 7.4825, 10.2796]
-    >>> lon, lat = 20, 59
-    >>> lib._SA_from_SP_Baltic(SP, lon, lat)
-    masked_array(data = [6.66994543234 6.77377643074 6.91298613806 7.36609419189 7.58618383714
-     10.389520571],
-                 mask = [False False False False False False],
-           fill_value = 1e+20)
-    <BLANKLINE>
-
-    References
-    ----------
-    .. [1] Feistel, R., S. Weinreben, H. Wolf, S. Seitz, P. Spitzer, B. Adel,
-    G. Nausch, B. Schneider and D. G. Wright, 2010c: Density and Absolute
-    Salinity of the Baltic Sea 2006-2009.  Ocean Science, 6, 3-24.
-    http://www.ocean-sci.net/6/3/2010/os-6-3-2010.pdf
-
-    .. [2] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation
-    of seawater - 2010: Calculation and use of thermodynamic properties.
-    Intergovernmental Oceanographic Commission, Manuals and Guides No. 56,
-    UNESCO (English), 196 pp.
-
-    .. [3] McDougall, T.J., D.R. Jackett and F.J. Millero, 2010: An algorithm
-    for estimating Absolute Salinity in the global ocean. Submitted to Ocean
-    Science. A preliminary version is available at Ocean Sci. Discuss.,
-    6, 215-242.
-    http://www.ocean-sci-discuss.net/6/215/2009/osd-6-215-2009-print.pdf
-
-    Modifications:
-    2010-07-23. David Jackett, Trevor McDougall & Paul Barker
-    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    SP, lon, lat = map(np.ma.masked_invalid, (SP, lon, lat))
-    lon, lat, SP = np.broadcast_arrays(lon, lat, SP)
+    # Handle masked array input
+    input_mask = False
+    if np.ma.is_masked(SP):
+        input_mask = input_mask | SP.mask
+    if np.ma.is_masked(lon):
+        input_mask = input_mask | lon.mask
+    if np.ma.is_masked(lat):
+        input_mask = input_mask | lat.mask
 
-    xb1, xb2, xb3 = 12.6, 7.0, 26.0
-    xb1a, xb3a = 45.0, 26.0
-    yb1, yb2, yb3 = 50.0, 59.0, 69.0
+    SP, lon, lat = map(np.atleast_1d, (SP, lon, lat))
+    SP, lon, lat = np.broadcast_arrays(SP, lon, lat)
+    
+    inds_baltic = _in_Baltic(lon, lat)
 
-    inds_baltic = (xb2 < lon) & (lon < xb1a) & (yb1 < lat) & (lat < yb3)
-    if not inds_baltic.sum():
-        return None
+    #SA_baltic = np.ma.masked_all(SP.shape, dtype=np.float)
+    
+    all_nans = np.nan + np.zeros_like(SP)
+    SA_baltic = np.ma.MaskedArray(all_nans, mask=~inds_baltic)
 
-    SA_baltic = np.ma.masked_all(SP.shape, dtype=np.float)
-
-    xx_left = np.interp( lat[inds_baltic], [yb1,yb2,yb3], [xb1,xb2,xb3])
-    xx_right = np.interp( lat[inds_baltic], [yb1,yb3], [xb1a,xb3a] )
-
-    inds_baltic1 = (   (xx_left <= lon[inds_baltic])
-                     & (lon[inds_baltic] <= xx_right))
-    if not inds_baltic1.sum():
-        return None
-
-    SA_baltic[inds_baltic[inds_baltic1]] = ((( cte.SSO - 0.087 ) / 35 )
-                                    * SP[inds_baltic[inds_baltic1]] + 0.087)
+    if np.any(inds_baltic):
+        SA_baltic[inds_baltic] = ((( cte.SSO - 0.087 ) / 35 )
+                                    * SP[inds_baltic] + 0.087)
+    
+    SA_baltic.mask = SA_baltic.mask | input_mask | np.isnan(SP)
 
     return SA_baltic
 
