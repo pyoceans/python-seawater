@@ -3800,7 +3800,7 @@ def SP_from_Sstar(Sstar, p, lon, lat):
     SP_baltic = lib._SP_from_SA_Baltic( Sstar, lon, lat )
 
     if SP_baltic is not None:
-        SP[indsbaltic] = SP_baltic[indsbaltic]
+        SP[~SP_baltic.mask] = SP_baltic[~SP_baltic.mask]
 
     return SP
 

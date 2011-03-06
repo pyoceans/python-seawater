@@ -106,6 +106,7 @@ class Test_match_args_return(unittest.TestCase):
         # Check correct values, in particular no nans.
         self.assertTrue(np.all(x == out))
 
+
         
 if __name__ == '__main__':
     unittest.main()

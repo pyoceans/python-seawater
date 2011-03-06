@@ -23,6 +23,7 @@ from seawater.library import Dict2Struc
 
 # Codes for non-tested functions
 # NI: Not Implemented
+# NG: In seawater.library not in seawater.gibbs
 # NV: No test value
 # NA: Don't fit the testing scheme
 # ERR: Gives error
@@ -44,12 +45,12 @@ function_arguments = {
 
 #NA    'SA_Sstar_from_SP' : ('SP', 'p', 'long', 'lat'),
     'SA_from_SP' : ('SP', 'p', 'long', 'lat'),
-#NI    'SA_from_SP_Baltic' : ('SP', 'long', 'lat'),
-#ERR    'SA_from_Sstar' : ('Sstar', 'p', 'long', 'lat'),
+#NG    'SA_from_SP_Baltic' : ('SP', 'long', 'lat'),
+    'SA_from_Sstar' : ('Sstar', 'p', 'long', 'lat'),
     'SA_from_rho' : ('rho', 't', 'p'),
     'SP_from_SA'  : ('SA', 'p', 'long', 'lat'),
-#NI    'SP_from_SA_Baltic' : ('SA', 'long', 'lat'),
-#ERR    'SP_from_Sstar' : ('Sstar', 'p', 'long', 'lat'),
+#NG    'SP_from_SA_Baltic' : ('SA', 'long', 'lat'),
+    'SP_from_Sstar' : ('Sstar', 'p', 'long', 'lat'),
     'SP_from_cndr'  : ('R', 't', 'p'),
     'Sstar_from_SA' : ('SA', 'p', 'long', 'lat'),
     'Sstar_from_SP' : ('SP', 'p', 'long', 'lat'),
@@ -71,7 +72,7 @@ function_arguments = {
     'chem_potential_water'    : ('SA', 't', 'p'),
     'cp'                      : ('SA', 't', 'p'),
     
- #NV   'delta_SA' : ('p', 'long', 'lat'),
+#NV   'delta_SA' : ('p', 'long', 'lat'),
     'distance' : ('long', 'lat', 'p'),
 
     'enthalpy' : ('SA', 't', 'p'),
@@ -151,10 +152,24 @@ cv = Dict2Struc(np.load(os.path.join(datadir, fname)))
 # ---------------------------
 
 # Make aliases for some values to be used as arguments
+
+# Note: there seems to be a bug in the dataset
+# The arrays cv.SA_from_Sstar is wrong
+# The error is also in mat-file
+#
+# cv.SA_from_Sstar != cv.SA_from_SP
+# cv.SA_from_Sstar != gsw.SA_from_Sstar(Sstar, p, lon, lat)
+# cv.SA_from_Sstar == gsw.SA_from_Sstar(SA, p, lon, lat)
+#
+# Bug work-around
+cv.SA_from_Sstar = cv.SA_from_SP
+
+
 cv.SA_chck_cast      = cv.SA_from_SP
 cv.CT_chck_cast      = cv.CT_from_t
 cv.pt_chck_cast      = cv.pt_from_t
-cv.Sstar_chck_cast   = cv.Sstar_from_SA
+cv.Sstar_chck_cast   = cv.Sstar_from_SA 
+##cv.Sstar_chck_cast   = cv.SA_chck_cast    
 cv.entropy_chck_cast = cv.entropy
 cv.z_chck_cast       = cv.z_from_p
 cv.rho_chck_cast     = cv.rho
