@@ -182,7 +182,7 @@ def cp(SA, t, p):
     return cp
 
 @match_args_return
-def helmholtz_energy(SA, t, p):
+def Helmholtz_energy(SA, t, p):
     r"""
     Calculates the Helmholtz energy of seawater.
 

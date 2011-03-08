@@ -37,7 +37,7 @@ function_arguments = {
     'CT_from_t'       : ('SA', 't', 'p'),
 #NA    'CT_second_derivatives' : ('SA', 'pt'),
 
-#NI    'Helmholtz_energy' : ('SA', 't', 'p'),
+    'Helmholtz_energy' : ('SA', 't', 'p'),
     
 #NI    'IPV_vs_fNsquared_ratio_CT25 :
 
