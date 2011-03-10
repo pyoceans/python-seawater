@@ -4,6 +4,7 @@ import unittest
 import numpy as np
 import seawater.gibbs as gsw
 import seawater.library as gswl
+import gibbs25 as gsw25
 
 # Standard values for arguments from 
 # http://www.teos-10.org/pubs/gsw/html/gsw_contents.html
@@ -256,20 +257,83 @@ class Test_standard(unittest.TestCase):
     # density and enthalpy, based on the 25-term expression for density
     # -----------------------------------------------------------------
 
-    #def test_rho_CT25(self):
-        """in-situ density"""
-        
+    def test_rho_CT25(self):
+        """in-situ density from 25 term expression"""
+        out = gsw25.rho_CT25(SA, CT, p)
+        out_check = np.array((1021.839541498949,
+                              1022.261845123599,
+                              1024.426245497197,
+                              1027.792152543827,
+                              1029.838876568916,
+                              1032.002445797635))
+        #print np.max(abs(out-out_check))
+        self.assertTrue(np.all(abs(out-out_check) < 1.0e-12))
+
+    # Not implemented yet
     #def test_rho_alpha_beta_CT25(self):
         """in-situ density, expansison and contraction coefficients"""
+
+    def test_alpha_CT25(self):
+        """thermal expansison coefficient by 25 term equation"""
+        out = gsw25.alpha_CT25(SA, t, p)
+        out_check = 1.0e-3 * np.array((0.324356899200044,
+                                       0.322411511462120,
+                                       0.281313314947018,
+                                       0.173211327216534,
+                                       0.146078398825498,
+                                       0.129148950914940))
+        #print np.max(abs(out-out_check))
+        self.assertTrue(np.all(abs(out-out_check) < 1.0e-6))
+
+    def test_beta_CT25(self):
+        """saline contraction coefficient by 25 term equation"""
+        out = gsw25.beta_CT25(SA, t, p)
+        out_check = 1.0e-3 * np.array((0.717340839421976,
+                                       0.717514858800028,
+                                       0.726299524800543,
+                                       0.750622769257820,
+                                       0.755000880950473,
+                                       0.756865290355974))
+        #print np.max(abs(out-out_check))
+        self.assertTrue(np.all(abs(out-out_check) < 1.0e-6))
+
+    def test_specvol_CT25(self):
+        """specific volume by 25 term equation"""
+        out = gsw25.specvol_CT25(SA, t, p)
+        out_check = 1.0e-3 * np.array((0.978627229998447,
+                                       0.978222952143042,
+                                       0.976156169753986,
+                                       0.972959364911436,
+                                       0.971025684456263,
+                                       0.968989951595608))
+        #print np.max(abs(out-out_check))
+        self.assertTrue(np.all(abs(out-out_check) < 1.0e-7))
         
-    #def test_specvol_CT25(self):
-        """specific volume"""
+    def test_specvol_anom_CT25(self):
+        """specific volume anomaly by 25 term equation"""
+        out = gsw25.specvol_anom_CT25(SA, t, p)
+        out_check = 1.0e-5 * np.array((0.600921244780790,
+                                       0.578505932118849,
+                                       0.405538759163434,
+                                       0.141863283479346,
+                                       0.104119730440851,
+                                       0.076279577097848))
+        #print np.max(abs(out-out_check))
+        self.assertTrue(np.all(abs(out-out_check) < 1.0e-7))
+
         
-    #def test_specvol_anom_CT25(self):
-        """specific volume anomaly"""
-        
-    #def test_enthalpy_CT25(self):
-        """enthalpy"""
+    def test_enthalpy_CT25(self):
+        """enthalpy by 25 term formulation"""
+        out = gsw25.enthalpy_CT25(SA, CT, p)
+        out_check = np.array((115103.1813925039,
+                              114014.6929487063,
+                               92180.0148514069,
+                               43255.3660538842,
+                               33087.1524935877,
+                               26970.6799089967))
+        #print np.max(abs(out-out_check))
+        self.assertTrue(np.all(abs(out-out_check) < 1.0e-10))
+
         
     #def test_enthalpy_diff_CT25(self):
         """difference of enthalpy between two pressures"""
