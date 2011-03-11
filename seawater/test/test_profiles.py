@@ -54,7 +54,6 @@ function_arguments = {
     'SP_from_cndr'  : ('R', 't', 'p'),
     'Sstar_from_SA' : ('SA', 'p', 'long', 'lat'),
     'Sstar_from_SP' : ('SP', 'p', 'long', 'lat'),
-
 #NI    'Turner_Rsubrho_CT25' : ('SA', 'CT', 'p'),
 
     'adiabatic_lapse_rate' : ('SA', 't', 'p'),
@@ -66,7 +65,7 @@ function_arguments = {
     'beta_const_pt' : ('SA', 't', 'p'),
     'beta_const_t'  : ('SA', 't', 'p'),
     
-#NI    'cabelling_CT25'          : ('SA', 't', 'p'),
+#BUG in profile values on file    'cabbeling_CT25'   : ('SA', 't', 'p'),
 #NV?    'chem_potential_relative' : ('SA', 't', 'p'),
     'chem_potential_salt'     : ('SA', 't', 'p'),
     'chem_potential_water'    : ('SA', 't', 'p'),
@@ -136,9 +135,31 @@ function_arguments = {
     'rho_CT25' : ('SA', 'CT', 'p'),
 #NA    'rho_alpha_beta_CT' : ('SA', 'CT', 'p'),
 #NA    'rho_alpha_beta_CT25' : ('SA', 'CT', 'p'),
+#NV        'alpha_CT25' : ('SA', 'CT', 'p'),
+#NV        'beta_CT25' : ('SA', 'CT', 'p'),
+    
+#NI    'sigma0_CT' : ('SA', 'CT'),
+#NI    'sigma0_pt' : ('SA', 'pt0'),
+#NI    'sigma1_CT' : ('SA', 'CT'),
+#NI    'sigma2_CT' : ('SA', 'CT'),
+#NI    'sigma3_CT' : ('SA', 'CT'),
+#NI    'sigma4_CT' : ('SA', 'CT'),
+    'sound_speed' : ('SA', 't', 'p'),
+#NI    'specvol' : ('SA', 't', 'p'),
+#NI    'specvol_CT' : ('SA', 'CT', 'p'),
+    'specvol_CT25' : ('SA', 'CT', 'p'),
+#    '_specvol_SSO_0_CT25' : ('p',),
+#NI    'specvol_anom' : ('SA', 'CT', 'p'),
+#NI    'specvol_anom_CT' : ('SA', 'CT', 'p'),
+    'specvol_anom_CT25' : ('SA', 'CT', 'p'),
 
+#NI    't90_from_t48' : ('t48',),
+#NI    't90_from_t68' : ('t68',),
+    't_from_CT' : ('SA', 'CT', 'p'),
+#NI    'temps_maxdensity' : ('SA', 'p'),
+    'thermobaric_CT25' : ('SA', 'CT', 'p'),
 
-
+    'z_from_p' : ('p', 'lat'),
 
     
             }

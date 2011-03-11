@@ -379,11 +379,40 @@ class Test_standard(unittest.TestCase):
     # neutral and non-linear properties, based on the 25-term expression
     # ------------------------------------------------------------------
     
-    #def test_cabbeling_CT25(self):
+    def test_cabbeling_CT25(self):
         """cabbeling coefficient"""
+        out = gsw25.cabbeling_CT25(SA, CT, p)
+        # Buggy values, computed with buggy matlab routine
+        out_check = 1.0e-4 * np.array((0.071255687860750,
+                                       0.071469675168983,
+                                       0.077959301008454,
+                                       0.098539728631524,
+                                       0.103657650078995,
+                                       0.106537287638893))
+        # Computed by bug-fixed octave
+        out_octave = np.array((8.62401756238290e-06,
+                               8.64247376958721e-06,
+                               9.22258732263748e-06,
+                               1.09466959666811e-05,
+                               1.13365671614248e-05,
+                               1.15414936408258e-05))
 
+        #print np.max(abs(out-out_check))
+        #print np.max(abs(out-out_octave))
+        self.assertTrue(np.all(abs(out-out_octave) < 1.0e-14))
+
+        
     #def test_thermobaric_CT25(self):
         """thermobaric coefficient"""
+        out = gsw25.thermobaric_CT25(SA, CT, p)
+        out_check = 1.0e-11 * np.array((0.143712914501030,
+                                        0.144525225115917,
+                                        0.163502412605500,
+                                        0.226474876009325,
+                                        0.247208470958881,
+                                        0.262712952286233))
+        #print np.max(abs(out-out_check))
+        self.assertTrue(np.all(abs(out-out_check) < 1.0e-20))
 
     #def test_isopycnal_slope_ratio_CT25(self):
         """ratio of the slopes of isopycnals on the SA-CT diagram"""
