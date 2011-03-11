@@ -77,7 +77,7 @@ function_arguments = {
 
     'enthalpy' : ('SA', 't', 'p'),
 #NI    'enthalpy_CT' : ('SA', 'CT', 'p'),
-#NI    'enthalpy_CT25' : ('SA', 'CT', 'p'),
+    'enthalpy_CT25' : ('SA', 'CT', 'p'),
 #NI    'enthalpy_SSO_0_CT25' : ('p',),
 #NA    'enthalpy_diff_CT' : ('SA', 'CT', 'p', 'p'),
 #NA    'enthalpy_diff_CT25' : ('SA', 'CT', 'p', 'p),
@@ -133,9 +133,14 @@ function_arguments = {
 
     'rho' : ('SA', 't', 'p'),
 #NI    'rho_CT' : ('SA', 'CT', 'p'),
-#NI    'rho_CT25' : ('SA', 'CT', 'p'),
+    'rho_CT25' : ('SA', 'CT', 'p'),
 #NA    'rho_alpha_beta_CT' : ('SA', 'CT', 'p'),
 #NA    'rho_alpha_beta_CT25' : ('SA', 'CT', 'p'),
+
+
+
+
+    
             }
 
 
