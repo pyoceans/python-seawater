@@ -6,3 +6,4 @@ _build
 *.pyc
 build/*
 seawater.egg-info/*
+*.so
