@@ -3,3 +3,6 @@ syntax: glob
 _build
 .swp*
 .directory
+*.pyc
+build/*
+seawater.egg-info/*
