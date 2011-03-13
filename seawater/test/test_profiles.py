@@ -14,7 +14,8 @@ import os
 import unittest
 import functools   # require python 2.5
 import numpy as np
-import seawater.gibbs as gsw
+import sys; sys.path.append('..'); import gibbs as gsw
+#import seawater.gibbs as gsw
 from seawater.library import Dict2Struc
 
 # ------------------------------------
@@ -54,6 +55,7 @@ function_arguments = {
     'SP_from_cndr'  : ('R', 't', 'p'),
     'Sstar_from_SA' : ('SA', 'p', 'long', 'lat'),
     'Sstar_from_SP' : ('SP', 'p', 'long', 'lat'),
+    
 #NI    'Turner_Rsubrho_CT25' : ('SA', 'CT', 'p'),
 
     'adiabatic_lapse_rate' : ('SA', 't', 'p'),
@@ -74,8 +76,8 @@ function_arguments = {
 #NV   'delta_SA' : ('p', 'long', 'lat'),
     'distance' : ('long', 'lat', 'p'),
 
-    'enthalpy' : ('SA', 't', 'p'),
-#NI    'enthalpy_CT' : ('SA', 'CT', 'p'),
+    'enthalpy'      : ('SA', 't', 'p'),
+    'enthalpy_CT'   : ('SA', 'CT', 'p'),
     'enthalpy_CT25' : ('SA', 'CT', 'p'),
 #NI    'enthalpy_SSO_0_CT25' : ('p',),
 #NA    'enthalpy_diff_CT' : ('SA', 'CT', 'p', 'p'),
@@ -131,30 +133,30 @@ function_arguments = {
 #NA    'pt_second_derivatives' :
 
     'rho' : ('SA', 't', 'p'),
-#NI    'rho_CT' : ('SA', 'CT', 'p'),
+    'rho_CT' : ('SA', 'CT', 'p'),
     'rho_CT25' : ('SA', 'CT', 'p'),
 #NA    'rho_alpha_beta_CT' : ('SA', 'CT', 'p'),
 #NA    'rho_alpha_beta_CT25' : ('SA', 'CT', 'p'),
 #NV        'alpha_CT25' : ('SA', 'CT', 'p'),
 #NV        'beta_CT25' : ('SA', 'CT', 'p'),
     
-#NI    'sigma0_CT' : ('SA', 'CT'),
-#NI    'sigma0_pt' : ('SA', 'pt0'),
-#NI    'sigma1_CT' : ('SA', 'CT'),
-#NI    'sigma2_CT' : ('SA', 'CT'),
-#NI    'sigma3_CT' : ('SA', 'CT'),
-#NI    'sigma4_CT' : ('SA', 'CT'),
+    'sigma0_CT' : ('SA', 'CT'),
+#NO    'sigma0_pt' : ('SA', 'pt0'),
+    'sigma1_CT' : ('SA', 'CT'),
+    'sigma2_CT' : ('SA', 'CT'),
+    'sigma3_CT' : ('SA', 'CT'),
+    'sigma4_CT' : ('SA', 'CT'),
     'sound_speed' : ('SA', 't', 'p'),
-#NI    'specvol' : ('SA', 't', 'p'),
-#NI    'specvol_CT' : ('SA', 'CT', 'p'),
+    'specvol' : ('SA', 't', 'p'),
+    'specvol_CT' : ('SA', 'CT', 'p'),
     'specvol_CT25' : ('SA', 'CT', 'p'),
 #    '_specvol_SSO_0_CT25' : ('p',),
 #NI    'specvol_anom' : ('SA', 'CT', 'p'),
 #NI    'specvol_anom_CT' : ('SA', 'CT', 'p'),
     'specvol_anom_CT25' : ('SA', 'CT', 'p'),
 
-#NI    't90_from_t48' : ('t48',),
-#NI    't90_from_t68' : ('t68',),
+#NV    't90_from_t48' : ('t48',),
+#NV    't90_from_t68' : ('t68',),
     't_from_CT' : ('SA', 'CT', 'p'),
 #NI    'temps_maxdensity' : ('SA', 'p'),
     'thermobaric_CT25' : ('SA', 'CT', 'p'),
@@ -187,9 +189,14 @@ cv = Dict2Struc(np.load(os.path.join(datadir, fname)))
 # cv.SA_from_Sstar != gsw.SA_from_Sstar(Sstar, p, lon, lat)
 # cv.SA_from_Sstar == gsw.SA_from_Sstar(SA, p, lon, lat)
 #
+# cv.specvol_ST == cv.specvol_ST25
+# cv.specvol_ST != cv.specvol
+# cv.specvol_ST != 1/cv.rho_ST
+# Correction: set cv.specvol_ST = cv.specvol
+
 # Bug work-around
 cv.SA_from_Sstar = cv.SA_from_SP
-
+cv.specvol_CT = cv.specvol
 
 cv.SA_chck_cast      = cv.SA_from_SP
 cv.CT_chck_cast      = cv.CT_from_t
@@ -207,6 +214,7 @@ not_match = {'pt0_from_t' : 'pt0',
              'pt_from_CT' : 'pt',
              'pot_enthalpy_from_pt' : 'pot_enthalpy',
             }
+
 for f in not_match:
     setattr(cv, f, getattr(cv, not_match[f]))
     setattr(cv, f+'_ca', getattr(cv, not_match[f]+'_ca'))
@@ -223,7 +231,7 @@ def generic_test(self, func=None, argnames=None):
     out = getattr(gsw, func)(*args)
     # Check that the maximal error is less than the given tolerance
     maxdiff = np.nanmax(abs(out - getattr(cv, func)))
-    #print func, maxdiff, getattr(cv, func+'_ca')
+    #print maxdiff, getattr(cv, func+'_ca')
     self.assertTrue(maxdiff < getattr(cv, func+'_ca'))
 
 

@@ -2,9 +2,11 @@
 
 import unittest
 import numpy as np
-import seawater.gibbs as gsw
+#import seawater.gibbs as gsw
+import sys; sys.path.append('..')
+import gibbs as gsw
 import seawater.library as gswl
-import seawater.gibbs25 as gsw25
+import gibbs25 as gsw25
 
 # Standard values for arguments from 
 # http://www.teos-10.org/pubs/gsw/html/gsw_contents.html
@@ -235,23 +237,36 @@ class Test_standard(unittest.TestCase):
         #print np.max(abs(out-out_check))
         self.assertTrue(np.all(abs(out-out_check) < 1.0e-12))
 
-    # Not implemented yet
-    def rest_t90_from_t48(self):
+
+    def test_t90_from_t48(self):
         """ITS-90 temperature from IPTS-48 temperature"""
-        out = gsw_t90_from_t48(t48)
+        out = gsw.t90_from_t48(t48)
         out_check = np.array((28.9840, 27.9844, 22.9867,
                                9.9936,  6.9955,  3.9974))
-        print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-2))
+        out_octave = np.array((28.98398424378149,
+                               27.98441334079821,
+                               22.98669079420939,
+                                9.99364152603375,
+                                6.99545669039431,
+                                3.99735103575142))
+        #print np.max(abs(out-out_octave))
+        self.assertTrue(np.all(abs(out-out_check) < 1.0e-4))
+        self.assertTrue(np.all(abs(out-out_octave) < 1.0e-14))
 
-    # Not implemented yet
-    def rest_t90_from_t68(self):
+    def test_t90_from_t68(self):
         """ITS-90 temperature from IPTS-68 temperature"""
-        out = gsw_t90_from_t68(t68)
+        out = gsw.t90_from_t68(t68)
         out_check = np.array((28.9930, 27.9933, 22.9945,
                                9.9976,  6.9983,  3.9990))
-        print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-2))
+        out_octave = np.array((28.99304166999919,
+                               27.99328161241301,
+                               22.99448132448212,
+                                9.99760057586179,
+                                6.99832040310325,
+                                3.99904023034472))
+        #print np.max(abs(out-out_octave))
+        self.assertTrue(np.all(abs(out-out_check) < 1.0e-4))
+        self.assertTrue(np.all(abs(out-out_octave) < 1.0e-14))
 
     # -----------------------------------------------------------------
     # density and enthalpy, based on the 25-term expression for density
@@ -269,7 +284,7 @@ class Test_standard(unittest.TestCase):
         #print np.max(abs(out-out_check))
         self.assertTrue(np.all(abs(out-out_check) < 1.0e-12))
 
-    # Not implemented yet
+    # Individual terms are tested
     #def test_rho_alpha_beta_CT25(self):
         """in-situ density, expansison and contraction coefficients"""
 
@@ -402,7 +417,7 @@ class Test_standard(unittest.TestCase):
         self.assertTrue(np.all(abs(out-out_octave) < 1.0e-14))
 
         
-    #def test_thermobaric_CT25(self):
+    def test_thermobaric_CT25(self):
         """thermobaric coefficient"""
         out = gsw25.thermobaric_CT25(SA, CT, p)
         out_check = 1.0e-11 * np.array((0.143712914501030,
@@ -598,7 +613,7 @@ class Test_standard(unittest.TestCase):
         #print np.max(abs(out-out_check))
         self.assertTrue(np.all(abs(out-out_check) < 1.0e-12))
 
-    #def test_isochoric_heat_cap(self):
+    def test_isochoric_heat_cap(self):
         """isochoric heat capacity"""
         out = gsw.isochoric_heat_cap(SA, t, p)
         out_check = np.array((3928.137087019246,
@@ -754,7 +769,7 @@ class Test_standard(unittest.TestCase):
     # ----------------------------------------------------
 
     # Not implemented yet
-    def rest_rho_CT(self):
+    def test_rho_CT(self):
         """in-situ density from CT"""
         out = gsw.rho_CT(SA, CT, p)
         out_check = np.array((1021.840179764021,
@@ -763,35 +778,101 @@ class Test_standard(unittest.TestCase):
                               1027.790199901620,
                               1029.837716779620,
                               1032.002400877215))
-        print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-8))
+        #print np.max(abs(out-out_check))
+        self.assertTrue(np.all(abs(out-out_check) < 1.0e-12))
                               
     #def test_rho_alpha_beta_CT(self):
         """in-situ density, expansion & contraction coefficients from CT"""
 
-    #def test_specvol_CT(self):
+    def test_specvol_CT(self):
         """specific volume from CT"""
+        out = gsw.specvol_CT(SA, CT, p)
+        out_check = 1.0e-3 * np.array((0.978626618725186,
+                                       0.978222134953103,
+                                       0.976154774939840,
+                                       0.972961213383549,
+                                       0.971026778012244,
+                                       0.968989993773259))
+        #print np.max(abs(out-out_check))a
+        self.assertTrue(np.all(abs(out-out_check) < 1.0e-18))
+        
 
     #def test_specvol_anom_CT(self):
         """specific volume anomaly from CT"""
 
-    #def test_sigma0_CT(self):
+    def test_sigma0_CT(self):
         """sigma0 in terms of SA & CT with reference pressure of 0 dbar"""
+        out = gsw.sigma0_CT(SA, CT)
+        out_check = np.array((21.798152387272808,
+                              22.052493577393079,
+                              23.893577037223736,
+                              26.667619272292086,
+                              27.107232725897575,
+                              27.409628653483423))
+        #print np.max(abs(out-out_check))
+        self.assertTrue(np.all(out == out_check))
 
-    #def test_sigma1_CT(self):
+    def test_sigma1_CT(self):
         """sigma1 in terms of SA & CT with reference pressure of 1000 dbar"""
+        out = gsw.sigma1_CT(SA, CT)
+        out_check = np.array((25.955551924297879,
+                              26.213079338959005,
+                              28.125625321852112,
+                              31.120452618127047,
+                              31.637685737359789,
+                              32.002400877214541))
+        #print np.max(abs(out-out_check))
+        self.assertTrue(np.all(out == out_check))
 
-    #def test_sigma2_CT(self):
+
+    def test_sigma2_CT(self):
         """sigma2 in terms of SA & CT with reference pressure of 2000 dbar"""
+        out = gsw.sigma2_CT(SA, CT)
+        out_check = np.array((30.023190232854176,
+                              30.283832597402807,
+                              32.265717400800895,
+                              35.474625433103029,
+                              36.067249427311708,
+                              36.492547357788226))
+        #print np.max(abs(out-out_check))
+        self.assertTrue(np.all(out == out_check))
 
-    #def test_sigma3_CT(self):
+    def test_sigma3_CT(self):
         """sigma3 in terms of SA & CT with reference pressure of 3000 dbar"""
+        out = gsw.sigma3_CT(SA, CT)
+        out_check = np.array((34.003709330818083,
+                              34.267404341412885,
+                              36.316609174494715,
+                              39.732408885730138,
+                              40.397870256006627,
+                              40.881719119051240))
+        #print np.max(abs(out-out_check))
+        self.assertTrue(np.all(out == out_check))
 
-    #def test_sigma4_CT(self):
+    def test_sigma4_CT(self):
         """sigma4 in terms of SA & CT with reference pressure of 4000 dbar"""
+        out = gsw.sigma4_CT(SA, CT)
+        out_check = np.array((37.899615932915594,
+                              38.166310327096426,
+                              40.280942547164841,
+                              43.896123296674659,
+                              44.631612266276306,
+                              45.171743792926918))
+        #print np.max(abs(out-out_check))
+        self.assertTrue(np.all(out == out_check))
 
-    #def test_enthalpy_CT(self):
+    def test_enthalpy_CT(self):
         """enthalpy from CT"""
+        out = gsw.enthalpy_CT(SA, CT, p)
+        out_check = 1.0e+5 * np.array((1.151031813321767,
+                                       1.140146925586514,
+                                       0.921800131787836,
+                                       0.432553712315790,
+                                       0.330871615358722,
+                                       0.269706848807403))
+        #print np.max(abs(out-out_check))
+        self.assertTrue(np.all(abs(out-out_check) < 1.0e-10))
+        
 
     # Not implemented yet
     def rest_enthalpy_diff_CT(self):
@@ -806,7 +887,7 @@ class Test_standard(unittest.TestCase):
                               970.8138965635516,
                               968.7770207718350))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-8))
+        self.assertTrue(np.all(abs(out-out_check) < 1.0e-10))
 
     def test_entropy_from_pt(self):
         """entropy from potential temperature"""

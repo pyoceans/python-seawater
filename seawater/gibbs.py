@@ -4035,6 +4035,162 @@ def SA_from_rho(rho, t, p):
 
     return SA
 
+
+
+def sigma0_CT(SA, CT):
+    """
+    potential density anomaly with zero reference pressure as
+    function of Absolute Salinity and Conservative Temperature
+
+    Parameters
+    ----------
+    SA : array_like
+          Absolute Salinity  [g/kg]
+    CT : array_like
+          Conservative Temperature [deg C]
+
+    Returns
+    -------
+    sigma0_CT:  array_like
+         Potential density anomaly  [kg/m**3]
+
+    The anomaly is taken with respect to 1000.0 kg/m**3
+
+    """
+    
+    return rho_CT(SA, CT, 0) - 1000
+
+
+
+def sigma1_CT(SA, CT):
+    return rho_CT(SA, CT, 1000) - 1000
+def sigma2_CT(SA, CT):
+    return rho_CT(SA, CT, 2000) - 1000
+def sigma3_CT(SA, CT):
+    return rho_CT(SA, CT, 3000) - 1000
+def sigma4_CT(SA, CT):
+    return rho_CT(SA, CT, 4000) - 1000
+
+
+@match_args_return
+def rho_CT(SA, CT, p):
+    """
+    density from Absolute Salinity, Conservative Temperature and pressure
+
+    Parameters
+    ----------
+    SA : array_like
+          Absolute Salinity  [g/kg]
+    CT : array_like
+          Conservative Temperature [deg C]
+    p : array_like
+          sea pressure  [dbar]
+
+    Returns
+    -------
+    rho_CT:  array_like
+         in-situ density  [kg/m**3]
+
+    """
+    
+    pt0 = pt_from_CT(SA, CT)
+    t = pt_from_t(SA, pt0, 0.0, p)
+    return rho(SA, t, p)
+
+def specvol_CT(SA, CT, p):
+    """
+    specific volume from Absolute Salinity, Conservative Temperature
+    and pressure
+
+    Parameters
+    ----------
+    SA : array_like
+          Absolute Salinity  [g/kg]
+    CT : array_like
+          Conservative Temperature [deg C]
+    p : array_like
+          sea pressure  [dbar]
+
+    Returns
+    -------
+    specvol_CT:  array_like
+         in-situ specific volume  [m**3/kg]
+
+    """
+    
+    pt = pt_from_CT(SA, CT)
+    t = pt_from_t(SA, pt, 0.0, p)
+    return specvol(SA, t, p)
+    #return 1.0 / rho_CT(SA, CT, p)
+
+def enthalpy_CT(SA, CT, p):
+    """
+    specific enthalpy from Absolute Salinity, Conservative Temperature
+    and pressure
+
+    Parameters
+    ----------
+    SA : array_like
+          Absolute Salinity  [g/kg]
+    CT : array_like
+          Conservative Temperature [deg C]
+    p : array_like
+          sea pressure  [dbar]
+
+    Returns
+    -------
+    enthalpy_CT:  array_like
+         specific enthalpy  [J/kg]
+
+    """
+
+    pt = pt_from_CT(SA, CT)
+    t  = pt_from_t(SA, pt, 0, p)
+    return enthalpy(SA, t, p)
+
+@match_args_return
+def t90_from_t48(t48):
+    """
+    Converts IPTS-48 temperature to ITS-90
+
+    Parameters
+    ---------
+    t48 : array-like
+          in-situ temperature (ITPS-48)    [deg C]
+
+    Returns
+    -------
+    t90 : array-like
+          in-situ temperature  (ITS-90)    [deg C]
+
+    """
+
+    return (t48 - (4.4e-6)*t48*(100 - t48)) / 1.00024
+
+
+@match_args_return
+def t90_from_t68(t68):
+    """
+    Converts IPTS-68 temperature to ITS-90
+
+    Parameters
+    ---------
+    t68 : array-like
+          in-situ temperature (ITPS-68)    [deg C]
+
+    Returns
+    -------
+    t90 : array-like
+          in-situ temperature  (ITS-90)    [deg C]
+
+    """
+
+    # t90 = t68 / 1.00024
+    return t68 * 0.999760057586179
+    
+
+
+
 if __name__=='__main__':
     import doctest
     doctest.testmod()

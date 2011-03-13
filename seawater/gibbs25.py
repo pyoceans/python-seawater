@@ -177,6 +177,11 @@ def beta_CT25(SA, CT, p):
           
     return (anum_SA/rho_CT25(SA,CT,p) - adenom_SA)/_adenom(SA,CT,p)
 
+def rho_alpha_beta_CT25(SA, CT, p):
+    return ( rho_CT25(SA, CT, p),
+             alpha_CT25(SA, CT, p),
+             beta_CT25(SA, CT, p) )
+
 
 @match_args_return
 def specvol_CT25(SA, CT, p):
@@ -276,6 +281,7 @@ def enthalpy_CT25(SA, CT, p):
     B = b1 + sqrt_disc
 
     part = (N*b2 - M*b1)/(b2*(B - A))
+
 
     return ( cp0*CT + 
                db2Pa*(p*(a2 - 2*a3*b1/b2 + 0.5*a3*p)/b2 + 
