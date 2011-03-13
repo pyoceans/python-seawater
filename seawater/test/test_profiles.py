@@ -14,8 +14,7 @@ import os
 import unittest
 import functools   # require python 2.5
 import numpy as np
-import sys; sys.path.append('..'); import gibbs as gsw
-#import seawater.gibbs as gsw
+import seawater.gibbs as gsw
 from seawater.library import Dict2Struc
 
 # ------------------------------------
