@@ -4,7 +4,7 @@ import unittest
 import numpy as np
 import seawater.gibbs as gsw
 import seawater.library as gswl
-import gibbs25 as gsw25
+import seawater.gibbs25 as gsw25
 
 # Standard values for arguments from 
 # http://www.teos-10.org/pubs/gsw/html/gsw_contents.html
