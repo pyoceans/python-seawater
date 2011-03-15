@@ -593,6 +593,97 @@ def tcond(s, t, p):
     therm = therm * 418.4 # [cal/cm/C/sec] ->[W/m/K]
     return therm
 
+def spice(s,t,p):
+    r"""
+    Compute sea spiciness as defined by Flament (2002).
+
+    Parameters
+    ----------
+    s(p) : array_like
+           salinity [psu (PSS-78)]
+    t(p) : array_like
+           temperature [:math:`^\\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]. The shape can be "broadcasted"
+
+    Returns
+    -------
+    sp : array_like
+         spiciness [:math:`\pi`]
+
+    See Also
+    --------
+    pressure is not used...
+
+    Notes
+    -----
+    http://www.satlab.hawaii.edu/spice/spice.m
+
+    Examples
+    --------
+    >>> import seawater.extras.sw_extras as swe
+    >>> swe.spice(33, 15, 0)
+    0.54458641375
+
+    References
+    ----------
+    .. [1] A state variable for characterizing water masses and their diffusive stability: spiciness. Progress in Oceanography Volume 54, 2002, Pages 493-501.
+
+    Modifications: 2011/03/15. Filipe Fernandes, python translation.
+    """
+    s, t, p = np.asarray(s), np.asarray(t), np.asarray(p)
+
+    B = np.zeros((6,5))
+    B[0,0] = 0
+    B[0,1] = 7.7442e-001
+    B[0,2] = -5.85e-003
+    B[0,3] = -9.84e-004
+    B[0,4] = -2.06e-004
+
+    B[1,0] = 5.1655e-002
+    B[1,1] = 2.034e-003
+    B[1,2] = -2.742e-004
+    B[1,3] = -8.5e-006
+    B[1,4] = 1.36e-005
+
+    B[2,0] = 6.64783e-003
+    B[2,1] = -2.4681e-004
+    B[2,2] = -1.428e-005
+    B[2,3] = 3.337e-005
+    B[2,4] = 7.894e-006
+
+    B[3,0] = -5.4023e-005
+    B[3,1] = 7.326e-006
+    B[3,2] = 7.0036e-006
+    B[3,3] = -3.0412e-006
+    B[3,4] = -1.0853e-006
+
+    B[4,0] = 3.949e-007
+    B[4,1] = -3.029e-008
+    B[4,2] = -3.8209e-007
+    B[4,3] = 1.0012e-007
+    B[4,4] = 4.7133e-008
+
+    B[5,0] = -6.36e-010
+    B[5,1] = -1.309e-009
+    B[5,2] = 6.048e-009
+    B[5,3] = -1.1409e-009
+    B[5,4] = -6.676e-010
+
+    sp = np.zeros(t.shape)
+    T = np.ones(t.shape)
+    s = s - 35.
+    r, c = B.shape
+    for i in range(r):
+        S = np.ones(t.shape)
+        for j in range(c):
+            sp += B[i,j] * T * S
+            S *= s
+        T *= t
+
+    return sp
+
+
 def mlife():
     r"""
     >>> import seawater.extras.sw_extras as swe
