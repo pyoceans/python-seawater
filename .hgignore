@@ -7,3 +7,4 @@ _build
 build/*
 seawater.egg-info/*
 *.so
+seawater/WIP/sw_extras_oceans/*
