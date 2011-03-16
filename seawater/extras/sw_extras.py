@@ -64,7 +64,7 @@ def sigma_t(s, t, p):
     t(p) : array_like
            temperature [:math:`^\\circ` C (ITS-90)]
     p : array_like
-        pressure [db]. The shape can be "broadcasted"
+        pressure [db]
 
     Returns
     -------
@@ -118,7 +118,7 @@ def sigmatheta(s, t, p, pr=0):
     t(p) : array_like
            temperature [:math:`^\\circ` C (ITS-90)]
     p : array_like
-        pressure [db]. The shape can be "broadcasted"
+        pressure [db]
     pr : number
          reference pressure [db], default = 0
 
@@ -260,7 +260,7 @@ def shear(p, u, v=0):
     Parameters
     ----------
     p : array_like
-        pressure [db]. The shape can be "broadcasted"
+        pressure [db]
     u(p) : array_like
            Eastward velocity [m s :sup:`-1`]
     v(p) : array_like
@@ -504,7 +504,7 @@ def visc(s, t, p):
     t(p) : array_like
            temperature [:math:`^\\circ` C (ITS-90)]
     p : array_like
-        pressure [db]. The shape can be "broadcasted"
+        pressure [db]
 
     Returns
     -------
@@ -549,7 +549,7 @@ def tcond(s, t, p):
     t(p) : array_like
            temperature [:math:`^\\circ` C (ITS-90)]
     p : array_like
-        pressure [db]. The shape can be "broadcasted"
+        pressure [db]
 
     Returns
     -------
@@ -597,6 +597,8 @@ def spice(s,t,p):
     r"""
     Compute sea spiciness as defined by Flament (2002).
 
+    .. math:: \pi(\theta,s) = \sum^5_{i=0} \sum^4_{j=0} b_{ij}\theta^i(s-35)^i
+
     Parameters
     ----------
     s(p) : array_like
@@ -604,20 +606,25 @@ def spice(s,t,p):
     t(p) : array_like
            temperature [:math:`^\\circ` C (ITS-90)]
     p : array_like
-        pressure [db]. The shape can be "broadcasted"
+        pressure [db]
 
     Returns
     -------
     sp : array_like
-         spiciness [:math:`\pi`]
+         :math:`\pi` [kg m :sup:`3`]
 
     See Also
     --------
-    pressure is not used...
+    pressure is not used... should the input be theta instead of t?
+    Go read the paper!
 
     Notes
     -----
-    http://www.satlab.hawaii.edu/spice/spice.m
+    Spiciness, just like potential density, is only useful over limited vertical
+    excursions near the pressure to which they are referenced; for large vertical
+    ranges, the slope of the isopycnals and spiciness isopleths vary signiﬁcantly
+    with pressure, and generalization of the polynomial expansion to include a
+    reference pressure dependence is needed.
 
     Examples
     --------
@@ -627,11 +634,16 @@ def spice(s,t,p):
 
     References
     ----------
-    .. [1] A state variable for characterizing water masses and their diffusive stability: spiciness. Progress in Oceanography Volume 54, 2002, Pages 493-501.
+    .. [1] A state variable for characterizing water masses and their diffusive
+    stability: spiciness. Prog. in Oceanography Volume 54, 2002, Pages 493-501.
+
+    http://www.satlab.hawaii.edu/spice/spice.m
 
     Modifications: 2011/03/15. Filipe Fernandes, python translation.
     """
     s, t, p = np.asarray(s), np.asarray(t), np.asarray(p)
+
+    pt = sw.ptmp(s,t,p) # I'm not sure about this...
 
     B = np.zeros((6,5))
     B[0,0] = 0
@@ -670,16 +682,16 @@ def spice(s,t,p):
     B[5,3] = -1.1409e-009
     B[5,4] = -6.676e-010
 
-    sp = np.zeros(t.shape)
-    T = np.ones(t.shape)
+    sp = np.zeros(pt.shape)
+    T = np.ones(pt.shape)
     s = s - 35.
     r, c = B.shape
     for i in range(r):
-        S = np.ones(t.shape)
+        S = np.ones(pt.shape)
         for j in range(c):
             sp += B[i,j] * T * S
             S *= s
-        T *= t
+        T *= pt
 
     return sp
 
