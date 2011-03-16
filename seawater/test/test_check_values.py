@@ -2,9 +2,11 @@
 
 import unittest
 import numpy as np
+import numpy.testing as npt
 import seawater.gibbs as gsw
 import seawater.library as gswl
-import seawater.gibbs25 as gsw25
+#import seawater.gibbs25 as gsw25
+import gibbs25 as gsw25
 
 # Standard values for arguments from 
 # http://www.teos-10.org/pubs/gsw/html/gsw_contents.html
@@ -38,10 +40,8 @@ lat = 4
 # the GSW toolbox version 2.0 available from
 # http://www.teos-10.org/pubs/gsw/html/gsw_contents.html
 
-
-
 class Test_standard(unittest.TestCase):
-
+#class Test_standard(npt.TestCase):
 
     # -----------------------------------------------------
     # Absolute Salinity (SA) and Preformed Salinity (Sstar)
@@ -56,7 +56,7 @@ class Test_standard(unittest.TestCase):
                               34.736629598766619,
                               34.732361864645107))
         out = gsw.SA_from_SP(SP, p, lon, lat)
-        self.assertTrue(np.all(out == out_check))
+        npt.assert_array_equal(out, out_check)
 
     def test_Sstar_from_SP(self):
         """Preformed Salinity from Practical Salinity"""
@@ -67,7 +67,7 @@ class Test_standard(unittest.TestCase):
                               34.729033602488833,
                               34.719676382802788))
         out = gsw.Sstar_from_SP(SP, p, lon,lat)
-        self.assertTrue(np.all(out == out_check))
+        npt.assert_array_equal(out, out_check)
 
     #def test_SA_Sstar_from_SP 
         """Absolute Salinity & Preformed Salinity from Practical Salinity"""
@@ -88,7 +88,7 @@ class Test_standard(unittest.TestCase):
                                6.827213633479988,
                                4.323575748610455))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-15))
+        npt.assert_array_almost_equal(out, out_check, decimal=15)
 
         
     # -----------------------------------------------------------------------
@@ -104,8 +104,7 @@ class Test_standard(unittest.TestCase):
                               10.260010752788906,
                                6.886286301029376,
                                4.403624452383043))
-        self.assertTrue(np.all(out == out_check))
-
+        npt.assert_array_equal(out, out_check)
     
     def test_pt_from_t(self):
         """potential temperature"""
@@ -118,7 +117,7 @@ class Test_standard(unittest.TestCase):
                                6.829230224409661,
                                4.324510571845719))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-15))
+        npt.assert_array_almost_equal(out, out_check, decimal=15)
     
     def test_CT_from_pt(self):
         """Conservative Temperature from potential temperature"""
@@ -129,8 +128,8 @@ class Test_standard(unittest.TestCase):
                               10.226165605435785,
                                6.827183417643142,
                                4.323565182322069))     
-        self.assertTrue(np.all(out == out_check))
-    
+        npt.assert_array_equal(out, out_check)    
+
     def test_pot_enthalpy_from_pt(self):
         """potential enthalpy from potential temperature"""
         out = gsw.pot_enthalpy_from_pt(SA,pt)
@@ -141,8 +140,7 @@ class Test_standard(unittest.TestCase):
                                27253.2147222681,
                                17259.1013118296))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-10))
-
+        npt.assert_array_almost_equal(out, out_check, decimal=10)
     
     def test_pt0_from_t(self):
         """potential temperature with a reference pressure of zero dbar"""
@@ -154,10 +152,8 @@ class Test_standard(unittest.TestCase):
                                6.829230224409661,
                                4.324510571845719))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-15))
+        npt.assert_array_almost_equal(out, out_check, decimal=15)
         
-
-    
     def test_pt_from_CT(self):
         """potential temperature from Conservative Temperature"""
         out = gsw.pt_from_CT(SA, CT)
@@ -167,8 +163,7 @@ class Test_standard(unittest.TestCase):
                               10.230534394434429,
                                6.829216587061605,
                                4.324534835990236))
-        self.assertTrue(np.all(out == out_check))
-        
+        npt.assert_array_equal(out, out_check)        
     def test_SP_from_SA(self):
         """Practical Salinity from Absolute Salinity"""
         out = gsw.SP_from_SA(SA, p, lon, lat)
@@ -178,8 +173,8 @@ class Test_standard(unittest.TestCase):
                               34.680970059473843,
                               34.567970540149211,
                               34.560037956374323))
-        self.assertTrue(np.all(out == out_check))
-        
+        npt.assert_array_equal(out, out_check)        
+
     def test_Sstar_from_SA(self):
         """Preformed Salinity from Absolute Salinity"""
         out = gsw.Sstar_from_SA(SA, p, lon, lat)
@@ -189,8 +184,7 @@ class Test_standard(unittest.TestCase):
                               34.843562690379144,
                               34.729004003722217,
                               34.719714518157680))
-        self.assertTrue(np.all(out == out_check))
-
+        npt.assert_array_equal(out, out_check)
         
     def test_SA_from_Sstar(self):
         """Absolute Salinity from Preformed Salinity"""
@@ -202,7 +196,7 @@ class Test_standard(unittest.TestCase):
                              34.736695996277788,
                              34.732385481842321])
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-10))
+        npt.assert_array_almost_equal(out, out_check, decimal=10)
 
     def test_SP_from_Sstar(self):
         """Practical Salinity from Preformed Salinity"""
@@ -213,28 +207,34 @@ class Test_standard(unittest.TestCase):
                               34.681007193989544,
                               34.568066085887892,
                               34.560023506354682])
-        self.assertTrue(np.all(out == out_check))
-    
+        npt.assert_array_equal(out, out_check)    
+
     def test_z_from_p(self):
         """height from pressure"""
         out = gsw.z_from_p(p, lat)
         out_check = np.array((  -9.9446,  -49.7182, -124.2728,
                               -248.4704, -595.8262, -992.0932))
+        out_octave = [  -9.94460074378793,
+                       -49.71817464749508,
+                      -124.27282749612912,
+                      -248.47044828162981,
+                      -595.82618013969216,
+                      -992.09317479591675]
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-4))
+        npt.assert_array_almost_equal(out, out_check,  decimal=4)
+        npt.assert_array_almost_equal(out, out_octave, decimal=14)
     
     def test_p_from_z(self):
         """pressure from height"""
         out = gsw.p_from_z(z,lat)
-        out_check = np.array((-0010.055217939908,
-                              -0050.271175099730,
-                              -0125.654885697343,
-                              -0251.232845042860,
-                              -0602.440507522266,
-                              -1003.076098067266))
+        out_check =  [  -10.055217939908,
+                        -50.271175099730,
+                       -125.654885697343,
+                       -251.232845042860,
+                       -602.440507522266,
+                      -1003.076098067266]
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-12))
-
+        npt.assert_array_almost_equal(out, out_check, decimal=12)
 
     def test_t90_from_t48(self):
         """ITS-90 temperature from IPTS-48 temperature"""
@@ -248,8 +248,8 @@ class Test_standard(unittest.TestCase):
                                 6.99545669039431,
                                 3.99735103575142))
         #print np.max(abs(out-out_octave))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-4))
-        self.assertTrue(np.all(abs(out-out_octave) < 1.0e-14))
+        npt.assert_array_almost_equal(out, out_check,  decimal=4)
+        npt.assert_array_almost_equal(out, out_octave, decimal=14)
 
     def test_t90_from_t68(self):
         """ITS-90 temperature from IPTS-68 temperature"""
@@ -263,8 +263,8 @@ class Test_standard(unittest.TestCase):
                                 6.99832040310325,
                                 3.99904023034472))
         #print np.max(abs(out-out_octave))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-4))
-        self.assertTrue(np.all(abs(out-out_octave) < 1.0e-14))
+        npt.assert_array_almost_equal(out, out_check,  decimal=4)
+        npt.assert_array_almost_equal(out, out_octave, decimal=14)
 
     # -----------------------------------------------------------------
     # density and enthalpy, based on the 25-term expression for density
@@ -280,7 +280,7 @@ class Test_standard(unittest.TestCase):
                               1029.838876568916,
                               1032.002445797635))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-12))
+        npt.assert_array_almost_equal(out, out_check, decimal=12)
 
     # Individual terms are tested
     #def test_rho_alpha_beta_CT25(self):
@@ -296,7 +296,7 @@ class Test_standard(unittest.TestCase):
                                        0.146078398825498,
                                        0.129148950914940))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-6))
+        npt.assert_array_almost_equal(out, out_check, decimal=6)
 
     def test_beta_CT25(self):
         """saline contraction coefficient by 25 term equation"""
@@ -308,7 +308,7 @@ class Test_standard(unittest.TestCase):
                                        0.755000880950473,
                                        0.756865290355974))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-6))
+        npt.assert_array_almost_equal(out, out_check, decimal=6)
 
     def test_specvol_CT25(self):
         """specific volume by 25 term equation"""
@@ -320,7 +320,7 @@ class Test_standard(unittest.TestCase):
                                        0.971025684456263,
                                        0.968989951595608))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-7))
+        npt.assert_array_almost_equal(out, out_check, decimal=7)
         
     def test_specvol_anom_CT25(self):
         """specific volume anomaly by 25 term equation"""
@@ -332,24 +332,40 @@ class Test_standard(unittest.TestCase):
                                        0.104119730440851,
                                        0.076279577097848))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-7))
-
+        npt.assert_array_almost_equal(out, out_check, decimal=7)
         
     def test_enthalpy_CT25(self):
         """enthalpy by 25 term formulation"""
         out = gsw25.enthalpy_CT25(SA, CT, p)
-        out_check = np.array((115103.1813925039,
-                              114014.6929487063,
-                               92180.0148514069,
-                               43255.3660538842,
-                               33087.1524935877,
-                               26970.6799089967))
+        out_check = [115103.1813925039,
+                     114014.6929487063,
+                      92180.0148514069,
+                      43255.3660538842,
+                      33087.1524935877,
+                      26970.6799089967]
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-10))
+        npt.assert_array_almost_equal(out, out_check, decimal=10)
 
-        
-    #def test_enthalpy_diff_CT25(self):
+    def test_enthalpy_diff_CT25(self):
         """difference of enthalpy between two pressures"""
+
+        p_shallow =  [ 10,  50, 125, 250, 600, 1000]
+        p_deep    =  [110, 150, 225, 350, 700, 1100]
+        out = gsw25.enthalpy_diff_CT25(SA, CT, p_shallow, p_deep)
+        out2 = ( gsw25.enthalpy_CT25(SA, CT, p_deep) -
+                 gsw25.enthalpy_CT25(SA, CT, p_shallow) )
+        out3 = ( gsw.enthalpy_CT25(SA, CT, p_deep) -
+                 gsw.enthalpy_CT25(SA, CT, p_shallow) )
+        out_check = [978.4262827561797,
+                     978.0221873372307,
+                     975.9531141438936,
+                     972.7477253978700,
+                     970.8128690308879,
+                     968.7770260315075]
+        #print np.max(abs(out-out_check))
+        npt.assert_array_almost_equal(out, out_check, decimal=13)
+        npt.assert_array_almost_equal(out2, out_check, decimal=8)
+        
 
     # --------------------------------------------------------------------
     # water column properties, based on the 25-term expression for density
@@ -412,7 +428,7 @@ class Test_standard(unittest.TestCase):
 
         #print np.max(abs(out-out_check))
         #print np.max(abs(out-out_octave))
-        self.assertTrue(np.all(abs(out-out_octave) < 1.0e-14))
+        npt.assert_array_almost_equal(out, out_octave, decimal=14)
 
         
     def test_thermobaric_CT25(self):
@@ -425,10 +441,20 @@ class Test_standard(unittest.TestCase):
                                         0.247208470958881,
                                         0.262712952286233))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-20))
+        npt.assert_array_almost_equal(out, out_check, decimal=20)
 
-    #def test_isopycnal_slope_ratio_CT25(self):
+    def test_isopycnal_slope_ratio_CT25(self):
         """ratio of the slopes of isopycnals on the SA-CT diagram"""
+        out = gsw25.isopycnal_slope_ratio_CT25(SA, CT, p, 0)
+        out_check = [1.000443300473299,
+                     1.002247196919216,
+                     1.007323843523325,
+                     1.033841543679809,
+                     1.113488165501534,
+                     1.257603349708546]
+        #print np.max(abs(out-out_check))
+        npt.assert_array_almost_equal(out, out_check, decimal=14)
+        
 
     #def test_isopycnal_vs_ntp_CT_ratio_CT25(self):
         """ratio of the gradient of Conservative Temperature"""
@@ -443,27 +469,27 @@ class Test_standard(unittest.TestCase):
     def test_rho(self):
         """in-situ density"""
         out = gsw.rho(SA, t, p)
-        out_check = np.array((1021.840173185531,
-                              1022.262689926782,
-                              1024.427715941676,
-                              1027.790201811623,
-                              1029.837714725961,
-                              1032.002404116447))
+        out_check = [1021.840173185531,
+                     1022.262689926782,
+                     1024.427715941676,
+                     1027.790201811623,
+                     1029.837714725961,
+                     1032.002404116447]
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-12))
+        npt.assert_array_almost_equal(out, out_check, decimal=12)
 
     def test_pot_rho(self):
         """potential density"""
         pr = 0
         out = gsw.pot_rho(SA, t, p, pr)
-        out_check = np.array((1021.798145811089,
-                              1022.052484416980,
-                              1023.893583651958,
-                              1026.667621124443,
-                              1027.107230868492,
-                              1027.409631264134))
+        out_check = [1021.798145811089,
+                     1022.052484416980,
+                     1023.893583651958,
+                     1026.667621124443,
+                     1027.107230868492,
+                     1027.409631264134]
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-12))
+        npt.assert_array_almost_equal(out, out_check, decimal=12)
 
 
     def test_specvol(self):
@@ -476,7 +502,7 @@ class Test_standard(unittest.TestCase):
                               0.000971026779948624,
                               0.000968989990731808))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-18))
+        npt.assert_array_almost_equal(out, out_check, decimal=18)
 
     def test_specvol_anom(self):
         """specific volume anomaly"""
@@ -488,7 +514,7 @@ class Test_standard(unittest.TestCase):
                                        0.104351837470899,
                                        0.076396485029176))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-20))
+        npt.assert_array_almost_equal(out, out_check, decimal=20)
 
     def test_alpha_wrt_CT(self):
         """thermal expansion coefficient wrt Conservative Temperature"""
@@ -500,7 +526,7 @@ class Test_standard(unittest.TestCase):
                                        0.146269210200123,
                                        0.129426849037398))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-18))
+        npt.assert_array_almost_equal(out, out_check, decimal=18)
 
     def test_alpha_wrt_pt(self):
         """thermal expansion coefficient wrt potential temperature"""
@@ -513,7 +539,7 @@ class Test_standard(unittest.TestCase):
                                        0.146227722831487,
                                        0.129358812895628))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-18))
+        npt.assert_array_almost_equal(out, out_check, decimal=18)
         
     def test_alpha_wrt_t(self):
         """thermal expansion coefficient wrt in-situ temperature"""
@@ -525,7 +551,7 @@ class Test_standard(unittest.TestCase):
                                        0.145569941503599,
                                        0.128362986933288))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-18))
+        npt.assert_array_almost_equal(out, out_check, decimal=18)
         
     def test_beta_const_CT(self):
         """saline contraction coefficient at constant Conservative Temperature"""
@@ -537,7 +563,7 @@ class Test_standard(unittest.TestCase):
                                        0.755062962544804,
                                        0.757065895554659))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-18))
+        npt.assert_array_almost_equal(out, out_check, decimal=18)
         
     def test_beta_const_pt(self):
         """saline contraction coefficient at constant potential temperature"""
@@ -549,7 +575,7 @@ class Test_standard(unittest.TestCase):
                                        0.757121845539448,
                                        0.758434161456822))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-18))
+        npt.assert_array_almost_equal(out, out_check, decimal=18)
 
     def test_beta_const_t(self):
         """saline contraction coefficient at constant in-situ temperature"""
@@ -561,19 +587,19 @@ class Test_standard(unittest.TestCase):
                                        0.757259405338257,
                                        0.758649268096996))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-18))
+        npt.assert_array_almost_equal(out, out_check, decimal=18)
 
     def test_entropy(self):
         """entropy"""
         out = gsw.entropy(SA, t, p)
-        out_check = np.array((400.3894252787245,
-                              395.4381784340642,
-                              319.8664981986740,
-                              146.7908815899072,
-                              098.6473408657975,
-                              062.7915087346090))
+        out_check = [400.3894252787245,
+                     395.4381784340642,
+                     319.8664981986740,
+                     146.7908815899072,
+                      98.6473408657975,
+                      62.7915087346090]
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-13))
+        npt.assert_array_almost_equal(out, out_check, decimal=13)
 
     def test_internal_energy(self):
         """internal energy"""
@@ -585,7 +611,7 @@ class Test_standard(unittest.TestCase):
                                       0.271626660018474,
                                       0.171825052266728))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-10))
+        npt.assert_array_almost_equal(out, out_check, decimal=10)
         
     def test_enthalpy(self):
         """enthalpy"""
@@ -597,31 +623,31 @@ class Test_standard(unittest.TestCase):
                                       0.330872159700175,
                                       0.269705880448018))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-10))
+        npt.assert_array_almost_equal(out, out_check, decimal=10)
 
     def test_cp(self):
         """isobaric heat capacity"""
         out = gsw.cp(SA, t, p)
-        out_check = np.array((4002.888003958537,
-                              4000.980283927373,
-                              3995.546468894633,
-                              3985.076769021370,
-                              3973.593843482723,
-                              3960.184084786622))
+        out_check = [4002.888003958537,
+                     4000.980283927373,
+                     3995.546468894633,
+                     3985.076769021370,
+                     3973.593843482723,
+                     3960.184084786622]
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-12))
+        npt.assert_array_almost_equal(out, out_check, decimal=12)
 
     def test_isochoric_heat_cap(self):
         """isochoric heat capacity"""
         out = gsw.isochoric_heat_cap(SA, t, p)
-        out_check = np.array((3928.137087019246,
-                              3927.273816327282,
-                              3941.364185254816,
-                              3966.261261456055,
-                              3960.509032220448,
-                              3950.139013423850))
+        out_check = [3928.137087019246,
+                     3927.273816327282,
+                     3941.364185254816,
+                     3966.261261456055,
+                     3960.509032220448,
+                     3950.139013423850]
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-12))
+        npt.assert_array_almost_equal(out, out_check, decimal=12)
         
     def test_chem_potential_relative(self):
         """relative chemical potential"""
@@ -632,8 +658,7 @@ class Test_standard(unittest.TestCase):
                               65.640637188627224,
                               61.226856561881860,
                               57.212985572773491))
-        self.assertTrue(np.all(out == out_check))
-        
+        npt.assert_array_equal(out, out_check)        
     def test_chem_potential_water(self):
         """chemical potential of water in seawater"""
         out = gsw.chem_potential_water(SA, t, p)
@@ -644,7 +669,7 @@ class Test_standard(unittest.TestCase):
                                3335.566803473286,
                                7555.434445971858))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out - out_check) < 1.0e-12))
+        npt.assert_array_almost_equal(out, out_check, decimal=12)
         
     def test_chem_potential_salt(self):
         """chemical potential of salt in seawater"""
@@ -656,7 +681,7 @@ class Test_standard(unittest.TestCase):
                                3396.793660035168,
                                7612.647431544631))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out - out_check) < 1.0e-12))
+        npt.assert_array_almost_equal(out, out_check, decimal=12)
         
     # python function should be renamed to Helmholtz_energy
     def test_Helmholtz_energy(self):
@@ -670,7 +695,7 @@ class Test_standard(unittest.TestCase):
                                -462.170339049288,
                                -245.504072049327))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-12))
+        npt.assert_array_almost_equal(out, out_check, decimal=12)
 
     def test_sound_speed(self):
         """sound speed"""
@@ -682,7 +707,7 @@ class Test_standard(unittest.TestCase):
                               1487.377102518027,
                               1483.934609078705))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-12))
+        npt.assert_array_almost_equal(out, out_check, decimal=12)
 
     def test_kappa(self):
         """isentropic compressibility"""
@@ -694,7 +719,7 @@ class Test_standard(unittest.TestCase):
                                        0.438923693006423,
                                        0.440037575765429))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-24))
+        npt.assert_array_almost_equal(out, out_check, decimal=24)
 
     def test_kappa_const_t(self):
         """isothermal compressibility"""
@@ -706,7 +731,7 @@ class Test_standard(unittest.TestCase):
                                        0.440373818138017,
                                        0.441156576599537))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-24))
+        npt.assert_array_almost_equal(out, out_check, decimal=24)
 
     def test_adiabatic_lapse_rate(self):
         """adiabatic lapse rate"""
@@ -718,7 +743,7 @@ class Test_standard(unittest.TestCase):
                                        0.099617071808651,
                                        0.087174726986510))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-22))
+        npt.assert_array_almost_equal(out, out_check, decimal=22)
         
     def test_molality(self):
         """molality of seawater"""
@@ -730,7 +755,7 @@ class Test_standard(unittest.TestCase):
                               1.145932308325875,
                               1.145788768234685))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-15))
+        npt.assert_array_almost_equal(out, out_check, decimal=15)
 
     def test_ionic_strength(self):
         """ionic strength of seawater"""
@@ -742,7 +767,7 @@ class Test_standard(unittest.TestCase):
                               0.713508907524334,
                               0.713419533018609))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-15))
+        npt.assert_array_almost_equal(out, out_check, decimal=15)
         
     def test_osmotic_coefficient(self):
         """osmotic coefficient of seawater"""
@@ -754,7 +779,7 @@ class Test_standard(unittest.TestCase):
                               0.898010536533592,
                               0.897679115176392))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-15))
+        npt.assert_array_almost_equal(out, out_check, decimal=15)
 
     # BUG, does not work
     def rest_temps_maxdensity(self):
@@ -777,7 +802,7 @@ class Test_standard(unittest.TestCase):
                               1029.837716779620,
                               1032.002400877215))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-12))
+        npt.assert_array_almost_equal(out, out_check, decimal=12)
                               
     #def test_rho_alpha_beta_CT(self):
         """in-situ density, expansion & contraction coefficients from CT"""
@@ -792,7 +817,7 @@ class Test_standard(unittest.TestCase):
                                        0.971026778012244,
                                        0.968989993773259))
         #print np.max(abs(out-out_check))a
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-18))
+        npt.assert_array_almost_equal(out, out_check, decimal=18)
         
 
     #def test_specvol_anom_CT(self):
@@ -808,7 +833,7 @@ class Test_standard(unittest.TestCase):
                               27.107232725897575,
                               27.409628653483423))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(out == out_check))
+        npt.assert_array_equal(out, out_check)
 
     def test_sigma1_CT(self):
         """sigma1 in terms of SA & CT with reference pressure of 1000 dbar"""
@@ -820,8 +845,7 @@ class Test_standard(unittest.TestCase):
                               31.637685737359789,
                               32.002400877214541))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(out == out_check))
-
+        npt.assert_array_equal(out, out_check)
 
     def test_sigma2_CT(self):
         """sigma2 in terms of SA & CT with reference pressure of 2000 dbar"""
@@ -833,7 +857,7 @@ class Test_standard(unittest.TestCase):
                               36.067249427311708,
                               36.492547357788226))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(out == out_check))
+        npt.assert_array_equal(out, out_check)
 
     def test_sigma3_CT(self):
         """sigma3 in terms of SA & CT with reference pressure of 3000 dbar"""
@@ -845,7 +869,7 @@ class Test_standard(unittest.TestCase):
                               40.397870256006627,
                               40.881719119051240))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(out == out_check))
+        npt.assert_array_equal(out, out_check)
 
     def test_sigma4_CT(self):
         """sigma4 in terms of SA & CT with reference pressure of 4000 dbar"""
@@ -857,7 +881,7 @@ class Test_standard(unittest.TestCase):
                               44.631612266276306,
                               45.171743792926918))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(out == out_check))
+        npt.assert_array_equal(out, out_check)
 
     def test_enthalpy_CT(self):
         """enthalpy from CT"""
@@ -869,7 +893,7 @@ class Test_standard(unittest.TestCase):
                                        0.330871615358722,
                                        0.269706848807403))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-10))
+        npt.assert_array_almost_equal(out, out_check, decimal=10)
         
 
     # Not implemented yet
@@ -885,7 +909,7 @@ class Test_standard(unittest.TestCase):
                               970.8138965635516,
                               968.7770207718350))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-10))
+        npt.assert_array_almost_equal(out, out_check, decimal=10)
 
     def test_entropy_from_pt(self):
         """entropy from potential temperature"""
@@ -894,8 +918,7 @@ class Test_standard(unittest.TestCase):
         out_check = np.array([400.38946744, 395.43839949, 319.86743859,
                               146.79054828,  98.64691006,  62.79135672])
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-8))
-
+        npt.assert_array_almost_equal(out, out_check, decimal=8)
 
     def test_entropy_from_CT(self):
         """entropy from Conservative Temperature"""
@@ -903,7 +926,7 @@ class Test_standard(unittest.TestCase):
         out_check = np.array([400.3892,  395.4378, 319.8668,
                               146.7910,   98.6471,  62.7919])
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-4))
+        npt.assert_array_almost_equal(out, out_check, decimal=4)
 
     def test_pt_from_entropy(self):
         """potential temperature from entropy"""
@@ -911,7 +934,7 @@ class Test_standard(unittest.TestCase):
         out_check = np.array((28.7832, 28.4210, 22.7850,
                               10.2305,  6.8292,  4.3245))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-4))
+        npt.assert_array_almost_equal(out, out_check, decimal=4)
 
     def test_CT_from_entropy(self):
         """Conservative Temperature from entropy"""
@@ -919,7 +942,7 @@ class Test_standard(unittest.TestCase):
         out_check = np.array((28.8099, 28.4392, 22.7862,
                               10.2262,  6.8272,  4.3236))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-5))
+        npt.assert_array_almost_equal(out, out_check, decimal=5)
 
     # -------------------------------------------
     # derivatives of enthalpy, entropy, CT and pt
@@ -939,7 +962,7 @@ class Test_standard(unittest.TestCase):
                               -0.014075941811725,
                               -0.010571716552295))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-15))
+        npt.assert_array_almost_equal(out, out_check, decimal=15)
     
     def test_CT_derivative_pt(self):
         """derivative of Conservative Temperature wrt potential temperature"""
@@ -951,7 +974,7 @@ class Test_standard(unittest.TestCase):
                               0.999716359504731,
                               0.999474326580093))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-15))
+        npt.assert_array_almost_equal(out, out_check, decimal=15)
     
     #def test_CT_second_derivatives(self):
         """second derivatives of Conservative Temperature"""
@@ -978,7 +1001,7 @@ class Test_standard(unittest.TestCase):
                               14.086599016583795,
                               14.257729576432077,
                               14.386429945649411))
-        self.assertTrue(np.all(out == out_check))
+        npt.assert_array_equal(out, out_check)
 
     def test_entropy_derivative_SA(self):
         """derivative of entropy wrt to Absolute Salinity"""
@@ -990,7 +1013,7 @@ class Test_standard(unittest.TestCase):
                               -0.234438260606436,
                               -0.232820684341694))
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-15))
+        npt.assert_array_almost_equal(out, out_check, decimal=15)
 
     #def test_entropy_second_derivatives(self):
         """second derivatives of entropy"""
@@ -1015,8 +1038,7 @@ class Test_standard(unittest.TestCase):
                               -0.000072921150000000,
                                0.0])
         #print np.max(abs(out-out_check))
-        self.assertTrue(np.all(abs(out-out_check) < 1.0e-8))
-
+        npt.assert_array_almost_equal(out, out_check, decimal=8)
 
     def test_grav(self):
         """Gravitational acceleration"""
@@ -1028,11 +1050,9 @@ class Test_standard(unittest.TestCase):
                               9.819178859991149,
                               9.793249257048750,
                               9.780327000000000))
-        #print np.max(abs(out0-out_check))
-        self.assertTrue(np.all(out0 == out_check))
-        self.assertTrue(np.all(out1 == out_check))
+        npt.assert_array_equal(out0, out_check)
+        npt.assert_array_equal(out1, out_check)
         
-
     # ERROR in check values
     def test_distance(self):
         """spherical earth distance at a given pressure"""
@@ -1042,7 +1062,7 @@ class Test_standard(unittest.TestCase):
         out_check  = 1.050955616404136e+007
         out_octave = 10030974.6529160
         #print abs(out-out_octave)
-        self.assertTrue(abs(out-out_octave) < 1.0e-8)
+        npt.assert_almost_equal(out, out_octave, decimal=8)
         
         lon = [159,  220]
         lat = [-35,   35]
@@ -1051,65 +1071,7 @@ class Test_standard(unittest.TestCase):
         out_check  = 1.050922853324439e+007
         out_octave = 10030661.6387801
         #print abs(out-out_octave)
-        self.assertTrue(abs(out-out_octave) < 1.0e-7)
-
-    # ----------------------------
-    # Functions for laboratory use
-    # ----------------------------
-
-    def test_SA_from_rho(self):
-        """Absolute Salinity from density measurements"""
-        out = gsw.SA_from_rho(rho, t, p)
-        out_check = np.array((34.710229656274947,
-                              34.890576832371579,
-                              35.023324209337552,
-                              34.849520963839424,
-                              34.738248094721804,
-                              34.731883839457986))
-        self.assertTrue(np.all(out == out_check))
-
-    #def test_sigma0_pt(self):
-        """sigma_0 expressed in terms of SA & pt0"""
-
-    # -------------------------------
-    # Practical Salinity (SP), PSS-78
-    # -------------------------------
-    
-    def test_SP_from_cndr(self):
-        """Practical Salinity from conductivity ratio"""
-        R = [1.3145, 1.3123, 1.1807, 0.8886, 0.8169, 0.7687]
-        out = gsw.SP_from_cndr(R, t, p)
-        out_check = np.array((34.547219254816596,
-                              34.727400381174370,
-                              34.859100827188712,
-                              34.679845200922003,
-                              34.567856165219020,
-                              34.561679175326645))
-        self.assertTrue(np.all(out == out_check))
-        
-    # Not implemented yet
-    #def test_cndr_from_SP(self):
-        """conductivity ratio from Practical Salinity"""
-
-    # ------------------------------------
-    # Library functions of the GSW toolbox
-    # ------------------------------------
-
-    # No check values at the web site
-    #def test_gibbs(self):
-        """the TEOS-10 Gibbs function and its derivatives"""
-
-    def test_delta_SA(self):
-        """Absolute Salinity Anomaly (excluding the Baltic Sea)"""
-        out = gswl._delta_SA(p, lon, lat)
-        out_check = np.array((0.000167785807437,
-                              0.000268675908040,
-                              0.000665539507353,
-                              0.002694303422857,
-                              0.005626663909471,
-                              0.009396653216531))
-        #print np.max(abs(out - out_check))
-        self.assertTrue(np.all(abs(out - out_check) < 1.0e-15))
+        npt.assert_almost_equal(out, out_octave, decimal=8)
 
     def test_SA_from_SP_Baltic(self):
         """Absolute Salinity in the Baltic Sea"""
@@ -1120,16 +1082,15 @@ class Test_standard(unittest.TestCase):
         out_check = np.array([6.6699,  6.7738,
                               6.9130,  7.3661,
                               7.5862, 10.3895])
-        self.assertTrue(np.all(abs(out - out_check) < 1.0e-4))
         out_octave = np.array(( 6.66994543234286,
                                 6.77377643074286,
                                 6.91298613805714,
                                 7.36609419188571,
                                 7.58618383714286,
                                10.38952057097143))
-        self.assertTrue(np.all(abs(out - out_octave) < 1.0e-14))
+        npt.assert_array_almost_equal(out, out_check, 4)
+        npt.assert_array_almost_equal(out, out_octave, 14)
         
-
     def test_SP_from_SA_Baltic(self):
         """Practical Salinity in the Baltic Sea"""
         SA = [6.6699, 6.7738, 6.9130, 7.3661, 7.5862, 10.3895]
@@ -1138,17 +1099,15 @@ class Test_standard(unittest.TestCase):
         out_check  = np.array([6.5683,  6.6719,
                                6.8108,  7.2629,
                                7.4825, 10.2796])
-        self.assertTrue(np.all(abs(out - out_check) < 1.0e-4))
         out_octave = np.array(( 6.56825466873292,
                                 6.67192351682135,
                                 6.81081383110345,
                                 7.26290579519266,
                                 7.48251612689877,
                                10.27957947479392))
-        self.assertTrue(np.all(abs(out - out_octave) < 1.0e-14))
-
+        npt.assert_array_almost_equal(out, out_check, decimal=4)
+        npt.assert_array_almost_equal(out, out_octave, decimal=14)
         
-
     # No check values on the web site
     #def test_infunnel(self):
         """'oceanographic funnel' check for the 25-term equation"""
@@ -1181,7 +1140,6 @@ class Test_standard(unittest.TestCase):
     #def test_enthalpy_SSO_0_CT25(self):
         """enthalpy_CT25(35.16504,0,p)"""
 
-
 # -----------------------------------------------
 
 if __name__ == '__main__':
@@ -1189,4 +1147,5 @@ if __name__ == '__main__':
     suite = unittest.TestLoader().loadTestsFromTestCase(Test_standard)
     unittest.TextTestRunner(verbosity=2).run(suite)
     #unittest.main()
+    #npt.test()
 
