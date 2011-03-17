@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
+
+
 import unittest
 import numpy as np
 import numpy.testing as npt
 import seawater.gibbs as gsw
 import seawater.library as gswl
-#import seawater.gibbs25 as gsw25
-import gibbs25 as gsw25
+import seawater.gibbs25 as gsw25
 
 # Standard values for arguments from 
 # http://www.teos-10.org/pubs/gsw/html/gsw_contents.html
@@ -683,7 +684,6 @@ class Test_standard(unittest.TestCase):
         #print np.max(abs(out-out_check))
         npt.assert_array_almost_equal(out, out_check, decimal=12)
         
-    # python function should be renamed to Helmholtz_energy
     def test_Helmholtz_energy(self):
         """Helmholtz energy"""
         out = gsw.Helmholtz_energy(SA, t, p)
@@ -791,7 +791,6 @@ class Test_standard(unittest.TestCase):
     # basic thermodynamic properties in terms of CT and pt
     # ----------------------------------------------------
 
-    # Not implemented yet
     def test_rho_CT(self):
         """in-situ density from CT"""
         out = gsw.rho_CT(SA, CT, p)
@@ -1015,8 +1014,47 @@ class Test_standard(unittest.TestCase):
         #print np.max(abs(out-out_check))
         npt.assert_array_almost_equal(out, out_check, decimal=15)
 
+    #Tested indivdually below
     #def test_entropy_second_derivatives(self):
         """second derivatives of entropy"""
+
+    def test_entropy_derivative_SA_SA(self):
+        out = gsw.entropy_derivative_SA_SA(SA, CT)
+        out_check = [-0.007627718929669,
+                     -0.007591969960708,
+                     -0.007528186784540,
+                     -0.007455177590576,
+                     -0.007441108287466,
+                     -0.007414368396280]
+        #print np.max(abs(out-out_check))
+        npt.assert_array_almost_equal(out, out_check, decimal=15)
+
+    def test_entropy_derivative_SA_CT(self):
+        out = gsw.entropy_derivative_SA_CT(SA, CT)
+        out_check = [-0.001833104216751,
+                     -0.001819473824306,
+                     -0.001580843823414,
+                     -0.000930111408561,
+                     -0.000717011215195,
+                     -0.000548410546830]
+        #print np.max(abs(out-out_check))
+        npt.assert_array_almost_equal(out, out_check, decimal=15)
+
+    def test_entropy_derivative_CT_CT(self):
+        out = gsw.entropy_derivative_CT_CT(SA, CT)
+        out_check = [-0.043665023731109,
+                     -0.043781336189326,
+                     -0.045506114440888,
+                     -0.049708939454018,
+                     -0.050938690879443,
+                     -0.051875017843472]
+        #print np.max(abs(out-out_check))
+        npt.assert_array_almost_equal(out, out_check, decimal=15)
+
+
+        
+
+
 
     #def test_pt_first_derivatives(self):
         """first derivatives of potential temperature"""

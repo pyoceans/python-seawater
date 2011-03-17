@@ -1,5 +1,23 @@
 # -*- coding: utf-8 -*-
 
+"""
+gibbs25.py
+
+Functions using the faster and slightly less accurate
+25 term equation of state in terms of Absolute Salinity
+and Conservative Temperature
+
+Reference:
+----------
+McDougall T. J., D. R. Jackett, P. M. Barker, C. Roberts-Thomson, R.
+   Feistel and R. W. Hallberg, 2010:  A computationally efficient 25-term 
+   expression for the density of seawater in terms of Conservative 
+   Temperature, and related properties of seawater.
+   To be submitted to Ocean Science Discussions. 
+
+"""
+
+
 import numpy as np
 from seawater.library import match_args_return
 
@@ -388,8 +406,90 @@ def thermobaric_CT25(SA, CT, p):
     thermobaric_CT = alpha_CT_p - (alpha_CT / beta_CT) * beta_CT_p
     return thermobaric_CT / db2Pa   # To have units of 1/(K Pa)
 
+@match_args_return
+def enthalpy_diff_CT25(SA, CT, p_shallow, p_deep):
+    """
+    enthalpy_CT25(SA, CT, p_deep) - enthalpy_CT25(SA, CT, p_shallow)
+
+    Hopefully with higher accuracy and faster
+
+    Parameters
+    ----------
+    SA        : array_like, Absolute Salinity        [g/kg]
+    CT        : array_like, Conservative Temperature [deg C]
+    p_shallow : array_like, upper sea pressure       [dbar]
+    p_deep    : array_like, lower sea temperature    [dbar]
+
+    Returns
+    -------
+    enthalpy_diff_CT25 : array_like
+           difference of specific enthalpy          [ J/kg ]
+
+    """
+
+    SA = SA.clip(0, np.inf)  # Make SA non-negative
+
+    db2Pa = 1e4
+    
+    CT2 = CT * CT
+    CT3 = CT * CT2
+
+    a0 = ( 1 + CT * ( 7.0547681896071576e-3 +
+               CT * (-1.1753695605858647e-5 + 
+               CT * (5.9219809488274903e-7 + 
+               CT * 3.4887902228012519e-10))) + 
+               SA * ( 2.0777716085618458e-3 + 
+               CT * (-2.2210857293722998e-8 + 
+              CT2 * -3.6628141067895282e-10) + 
+      np.sqrt(SA) * (3.4688210757917340e-6 + 
+              CT2 * 8.0190541528070655e-10)) )
+    
+    a1 =  6.8314629554123324e-6
+    a2 =  CT3 * -8.5294794834485446e-17
+    a3 =  CT * -9.2275325145038070e-18
+
+    b0 =   ( 9.9984380290708214e2 + 
+        CT * (7.1188090678940910 + 
+        CT *   (-1.9459922513379687e-2 + 
+        CT *     6.1748404455874641e-4)) + 
+        SA * (2.8925731541277653e0 + 
+        CT *   2.1471495493268324e-3 + 
+        SA *   1.9457531751183059e-3)
+           )
+              
+    b1 = ( 0.5 * (1.1930681818531748e-2 + 
+           CT2 * 2.6969148011830758e-7 + 
+            SA * 5.9355685925035653e-6) )
+    b2 = CT2 * -7.2734111712822707e-12 - 2.5943389807429039e-8
+    b1sq = b1*b1
+    sqrt_disc = np.sqrt(b1sq - b0*b2)
+
+    N = a0 + (2*a3*b0*b1/b2 - a2*b0)/b2
+    M = a1 + (4*a3*b1sq/b2 - (a3*b0 + 2*a2*b1))/b2
+
+    A = b1 - sqrt_disc
+    B = b1 + sqrt_disc
+    
+    delta_p = p_deep - p_shallow;
+    p_sum = p_deep + p_shallow;
+    part1 = b0 + p_shallow*(2*b1 + b2*p_shallow)
+    part2 = (B + b2*p_deep)*(A + b2*p_shallow)
+    part3 = (N*b2 - M*b1)/(b2*(B - A))
+
+    return  ( db2Pa*(delta_p*(a2 - 2*a3*b1/b2 + 0.5*a3*p_sum)/b2 + 
+              (M/(2*b2))*np.log(1 + delta_p*(2*b1 + b2*p_sum)/part1) +  
+              part3*np.log(1 + delta_p*b2*(B - A)/part2)) )
 
 
 
+def isopycnal_slope_ratio_CT25(SA, CT, p, pr=0):
+
+    alpha_CT    = alpha_CT25(SA, CT, p)
+    beta_CT     = beta_CT25(SA, CT, p)
+    alpha_CT_pr = alpha_CT25(SA, CT, pr)
+    beta_CT_pr  = beta_CT25(SA, CT, pr)
+
+    out = alpha_CT * beta_CT_pr / (alpha_CT_pr * beta_CT)
+    return out
 
 
