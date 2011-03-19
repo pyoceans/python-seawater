@@ -8,7 +8,6 @@ import seawater.library as lib
 from seawater.library import match_args_return
 from seawater.gibbs25 import *   # Add gibbs25 to the name space
 
-
 """
 Section B: functions
 """
@@ -2451,12 +2450,9 @@ def entropy_from_pt(SA, pt):
     return entropy
 
 @match_args_return
-def temps_maxdensity(SA, p):
+def t_maxdensity(SA, p):
     r"""
-    Calculates the temperatures of maximum density of seawater. This function
-    returns the in-situ, potential, and Conservative temperatures at which the
-    density of seawater is a maximum, at given Absolute Salinity, SA, and sea
-    pressure, p (in dbar).
+    in-situ temperature at maximum density
 
     Parameters
     ----------
@@ -2469,10 +2465,6 @@ def temps_maxdensity(SA, p):
     -------
     t_maxden : array_like
                in situ temperature [:math:`^\circ` C (ITS-90)]
-    pt_maxden : array_like
-                potential temperature [:math:`^\circ` C (ITS-90)]
-    CT_maxden : array_like
-                Conservative Temperature [:math:`^\circ` C (TEOS-10)]
 
     See Also
     --------
@@ -2487,7 +2479,7 @@ def temps_maxdensity(SA, p):
     >>> import seawater.gibbs as gsw
     >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
     >>> p = [10, 50, 125, 250, 600, 1000]
-    >>> gsw.temps_maxdensity(SA, p)
+    >>> gsw.t_maxdensity(SA, p)
     array([-3.72500891, -3.85371429, -4.05143318, -4.29554251, -5.07474662,
            -6.01170197])
 
@@ -2522,12 +2514,57 @@ def temps_maxdensity(SA, p):
 
     # After three iterations of this modified Newton-Raphson iteration, the
     #  error in t_maxden is typically no larger than 1x10^-15 degC
-    #t_maxden  = t
-    #pt_maxden = gsw_pt0_from_t(SA,t_maxden,p)
-    #CT_maxden = gsw_CT_from_pt(SA,pt_maxden)
-
-    #return t_maxden, pt_maxden, CT_maxden
     return np.ma.array(t, mask=mask, copy=False)
+
+def pt_maxdensity(SA, p):
+    """potential temperature of maximum density
+
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+    p : array_like
+        pressure [dbar]
+
+    Returns
+    -------
+    pt_maxdensity : array_like, potential temperature [deg C]
+
+    """
+
+    return pt0_from_t(SA, t_maxdensity(SA, p), p)
+
+def CT_maxdensity(SA, p):
+    """Conservative Temperature at maximum density
+
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+    p : array_like
+        pressure [dbar]
+
+    Returns
+    -------
+    CT_maxdensity : array_like, Conservative Temperature [deg C]
+
+    """
+
+    return CT_from_pt(SA, pt_maxdensity(SA, p))
+
+def temps_maxdensity(SA, p):
+    """temperatures at maximum density
+
+    See individual functions t_maxdensity, pt_maxdensity, CT_maxdensity
+    Retained for compatibility with the Matlab toolbox.
+
+    """
+    
+    t_maxdens  = t_maxdensity(SA, p)
+    pt_maxdens = pt0_from_t(SA, t_maxden, p)
+    CT_maxdens = CT_from_pt(SA, pt_maxden)
+    return t_maxdens, pt_maxdens, CT_maxdens
+
 
 
 @match_args_return

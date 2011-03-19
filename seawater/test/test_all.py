@@ -20,12 +20,16 @@ for script in test_scripts:
         errors.append(script)
 
 print "\n --- test_all.py finished ---"
-print "  Ran %d test scripts" % len(test_scripts)
-if not errors:
-    print "  no problems"
-else:
-    print "  problems in :"
-    print errors
+
+# Not good enough, not always return code != 0
+# need better test for failure
+#
+#print "  Ran %d test scripts" % len(test_scripts)
+#if not errors:
+#    print "  no problems"
+#else:
+#    print "  problems in :"
+#    print errors
     
     
 
