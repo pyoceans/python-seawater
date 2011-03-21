@@ -837,9 +837,35 @@ class Test_standard(unittest.TestCase):
                               1032.002400877215))
         #print np.max(abs(out-out_check))
         npt.assert_array_almost_equal(out, out_check, decimal=12)
-                              
-    #def test_rho_alpha_beta_CT(self):
+
+    # NOTE: Difficult to name individual functions, 
+    #       names are already taken
+    def test_rho_alpha_beta_CT(self):
         """in-situ density, expansion & contraction coefficients from CT"""
+        rho, alpha, beta = gsw.rho_alpha_beta_CT(SA,CT,p)
+        rho_check = [1021.840179764021,
+                     1022.262699103554,
+                     1024.427709285783,
+                     1027.790199901620,
+                     1029.837716779620,
+                     1032.002400877215]
+        alpha_check = 1.0e-3 * np.array((0.324707799687110,
+                                         0.322723974596565,
+                                         0.281179083137791,
+                                         0.173138326981408,
+                                         0.146269069937061,
+                                         0.129427106726016))
+        beta_check  = 1.0e-3 * np.array((0.717486805409467,
+                                         0.717647610706394,
+                                         0.726219007035780,
+                                         0.750509225553259,
+                                         0.755062996958255,
+                                         0.757065832066916))
+        npt.assert_array_almost_equal(rho,   rho_check,   decimal=12)
+        npt.assert_array_almost_equal(alpha, alpha_check, decimal=18)
+        npt.assert_array_almost_equal(beta,  beta_check,  decimal=18)
+                                      
+
 
     def test_specvol_CT(self):
         """specific volume from CT"""
@@ -850,7 +876,7 @@ class Test_standard(unittest.TestCase):
                                        0.972961213383549,
                                        0.971026778012244,
                                        0.968989993773259))
-        #print np.max(abs(out-out_check))a
+        #print np.max(abs(out-out_check))
         npt.assert_array_almost_equal(out, out_check, decimal=18)
         
 

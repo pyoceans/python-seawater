@@ -4225,6 +4225,25 @@ def t90_from_t68(t68):
     # t90 = t68 / 1.00024
     return t68 * 0.999760057586179
     
+# Problem with individual functions,
+# names: alpha_CT and beta_CT are already used with 
+#        different arguments
+def rho_alpha_beta_CT(SA, CT, p):
+    """density, thermal expansion and saline contraction
+
+    Computes rho_CT, alpha_wrt_CT, and beta_const_CT
+    with arguments SA, CT, and p
+
+    """
+    
+    pt0 = pt_from_CT(SA, CT)
+    t = pt_from_t(SA, pt0, 0, p)
+    return (rho(SA, t, p), 
+            alpha_wrt_CT(SA, t, p), 
+            beta_const_CT(SA, t, p))
+
+
+
 
 
 
