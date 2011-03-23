@@ -258,6 +258,7 @@ class Test_profiles(unittest.TestCase):
 if __name__ == '__main__':
     # A more verbose output
     suite = unittest.TestLoader().loadTestsFromTestCase(Test_profiles)
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    a = unittest.TextTestRunner(verbosity=2).run(suite)
+    if a.errors or a.failures: sys.exit(256)
     #unittest.main()
 

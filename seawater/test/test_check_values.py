@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
-
-
+import sys
 import unittest
 import numpy as np
 import numpy.testing as npt
 import seawater.gibbs as gsw
 import seawater.library as gswl
-import seawater.gibbs25 as gsw25
+#import seawater.gibbs25 as gsw25
+import mygibbs25 as gsw25
 
 # Standard values for arguments from 
 # http://www.teos-10.org/pubs/gsw/html/gsw_contents.html
@@ -372,8 +372,18 @@ class Test_standard(unittest.TestCase):
     # water column properties, based on the 25-term expression for density
     # --------------------------------------------------------------------
     
-    #def test_Nsquared_CT25(self):
-        """buoyancy (Brunt-Vaisala) frequency squared (N^2)"""
+    def test_Nsquared_CT25(self):
+        """buoyancy (Brunt-Väisälä) frequency squared (N^2)"""
+
+        out = gsw25.Nsquared_CT25(SA, CT, p, lat)
+        out_check = 1.0e-3 * np.array((0.060813236592168,
+                                       0.235575235293653,
+                                       0.215788878338715,
+                                       0.012919578124467,
+                                       0.008414868047304))
+        #print np.max(abs(out-out_check))
+        npt.assert_array_almost_equal(out, out_check, decimal=8)
+
         
     #def test_Turner_Rsubrho_CT25(self):
         """Turner angle & Rsubrho"""
@@ -1343,7 +1353,8 @@ class Test_standard(unittest.TestCase):
 if __name__ == '__main__':
     # A more verbose output
     suite = unittest.TestLoader().loadTestsFromTestCase(Test_standard)
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    a = unittest.TextTestRunner(verbosity=2).run(suite)
+    if a.errors or a.failures: sys.exit(1)
     #unittest.main()
     #npt.test()
 

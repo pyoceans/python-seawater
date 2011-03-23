@@ -21,15 +21,13 @@ for script in test_scripts:
 
 print "\n --- test_all.py finished ---"
 
-# Not good enough, not always return code != 0
-# need better test for failure
 #
-#print "  Ran %d test scripts" % len(test_scripts)
-#if not errors:
-#    print "  no problems"
-#else:
-#    print "  problems in :"
-#    print errors
+print "  Ran %d test scripts" % len(test_scripts)
+if not errors:
+    print "  no problems"
+else:
+    print "  problems in :"
+    print errors
     
     
 

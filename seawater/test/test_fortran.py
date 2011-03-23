@@ -13,6 +13,7 @@ calculated by python package or matlab toolbox
 # Bjørn Ådlandsvik <bjorn@imr.no>
 # 2011-03-16
 
+import sys
 import unittest
 import functools
 import numpy.testing as npt
@@ -201,7 +202,8 @@ if __name__ == '__main__':
     suite2 = unittest.TestLoader().loadTestsFromTestCase(Test_Gibbs)
     suite3 = unittest.TestLoader().loadTestsFromTestCase(Test_Fortran2)
     suite = unittest.TestSuite([suite1, suite2, suite3])
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    a = unittest.TextTestRunner(verbosity=2).run(suite)
+    if a.errors or a.failures: sys.exit(256)
 
 
            
