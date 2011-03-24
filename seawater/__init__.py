@@ -1,16 +1,6 @@
 # -*- coding: utf-8 -*-
 
 """
-Python Seawater
-===============
-
-This python package contains:
-1) Python translation of the original CSIRO Matlab package (SEAWATER-3.3) for calculating the properties of sea water. The package uses the formulas from Unesco's joint panel on oceanographic tables and standards, UNESCO 1981 and UNESCO 1983.
-
-2) Python translation of the original Gibbs-SeaWater Matlab package (GSW v2.0). The Gibbs-SeaWater (GSW) Oceanographic Toolbox contains the TEOS-10 subroutines for evaluating the thermodynamic properties of pure water (using IAPWS-09) and seawater (using IAPWS-08 for the saline part).
-
-The author has no intention to do things in a "pythonic-way", it is just a "work around" from someone that couldn't afford Matlab anymore.
-
 CAVEAT: These modules do not adhere to strict basic-SI units but rather oceanographic units are adopted.
 """
 
@@ -48,7 +38,7 @@ CT == \BigTheta = frac{h_o}{C^o_p}.
 The scale factor C^o_p is a constant carefully chosen so that potential temperature \smalltheta and Conservative Temperature \BigTheta will be numerically similar for typical seawater at SP = 35, or near t = 0 degC. However, the difference between the two can exceed 1◦C when salinities are low and temperatures high (for details, see IOC et al., 2010).
 """
 
-__authors__    = ['Filipe Fernandes']
+__authors__    = ['Filipe Fernandes','Bjørn Ådlandsvik','Eric Firing'] 
 __license__    = ["MIT"]
 __version__    = ["2.0.0"]
 __maintainer__ = ["Filipe Fernandes"]
