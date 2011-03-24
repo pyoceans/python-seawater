@@ -11,6 +11,7 @@
 # 2011-03-03
 
 import os
+import sys
 import unittest
 import functools   # require python 2.5
 import numpy as np
