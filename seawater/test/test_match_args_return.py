@@ -7,7 +7,7 @@
 
 import unittest
 import numpy as np
-from seawater.library import match_args_return
+from seawater.gibbs.library import match_args_return
 
 class Test_match_args_return(unittest.TestCase):
 

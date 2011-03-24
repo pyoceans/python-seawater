@@ -6,7 +6,7 @@
 
 import unittest
 import numpy as np
-from seawater.library import _gibbs
+from seawater.gibbs.library import _gibbs
 
 class Test_gibbs(unittest.TestCase):
     """Test the _gibbs function"""

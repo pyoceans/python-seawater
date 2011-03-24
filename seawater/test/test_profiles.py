@@ -15,7 +15,7 @@ import unittest
 import functools   # require python 2.5
 import numpy as np
 import seawater.gibbs as gsw
-from seawater.library import Dict2Struc
+from seawater.gibbs.library import Dict2Struc
 
 # ------------------------------------
 # Table of functions with arguments

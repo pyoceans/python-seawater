@@ -8,7 +8,7 @@
 import unittest
 import numpy as np
 import seawater.gibbs as gsw
-import seawater.library as gswl
+import seawater.gibbs.library as gswl
 
 class Test_in_Baltic(unittest.TestCase):
 

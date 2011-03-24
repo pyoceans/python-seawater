@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-gibbs25.py
+gibbs25
 
 Functions using the faster and slightly less accurate
 25 term equation of state in terms of Absolute Salinity
@@ -17,9 +17,8 @@ McDougall T. J., D. R. Jackett, P. M. Barker, C. Roberts-Thomson, R.
 
 """
 
-
 import numpy as np
-from seawater.library import match_args_return
+from library import match_args_return
 
 
 def in_funnel(SA, CT, p):

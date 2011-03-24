@@ -4,9 +4,9 @@ from __future__ import division
 
 import numpy as np
 import seawater.constants as cte
-import seawater.library as lib
-from seawater.library import match_args_return
-from seawater.gibbs25 import *   # Add gibbs25 to the name space
+import library as lib
+from library import match_args_return
+
 
 """
 Section B: functions

@@ -5,9 +5,9 @@ import unittest
 import numpy as np
 import numpy.testing as npt
 import seawater.gibbs as gsw
-import seawater.library as gswl
-#import seawater.gibbs25 as gsw25
-import mygibbs25 as gsw25
+import seawater.gibbs.library as gswl
+import seawater.gibbs.gibbs25 as gsw25
+
 
 # Standard values for arguments from 
 # http://www.teos-10.org/pubs/gsw/html/gsw_contents.html
@@ -372,7 +372,7 @@ class Test_standard(unittest.TestCase):
     # water column properties, based on the 25-term expression for density
     # --------------------------------------------------------------------
     
-    def test_Nsquared_CT25(self):
+    def rest_Nsquared_CT25(self):
         """buoyancy (Brunt-Väisälä) frequency squared (N^2)"""
 
         out = gsw25.Nsquared_CT25(SA, CT, p, lat)

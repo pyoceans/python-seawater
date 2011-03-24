@@ -18,8 +18,8 @@ import unittest
 import functools
 import numpy.testing as npt
 import seawater.gibbs as gsw
-import seawater.gibbs25 as gsw25
-import seawater.library as gswl
+import seawater.gibbs.library as gswl
+import seawater.gibbs.gibbs25 as gsw25
 
 # ------------------------------------------
 # Check values from check_values.f90
