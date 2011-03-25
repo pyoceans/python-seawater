@@ -1494,6 +1494,63 @@ def _delta_SA(p, lon, lat):
     return SA_table().delta_SA(p, lon, lat)
 
 
+
+def infunnel(SA, CT, p):
+    u"""oceanographic funnel check for the 25-term equation
+ 
+    Parameters
+    ----------
+    SA : array_like
+         Absolute Salinity            [g/kg]
+    CT : array_like
+         Conservative Temperature     [°C]
+    p  : array_like
+         sea pressure                 [dbar]
+           (ie. absolute pressure - 10.1325 dbar)
+          
+    Returns
+    -------
+    in_funnel : boolean ndarray or scalar
+        True,  if SA, CT and p are inside the "funnel" 
+        False, if SA, CT and p are outside the "funnel",
+               or one of the values are NaN or masked
+
+    Note. The term "funnel" describes the range of SA, CT and p over which 
+    the error in the fit of the computationally-efficient 25-term 
+    expression for density in terms of SA, CT and p was calculated
+    (McDougall et al., 2010).
+
+    author: 
+    Trevor McDougall and Paul Barker    [ help_gsw@csiro.au ]
+    2011-02-27: Bjørn Ådlandsvik, python version
+
+"""
+
+    # Check variables and resize if necessary
+    scalar = np.isscalar(SA) and np.isscalar(CT) and np.isscalar(p)
+    SA, CT, p = np.broadcast_arrays(SA, CT, p)
+
+    input_nan = np.isnan(SA) | np.isnan(CT) | np.isnan(p)
+
+    infunnel = ((p <= 8000)  &
+                (SA >= 0)    &
+                (SA <= 42.2) &
+                (CT >= (-0.3595467 - 0.0553734*SA)) &
+                ((p >= 5500) | (SA >= 0.006028*(p - 500))) &
+                ((p >= 5500) | (CT <= (33.0 - 0.003818181818182*p))) &
+                ((p <= 5500) | (SA >= 30.14)) &
+                ((p <= 5500) | (CT <= 12.0)))
+
+    infunnel = infunnel & np.logical_not(input_nan)
+
+    if scalar:
+        infunnel = bool(infunnel)
+
+    return infunnel
+
+# ---------------------------------------
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()

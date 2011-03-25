@@ -46,15 +46,13 @@ from conversions import *
 from density25 import *
 #from water_column import *   # Not implemented yet
 #from geostrophic import *    # Not implemented yet
-#from neutral import *
+from neutral import *
 from basic_sa_t_p import *
 from basic_ct import *
-#from derivatives import *
+from derivatives import *
 from earth import *
-#from labfuncs import *
-#from practical_salinity import *
-
-from gibbs import *
-from gibbs25 import *
+from labfuncs import *
+from practical_salinity import *
+from library import infunnel
 
 

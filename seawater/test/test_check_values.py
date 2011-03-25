@@ -1281,6 +1281,35 @@ class Test_standard(unittest.TestCase):
         #print abs(out-out_octave)
         npt.assert_almost_equal(out, out_octave, decimal=8)
 
+    # -------------------------------------
+    # Practical Salinity (SP), PSS-78
+    # -------------------------------------
+
+    def test_SP_from_cndr(self):
+        """Practical Salinity from conductivity ratio"""
+        R = [1.3145, 1.3123, 1.1807, 0.8886, 0.8169, 0.7687]
+        out = gsw.SP_from_cndr(R, t, p)
+        out_check = [34.547219254816596,
+                     34.727400381174370,
+                     34.859100827188712,
+                     34.679845200922003,
+                     34.567856165219020,
+                     34.561679175326645]
+        npt.assert_array_equal(out, out_check)
+
+    def test_cndr_from_SP(self):
+        """conductivity ratio from Practical Salinity"""
+        out = gsw.cndr_from_SP(SP, t, p)
+        out_check = [1.314550020542723,
+                     1.312303341629415,
+                     1.180742166518467,
+                     0.888626530644618,
+                     0.816903053491821,
+                     0.768666416740220]
+        npt.assert_array_almost_equal(out, out_check, decimal=11)
+
+# ------------------------
+
     def test_SA_from_SP_Baltic(self):
         """Absolute Salinity in the Baltic Sea"""
         SP = [6.5683, 6.6719, 6.8108, 7.2629, 7.4825, 10.2796]
