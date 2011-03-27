@@ -28,8 +28,8 @@ Functions:
       sigma4 in terms of SA & CT with reference pressure of 4000 dbar
   enthalpy_CT(SA, CT, p)
       enthalpy from CT
-  enthalpy_diff_CT
-      difference of enthalpy from CT between two pressures
+  #enthalpy_diff_CT
+  #    difference of enthalpy from CT between two pressures
   entropy_from_pt(SA, pt)
       entropy from potential temperature
   entropy_from_CT(SA, CT)
