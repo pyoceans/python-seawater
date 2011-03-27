@@ -6,7 +6,7 @@ import numpy as np
 import numpy.testing as npt
 import seawater.gibbs as gsw
 import seawater.gibbs.library as gswl
-import seawater.gibbs.gibbs25 as gsw25
+
 
 
 # Standard values for arguments from 
@@ -273,7 +273,7 @@ class Test_standard(unittest.TestCase):
 
     def test_rho_CT25(self):
         """in-situ density from 25 term expression"""
-        out = gsw25.rho_CT25(SA, CT, p)
+        out = gsw.rho_CT25(SA, CT, p)
         out_check = np.array((1021.839541498949,
                               1022.261845123599,
                               1024.426245497197,
@@ -289,7 +289,7 @@ class Test_standard(unittest.TestCase):
 
     def test_alpha_CT25(self):
         """thermal expansison coefficient by 25 term equation"""
-        out = gsw25.alpha_CT25(SA, t, p)
+        out = gsw.alpha_CT25(SA, t, p)
         out_check = 1.0e-3 * np.array((0.324356899200044,
                                        0.322411511462120,
                                        0.281313314947018,
@@ -301,7 +301,7 @@ class Test_standard(unittest.TestCase):
 
     def test_beta_CT25(self):
         """saline contraction coefficient by 25 term equation"""
-        out = gsw25.beta_CT25(SA, t, p)
+        out = gsw.beta_CT25(SA, t, p)
         out_check = 1.0e-3 * np.array((0.717340839421976,
                                        0.717514858800028,
                                        0.726299524800543,
@@ -313,7 +313,7 @@ class Test_standard(unittest.TestCase):
 
     def test_specvol_CT25(self):
         """specific volume by 25 term equation"""
-        out = gsw25.specvol_CT25(SA, t, p)
+        out = gsw.specvol_CT25(SA, t, p)
         out_check = 1.0e-3 * np.array((0.978627229998447,
                                        0.978222952143042,
                                        0.976156169753986,
@@ -325,7 +325,7 @@ class Test_standard(unittest.TestCase):
         
     def test_specvol_anom_CT25(self):
         """specific volume anomaly by 25 term equation"""
-        out = gsw25.specvol_anom_CT25(SA, t, p)
+        out = gsw.specvol_anom_CT25(SA, t, p)
         out_check = 1.0e-5 * np.array((0.600921244780790,
                                        0.578505932118849,
                                        0.405538759163434,
@@ -337,7 +337,7 @@ class Test_standard(unittest.TestCase):
         
     def test_enthalpy_CT25(self):
         """enthalpy by 25 term formulation"""
-        out = gsw25.enthalpy_CT25(SA, CT, p)
+        out = gsw.enthalpy_CT25(SA, CT, p)
         out_check = [115103.1813925039,
                      114014.6929487063,
                       92180.0148514069,
@@ -352,9 +352,9 @@ class Test_standard(unittest.TestCase):
 
         p_shallow =  [ 10,  50, 125, 250, 600, 1000]
         p_deep    =  [110, 150, 225, 350, 700, 1100]
-        out = gsw25.enthalpy_diff_CT25(SA, CT, p_shallow, p_deep)
-        out2 = ( gsw25.enthalpy_CT25(SA, CT, p_deep) -
-                 gsw25.enthalpy_CT25(SA, CT, p_shallow) )
+        out = gsw.enthalpy_diff_CT25(SA, CT, p_shallow, p_deep)
+        out2 = ( gsw.enthalpy_CT25(SA, CT, p_deep) -
+                 gsw.enthalpy_CT25(SA, CT, p_shallow) )
         out3 = ( gsw.enthalpy_CT25(SA, CT, p_deep) -
                  gsw.enthalpy_CT25(SA, CT, p_shallow) )
         out_check = [978.4262827561797,
@@ -372,24 +372,54 @@ class Test_standard(unittest.TestCase):
     # water column properties, based on the 25-term expression for density
     # --------------------------------------------------------------------
     
-    def rest_Nsquared_CT25(self):
+    def test_Nsquared_CT25(self):
         """buoyancy (Brunt-Väisälä) frequency squared (N^2)"""
 
-        out = gsw25.Nsquared_CT25(SA, CT, p, lat)
+        out = gsw.Nsquared_CT25(SA, CT, p, lat)
         out_check = 1.0e-3 * np.array((0.060813236592168,
                                        0.235575235293653,
                                        0.215788878338715,
                                        0.012919578124467,
                                        0.008414868047304))
         #print np.max(abs(out-out_check))
-        npt.assert_array_almost_equal(out, out_check, decimal=8)
+        npt.assert_array_almost_equal(out, out_check, decimal=18)
 
-        
+    # Tested individually below    
     #def test_Turner_Rsubrho_CT25(self):
-        """Turner angle & Rsubrho"""
+    #    """Turner angle & Rsubrho"""
+    
+    def test_Turner_CT25(self):
+        """Turner angle"""
+        out = gsw.Turner_CT25(SA, CT, p)
+        out_check = [-2.081599636326501,
+                     41.758226366707646,
+                     47.604100420927587,
+                     53.716687678781497,
+                     45.527957856195947]
+        #print np.max(abs(out-out_check))
+        npt.assert_array_almost_equal(out, out_check, decimal=14)
+
+    def test_Rsubrho_CT25(self):
+        """Rsubrho"""
+        out = gsw.Rsubrho_CT25(SA, CT, p)
+        out_check = [ -0.9298559867815,
+                     -17.6553434913642,
+                      21.9869869025208,
+                       6.5223236816021,
+                     108.5203244744855]
+        #print np.max(abs(out-out_check))
+        npt.assert_array_almost_equal(out, out_check, decimal=12)
         
-    #def test_IPV_vs_fNsquared_ratio_CT25(self):
+    def test_IPV_vs_fNsquared_ratio_CT25(self):
         """potential density gradient ratio"""
+        out = gsw.IPV_vs_fNsquared_ratio_CT25(SA, CT, p, 0.0)
+        out_check = [0.999732065602075,
+                     0.996910961630710,
+                     0.986201941290951,
+                     0.931201954034279,
+                     0.859810378247326]
+        #print np.max(abs(out-out_check))
+        npt.assert_array_almost_equal(out, out_check, decimal=14)
 
     # ------------------------------------------------------------------------
     # geostrophic streamfunctions, based on the 25-term expression for density
@@ -421,7 +451,7 @@ class Test_standard(unittest.TestCase):
     
     def test_cabbeling_CT25(self):
         """cabbeling coefficient"""
-        out = gsw25.cabbeling_CT25(SA, CT, p)
+        out = gsw.cabbeling_CT25(SA, CT, p)
         # Buggy values, computed with buggy matlab routine
         out_check = 1.0e-4 * np.array((0.071255687860750,
                                        0.071469675168983,
@@ -444,7 +474,7 @@ class Test_standard(unittest.TestCase):
         
     def test_thermobaric_CT25(self):
         """thermobaric coefficient"""
-        out = gsw25.thermobaric_CT25(SA, CT, p)
+        out = gsw.thermobaric_CT25(SA, CT, p)
         out_check = 1.0e-11 * np.array((0.143712914501030,
                                         0.144525225115917,
                                         0.163502412605500,
@@ -456,7 +486,7 @@ class Test_standard(unittest.TestCase):
 
     def test_isopycnal_slope_ratio_CT25(self):
         """ratio of the slopes of isopycnals on the SA-CT diagram"""
-        out = gsw25.isopycnal_slope_ratio_CT25(SA, CT, p, 0)
+        out = gsw.isopycnal_slope_ratio_CT25(SA, CT, p, 0)
         out_check = [1.000443300473299,
                      1.002247196919216,
                      1.007323843523325,
@@ -1237,7 +1267,7 @@ class Test_standard(unittest.TestCase):
     # -----------------------
 
     # Not implemented yet
-    def rest_f(self):
+    def test_f(self):
         """Coriolis parameter (f)"""
         lat = [-90, -60, -30, 0]
         out = gsw.f(lat)
@@ -1246,7 +1276,7 @@ class Test_standard(unittest.TestCase):
                               -0.000072921150000000,
                                0.0])
         #print np.max(abs(out-out_check))
-        npt.assert_array_almost_equal(out, out_check, decimal=8)
+        npt.assert_array_almost_equal(out, out_check, decimal=18)
 
     def test_grav(self):
         """Gravitational acceleration"""

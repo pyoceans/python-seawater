@@ -5,7 +5,7 @@ Planet Earth properties
 
 Functions:
 ----------
-  f      NOT IMPLEMENTED YET
+  f
       Coriolis parameter (f) 
   grav                            
       Gravitational acceleration
@@ -27,11 +27,30 @@ from conversions import z_from_p
 
 # -----------
 
-__all__ = [#'f', 
+__all__ = ['f', 
            'grav', 
            'distance']
 
 # -----------
+
+def f(lat):
+    """Coriolis parameter
+
+    parameter
+    ---------
+    lat : array_like, latitude      [degrees north]
+
+    returns
+    -------
+    f : array_like, Coriolis paramter  [1/s]
+
+    """
+
+    lat = np.asanyarray(lat)
+    rad = np.pi / 180.0
+    omega = 7.292115e-5
+    return 2 * omega * np.sin(lat*rad)
+
 
 @match_args_return
 def grav(lat, p=0):

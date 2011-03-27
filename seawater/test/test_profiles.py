@@ -39,10 +39,10 @@ function_arguments = {
 #NA    'CT_second_derivatives' : ('SA', 'pt'),
 
     'Helmholtz_energy' : ('SA', 't', 'p'),
-    
-#NI    'IPV_vs_fNsquared_ratio_CT25 :
 
-#NI    'Nsquared_CT25' :
+    'IPV_vs_fNsquared_ratio_CT25' : ('SA', 'CT', 'p', 'pr'),
+
+    'Nsquared_CT25' : ('SA', 'CT', 'p', 'lat'),
 
 #NA    'SA_Sstar_from_SP' : ('SP', 'p', 'long', 'lat'),
     'SA_from_SP' : ('SP', 'p', 'long', 'lat'),
@@ -56,7 +56,10 @@ function_arguments = {
     'Sstar_from_SA' : ('SA', 'p', 'long', 'lat'),
     'Sstar_from_SP' : ('SP', 'p', 'long', 'lat'),
     
-#NI    'Turner_Rsubrho_CT25' : ('SA', 'CT', 'p'),
+#NA    'Turner_Rsubrho_CT25' : ('SA', 'CT', 'p'),
+    'Turner_CT25' : ('SA', 'CT', 'p'),
+    'Rsubrho_CT25' : ('SA', 'CT', 'p'),
+    
 
     'adiabatic_lapse_rate' : ('SA', 't', 'p'),
     'alpha_wrt_CT'         : ('SA', 't', 'p'),
@@ -207,12 +210,18 @@ cv.entropy_chck_cast = cv.entropy
 cv.z_chck_cast       = cv.z_from_p
 cv.rho_chck_cast     = cv.rho
 cv.R_chck_cast       = cv.cndr
+cv.pr_chck_cast      = cv.pr
+
 
 # Make aliases for check values whose names
 # does not match the function
 not_match = {'pt0_from_t' : 'pt0',
              'pt_from_CT' : 'pt',
              'pot_enthalpy_from_pt' : 'pot_enthalpy',
+             'Nsquared_CT25' : 'n2',
+             'IPV_vs_fNsquared_ratio_CT25' : 'IPVfN2',
+             'Turner_CT25' : 'Tu',
+             'Rsubrho_CT25' : 'Rsubrho'
             }
 
 for f in not_match:
@@ -231,7 +240,7 @@ def generic_test(self, func=None, argnames=None):
     out = getattr(gsw, func)(*args)
     # Check that the maximal error is less than the given tolerance
     maxdiff = np.nanmax(abs(out - getattr(cv, func)))
-    #print maxdiff, getattr(cv, func+'_ca')
+    #print func, maxdiff, getattr(cv, func+'_ca')
     self.assertTrue(maxdiff < getattr(cv, func+'_ca'))
 
 
@@ -253,6 +262,7 @@ class Test_profiles(unittest.TestCase):
     for f in function_test:
         method_def = ( "test_" + f + 
             " = lambda self: function_test['" + f + "'](self)" )
+        #print method_def
         exec(method_def)
 
 
