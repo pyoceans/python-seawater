@@ -7,6 +7,25 @@
    without the nice output
 """
 
+#
+# Autogenerates and perform a set of test methods like:
+#
+#    def test_funct(self):
+#        out = gsw.func(arg1_chck_cast, arg2_chck_cast, ...)
+#        maxdiff = np.nanmax(abs(out - cv.func)
+#        self.assertTrue(maxdiff < cv.func_ca)
+#
+# cv is a Dict2Struc instance with all the check values from
+# the profile-file
+# The func, args are taken from the main dictionary below
+# giving a alphabetical table of all functions and their arguments
+#
+# Extra aliasing attributes are added to cv if the naming
+# convention is broken, if the targets or the attributes
+# in the check file has "wrong" names
+#
+
+
 # Bjørn Ådlandsvik <bjorn@imr.no>
 # 2011-03-03
 
@@ -18,9 +37,9 @@ import numpy as np
 import seawater.gibbs as gsw
 from seawater.gibbs.library import Dict2Struc
 
-# ------------------------------------
-# Table of functions with arguments
-# ------------------------------------
+# ---------------------------------------------
+# Main dictionary of functions with arguments
+# ---------------------------------------------
 
 # Codes for non-tested functions
 # 
@@ -35,28 +54,32 @@ from seawater.gibbs.library import Dict2Struc
 function_arguments = {
 
 #TI    'CT_first_derivatives' : ('SA', 'pt')
-    'CT_derivative_SA' : ('SA', 'pt'),
-    'CT_derivative_pt' : ('SA', 'pt'),
-    'CT_from_entropy'  : ('SA', 'entropy'),
-    'CT_from_pt'       : ('SA', 'pt'),
-    'CT_from_t'        : ('SA', 't', 'p'),
-    'CT_maxdensity'    : ('SA', 'p'),
+    'CT_derivative_SA'    : ('SA', 'pt'),
+    'CT_derivative_SA_SA' : ('SA', 'pt'),
+    'CT_derivative_SA_pt' : ('SA', 'pt'),
+    'CT_derivative_pt'    : ('SA', 'pt'),
+    'CT_derivative_pt_pt' : ('SA', 'pt'),
+    'CT_from_entropy'     : ('SA', 'entropy'),
+    'CT_from_pt'          : ('SA', 'pt'),
+    'CT_from_t'           : ('SA', 't', 'p'),
+    'CT_maxdensity'       : ('SA', 'p'),
 #NI    'CT_second_derivatives' : ('SA', 'pt'),
 
     'Helmholtz_energy' : ('SA', 't', 'p'),
 
     'IPV_vs_fNsquared_ratio_CT25' : ('SA', 'CT', 'p', 'pr'),
 
-    'Nsquared_CT25' : ('SA', 'CT', 'p', 'lat'),
+    'Nsquared_CT25'  : ('SA', 'CT', 'p', 'lat'),
 
-    'Rsubrho_CT25' : ('SA', 'CT', 'p'),
+    'Rsubrho_CT25'  : ('SA', 'CT', 'p'),
 
 #TI    'SA_Sstar_from_SP' : ('SP', 'p', 'long', 'lat'),
-    'SA_from_SP' : ('SP', 'p', 'long', 'lat'),
+    'SA_from_SP'    : ('SP', 'p', 'long', 'lat'),
+    'Sstar_from_SP' : ('SP', 'p', 'long', 'lat'),
 #LIB    'SA_from_SP_Baltic' : ('SP', 'long', 'lat'),
     'SA_from_Sstar' : ('Sstar', 'p', 'long', 'lat'),
-    'SA_from_rho' : ('rho', 't', 'p'),
-    'SP_from_SA'  : ('SA', 'p', 'long', 'lat'),
+    'SA_from_rho'   : ('rho', 't', 'p'),
+    'SP_from_SA'    : ('SA', 'p', 'long', 'lat'),
 #LIB    'SP_from_SA_Baltic' : ('SA', 'long', 'lat'),
     'SP_from_Sstar' : ('Sstar', 'p', 'long', 'lat'),
     'SP_from_cndr'  : ('R', 't', 'p'),
@@ -64,7 +87,7 @@ function_arguments = {
     'Sstar_from_SP' : ('SP', 'p', 'long', 'lat'),
     
 #TI    'Turner_Rsubrho_CT25' : ('SA', 'CT', 'p'),
-    'Turner_CT25' : ('SA', 'CT', 'p'),
+    'Turner_CT25'   : ('SA', 'CT', 'p'),
 
     'adiabatic_lapse_rate' : ('SA', 't', 'p'),
     'alpha_CT'             : ('SA', 'CT', 'p'),
@@ -84,25 +107,29 @@ function_arguments = {
     'chem_potential_relative' : ('SA', 't', 'p'),
     'chem_potential_salt'     : ('SA', 't', 'p'),
     'chem_potential_water'    : ('SA', 't', 'p'),
+    'cndr_from_SP'            : ('SP', 't', 'p'),
     'cp'                      : ('SA', 't', 'p'),
     
 #LIB    'delta_SA' : ('p', 'long', 'lat'),
     'distance' : ('long', 'lat', 'p'),
 
-    'enthalpy'        : ('SA', 't', 'p'),
-    'enthalpy_CT'     : ('SA', 'CT', 'p'),
-    'enthalpy_CT25'   : ('SA', 'CT', 'p'),
+    'enthalpy'                 : ('SA', 't', 'p'),
+    'enthalpy_CT'              : ('SA', 'CT', 'p'),
+    'enthalpy_CT25'            : ('SA', 'CT', 'p'),
 #NI    'enthalpy_SSO_0_CT25' : ('p',),
 #NI    'enthalpy_diff_CT' : ('SA', 'CT', 'p0', 'p1'),
-    'enthalpy_diff_CT25' : ('SA', 'CT', 'p0', 'p1'),
-#NI    'enthalpy_first_derivatives' : ('SA', 'CT', 'p'),
+    'enthalpy_derivative_CT'   : ('SA', 'CT', 'p'),
+    'enthalpy_derivative_p'    : ('SA', 'CT', 'p'),
+    'enthalpy_derivative_SA'   : ('SA', 'CT', 'p'),
+    'enthalpy_diff_CT25'       : ('SA', 'CT', 'p0', 'p1'),
+#TI    'enthalpy_first_derivatives' : ('SA', 'CT', 'p'),
 #NI    'enthalpy_second_derivatives' : ('SA', 'CT', 'p'),
-    'entropy' : ('SA', 't', 'p'),
+    'entropy'                  : ('SA', 't', 'p'),
 #TI    'entropy_first_derivatives' : ('SA', 'CT'),
     'entropy_derivative_SA'    : ('SA', 'CT'),
     'entropy_derivative_CT'    : ('SA', 'CT'),
-    'entropy_from_CT' : ('SA', 'CT'),
-    'entropy_from_pt' : ('SA', 'pt'),
+    'entropy_from_CT'          : ('SA', 'CT'),
+    'entropy_from_pt'          : ('SA', 'pt'),
 #?    'entropy_part' : ?
 #?    'entropy_part_zerop' : ?
 #TI    'entropy_second_derivatives' : ('SA', 'pt'),
@@ -144,7 +171,9 @@ function_arguments = {
     'pot_enthalpy_from_pt' : ('SA', 'pt'),
     'pot_rho'              : ('SA', 't', 'p', 'pr'),
     'pt0_from_t'           : ('SA', 't', 'p'),
-#NI    'pt_first_derivatives' :
+    'pt_derivative_SA'     : ('SA', 'CT'),
+    'pt_derivative_CT'     : ('SA', 'CT'),
+#TI    'pt_first_derivatives' :
     'pt_from_CT'           : ('SA', 'CT'),
     'pt_from_entropy'      : ('SA', 'entropy'),
     'pt_from_t'            : ('SA', 't', 'p', 'pr'),
@@ -154,11 +183,11 @@ function_arguments = {
     'rho'      : ('SA', 't', 'p'),
     'rho_CT'   : ('SA', 'CT', 'p'),
     'rho_CT25' : ('SA', 'CT', 'p'),
-#TI    'rho_alpha_beta_CT' : ('SA', 'CT', 'p'),  # Tested individually
-#TI    'rho_alpha_beta_CT25' : ('SA', 'CT', 'p'), # Tested individually
+#TI    'rho_alpha_beta_CT' : ('SA', 'CT', 'p'),  
+#TI    'rho_alpha_beta_CT25' : ('SA', 'CT', 'p'),
     
     'sigma0_CT'         : ('SA', 'CT'),
-#NI    'sigma0_pt' : ('SA', 'pt0'),
+    'sigma0_pt'         : ('SA', 'pt'),
     'sigma1_CT'         : ('SA', 'CT'),
     'sigma2_CT'         : ('SA', 'CT'),
     'sigma3_CT'         : ('SA', 'CT'),
@@ -216,11 +245,11 @@ cv = Dict2Struc(np.load(os.path.join(datadir, fname)))
 cv.SA_from_Sstar = cv.SA_from_SP
 cv.specvol_CT = cv.specvol
 
+# Arguments with "wrong" names
 cv.SA_chck_cast      = cv.SA_from_SP
 cv.CT_chck_cast      = cv.CT_from_t
 cv.pt_chck_cast      = cv.pt_from_t
 cv.Sstar_chck_cast   = cv.Sstar_from_SA 
-##cv.Sstar_chck_cast   = cv.SA_chck_cast    
 cv.entropy_chck_cast = cv.entropy
 cv.z_chck_cast       = cv.z_from_p
 cv.rho_chck_cast     = cv.rho
@@ -229,32 +258,44 @@ cv.pr_chck_cast      = cv.pr
 cv.p0_chck_cast      = cv.p_chck_cast_shallow
 cv.p1_chck_cast      = cv.p_chck_cast_deep
 
-# Make aliases for check values whose names
-# does not match the function
-not_match = {'pt0_from_t' : 'pt0',
-             'pt_from_CT' : 'pt',
-             'pot_enthalpy_from_pt' : 'pot_enthalpy',
-             'Nsquared_CT25' : 'n2',
-             'IPV_vs_fNsquared_ratio_CT25' : 'IPVfN2',
-             'Turner_CT25' : 'Tu',
-             'Rsubrho_CT25' : 'Rsubrho',
-             'CT_derivative_SA' : 'CT_SA',
-             'CT_derivative_pt' : 'CT_pt',
-             'entropy_derivative_SA'    : 'eta_SA',
-             'entropy_derivative_CT'    : 'eta_CT',
-             'entropy_derivative_CT_CT' : 'eta_CT_CT',
-             'entropy_derivative_SA_CT' : 'eta_SA_CT',
-             'entropy_derivative_SA_SA' : 'eta_SA_SA',
-             'alpha_CT'   : 'alpha_CTrab',
-             'alpha_CT25' : 'alpha_CT25rab',
-             'beta_CT'    : 'beta_CTrab',
-             'beta_CT25'  : 'beta_CT25rab',
-             't_maxdensity' : 't_maxden',
-             'pt_maxdensity' : 'pt_maxden',
-             'CT_maxdensity' : 'CT_maxden',
-             'chem_potential_relative' : 'chem_potential',
+# Functions and targets which does not follow the
+# naming convention
+not_match = {
+    'CT_derivative_SA'            : 'CT_SA',
+    'CT_derivative_SA_SA'         : 'CT_SA_SA',
+    'CT_derivative_SA_pt'         : 'CT_SA_pt',
+    'CT_derivative_pt'            : 'CT_pt',
+    'CT_derivative_pt_pt'         : 'CT_pt_pt',
+    'CT_derivative_SA'            : 'CT_SA',
+    'CT_maxdensity'               : 'CT_maxden',
+    'IPV_vs_fNsquared_ratio_CT25' : 'IPVfN2',
+    'Turner_CT25'                 : 'Tu',
+    'Nsquared_CT25'               : 'n2',
+    'Rsubrho_CT25'                : 'Rsubrho',
+    'alpha_CT'                    : 'alpha_CTrab',
+    'alpha_CT25'                  : 'alpha_CT25rab',
+    'beta_CT'                     : 'beta_CTrab',
+    'beta_CT25'                   : 'beta_CT25rab',
+    'chem_potential_relative'     : 'chem_potential',
+    'cndr_from_SP'                : 'cndr',
+    'enthalpy_derivative_CT'      : 'h_CT',
+    'enthalpy_derivative_p'       : 'h_P',
+    'enthalpy_derivative_SA'      : 'h_SA',
+    'entropy_derivative_CT'       : 'eta_CT',
+    'entropy_derivative_CT_CT'    : 'eta_CT_CT',
+    'entropy_derivative_SA'       : 'eta_SA',
+    'entropy_derivative_SA_CT'    : 'eta_SA_CT',
+    'entropy_derivative_SA_SA'    : 'eta_SA_SA',
+    'pot_enthalpy_from_pt'        : 'pot_enthalpy',
+    'pt0_from_t'                  : 'pt0',
+    'pt_derivative_SA'            : 'pt_SA',
+    'pt_derivative_CT'            : 'pt_CT',
+    'pt_from_CT'                  : 'pt',
+    'pt_maxdensity'               : 'pt_maxden',
+    't_maxdensity'                : 't_maxden',
             }
 
+# Add target aliases to cv
 for f in not_match:
     setattr(cv, f, getattr(cv, not_match[f]))
     setattr(cv, f+'_ca', getattr(cv, not_match[f]+'_ca'))

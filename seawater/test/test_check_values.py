@@ -1078,8 +1078,7 @@ class Test_standard(unittest.TestCase):
     #def test_CT_second_derivatives(self):
         """second derivatives of Conservative Temperature"""
 
-    # Not implemented 2011-03-19
-    def rest_CT_derivative_SA_SA(self):
+    def test_CT_derivative_SA_SA(self):
         """second derivative of Cons. Temperature wrt Abs. Sallinity"""
         out = gsw.CT_derivative_SA_SA(SA, pt)
         out_check = 1.0e-3 * np.array((-0.060718502073595,
@@ -1089,12 +1088,11 @@ class Test_standard(unittest.TestCase):
                                        -0.171270386500246,
                                        -0.189920754897514))
         #print np.max(abs(out-out_check))
-        npt.assert_array_almost_equal(out, out_check, decimal=15)
+        npt.assert_array_almost_equal(out, out_check, decimal=18)
 
-    # Not implemented 2011-03-19
-    def rest_CT_derivative_SA_pt(self):
+    def test_CT_derivative_SA_pt(self):
         """mixed second derivative of Conservative Temperature"""
-        out = gsw.CT_derivative_CT_SA(SA, pt)
+        out = gsw.CT_derivative_SA_pt(SA, pt)
         out_check = [-0.001197415000868,
                      -0.001198309530139,
                      -0.001226523296082,
@@ -1104,10 +1102,9 @@ class Test_standard(unittest.TestCase):
         #print np.max(abs(out-out_check))
         npt.assert_array_almost_equal(out, out_check, decimal=15)
 
-    # Not implemented 2011-03-19
-    def rest_CT_derivative_pt_pt(self):
+    def test_CT_derivative_pt_pt(self):
         """second derivative of Cons. Temperature wrt pot. temperature"""
-        out = gsw.CT_derivative_CT_SA(SA, pt)
+        out = gsw.CT_derivative_pt_pt(SA, pt)
         out_check = 1.0e-3 * np.array((0.123012754427146,
                                        0.124662008871271,
                                        0.140829458783443,
@@ -1115,13 +1112,13 @@ class Test_standard(unittest.TestCase):
                                        0.113684095615077,
                                        0.082286843477998))
         #print np.max(abs(out-out_check))
-        npt.assert_array_almost_equal(out, out_check, decimal=15)
+        npt.assert_array_almost_equal(out, out_check, decimal=18)
 
 
     #def test_enthalpy_first_derivatives(self):
         """first derivatives of enthalpy"""
-    # Not implemented 2011-03-19
-    def rest_enthalpy_derivative_SA(self):
+
+    def test_enthalpy_derivative_SA(self):
         """derivative of enthalpy wrt Absolute Salinity"""
         out = gsw.enthalpy_derivative_SA(SA, CT, p)
         out_check = [-0.070221017857321,
@@ -1130,35 +1127,32 @@ class Test_standard(unittest.TestCase):
                      -1.829811186103484,
                      -4.424369449732652,
                      -7.407229217110896]
-        print np.max(abs(out-out_check))
+        #print np.max(abs(out-out_check))
         npt.assert_array_almost_equal(out, out_check, decimal=15)
 
-    # Not implemented 2011-03-19
-    def rest_enthalpy_derivative_CT(self):
+    def test_enthalpy_derivative_CT(self):
         """derivative of enthalpy wrt Conservative Temperature"""
-        out = gsw.enthalpy_derivative_SA(SA, CT, p)
+        out = gsw.enthalpy_derivative_CT(SA, CT, p)
         out_check = [3991.899729625529,
                      3992.025696743769,
                      3992.210168035032,
                      3992.283178760239,
                      3992.681641668387,
                      3993.005774345293]
-        print np.max(abs(out-out_check))
-        npt.assert_array_almost_equal(out, out_check, decimal=15)
+        #print np.max(abs(out-out_check))
+        npt.assert_array_almost_equal(out, out_check, decimal=12)
 
-    # Not implemented 2011-03-19
-    def rest_enthalpy_derivative_p(self):
+    def test_enthalpy_derivative_p(self):
         """derivative of enthalpy wrt pressure"""
-        out = gsw.enthalpy_derivative_SA(SA, CT, p)
+        out = gsw.enthalpy_derivative_p(SA, CT, p)
         out_check = 1.0e-3 * np.array((0.978626618725186,
                                        0.978222134953103,
                                        0.976154774939840,
                                        0.972961213383549,
                                        0.971026778012244,
                                        0.968989993773259))
-        print np.max(abs(out-out_check))
-        npt.assert_array_almost_equal(out, out_check, decimal=15)
-
+        #print np.max(abs(out-out_check))
+        npt.assert_array_almost_equal(out, out_check, decimal=18)
 
     #def test_enthalpy_second_derivatives(self):
         """second derivatives of enthalpy"""
@@ -1232,8 +1226,7 @@ class Test_standard(unittest.TestCase):
     #def test_pt_first_derivatives(self):
         """first derivatives of potential temperature"""
 
-    # Not implemented 2011-03-19
-    def rest_pt_derivative_SA(self):
+    def test_pt_derivative_SA(self):
         """derivative of pot. temperature wrt Abs. Salinity"""
         out = gsw.pt_derivative_SA(SA, CT)
         out_check = [0.041863223165431,
@@ -1245,8 +1238,7 @@ class Test_standard(unittest.TestCase):
         #print np.max(abs(out-out_check))
         npt.assert_array_almost_equal(out, out_check, decimal=15)
 
-    # Not implemented 2011-03-10    
-    def rest_pt_derivative_SA(self):
+    def test_pt_derivative_SA(self):
         """derivative of pot. temperature wrt. Cons. Temperature"""
         out = gsw.pt_derivative_CT(SA, CT)
         out_check = [0.997192967140242,
@@ -1310,6 +1302,34 @@ class Test_standard(unittest.TestCase):
         out_octave = 10030661.6387801
         #print abs(out-out_octave)
         npt.assert_almost_equal(out, out_octave, decimal=8)
+
+    # ------------------------------------
+    # functions for laboratory use
+    # ------------------------------------
+
+    def test_SA_from_rho(self):
+        """Absolute Salinity from density measurements"""
+        out = gsw.SA_from_rho(rho, t, p)
+        out_check = [34.710229656274947,
+                     34.890576832371579,
+                     35.023324209337552,
+                     34.849520963839424,
+                     34.738248094721804,
+                     34.731883839457986]
+        #print np.max(abs(out-out_check))
+        npt.assert_array_equal(out, out_check)
+
+    def test_sigma0_pt(self):
+        """sigma0 from SA and pt0"""
+        out = gsw.sigma0_pt(SA, pt)
+        out_check = [21.798144753257930,
+                     22.052511933456117,
+                     23.893563694775708,
+                     26.667625207411902,
+                     27.107234985050809,
+                     27.409632401587487]
+        #print abs(out-out_check)
+        npt.assert_array_equal(out, out_check)
 
     # -------------------------------------
     # Practical Salinity (SP), PSS-78

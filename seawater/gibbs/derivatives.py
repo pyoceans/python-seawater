@@ -10,11 +10,15 @@ Functions:
   CT_derivative_pt(SA, pt)
   CT_first_derivatives(SA, pt)  
      first derivatives of Conservative Temperature
-
-  #CT_second_derivatives(SA, pt)           
-  #   second derivatives of Conservative Temperature
-
-  #enthalpy_first_derivatives(SA, CT, p)      
+  CT_derivative_SA_SA(SA, pt)
+  CT_derivative_SA_pt(SA, pt)
+  CT_derivative_pt_pt(SA, pt)
+  CT_second_derivatives(SA, pt)           
+     second derivatives of Conservative Temperature
+  enthalpy_derivative_SA(SA, CT, p)
+  enthalpy_derivative_CT(SA, CT, p)
+  enthalpy_derivative_p(SA, CT, p)
+  enthalpy_first_derivatives(SA, CT, p)
   #   first derivatives of enthalpy
   #enthalpy_second_derivatives(SA, CT, p)
   #   second derivatives of enthalpy
@@ -28,8 +32,9 @@ Functions:
   entropy_derivative_SA_SA(SA, CT)
   entropy_second_derivatives(SA, CT)
      second derivatives of entropy
-
-  #pt_first_derivatives(SA, CT)            
+  pt_derivative_SA(SA, CT)
+  pt_derivative_CT(SA, CT)
+  pt_first_derivatives(SA, CT)            
   #   first derivatives of potential temperature
   #pt_second_derivatives(SA, CT)           
   #   second derivatives of potential temperature
@@ -49,8 +54,14 @@ from conversions import *
 __all__ =  ['CT_derivative_SA',
             'CT_derivative_pt',
             'CT_first_derivatives',
-            #'CT_second_derivatives',
-            #'enthalpy_first_derivatives',
+            'CT_derivative_SA_SA',
+            'CT_derivative_SA_pt',
+            'CT_derivative_pt_pt',
+            'CT_second_derivatives',
+            'enthalpy_derivative_SA',
+            'enthalpy_derivative_CT',
+            'enthalpy_derivative_p',
+            'enthalpy_first_derivatives',
             #'enthalpy_second_derivatives',
             'entropy_derivative_SA',
             'entropy_derivative_CT',
@@ -59,7 +70,9 @@ __all__ =  ['CT_derivative_SA',
             'entropy_derivative_SA_CT',
             'entropy_derivative_SA_SA',
             'entropy_second_derivatives',
-            #'pt_first_derivatives',
+            'pt_derivative_SA',
+            'pt_derivative_CT',
+            'pt_first_derivatives',
             #'pt_second_derivatives',
            ]
 
@@ -260,9 +273,89 @@ def CT_first_derivatives(SA, pt):
 
 # ----------------------------------------------
 
-    #def CT_second_derivatives
+@match_args_return
+def CT_derivative_SA_SA(SA, pt):
 
-    #def enthalpy_first_derivatives
+    dSA = 1e-3
+    SA_l = SA - dSA
+    SA_l = SA_l.clip(0.0, np.inf)
+    SA_u = SA + dSA
+
+    CT_SA_l = CT_derivative_SA(SA_l, pt)
+    CT_SA_u = CT_derivative_SA(SA_u, pt)
+
+    return (CT_SA_u - CT_SA_l) / (SA_u - SA_l)
+
+# ------------------------
+
+@match_args_return
+def CT_derivative_SA_pt(SA, pt):
+
+    dpt = 1e-2
+    pt_l = pt - dpt
+    pt_u = pt + dpt
+
+    CT_SA_l = CT_derivative_SA(SA, pt_l)
+    CT_SA_u = CT_derivative_SA(SA, pt_u)
+
+    return (CT_SA_u - CT_SA_l) / (pt_u - pt_l)
+
+# -------------------------------
+
+@match_args_return
+def CT_derivative_pt_pt(SA, pt):
+
+    dpt = 1e-2
+    pt_l = pt - dpt
+    pt_u = pt + dpt
+
+    CT_pt_l = CT_derivative_pt(SA, pt_l)
+    CT_pt_u = CT_derivative_pt(SA, pt_u)
+
+    return (CT_pt_u - CT_pt_l) / (pt_u - pt_l)
+
+# ----------------------------------
+
+def CT_second_derivatives(SA, pt):
+
+    return ( CT_derivative_SA_SA(SA, pt),
+             CT_derivative_SA_pt(SA, pt),
+             CT_derivative_pt_pt(SA, pt) )
+
+# -----------------------------------------------
+
+@match_args_return
+def enthalpy_derivative_SA(SA, CT, p):
+
+    pt0 = pt_from_CT(SA, CT)
+    t   = pt_from_t(SA, pt0, 0, p)
+    temp_ratio = (273.15 + t) / (273.15 + pt0)
+    return ( lib._gibbs(1, 0, 0, SA, t, p) - 
+             temp_ratio * lib._gibbs(1, 0, 0, SA, pt0, 0) )
+
+
+@match_args_return
+def enthalpy_derivative_CT(SA, CT, p):
+
+    cp0 = 3991.86795711963
+    pt0 = pt_from_CT(SA, CT)
+    t   = pt_from_t(SA, pt0, 0, p)
+    temp_ratio = (273.15 + t) / (273.15 + pt0)
+    return cp0 * temp_ratio
+
+@match_args_return
+def enthalpy_derivative_p(SA, CT, p):
+    pt0 = pt_from_CT(SA, CT)
+    t   = pt_from_t(SA, pt0, 0, p)
+    return lib._gibbs(0, 0, 1, SA, t, p)
+
+def enthalpy_first_derivatives(SA, CT, p):
+
+    return ( enthalpy_derivative_SA(SA, CT, p),
+             enthalpy_derivative_CT(SA, CT, p),
+             enthalpy_derivative_SA(SA, CT, p) )
+
+# ----------------------------------------------
     
     #def enthalpy_second_derivatives
 
@@ -692,7 +785,33 @@ def entropy_second_derivatives(SA, CT):
 
 # -------------------------------------
 
-    #def pt_first_derivatives
+@match_args_return
+def pt_derivative_SA(SA, CT):
+    cp0 = 3991.86795711963
+    pt = pt_from_CT(SA, CT)
+    abs_pt = 273.15 + pt
+
+    CT_SA = (lib._gibbs(1, 0, 0, SA, pt, 0) -
+             abs_pt * lib._gibbs(1, 1, 0, SA, pt, 0)) / cp0
+    CT_pt = - (abs_pt * lib._gibbs(0, 2, 0,SA, pt, 0)) / cp0
+
+    return - CT_SA / CT_pt
+
+@match_args_return
+def pt_derivative_CT(SA, CT):
+    cp0 = 3991.86795711963
+    pt = pt_from_CT(SA, CT)
+    abs_pt = 273.15 + pt
+
+    CT_pt = - (abs_pt * lib._gibbs(0, 2, 0,SA, pt, 0)) / cp0
+
+    return 1.0 / CT_pt
+
+def pt_first_derivatives(SA, CT):
+    return ( pt_derivative_SA(SA, CT),
+             pt_derivative_CT(SA, CT) )
+
+# -----------------------------------
 
     #def pt_second_derivatives
 

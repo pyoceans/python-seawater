@@ -8,8 +8,8 @@ Functions:
 
   SA_from_rho
      Absolute Salinity from density measurements
-  #sigma0_pt                       
-  #   sigma_0 expressed in terms of SA & pt0 with ref. press. at 0 dbar
+  sigma0_pt                       
+     sigma_0 expressed in terms of SA & pt0 with ref. press. at 0 dbar
 
 """
 
@@ -24,7 +24,7 @@ from library import match_args_return
 # ---------------------------
 
 __all__ = ['SA_from_rho',
-           #'sigma0_pt',
+           'sigma0_pt',
           ]
 
 # ----------------------------
@@ -111,6 +111,73 @@ def SA_from_rho(rho, t, p):
     SA[Ior] = np.ma.masked
 
     return SA
+
+# --------------------------
+
+@match_args_return
+def sigma0_pt(SA, pt0):
+    """
+    Potential density anomaly with reference to zero dbar based on
+    potential temperature
+
+    arguments
+    ---------
+
+    SA  : array_like,  Absolute Salinity                  [ g/kg ]
+    pt0 : array_like, potential temperature with respect to a               
+           reference sea pressure of 0 dbar (ITS-90)      [ deg C ]
+           
+    returns
+    -------
+    sigma0_pt : array_like,
+          potential density anomaly with respect to a
+          reference pressure of 0 dbar,
+          that is. potential density minus 1000 kg/m^3.   [kg/m**3]
+
+    author:
+    ------
+    Original Matlab version:
+    Trevor McDougall & Paul Barker  [ help_gsw@csiro.au ]
+    Python version:
+    Bjørn Ådlandsvik [bjorn@imr.no]
+
+    """
+
+    
+
+    # These few lines ensure that SA is non-negative.
+    SA = SA.clip(0.0, np.inf)
+
+    sfac = 0.0248826675584615  # sfac = 1/(40*(35.16504/35));
+    x2 = sfac * SA
+    x  = np.sqrt(x2) 
+    y  = pt0*0.025
+   
+    g03 = ( 100015.695367145 + 
+        y * (-270.983805184062 + 
+        y * (1455.0364540468 + 
+        y * (-672.50778314507 + 
+        y * (397.968445406972 + 
+        y * (-194.618310617595 + 
+        y * (63.5113936641785 - 
+        y * 9.63108119393062)))))) )
+                                                           
+    g08 = ( x2 * (-3310.49154044839 + 
+             x * (199.459603073901 + 
+             x * (-54.7919133532887 + 
+             x * 36.0284195611086 - 
+             y * 22.6683558512829) + 
+             y * (-175.292041186547 + 
+             y * (383.058066002476 + 
+             y * (-460.319931801257 + 
+             y * 234.565187611355)))) + 
+             y * (729.116529735046 + 
+             y * (-860.764303783977 + 
+             y * (694.244814133268 + 
+             y * (-297.728741987187))))) )
+     
+    return 100000000./(g03 + g08) - 1000.0
+
 
 # ----------------------------
 
