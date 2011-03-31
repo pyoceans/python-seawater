@@ -11,26 +11,27 @@ Functions
       thermobaric coefficient
   isopycnal_slope_ratio_CT25(SA, CT, p, pr)
       ratio of the slopes of isopycnals on the SA-CT diagram for p & pr
-  #isopycnal_vs_ntp_CT_ratio_CT25(SA, CT, p, pr)  
-  #    ratio of the gradient of Conservative Temperature in a
-  #    potential density surface to that in the neutral tangent plane
-  #ntp_pt_vs_CT_ratio_CT25(SA, CT, p)
-  #   ratio of gradients of potential temperature &
-  #   Conservative Temperature in a neutral tangent plane
+  isopycnal_vs_ntp_CT_ratio_CT25(SA, CT, p, pr)  
+      ratio of the gradient of Conservative Temperature in a
+      potential density surface to that in the neutral tangent plane
+  ntp_pt_vs_CT_ratio_CT25(SA, CT, p)
+     ratio of gradients of potential temperature &
+     Conservative Temperature in a neutral tangent plane
 
 """
 
 import numpy as np
 from library import match_args_return
 from density25 import *
+from derivatives import pt_derivatives_SA, pt_derivatives_CT
 
 # --------
 
 __all__ = ['cabbeling_CT25',
            'thermobaric_CT25',  
            'isopycnal_slope_ratio_CT25',
-           #'isopycnal_vs_ntp_CT_ratio_CT25',
-           #'ntp_pt_vs_CT_ratio_CT25'
+           'isopycnal_vs_ntp_CT_ratio_CT25',
+           'ntp_pt_vs_CT_ratio_CT25'
           ]
 
 # --------
@@ -83,6 +84,8 @@ def cabbeling_CT25(SA, CT, p):
 
     return alpha_CT_CT + ratio_CT*(2*alpha_CT_SA - ratio_CT*beta_CT_SA)
 
+# ----------------------------------------------
+
 @match_args_return
 def thermobaric_CT25(SA, CT, p):
 
@@ -107,13 +110,6 @@ def thermobaric_CT25(SA, CT, p):
     db2Pa = 10000.0
     dp = 0.1         # pressure increment is 1e-1 dbar (10 Pa)
 
-    #if p==0: p = p+dp
-    #inds = find(p>=dp); 
-    #p_u = zeros(size(p));
-    #p_l = dp*ones(size(p));
-    #if ~isempty(inds):
-        #p_u(inds) = p(inds)-dp;
-        #p_l(inds) = p(inds)+dp;
     p_l = np.clip(p - dp, 0.0, np.inf)
     p_u = p + dp
     
@@ -130,7 +126,7 @@ def thermobaric_CT25(SA, CT, p):
     thermobaric_CT = alpha_CT_p - (alpha_CT / beta_CT) * beta_CT_p
     return thermobaric_CT / db2Pa   # To have units of 1/(K Pa)
 
-
+# ------------------------------------
 
 def isopycnal_slope_ratio_CT25(SA, CT, p, pr=0):
 
@@ -141,5 +137,70 @@ def isopycnal_slope_ratio_CT25(SA, CT, p, pr=0):
 
     out = alpha_CT * beta_CT_pr / (alpha_CT_pr * beta_CT)
     return out
+
+# ------------------------------------
+
+def isopycnal_vs_ntp_CT_ratio_CT25(SA, CT, p, pr=0):
+    """isopycnal Conservative Temperature gradient ratio
+
+    Ratio of the gradient of Conservative Temperature in a potential
+    density surface to that in a neutral tangent plane (i.e. in a locally
+    referenced potential density surface) (using 25-term equation)
+
+    parameters:
+    -----------
+    SA : array-like, Absolute Salinity           [g/kg]
+    CT : array-like, Conservative Temperature    [deg C]
+    p  : array-like, sea pressure                [dbar]
+    pr : scalar, optional,
+            reference pressure, default = 0      [dbar]
+
+    """
+  
+    if not np.isscalar(pr):
+        raise ArgumentError, "The reference pressures should be scalar"
+
+    SA, CT, p = np.broadcast_arrays(SA, CT, p)
+
+    p_mid  = 0.5*(p[:-1, ...]  + p[1:, ...])
+    SA_mid = 0.5*(SA[:-1, ...] + SA[1:, ...])
+    CT_mid = 0.5*(CT[:-1, ...] + CT[1:, ...])
+
+
+    dSA = SA[:-1,...] - SA[1:,...]
+    dCT = CT[:-1,...] - CT[1:,...]
+
+    alpha = alpha_CT25(SA_mid, CT_mid, p_mid)
+    beta  = beta_CT25(SA_mid, CT_mid, p_mid)
+    alpha_pr = alpha_CT25(SA_mid, CT_mid, pr)
+    beta_pr  = beta_CT25(SA_mid, CT_mid, pr)
+
+    anum   = dCT * alpha / beta - dSA
+    adenom = dCT * alpha_pr / beta_pr - dSA
+
+    return anum / adenom
+
+# ---------------------------------
+
+def ntp_pt_vs_CT_ratio_CT25(SA, CT, p):
+    """ratio of gradients of potential temperature and
+    Conservative Temperature in a neutral tangent  plane
+    (in a locally-referenced potential density surface)(25-term equation)
+
+    parameters:
+    -----------
+    SA : array-like, Absolute Salinity           [g/kg]
+    CT : array-like, Conservative Temperature    [deg C]
+    p  : array-like, sea pressure                [dbar]
+
+    """    
+
+    alpha_CT = alpha_CT25(SA, CT, p)
+    beta_CT  = beta_CT25(SA, CT, p)
+
+    pt_SA = pt_derivative_SA(SA, CT)
+    pt_CT = pt_derivative_CT(SA, CT)
+
+    return pt_CT + pt_SA * alpha_CT / beta_CT
 
 

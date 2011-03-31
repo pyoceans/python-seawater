@@ -150,20 +150,20 @@ function_arguments = {
 #?   'gibbs_pt0_pt0' :
     'grav' : ('lat', 'p'),
 
-    'internal_energy'    : ('SA', 't', 'p'),
+    'internal_energy'                : ('SA', 't', 'p'),
 #NI    'interp_McD_Klocker' :
 #NI    'interp_SA_CT' :
-    'ionic_strength'     : ('SA',),
-    'isochoric_heat_cap' : ('SA', 't', 'p'),
-#NI    'isopycnal_slope_ratio_CT25' :
-#NI    'isopycnal_vs_ntp_CT_ratio_CT25' :
+    'ionic_strength'                 : ('SA',),
+    'isochoric_heat_cap'             : ('SA', 't', 'p'),
+    'isopycnal_slope_ratio_CT25'     : ('SA', 'CT', 'p'),
+    'isopycnal_vs_ntp_CT_ratio_CT25' : ('SA', 'CT', 'p'),
 
     'kappa'         : ('SA', 't', 'p'),
     'kappa_const_t' : ('SA', 't', 'p'),
     
     'molality'      : ('SA',),
 
-#NI    'ntp_pt_vs_CT_ratio_CT25' : ('SA', 't', 'p'),
+    'ntp_pt_vs_CT_ratio_CT25' : ('SA', 'CT', 'p'),
 
     'osmotic_coefficient' : ('SA', 't', 'p'),
 
@@ -286,6 +286,8 @@ not_match = {
     'entropy_derivative_SA'       : 'eta_SA',
     'entropy_derivative_SA_CT'    : 'eta_SA_CT',
     'entropy_derivative_SA_SA'    : 'eta_SA_SA',
+    'isopycnal_vs_ntp_CT_ratio_CT25' : 'G_CT_CT25',
+    'ntp_pt_vs_CT_ratio_CT25'     : 'ntpptCT_CT25',
     'pot_enthalpy_from_pt'        : 'pot_enthalpy',
     'pt0_from_t'                  : 'pt0',
     'pt_derivative_SA'            : 'pt_SA',

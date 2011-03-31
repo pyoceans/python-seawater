@@ -497,11 +497,29 @@ class Test_standard(unittest.TestCase):
         npt.assert_array_almost_equal(out, out_check, decimal=14)
         
 
-    #def test_isopycnal_vs_ntp_CT_ratio_CT25(self):
-        """ratio of the gradient of Conservative Temperature"""
+    def test_isopycnal_vs_ntp_CT_ratio_CT25(self):
+        """isopycnal Conservative Temperature gradient ratio"""
+        out = gsw.isopycnal_vs_ntp_CT_ratio_CT25(SA, CT, p, 0)
+        out_check = [1.000644741121984,
+                     1.004222086721824,
+                     1.016586460790050,
+                     1.080518258040016,
+                     1.176910185010921]
+        #print np.max(abs(out-out_check))
+        npt.assert_array_almost_equal(out, out_check, decimal=14)
 
-    #def test_ntp_pt_vs_CT_ratio_CT25(self):
+
+    def test_ntp_pt_vs_CT_ratio_CT25(self):
         """ratio of gradients of potential temperature"""
+        out = gsw.ntp_pt_vs_CT_ratio_CT25(SA, CT, p)
+        out_check = [1.016122079370071,
+                     1.016078060102738,
+                     1.011790779852534,
+                     1.004313933279649,
+                     1.003007924869312,
+                     1.002330826430900]
+        #print np.max(abs(out-out_check))
+        npt.assert_array_almost_equal(out, out_check, decimal=15)
 
     # -----------------------------------------------------
     # basic thermodynamic properties in terms of (SA, t, p)
