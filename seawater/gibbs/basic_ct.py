@@ -28,8 +28,8 @@ Functions:
       sigma4 in terms of SA & CT with reference pressure of 4000 dbar
   enthalpy_CT(SA, CT, p)
       enthalpy from CT
-  #enthalpy_diff_CT
-  #    difference of enthalpy from CT between two pressures
+  enthalpy_diff_CT
+      difference of enthalpy from CT between two pressures
   entropy_from_pt(SA, pt)
       entropy from potential temperature
   entropy_from_CT(SA, CT)
@@ -60,14 +60,14 @@ __all__ = ['rho_CT',
            'beta_CT',
            'rho_alpha_beta_CT',
            'specvol_CT',
-           #'specvol_anom_CT',
+           'specvol_anom_CT',
            'sigma0_CT',
            'sigma1_CT',
            'sigma2_CT',
            'sigma3_CT',
            'sigma4_CT',
            'enthalpy_CT',
-           #'enthalpy_diff_CT',
+           'enthalpy_diff_CT',
            'entropy_from_pt',
            'entropy_from_CT',
            'pt_from_entropy',
@@ -202,8 +202,22 @@ def specvol_CT(SA, CT, p):
 
 # ---------------------------------
 
-    # NOT IMPLEMENTED YET
-    #def specvol_anom_CT
+def specvol_anom_CT(SA, CT, p):
+    """Specific volume anomaly from SA, CT, and p
+        
+    arguments:
+    ----------
+    SA : array-like,    Absolute Salinity         [g/kg]
+    CT : array-like,    Conservative Temperature  [deg C]
+    p  : array-like,    sea pressure              [dbar]
+
+    """
+
+    pt = pt_from_CT(SA, CT)
+    t  = pt_from_t(SA, pt, 0, p)
+    return specvol_anom(SA, t, p)
+
+
 
 # --------------------------------
 
@@ -270,8 +284,33 @@ def enthalpy_CT(SA, CT, p):
 
 # -------------------------
 
-    # NOT IMPLEMENTED YET
-    #def enthalpy_diff_CT
+
+def enthalpy_diff_CT(SA, CT, p_shallow, p_deep):
+    """Difference of enthalpy at two pressures
+    
+    parameters
+    ----------
+    SA, array-like, Absolute Salinity            [g/kg]
+    CT, array-like, Conservative Temperature     [deg C]
+    p_shallow, array-like, upper sea pressure    [dbar]
+    p_deep, array-like, upper sea pressure       [dbar]
+
+    returns
+    -------
+    enthalpy_diff_CT,
+        difference of specific enthalpy          [J/kg]
+           (deep minus shallow)
+
+    """
+
+    pt = pt_from_CT(SA, CT)
+    t_shallow = pt_from_t(SA, pt, 0, p_shallow)
+    t_deep = pt_from_t(SA, pt, 0, p_deep)
+    return  ( enthalpy(SA, t_deep, p_deep) -
+              enthalpy(SA, t_shallow, p_shallow) )
+
+
+
 
 # -------------------------
 

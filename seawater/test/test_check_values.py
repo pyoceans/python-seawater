@@ -918,9 +918,17 @@ class Test_standard(unittest.TestCase):
         #print np.max(abs(out-out_check))
         npt.assert_array_almost_equal(out, out_check, decimal=18)
         
-
-    #def test_specvol_anom_CT(self):
+    def test_specvol_anom_CT(self):
         """specific volume anomaly from CT"""
+        out = gsw.specvol_anom_CT(SA, CT, p)
+        out_check = 1e-5 * np.array((0.601043832858901,
+                                     0.578601553381862,
+                                     0.405565632906335,
+                                     0.142198842767438,
+                                     0.104351643832878,
+                                     0.076396789174221))
+        #print np.max(abs(out-out_check))
+        npt.assert_array_almost_equal(out, out_check, decimal=20)
 
     def test_sigma0_CT(self):
         """sigma0 in terms of SA & CT with reference pressure of 0 dbar"""
@@ -994,9 +1002,7 @@ class Test_standard(unittest.TestCase):
         #print np.max(abs(out-out_check))
         npt.assert_array_almost_equal(out, out_check, decimal=10)
         
-
-    # Not implemented yet
-    def rest_enthalpy_diff_CT(self):
+    def test_enthalpy_diff_CT(self):
         """difference of enthalpy from CT between two pressures"""
         p_shallow = np.array(p)
         p_deep    = p_shallow + 100.0
@@ -1008,7 +1014,7 @@ class Test_standard(unittest.TestCase):
                               970.8138965635516,
                               968.7770207718350))
         #print np.max(abs(out-out_check))
-        npt.assert_array_almost_equal(out, out_check, decimal=10)
+        npt.assert_array_almost_equal(out, out_check, decimal=12)
 
     def test_entropy_from_pt(self):
         """entropy from potential temperature"""
@@ -1052,7 +1058,7 @@ class Test_standard(unittest.TestCase):
         """first derivatives of Conservative Temperature"""
 
     def test_CT_derivative_SA(self):
-        """derivative of Conservative Temperature wrt absolute salinity"""
+        """derivative of Conservative Temperature wrt Absolute Salinity"""
         out = gsw.CT_derivative_SA(SA, pt)
         out_check = np.array((-0.041981092877806,
                               -0.041558140199508,
@@ -1074,12 +1080,15 @@ class Test_standard(unittest.TestCase):
                               0.999474326580093))
         #print np.max(abs(out-out_check))
         npt.assert_array_almost_equal(out, out_check, decimal=15)
-    
+
+    # -----------------------------------------
+
+    # Tested separately below
     #def test_CT_second_derivatives(self):
         """second derivatives of Conservative Temperature"""
 
     def test_CT_derivative_SA_SA(self):
-        """second derivative of Cons. Temperature wrt Abs. Sallinity"""
+        """second derivative of Cons. Temperature wrt Abs. Salinity"""
         out = gsw.CT_derivative_SA_SA(SA, pt)
         out_check = 1.0e-3 * np.array((-0.060718502073595,
                                        -0.062065324397404,
@@ -1114,7 +1123,9 @@ class Test_standard(unittest.TestCase):
         #print np.max(abs(out-out_check))
         npt.assert_array_almost_equal(out, out_check, decimal=18)
 
+    # ---------------------------------------
 
+    # Tested separately below
     #def test_enthalpy_first_derivatives(self):
         """first derivatives of enthalpy"""
 
@@ -1154,10 +1165,49 @@ class Test_standard(unittest.TestCase):
         #print np.max(abs(out-out_check))
         npt.assert_array_almost_equal(out, out_check, decimal=18)
 
+    # -----------------------------------------
+
+    # Not implemented
     #def test_enthalpy_second_derivatives(self):
         """second derivatives of enthalpy"""
 
+    def rest_enthalpy_derivative_SA_SA(self):
+        """second derivative of enthalpy wrt SA"""
+        out = gsw.enthalpy_derivative_SA_SA(SA, CT, p)
+        out_check = [0.000082752219662,
+                     0.000414449264358,
+                     0.001089849221923,
+                     0.002473058502734,
+                     0.006107254340947,
+                     0.010388021033928]
+        print np.max(abs(out-out_check))
+        npt.assert_array_almost_equal(out, out_check, decimal=32)
 
+    def rest_enthalpy_derivative_SA_CT(self):
+        """mixed second derivative of enthalpy"""
+        out = gsw.enthalpy_derivative_SA_SA(SA, CT, p)
+        out_check = [0.000130254397677,
+                     0.000654928172110,
+                     0.001880402010403,
+                     0.005474186056408,
+                     0.014339376841409,
+                     0.025245467907619]
+        print np.max(abs(out-out_check))
+        npt.assert_array_almost_equal(out, out_check, decimal=32)
+
+    def rest_enthalpy_derivative_CT_CT(self):
+        """second derivative of enthalpy wrt CT"""
+        out = gsw.enthalpy_derivative_CT_CT(SA, CT, p)
+        out_check = [0.000714090119067,
+                     0.003584609310758,
+                     0.009736868475975,
+                     0.024061418823850,
+                     0.061537073639407,
+                     0.107564288175526]
+        print np.max(abs(out-out_check))
+        npt.assert_array_almost_equal(out, out_check, decimal=32)
+
+    # -----------------------------------------
 
     # Tested individually below
     #def test_entropy_first_derivatives(self):
@@ -1186,11 +1236,14 @@ class Test_standard(unittest.TestCase):
         #print np.max(abs(out-out_check))
         npt.assert_array_almost_equal(out, out_check, decimal=15)
 
+    # -----------------------------------------
+
     #Tested indivdually below
     #def test_entropy_second_derivatives(self):
         """second derivatives of entropy"""
 
     def test_entropy_derivative_SA_SA(self):
+        """second derivative of entropy wrt SA"""
         out = gsw.entropy_derivative_SA_SA(SA, CT)
         out_check = [-0.007627718929669,
                      -0.007591969960708,
@@ -1202,6 +1255,7 @@ class Test_standard(unittest.TestCase):
         npt.assert_array_almost_equal(out, out_check, decimal=15)
 
     def test_entropy_derivative_SA_CT(self):
+        """mixed second derivative of entropy"""
         out = gsw.entropy_derivative_SA_CT(SA, CT)
         out_check = [-0.001833104216751,
                      -0.001819473824306,
@@ -1213,6 +1267,7 @@ class Test_standard(unittest.TestCase):
         npt.assert_array_almost_equal(out, out_check, decimal=15)
 
     def test_entropy_derivative_CT_CT(self):
+        """second derivative of entropy wrt CT"""
         out = gsw.entropy_derivative_CT_CT(SA, CT)
         out_check = [-0.043665023731109,
                      -0.043781336189326,
@@ -1222,6 +1277,8 @@ class Test_standard(unittest.TestCase):
                      -0.051875017843472]
         #print np.max(abs(out-out_check))
         npt.assert_array_almost_equal(out, out_check, decimal=15)
+
+    # -------------------------------------
         
     #def test_pt_first_derivatives(self):
         """first derivatives of potential temperature"""
@@ -1250,9 +1307,47 @@ class Test_standard(unittest.TestCase):
         #print np.max(abs(out-out_check))
         npt.assert_array_almost_equal(out, out_check, decimal=15)
         
+    # -----------------------------------------
 
+    # Not implemented
     #def test_pt_second_derivatives(self):
         """second derivatives of potential temperature"""
+
+    def rest_pt_derivative_SA_SA(self):
+        """second derivative of pt wrt SA"""
+        out = gsw.pt_derivative_SA_SA(SA, CT)
+        out_check = 1.0e-3 * np.array((0.160307058371208,
+                                       0.160785497957769,
+                                       0.168647220588324,
+                                       0.198377949876584,
+                                       0.210181899321236,
+                                       0.220018966513329))
+        print np.max(abs(out-out_check))
+        npt.assert_array_almost_equal(out, out_check, decimal=32)
+
+    def rest_pt_derivative_SA_CT(self):
+        """mixed second derivative of pt"""
+        out = gsw.pt_derivative_SA_SA(SA, CT)
+        out_check =  [0.001185581323691,
+                      0.001187068518686,
+                      0.001217629686266,
+                      0.001333254154015,
+                      0.001379674342678,
+                      0.001418371539325]
+        print np.max(abs(out-out_check))
+        npt.assert_array_almost_equal(out, out_check, decimal=32)
+
+    def rest_pt_derivative_CT_CT(self):
+        """second derivative of pt wrt CT"""
+        out = gsw.pt_derivative_CT_CT(SA, CT)
+        out_check = 1.0e-3 * np.array((-0.121979811279463,
+                                       -0.123711264754503,
+                                       -0.140136818504977,
+                                       -0.140645384127949,
+                                       -0.113781055410824,
+                                       -0.082417269009484))
+        print np.max(abs(out-out_check))
+        npt.assert_array_almost_equal(out, out_check, decimal=32)
 
     # -----------------------
     # Planet Earth properties
