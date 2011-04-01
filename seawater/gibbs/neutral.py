@@ -23,7 +23,7 @@ Functions
 import numpy as np
 from library import match_args_return
 from density25 import *
-from derivatives import pt_derivatives_SA, pt_derivatives_CT
+from derivatives import pt_derivative_SA, pt_derivative_CT
 
 # --------
 
