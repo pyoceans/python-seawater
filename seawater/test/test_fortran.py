@@ -19,7 +19,6 @@ import functools
 import numpy.testing as npt
 import seawater.gibbs as gsw
 import seawater.gibbs.library as gswl
-import seawater.gibbs.gibbs25 as gsw25
 
 # ------------------------------------------
 # Check values from check_values.f90
@@ -169,9 +168,9 @@ python_function2 = {
       'beta_ct'    : (gsw.beta_const_CT,  ('SA', 't', 'p')),
       'beta_pt0'   : (gsw.beta_const_pt,  ('SA', 't', 'p')),
       # Cabbeling, large relative error, correct??
-      'cabb_ct'    : (gsw25.cabbeling_CT25, ('SA', 'CT', 'p')),
+      'cabb_ct'    : (gsw.cabbeling_CT25, ('SA', 'CT', 'p')),
      #'cabb_pt0'   : No python function?
-      'thrmb_ct'   : (gsw25.thermobaric_CT25, ('SA', 'CT', 'p')),
+      'thrmb_ct'   : (gsw.thermobaric_CT25, ('SA', 'CT', 'p')),
      #'thrmb_pt0'  : No python function?
                    }
 

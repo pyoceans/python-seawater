@@ -158,7 +158,7 @@ def isopycnal_vs_ntp_CT_ratio_CT25(SA, CT, p, pr=0):
     """
   
     if not np.isscalar(pr):
-        raise ArgumentError, "The reference pressures should be scalar"
+        raise ArgumentError("The reference pressures should be scalar")
 
     SA, CT, p = np.broadcast_arrays(SA, CT, p)
 
