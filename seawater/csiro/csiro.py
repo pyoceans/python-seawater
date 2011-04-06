@@ -10,6 +10,9 @@ from time  import asctime, localtime
 
 __version__ = '3.3' # matlab version
 
+rad = np.pi / 180.0
+deg = 180.0 / np.pi
+
 def T68conv(T90):
     r"""
     Convert ITS-90 temperature to IPTS-68
@@ -608,7 +611,7 @@ def depth(p, lat):
     gam_dash = 2.184e-6
 
     lat = abs(lat)
-    X   = np.sin( np.deg2rad(lat) )
+    X   = np.sin(lat*rad)
     X   = X * X
 
     bot_line = ( 9.780318 * ( 1.0 + ( 5.2788E-3 + 2.36E-5 * X ) * X ) +
@@ -667,7 +670,7 @@ def grav(lat, z=0):
 
     # Eqn p27.  UNESCO 1983.
     lat     = np.abs(lat)
-    X       = np.sin( np.deg2rad(lat) )
+    X       = np.sin(lat*rad)
     sin2    = X * X
     grav    = 9.780318 * ( 1.0 + ( 5.2788E-3 + 2.36E-5 * sin2 ) * sin2 )
     grav    = grav / ( ( 1 + z / cte.a )**2 )    # from A.E.Gill p.597
@@ -730,7 +733,7 @@ def cor(lat):
     lat = np.asanyarray(lat)
 
     # Eqn p27.  UNESCO 1983.
-    f = 2 * cte.OMEGA * np.sin( np.deg2rad(lat) )
+    f = 2 * cte.OMEGA * np.sin(lat*rad)
     return f
 
 def cndr(s, t, p):
@@ -1435,7 +1438,7 @@ def pres(depth, lat):
 
     depth, lat = np.asanyarray(depth), np.asanyarray(lat)
 
-    X = np.sin( abs( np.deg2rad(lat) ) )
+    X = np.sin( abs(lat*rad) )
     C1 = 5.92E-3 + X**2 * 5.25E-3
     pres = ( (1-C1) - ( ( (1-C1)**2 ) - ( 8.84E-6 * depth ) )**0.5 ) / 4.42E-6
     return pres
@@ -1520,7 +1523,7 @@ def dist(lon, lat, units='km'):
         flag = abs(dlon) > 180
         dlon[flag] = -np.sign( dlon[flag] ) * ( 360 - abs( dlon[flag] ) )
 
-    latrad = abs( np.deg2rad(lat) )
+    latrad = abs(lat*rad)
     dep    = np.cos( ( latrad [ind+1] + latrad[ind] ) / 2 ) * dlon
     dlat   = np.diff( lat, axis=0 )
     dist   = cte.DEG2NM * ( dlat**2 + dep**2 )**0.5
@@ -1529,7 +1532,7 @@ def dist(lon, lat, units='km'):
         dist = dist * cte.NM2KM
 
     # Calcualte angle to x axis
-    phaseangle  = np.rad2deg( np.angle( dep + dlat * 1j ) )
+    phaseangle  = np.angle( dep + dlat * 1j ) * deg
     return dist, phaseangle
 
 def satAr(s, t):
