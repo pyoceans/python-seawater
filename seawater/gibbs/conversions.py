@@ -66,6 +66,8 @@ __all__ = ['t_from_CT',
 
 # -----------
 
+rad = np.pi / 180.0
+
 @match_args_return
 def t_from_CT(SA, CT, p):
     r"""
@@ -900,7 +902,7 @@ def  z_from_p(p, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    X     = np.sin( np.deg2rad(lat) )
+    X     = np.sin(lat*rad)
     sin2  = X**2
     B     = 9.780327 * ( 1.0 + ( 5.2792e-3 + ( 2.32e-5 * sin2 ) ) * sin2 )
     A     = -0.5 * cte.gamma * B
@@ -972,7 +974,7 @@ def  p_from_z(z, lat):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    X     = np.sin( np.deg2rad(lat) )
+    X     = np.sin(lat*rad)
     sin2  = X**2
     gs    = 9.780327 * ( 1.0 + ( 5.2792e-3 + ( 2.32e-5 * sin2 ) ) * sin2 )
     # get the first estimate of p from Saunders (1981)

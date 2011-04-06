@@ -33,6 +33,8 @@ __all__ = ['f',
 
 # -----------
 
+rad = np.pi/180.0
+
 def f(lat):
     """Coriolis parameter
 
@@ -47,7 +49,7 @@ def f(lat):
     """
 
     lat = np.asanyarray(lat)
-    rad = np.pi / 180.0
+    #rad = np.pi / 180.0
     omega = 7.292115e-5
     return 2 * omega * np.sin(lat*rad)
 
@@ -105,7 +107,7 @@ def grav(lat, p=0):
     2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
     """
 
-    X = np.sin( np.deg2rad(lat) )
+    X = np.sin(lat*rad)
     sin2 = X**2
     gs = 9.780327 * ( 1.0 + ( 5.2792e-3 + ( 2.32e-5 * sin2 ) ) * sin2)
     z = z_from_p(p, lat)
@@ -199,11 +201,11 @@ def distance(lon, lat, p=0):
 
     lon, lat, p = np.broadcast_arrays(lon, lat, p)
 
-    dlon = np.deg2rad( np.diff(lon) )
-    dlat = np.deg2rad( np.diff(lat) )
+    dlon = np.diff(lon*rad)
+    dlat = np.diff(lat*rad)
 
-    a = ( ( np.sin(dlat/2.) )**2 + np.cos( np.deg2rad( lat[:,:-1] ) ) *
-    np.cos( np.deg2rad( lat[:,1:] ) ) * ( np.sin(dlon/2.) )**2 )
+    a = ( ( np.sin(dlat/2.) )**2 + np.cos(lat[:,:-1]*rad) *
+    np.cos(lat[:,1:]*rad) * ( np.sin(dlon/2.) )**2 )
 
     angles = 2. * np.arctan2( np.ma.sqrt(a), np.ma.sqrt(1-a) )
 
