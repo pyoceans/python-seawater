@@ -47,3 +47,7 @@ __status__ = ["Production"]
 __created_ = ["14-Jan-2010"]
 __modified__ = ["19-Feb-2011"]
 __all__ = ["gibbs","csiro","extras"]
+
+import csiro
+import gibbs
+import extras
