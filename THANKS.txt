@@ -1,6 +1,11 @@
 Bjørn Ådlandsvik - Testing unit and several bug fixes
 Eric Firing - Support for masked arrays, re-write of _delta_SA
-Trevor J. McDougall (and all of SCOR/IAPSO WG127) for making available the Matlab and Fortran versions
 
+Trevor J. McDougall (and all of SCOR/IAPSO WG127) for making available
+the Matlab and Fortran versions of this software
 
-We also would like acknowledge SCOR/IAPSO WG127, most of this code is derived from the GSW Oceanographic Toolbox of TEOS-10.
+Acknowledgments:
+SCOR/IAPSO WG127, most of the gibbs module is derived from the GSW Oceanographic
+Toolbox of TEOS-10.
+
+CSIRO, the csiro is a re-write of their seawater matlab toolbox.
