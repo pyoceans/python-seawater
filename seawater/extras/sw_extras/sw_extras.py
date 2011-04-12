@@ -7,6 +7,7 @@ Extra seawater functions
 
 import numpy as np
 import seawater.csiro as sw
+import seawater.gibbs as gsw
 from seawater import constants as cte
 
 
@@ -695,6 +696,31 @@ def spice(s,t,p):
 
     return sp
 
+
+def mld(SA, CT, p):
+    """
+    get_mld Compute the mixed layer depth
+    """
+    SA, CT, p = map(np.asarray, (SA, CT, p))
+
+    pmin, idxp = p.min(), p.argmin()
+
+    SST = CT[idxp]
+    SSS = s[idxp]
+
+    SST08 = SST - 0.8 # NOTE: The temperature difference criteria for MLD
+    SS_rho08 = gsw.sigma0_CT(SSS, SST08)
+    rho = gsw.sigma0_CT(SA, CT)
+
+    idx_mld =  ( rho > SS_rho08 )
+    if idx_mld.all():
+        MLD = np.NaN  # MLD depth at surface
+    elif ~np.all(a):
+        MLD = np.NaN  # MLD depth below the given domain
+    else:
+        MLD = p[idx_mld].min()
+
+    return MLD
 
 def mlife():
     r"""
