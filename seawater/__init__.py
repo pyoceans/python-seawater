@@ -38,12 +38,12 @@ CT == \BigTheta = frac{h_o}{C^o_p}.
 The scale factor C^o_p is a constant carefully chosen so that potential temperature \smalltheta and Conservative Temperature \BigTheta will be numerically similar for typical seawater at SP = 35, or near t = 0 degC. However, the difference between the two can exceed 1◦C when salinities are low and temperatures high (for details, see IOC et al., 2010).
 """
 
-__authors__    = ['Filipe Fernandes','Bjørn Ådlandsvik','Eric Firing'] 
-__license__    = ["MIT"]
-__version__    = ["2.0.0"]
+__authors__ = ['Filipe Fernandes','Bjørn Ådlandsvik','Eric Firing'] 
+__license__ = ["MIT"]
+__version__ = ["2.0.0"]
 __maintainer__ = ["Filipe Fernandes"]
-__email__      = ["ocefpaf@gmail.com"]
-__status__     = ["Production"]
-__created__    = ["14-Jan-2010"]
-__modified__   = ["19-Feb-2011"]
-__all__        = ["seawater","gibbs","csiro","extras"] #FIXME
+__email__ = ["ocefpaf@gmail.com"]
+__status__ = ["Production"]
+__created_ = ["14-Jan-2010"]
+__modified__ = ["19-Feb-2011"]
+__all__ = ["gibbs","csiro","extras"]
