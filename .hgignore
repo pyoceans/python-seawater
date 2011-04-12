@@ -5,6 +5,6 @@ _build
 .directory
 *.pyc
 build/*
+dist/*
 seawater.egg-info/*
-*.so
-seawater/WIP/sw_extras_oceans/*
+MANIFEST
