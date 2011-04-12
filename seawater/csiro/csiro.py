@@ -3,13 +3,6 @@
 import numpy as np
 from seawater import constants as cte
 
-# only used on the test routine
-import sys
-from platform import uname
-from time  import asctime, localtime
-
-__version__ = '3.3' # matlab version
-
 rad = np.pi / 180.0
 deg = 180.0 / np.pi
 

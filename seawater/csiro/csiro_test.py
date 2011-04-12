@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 
+# only used on the test routine
+import sys
+from platform import uname
+from time  import asctime, localtime
+
 __version__ = '3.3' # matlab version
 
 from csiro import *
 
-def test(fileout='matlab-test.txt'):
+def test(fileout='python-test.txt'):
     r"""
     Copy of the matlab test.
 
@@ -477,3 +482,5 @@ def test(fileout='matlab-test.txt'):
         for iline in range(0, m):
             print >>f, " %4.0f  %4.0f     %8.4f  %9.4f" % tuple(result[:,iline])
 
+if __name__=='__main__':
+    test()
