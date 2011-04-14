@@ -1,5 +1,6 @@
-include THANKS.txt
 include README.txt
+include LICENSE.txt
+include CHANGES.txt
 include docs/matlab-test.txt
 include docs/sphinx/Makefile
 include docs/sphinx/conf.py
