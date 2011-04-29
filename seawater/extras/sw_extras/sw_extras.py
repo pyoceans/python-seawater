@@ -13,7 +13,8 @@ from seawater import constants as cte
 
 def SRConv(SP):
     r"""
-    Convert measurements made in Practical Salinity Scale to the Refence Salinity Scale.
+    Convert measurements made in Practical Salinity Scale to the Refence
+    Salinity Scale.
 
     Parameters
     ----------
@@ -31,9 +32,12 @@ def SRConv(SP):
 
     Notes
     -----
-    This is an alternative for those that do not wish to use SA_from_SP. Here the delta_SA is not added.
+    This is an alternative for those that do not wish to use SA_from_SP. Here
+    the delta_SA is not added.
 
-    One might wish to do this if delta_SA is going to be computed from Silicate data or if the data are in Coastal areas where delta_SA is not recommended.
+    One might wish to do this if delta_SA is going to be computed from
+    Silicate data or if the data are in Coastal areas where delta_SA is not
+    recommended.
 
     Examples
     --------
@@ -44,7 +48,9 @@ def SRConv(SP):
 
     References
     ----------
-    .. [1] Millero, F. J., R. Feistel, D. G. Wright, and T. J. McDougall, 2008: The composition of Standard Seawater and the definition of the Reference-Composition Salinity Scale, Deep-Sea Res. I, 55, 50-72.
+    .. [1] Millero, F. J., R. Feistel, D. G. Wright, and T. J. McDougall, 2008
+        The composition of Standard Seawater and the definition of the
+        Reference-Composition Salinity Scale, Deep-Sea Res. I, 55, 50-72.
 
     Modifications: 2011-02-10. Filipe Fernandes, Python translation.
     """
@@ -56,7 +62,8 @@ def SRConv(SP):
 
 def sigma_t(s, t, p):
     r"""
-    :math:`\\sigma_{t}` is the remainder of subtracting 1000 kg m :sup:`-3` from the density of a sea water sample at atmospheric pressure.
+    :math:`\\sigma_{t}` is the remainder of subtracting 1000 kg m :sup:`-3`
+    from the density of a sea water sample at atmospheric pressure.
 
     Parameters
     ----------
@@ -95,9 +102,14 @@ def sigma_t(s, t, p):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://www.scor-int.org/Publications.htm
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+    http://www.scor-int.org/Publications.htm
 
-    .. [2] Millero, F.J., Chen, C.T., Bradshaw, A., and Schleicher, K. A new high pressure equation of state for seawater. Deap-Sea Research., 1980, Vol27A, pp255-264. doi:10.1016/0198-0149(80)90016-3
+    .. [2] Millero, F.J., Chen, C.T., Bradshaw, A., and Schleicher, K. A new
+    high pressure equation of state for seawater. Deap-Sea Research., 1980,
+    Vol27A, pp255-264. doi:10.1016/0198-0149(80)90016-3
 
     Modifications: Filipe Fernandes, 2010
                    10-01-26. Filipe Fernandes, first version.
@@ -110,7 +122,11 @@ def sigma_t(s, t, p):
 
 def sigmatheta(s, t, p, pr=0):
     r"""
-    :math:`\\sigma_{\\theta}` is a measure of the density of ocean water where the quantity :math:`\\sigma_{t}` is calculated using the potential temperature (:math:`\\theta`) rather than the in situ temperature and potential density of water mass relative to the specified reference pressure.
+    :math:`\\sigma_{\\theta}` is a measure of the density of ocean water where
+    the quantity :math:`\\sigma_{t}` is calculated using the potential
+    temperature (:math:`\\theta`) rather than the in situ temperature and
+    potential density of water mass relative to the specified reference
+    pressure.
 
     Parameters
     ----------
@@ -151,9 +167,14 @@ def sigmatheta(s, t, p, pr=0):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://www.scor-int.org/Publications.htm
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+    http://www.scor-int.org/Publications.htm
 
-    .. [2] Millero, F.J., Chen, C.T., Bradshaw, A., and Schleicher, K. A new high pressure equation of state for seawater. Deap-Sea Research., 1980, Vol27A, pp255-264. doi:10.1016/0198-0149(80)90016-3
+    .. [2] Millero, F.J., Chen, C.T., Bradshaw, A., and Schleicher, K. A new
+    high pressure equation of state for seawater. Deap-Sea Research., 1980,
+    Vol27A, pp255-264. doi:10.1016/0198-0149(80)90016-3
 
     Modifications: Filipe Fernandes, 2010
                    10-01-26. Filipe Fernandes, first version.
@@ -166,7 +187,10 @@ def sigmatheta(s, t, p, pr=0):
 
 def N(bvfr2):
     r"""
-    Buoyancy frequency is the frequency with which a parcel or particle of fluid displaced a small vertical distance from its equilibrium position in a stable environment will oscillate. It will oscillate in simple harmonic motion with an angular frequency defined by
+    Buoyancy frequency is the frequency with which a parcel or particle of
+    fluid displaced a small vertical distance from its equilibrium position in
+    a stable environment will oscillate. It will oscillate in simple harmonic
+    motion with an angular frequency defined by
 
     .. math:: N = \\left(\\frac{-g}{\\sigma_{\\theta}} \\frac{d\\sigma_{\\theta}}{dz}\\right)^{2}
 
@@ -195,9 +219,12 @@ def N(bvfr2):
 
     References
     ----------
-    .. [1] A.E. Gill 1982. p.54  eqn 3.7.15 "Atmosphere-Ocean Dynamics" Academic Press: New York. ISBN: 0-12-283522-0
+    .. [1] A.E. Gill 1982. p.54  eqn 3.7.15 "Atmosphere-Ocean Dynamics"
+    Academic Press: New York. ISBN: 0-12-283522-0
 
-    .. [2] Jackett, David R., Trevor J. Mcdougall, 1995: Minimal Adjustment of Hydrographic Profiles to Achieve Static Stability. J. Atmos. Oceanic Technol., 12, 381-389. doi: 10.1175/1520-0426(1995)012<0381:MAOHPT>2.0.CO;2
+    .. [2] Jackett, David R., Trevor J. Mcdougall, 1995: Minimal Adjustment of
+    Hydrographic Profiles to Achieve Static Stability. J. Atmos. Oceanic
+    Technol., 12, 381-389. doi: 10.1175/1520-0426(1995)012<0381:MAOHPT>2.0.CO;2
 
     Modifications: Filipe Fernandes, 2010
                    10-01-26. Filipe Fernandes, first version.
@@ -238,7 +265,8 @@ def cph(bvfr2):
 
     References
     ----------
-    .. [1] A.E. Gill 1982. p.54  eqn 3.7.15 "Atmosphere-Ocean Dynamics" Academic Press: New York. ISBN: 0-12-283522-0
+    .. [1] A.E. Gill 1982. p.54  eqn 3.7.15 "Atmosphere-Ocean Dynamics"
+    Academic Press: New York. ISBN: 0-12-283522-0
 
     Modifications: Filipe Fernandes, 2010
                    2011-02-04. Filipe Fernandes, first version.
@@ -251,7 +279,7 @@ def cph(bvfr2):
     cph = bvfr * 60 *60 / (2 * np.pi)
     return cph
 
-def shear(p, u, v=0):
+def shear(z, u, v=0):
     r"""
     Calculates the vertical shear for u, v velocity section.
 
@@ -260,8 +288,8 @@ def shear(p, u, v=0):
 
     Parameters
     ----------
-    p : array_like
-        pressure [db]
+    z : array_like
+        depth [m]
     u(p) : array_like
            Eastward velocity [m s :sup:`-1`]
     v(p) : array_like
@@ -272,7 +300,7 @@ def shear(p, u, v=0):
     shr : array_like
           frequency [s :sup:`-1`]
     p_ave : array_like
-            mid pressure between p grid (M-1xN)  [db]
+            depth between z grid (M-1xN)  [m]
 
     See Also
     --------
@@ -317,13 +345,16 @@ def shear(p, u, v=0):
 
 def richnumb(n, s):
     r"""
-    Calculates  the ratio of buoyancy to inertial forces which measures the stability of a fluid layer.
+    Calculates  the ratio of buoyancy to inertial forces which measures the
+    stability of a fluid layer.
     this functions computes the gradient Richardson number in the form of:
 
     .. math::
         Ri = \\frac{N^2}{S^2}
 
-    Representing a dimensionless number that expresses the ratio of the energy extracted by buoyancy forces to the energy gained from the shear of the large-scale velocity field.
+    Representing a dimensionless number that expresses the ratio of the energy
+    extracted by buoyancy forces to the energy gained from the shear of the
+    large-scale velocity field.
 
     Parameters
     ----------
@@ -405,9 +436,11 @@ def cor_beta(lat):
 
     References
     ----------
-    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical Oceanogrpahy Pergamon Press Sydney. ISBN 0-08-028728-X
+    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical
+    Oceanogrpahy Pergamon Press Sydney. ISBN 0-08-028728-X
 
-    .. [2] A.E. Gill 1982. p.54  eqn 3.7.15 "Atmosphere-Ocean Dynamics" Academic Press: New York. ISBN: 0-12-283522-0
+    .. [2] A.E. Gill 1982. p.54  eqn 3.7.15 "Atmosphere-Ocean Dynamics"
+    Academic Press: New York. ISBN: 0-12-283522-0
     """
 
     # Convert input to numpy arrays
@@ -453,7 +486,8 @@ def inertial_period(lat):
 
 def strat_period(N):
     r"""
-    Stratifitcation period is the inverse of the Bouyancy frequency, defined by
+    Stratifitcation period is the inverse of the Bouyancy frequency and it is
+    defined by:
 
     .. math:: Tn = \\frac{2\\pi}{N}
 
@@ -536,7 +570,8 @@ def visc(s, t, p):
     # Convert input to numpy arrays
     s, t, p = np.asarray(s), np.asarray(t), np.asarray(p)
 
-    viscw = 1e-4 * (17.91 - 0.5381 * t + 0.00694 * t**2 + 0.02305*s ) / sw.dens(s, t, p);
+    viscw = ( 1e-4 * (17.91 - 0.5381 * t + 0.00694 * t**2 + 0.02305*s) 
+    / sw.dens(s, t, p) )
     return viscw
 
 def tcond(s, t, p):
@@ -589,8 +624,10 @@ def tcond(s, t, p):
     # Convert input to numpy arrays
     s, t, p = np.asarray(s), np.asarray(t), np.asarray(p)
 
-    # 1) Caldwell's option # 2 - simplified formula, accurate to 0.5% (eqn. 9) in [cal/cm/C/sec]
-    therm = 0.001365 * ( 1 + 0.003 * t - 1.025e-5 * t ** 2 + 0.0653 * ( 1e-4 * p ) - 0.00029 * s )
+    # 1) Caldwell's option # 2 - simplified formula, accurate to 0.5% (eqn. 9)
+    # in [cal/cm/C/sec]
+    therm = 0.001365 * (1 + 0.003 * t - 1.025e-5 * t**2 + 0.0653 * (1e-4*p) 
+                        - 0.00029 * s )
     therm = therm * 418.4 # [cal/cm/C/sec] ->[W/m/K]
     return therm
 
@@ -621,22 +658,23 @@ def spice(s,t,p):
 
     Notes
     -----
-    Spiciness, just like potential density, is only useful over limited vertical
-    excursions near the pressure to which they are referenced; for large vertical
-    ranges, the slope of the isopycnals and spiciness isopleths vary signiﬁcantly
-    with pressure, and generalization of the polynomial expansion to include a
-    reference pressure dependence is needed.
+    Spiciness, just like potential density, is only useful over limited
+    vertical excursions near the pressure to which they are referenced; for
+    large vertical ranges, the slope of the isopycnals and spiciness isopleths
+    vary signiﬁcantly with pressure, and generalization of the polynomial
+    expansion to include a reference pressure dependence is needed.
 
     Examples
     --------
     >>> import seawater.extras.sw_extras as swe
     >>> swe.spice(33, 15, 0)
-    0.54458641375
+    array(0.5445864137500002)
 
     References
     ----------
-    .. [1] A state variable for characterizing water masses and their diffusive
-    stability: spiciness. Prog. in Oceanography Volume 54, 2002, Pages 493-501.
+    .. [1] A state variable for characterizing water masses and their
+    diffusive stability: spiciness. Prog. in Oceanography Volume 54, 2002,
+    Pages 493-501.
 
     http://www.satlab.hawaii.edu/spice/spice.m
 
