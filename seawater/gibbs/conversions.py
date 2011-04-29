@@ -853,10 +853,10 @@ def  z_from_p(p, lat):
 
     Parameters
     ----------
-    lat : array_like
-          latitude in decimal degrees north [-90..+90]
     p : array_like
         pressure [dbar]
+    lat : array_like
+          latitude in decimal degrees north [-90..+90]
 
     Returns
     -------
@@ -921,10 +921,10 @@ def  p_from_z(z, lat):
 
     Parameters
     ----------
-    lat : array_like
-          latitude in decimal degrees north [-90..+90]
     z : array_like
         height [m]
+    lat : array_like
+          latitude in decimal degrees north [-90..+90]
 
     Returns
     -------
