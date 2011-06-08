@@ -290,16 +290,16 @@ def shear(z, u, v=0):
     ----------
     z : array_like
         depth [m]
-    u(p) : array_like
+    u(z) : array_like
            Eastward velocity [m s :sup:`-1`]
-    v(p) : array_like
+    v(z) : array_like
            Northward velocity [m s :sup:`-1`]
 
     Returns
     -------
     shr : array_like
           frequency [s :sup:`-1`]
-    p_ave : array_like
+    z_ave : array_like
             depth between z grid (M-1xN)  [m]
 
     See Also
@@ -313,9 +313,9 @@ def shear(z, u, v=0):
     Examples
     --------
     >>> import seawater.extras.sw_extras as swe
-    >>> p = [0, 250, 500, 1000]
+    >>> z = [0, 250, 500, 1000]
     >>> vel = [[0.5, 0.5, 0.5], [0.15, 0.15, 0.15], [0.03, 0.03, .03],[0.,0.,0.]]
-    >>> swe.shear(p, vel)[0]
+    >>> swe.shear(z, vel)[0]
     array([[ -1.40000000e-03,  -1.40000000e-03,  -1.40000000e-03],
            [ -4.80000000e-04,  -4.80000000e-04,  -4.80000000e-04],
            [ -6.00000000e-05,  -6.00000000e-05,  -6.00000000e-05]])
@@ -326,24 +326,21 @@ def shear(z, u, v=0):
     10-01-28. Filipe Fernandes, first version.
     """
     # Convert input to numpy arrays
-    p, u, v = np.asarray(p), np.asarray(u), np.asarray(v)
+    z, u, v = map(np.asanyarray, (z,u,v))
+    z, u, v = np.broadcast_arrays(z,u,v)
 
-    # if pressure is a vector make it a array of the same size as t/s
-    if p.ndim == 1:
-        p = np.repeat(p[np.newaxis,:], u.shape[1], axis=1).reshape(u.shape)
+    m,n = z.shape
+    iup = np.arange(0,m-1)
+    ilo = np.arange(1,m)
+    z_ave = (z[iup,:] + z[ilo,:])/2.
+    vel = np.sqrt(u**2 + v**2)
+    diff_vel = np.diff(vel, axis=0)
+    diff_z = np.diff(z, axis=0) 
+    shr = diff_vel / diff_z
 
-    m,n      = p.shape
-    iup      = np.arange(0,m-1)
-    ilo      = np.arange(1,m)
-    p_ave    = ( p[iup,:] + p[ilo,:] )/2.
-    vel      = np.sqrt( u**2 + v**2 )
-    diff_vel = np.diff( vel, axis=0 )
-    diff_z   = np.diff(   p, axis=0 ) # TODO to Z ?
-    shr      = diff_vel / diff_z
+    return shr, z_ave
 
-    return shr, p_ave
-
-def richnumb(n, s):
+def richnumb(bvfr2, S2):
     r"""
     Calculates  the ratio of buoyancy to inertial forces which measures the
     stability of a fluid layer.
@@ -358,10 +355,10 @@ def richnumb(n, s):
 
     Parameters
     ----------
-    n : array_like
-        Brünt-Väisälä [s :sup:`-1`]
-    shr : array_like
-          shear [s :sup:`-1`]
+    bvfr2 : array_like
+    Brünt-Väisälä Frequency squared (M-1xN)  [rad\ :sup:`-2` s\ :sup:`-2`]
+    S2 : array_like
+         shear squared [s :sup:`-2`]
 
     Returns
     -------
@@ -375,14 +372,14 @@ def richnumb(n, s):
     >>> import numpy as np
     >>> import seawater.extras.sw_extras as swe
     >>> import seawater.csiro as sw
-    >>> s   = np.array([[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]])
-    >>> t   = np.repeat(15, s.size).reshape(s.shape)
-    >>> p   = [[0], [250], [500], [1000]]
+    >>> s = np.array([[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]])
+    >>> t = np.repeat(15, s.size).reshape(s.shape)
+    >>> p = [[0], [250], [500], [1000]]
     >>> lat = [30, 32, 35]
-    >>> n   = swe.N(sw.bfrq(s, t, p, lat)[0])
+    >>> bvfr2 = sw.bfrq(s, t, p, lat)[0]
     >>> vel = [[0.5, 0.5, 0.5], [0.15, 0.15, 0.15], [0.03, 0.03, .03],[0.,0.,0.]]
-    >>> s   = swe.shear(p, vel)[0]
-    >>> swe.richnumb(n, s)
+    >>> S2 = swe.shear(p, vel)[0]**2
+    >>> swe.richnumb(bvfr2, S2)
     array([[   230.37941215,    230.45444299,    230.57181258],
            [  1934.01949759,   1934.64933431,   1935.63457818],
            [ 20583.24410868,  20589.94661835,  20600.43125069]])
@@ -391,11 +388,9 @@ def richnumb(n, s):
                    10-01-26. Filipe Fernandes, first version.
     """
     # Convert input to numpy arrays
-    n, s = np.asarray(n), np.asarray(s)
-
-    n2 = n**2 * np.sign(n)
-    s2 = s**2
-    ri = n2 / s2
+    bvfr2, S2 = map(np.asarray, (bvfr2,S2) )
+    N2 = bvfr2 * (2*np.pi)**2 # NOTE: check this
+    ri = bvfr2 / S2 
     return ri
 
 def cor_beta(lat):
@@ -523,9 +518,9 @@ def strat_period(N):
                    10-10-06. Filipe Fernandes, first version.
     """
     # Convert input to numpy arrays
-    N = np.asarray(N)
+    N = np.asanyarray(N)
 
-    Tn = 2 * np.pi / N
+    Tn = 2*np.pi / N
     return Tn
 
 def visc(s, t, p):
