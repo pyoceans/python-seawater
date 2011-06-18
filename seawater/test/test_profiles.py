@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Unit check for standard profiles for the 
+"""Unit check for standard profiles for the
    Gibbs Sea Water python package
 
    Functionality similar to matlab_test.py
@@ -42,7 +42,7 @@ from seawater.gibbs.library import Dict2Struc
 # ---------------------------------------------
 
 # Codes for non-tested functions
-# 
+#
 # TI  : Returning a tuple, tested individually
 # LIB : Library routine,
 # NI: Not Implemented
@@ -85,7 +85,7 @@ function_arguments = {
     'SP_from_cndr'  : ('R', 't', 'p'),
     'Sstar_from_SA' : ('SA', 'p', 'long', 'lat'),
     'Sstar_from_SP' : ('SP', 'p', 'long', 'lat'),
-    
+
 #TI    'Turner_Rsubrho_CT25' : ('SA', 'CT', 'p'),
     'Turner_CT25'   : ('SA', 'CT', 'p'),
 
@@ -95,13 +95,13 @@ function_arguments = {
     'alpha_wrt_CT'         : ('SA', 't', 'p'),
     'alpha_wrt_pt'         : ('SA', 't', 'p'),
     'alpha_wrt_t'          : ('SA', 't', 'p'),
-    
+
     'beta_CT'       : ('SA', 'CT', 'p'),
     'beta_CT25'     : ('SA', 'CT', 'p'),
     'beta_const_CT' : ('SA', 't', 'p'),
     'beta_const_pt' : ('SA', 't', 'p'),
     'beta_const_t'  : ('SA', 't', 'p'),
-    
+
 #BUG in profile values on file
 #    'cabbeling_CT25'   : ('SA', 't', 'p'),
     'chem_potential_relative' : ('SA', 't', 'p'),
@@ -109,7 +109,7 @@ function_arguments = {
     'chem_potential_water'    : ('SA', 't', 'p'),
     'cndr_from_SP'            : ('SP', 't', 'p'),
     'cp'                      : ('SA', 't', 'p'),
-    
+
 #LIB    'delta_SA' : ('p', 'long', 'lat'),
     'distance' : ('long', 'lat', 'p'),
 
@@ -139,7 +139,7 @@ function_arguments = {
     'entropy_derivative_CT_CT'  : ('SA', 'CT'),
     'entropy_derivative_SA_CT'  : ('SA', 'CT'),
     'entropy_derivative_SA_SA'  : ('SA', 'CT'),
-    
+
     'f' : ('lat',),
 
 #NI    'geo_strf_Cunningham' :
@@ -163,7 +163,7 @@ function_arguments = {
 
     'kappa'         : ('SA', 't', 'p'),
     'kappa_const_t' : ('SA', 't', 'p'),
-    
+
     'molality'      : ('SA',),
 
     'ntp_pt_vs_CT_ratio_CT25' : ('SA', 'CT', 'p'),
@@ -174,10 +174,10 @@ function_arguments = {
     'pot_enthalpy_from_pt' : ('SA', 'pt'),
     'pot_rho'              : ('SA', 't', 'p', 'pr'),
     'pt0_from_t'           : ('SA', 't', 'p'),
-    'pt_derivative_CT'     : ('SA', 'CT'), 
-    'pt_derivative_CT_CT'  : ('SA', 'CT'), 
-    'pt_derivative_SA'     : ('SA', 'CT'), 
-    'pt_derivative_SA_CT'  : ('SA', 'CT'), 
+    'pt_derivative_CT'     : ('SA', 'CT'),
+    'pt_derivative_CT_CT'  : ('SA', 'CT'),
+    'pt_derivative_SA'     : ('SA', 'CT'),
+    'pt_derivative_SA_CT'  : ('SA', 'CT'),
     'pt_derivative_SA_SA'  : ('SA', 'CT'),
 #TI    'pt_first_derivatives' :
     'pt_from_CT'           : ('SA', 'CT'),
@@ -189,9 +189,9 @@ function_arguments = {
     'rho'      : ('SA', 't', 'p'),
     'rho_CT'   : ('SA', 'CT', 'p'),
     'rho_CT25' : ('SA', 'CT', 'p'),
-#TI    'rho_alpha_beta_CT' : ('SA', 'CT', 'p'),  
+#TI    'rho_alpha_beta_CT' : ('SA', 'CT', 'p'),
 #TI    'rho_alpha_beta_CT25' : ('SA', 'CT', 'p'),
-    
+
     'sigma0_CT'         : ('SA', 'CT'),
     'sigma0_pt'         : ('SA', 'pt'),
     'sigma1_CT'         : ('SA', 'CT'),
@@ -224,7 +224,7 @@ function_arguments = {
 # ------------------------------------------
 
 datadir = os.path.join(os.path.dirname(gsw.__file__), 'data')
-fname = 'gsw_cv.npz'
+fname = 'gsw_cv_v2_0.npz'
 cv = Dict2Struc(np.load(os.path.join(datadir, fname)))
 
 # ---------------------------
@@ -254,7 +254,7 @@ cv.specvol_CT = cv.specvol
 cv.SA_chck_cast      = cv.SA_from_SP
 cv.CT_chck_cast      = cv.CT_from_t
 cv.pt_chck_cast      = cv.pt_from_t
-cv.Sstar_chck_cast   = cv.Sstar_from_SA 
+cv.Sstar_chck_cast   = cv.Sstar_from_SA
 cv.entropy_chck_cast = cv.entropy
 cv.z_chck_cast       = cv.z_from_p
 cv.rho_chck_cast     = cv.rho
@@ -335,17 +335,17 @@ def generic_test(self, func=None, argnames=None):
 
 function_test = {}
 for f in function_arguments:
-    function_test[f] = functools.partial(generic_test, 
+    function_test[f] = functools.partial(generic_test,
                       func=f, argnames=function_arguments[f])
 
 # ---------------------------
-# Auto-generated TestCase 
+# Auto-generated TestCase
 # ---------------------------
 
 class Test_profiles(unittest.TestCase):
 
     for f in function_test:
-        method_def = ( "test_" + f + 
+        method_def = ( "test_" + f +
             " = lambda self: function_test['" + f + "'](self)" )
         #print method_def
         exec(method_def)
