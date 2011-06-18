@@ -16,43 +16,66 @@
 import scipy.io as sio
 import numpy as np
 
-gsw_data_v3_0 = sio.loadmat('gsw_data_v3_0.mat', squeeze_me=True) 
+data_ver = 'v3_0'
+gsw_data = sio.loadmat('gsw_data_'+data_ver+'.mat', squeeze_me=True)
 
-# save compare values in a separate file
-gsw_cv = gsw_data_v3_0['gsw_cv']
-del gsw_data_v3_0['gsw_cv']
+""" save compare values in a separate file
+"""
+gsw_cv = gsw_data['gsw_cv']
+del gsw_data['gsw_cv']
 
-# save files
-def dict2npz(adict, npzfile):
-    """Save a dict as a npz file."""
-    for k in adict:
-        #eval(k+'='+adict[k])
-        print(k+'='+adict[k])
+cv_vars = []
+cv_exact = []
+for name in gsw_cv.dtype.names:
+    cmd = ('%s = np.atleast_1d(gsw_cv[\'%s\'])[0]' % (name,name))
+    exec(cmd)
+    if 'exact' in name:
+        cv_exact.append('%s=%s' % (name,name))
+    else:
+        cv_vars.append('%s=%s' % (name,name))
 
+# check values
+var_list = ', '.join(cv_vars)
+exec('np.savez("gsw_cv_%s", %s)' % (data_ver, var_list))
+
+# exact values (separated because np.savez does not accept > 255 args)
+var_list = ', '.join(cv_exact)
+exec('np.savez("gsw_exact_%s", %s)' % (data_ver, var_list))
+
+# delta SA Atlas
+ref_table = []
+for k in gsw_data:
+    if '__' not in k:
+        cmd = ('%s = np.atleast_1d(gsw_data[\'%s\'])' % (k,k))
+        ref_table.append('%s=%s' % (k,k))
+        exec(cmd)
+
+var_list = ', '.join(ref_table)
+exec('np.savez("gsw_data_%s", %s)' % (data_ver, var_list))
 
 """
- # gsw_data_v3_0       gsw_data_v2_0
- sigma_2_ref_cast
-      SA_ref_cast
-         lats_ref
-     lat_ref_cast
+ #  GSW_DATA_V3_0      GSW_DATA_V2_0
+ sigma_2_ref_cast <--> same
+      SA_ref_cast <--> same
+         lats_ref <--> same
+     lat_ref_cast <--> same
       deltaSA_ref <--> delta_SA_ref
-       ndepth_ref
-            p_ref
-        ocean_ref
-        longs_ref
-    long_ref_cast
- gamma_n_ref_cast
-       p_ref_cast
-      CT_ref_cast
+       ndepth_ref <--> same
+            p_ref <--> same
+        ocean_ref <--> same
+        longs_ref <--> same
+    long_ref_cast <--> same
+ gamma_n_ref_cast <--> same
+       p_ref_cast <--> same
+      CT_ref_cast <--> same
 
-     # new value:
-         SAAR_ref
-           SR_ref
-     version_date
-   version_number
-    gsw_demo_data
+  # NEW VARIABLES:
+         SAAR_ref <--> NA
+           SR_ref <--> NA
+     version_date <--> NA
+   version_number <--> NA
+    gsw_demo_data <--> NA
 
-   # check value:
-           gsw_cv
+   # CHECK VALUE:
+           gsw_cv <--> TODO
 """
