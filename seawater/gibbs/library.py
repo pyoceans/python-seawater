@@ -1230,7 +1230,7 @@ class SA_table(object):
     x_ca = np.array([260.0, 272.59, 276.5, 278.65, 280.73, 295.217])
     y_ca = np.array([ 19.55, 13.97,   9.6,   8.1,    9.33,   0.0])
 
-    def __init__(self, fname="gsw_data_v2_0.npz",
+    def __init__(self, fname="gsw_data_v3_0.npz",
                         max_p_fudge=10000,
                         min_frac=0):
         self.fname = fname
