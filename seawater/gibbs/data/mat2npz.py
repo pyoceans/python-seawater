@@ -8,7 +8,7 @@
 # e-mail:   ocefpaf@gmail
 # web:      http://ocefpaf.tiddlyspot.com/
 # created:  06-Jun-2011
-# modified: Mon 06 Jun 2011 07:07:06 PM EDT
+# modified: Sat 18 Jun 2011 02:15:27 PM EDT
 #
 # obs:
 #
@@ -46,8 +46,13 @@ exec('np.savez("gsw_exact_%s", %s)' % (data_ver, var_list))
 ref_table = []
 for k in gsw_data:
     if '__' not in k:
-        cmd = ('%s = np.atleast_1d(gsw_data[\'%s\'])' % (k,k))
-        ref_table.append('%s=%s' % (k,k))
+        if 'deltaSA_ref' in k:
+             name =  'delta_SA_ref'
+        else:
+            name = k
+        
+        cmd = ('%s = np.atleast_1d(gsw_data[\'%s\'])' % (name, k))
+        ref_table.append('%s=%s' % (name, name))
         exec(cmd)
 
 var_list = ', '.join(ref_table)
