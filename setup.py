@@ -52,7 +52,10 @@ Topic :: Software Development :: Libraries :: Python Modules
 
 setup(name = 'seawater',
       version = '2.0.2',
-      packages = ['seawater','seawater/gibbs','seawater/csiro', 'seawater/extras', 'seawater/extras/waves','seawater/extras/sw_extras', 'seawater/test'],
+      packages = ['seawater', 'seawater/gibbs', 'seawater/csiro',
+                  'seawater/extras', 'seawater/extras/waves',
+                  'seawater/extras/sw_extras', 'seawater/test',
+                  'seawater/gibbs3'],
       package_data = {'':['gibbs/data/*.npz']},
       license = 'LICENSE.txt',
       description = 'Seawater Libray for Python',

@@ -1,0 +1,21 @@
+Gibbs SeaWater oceanographic toolbox version 3 for python
+---------------------------------------------------------
+
+The official Gibbs SeaWater oceanographic toolbox for Matlab is
+presently at version 3, see www.teos-10.org.
+
+This directory contains the developing version 3 for python.  Note
+that the update is not backwards compatible, as many functions has
+changed names or functionality.
+ 
+It is presently very incomplete and only useful for developing
+purposes. For real use, use the (almost) complete version 2 in the
+gibbs directory.
+
+Both versions can be used together by careful imports::
+
+  import seawater.gibbs as gsw    
+  import seawater.gibbs3 as gsw3
+
+Bjørn Ådlandsvik, 2011-06-29
+
