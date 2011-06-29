@@ -274,7 +274,8 @@ def cph(bvfr2):
 
     # Convert input to numpy arrays
     bvfr2 = np.asarray(bvfr2)
-
+    
+    # root squared preserving the sign
     bvfr  = np.sqrt( np.abs( bvfr2 ) ) * np.sign( bvfr2 )
     cph = bvfr * 60 *60 / (2 * np.pi)
     return cph
