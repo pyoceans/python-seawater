@@ -41,7 +41,7 @@ from __future__ import division
 import numpy as np
 #from seawater import constants as cte
 import os
-from utilities import match_args_return
+from utilities import match_args_return, read_data
 
 # --------------------------------
 
@@ -912,12 +912,12 @@ def _in_Baltic(lon, lat):
 
     """
     lon, lat = np.atleast_1d(lon, lat)
-    
+
     # Polygon bounding the Baltic, (xb, yb)
     # Effective boundary is the intersection of this polygon
     # with rectangle defined by xmin, xmax, ymin, ymax
-    # 
-    
+    #
+
     # start with southwestern point and go round cyclonically
     xb = np.array([12.6, 45.0, 26.0,  7.0, 12.6])
     yb = np.array([50.0, 50.0, 69.0, 59.0, 50.0])
@@ -927,7 +927,7 @@ def _in_Baltic(lon, lat):
     #ymin, ymax = yb.min(), yb.max()
     xmin, xmax =  7.0, 32.0
     ymin, ymax = 52.0, 67.0
-    
+
     # First check if outside the rectangle
     in_rectangle = ( (xmin < lon) & (lon < xmax) &
                      (ymin < lat) & (lat < ymax) )
@@ -939,7 +939,7 @@ def _in_Baltic(lon, lat):
     # Closer check for points in the rectangle
     if np.any(in_rectangle):
         lon, lat = np.broadcast_arrays(lon, lat)
-        in_baltic = np.zeros(lon.shape, dtype='bool') 
+        in_baltic = np.zeros(lon.shape, dtype='bool')
         lon1 = lon[in_rectangle]
         lat1 = lat[in_rectangle]
 
@@ -1158,18 +1158,18 @@ def _SA_from_SP_Baltic(SP, lon, lat):
 
     SP, lon, lat = map(np.atleast_1d, (SP, lon, lat))
     SP, lon, lat = np.broadcast_arrays(SP, lon, lat)
-    
+
     inds_baltic = _in_Baltic(lon, lat)
 
     #SA_baltic = np.ma.masked_all(SP.shape, dtype=np.float)
-    
+
     all_nans = np.nan + np.zeros_like(SP)
     SA_baltic = np.ma.MaskedArray(all_nans, mask=~inds_baltic)
 
     if np.any(inds_baltic):
         SA_baltic[inds_baltic] = ((( cte.SSO - 0.087 ) / 35 )
                                     * SP[inds_baltic] + 0.087)
-    
+
     SA_baltic.mask = SA_baltic.mask | input_mask | np.isnan(SP)
 
     return SA_baltic
@@ -1449,7 +1449,7 @@ def _delta_SA(p, lon, lat):
 
 def infunnel(SA, CT, p):
     u"""oceanographic funnel check for the 25-term equation
- 
+
     Parameters
     ----------
     SA : array_like
@@ -1459,20 +1459,20 @@ def infunnel(SA, CT, p):
     p  : array_like
          sea pressure                 [dbar]
            (ie. absolute pressure - 10.1325 dbar)
-          
+
     Returns
     -------
     in_funnel : boolean ndarray or scalar
-        True,  if SA, CT and p are inside the "funnel" 
+        True,  if SA, CT and p are inside the "funnel"
         False, if SA, CT and p are outside the "funnel",
                or one of the values are NaN or masked
 
-    Note. The term "funnel" describes the range of SA, CT and p over which 
-    the error in the fit of the computationally-efficient 25-term 
+    Note. The term "funnel" describes the range of SA, CT and p over which
+    the error in the fit of the computationally-efficient 25-term
     expression for density in terms of SA, CT and p was calculated
     (McDougall et al., 2010).
 
-    author: 
+    author:
     Trevor McDougall and Paul Barker    [ help_gsw@csiro.au ]
     2011-02-27: Bjørn Ådlandsvik, python version
 
@@ -1509,12 +1509,12 @@ def Hill_ratio_at_SP2(t):
 
     """
     #
-    # USAGE:  
+    # USAGE:
     #  Hill_ratio = gsw_Hill_ratio_at_SP2(t)
     #
     # DESCRIPTION:
     #  Calculates the Hill ratio, which is the adjustment needed to apply for
-    #  Practical Salinities smaller than 2.  This ratio is defined at a 
+    #  Practical Salinities smaller than 2.  This ratio is defined at a
     #  Practical Salinity = 2 and in-situ temperature, t using PSS-78. The Hill
     #  ratio is the ratio of 2 to the output of the Hill et al. (1986) formula
     #  for Practical Salinity at the conductivity ratio, Rt, at which Practical
@@ -1526,8 +1526,8 @@ def Hill_ratio_at_SP2(t):
     # OUTPUT:
     #  Hill_ratio  =  Hill ratio at SP of 2                [ unitless ]
     #
-    # AUTHOR:  
-    #  Trevor McDougall and Paul Barker        
+    # AUTHOR:
+    #  Trevor McDougall and Paul Barker
     #
     # VERSION NUMBER: 3.0 (26th March, 2011)
     #
@@ -1549,7 +1549,7 @@ def Hill_ratio_at_SP2(t):
     a3 = 14.0941
     a4 = -7.0261
     a5 =  2.7081
-    
+
     b0 =  0.0005
     b1 = -0.0056
     b2 = -0.0066
@@ -1575,20 +1575,20 @@ def Hill_ratio_at_SP2(t):
 
     #--------------------------------------------------------------------------
     # Find the initial estimates of Rtx (Rtx0) and of the derivative dSP_dRtx
-    # at SP = 2. 
+    # at SP = 2.
     #--------------------------------------------------------------------------
 
     Rtx0 = g0 + t68*(g1 + t68*(g2 + t68*(g3 + t68*(g4 + t68*(g5
               + t68*(g6 + t68*(g7 + t68*(g8 + t68*g9))))))))
-     
-    dSP_dRtx =  (a1 + (2*a2 + (3*a3 + (4*a4 + 5*a5*Rtx0)*Rtx0)*Rtx0)*Rtx0 + 
+
+    dSP_dRtx =  (a1 + (2*a2 + (3*a3 + (4*a4 + 5*a5*Rtx0)*Rtx0)*Rtx0)*Rtx0 +
         ft68*(b1 + (2*b2 + (3*b3 + (4*b4 + 5*b5*Rtx0)*Rtx0)*Rtx0)*Rtx0) )
 
     #--------------------------------------------------------------------------
     # Begin a single modified Newton-Raphson iteration to find Rt at SP = 2.
     #--------------------------------------------------------------------------
 
-    SP_est = (a0 + (a1 + (a2 + (a3 + (a4 + a5*Rtx0)*Rtx0)*Rtx0)*Rtx0)*Rtx0 
+    SP_est = (a0 + (a1 + (a2 + (a3 + (a4 + a5*Rtx0)*Rtx0)*Rtx0)*Rtx0)*Rtx0
         + ft68*(b0 + (b1 + (b2+ (b3 + (b4 + b5*Rtx0)*Rtx0)*Rtx0)*Rtx0)*Rtx0))
     Rtx = Rtx0 - (SP_est - SP2) / dSP_dRtx
     Rtxm = 0.5*(Rtx + Rtx0)
@@ -1596,16 +1596,163 @@ def Hill_ratio_at_SP2(t):
         + ft68*(b1 + (2*b2 + (3*b3 + (4*b4 + 5*b5*Rtxm)*Rtxm)*Rtxm)*Rtxm))
     Rtx = Rtx0 - (SP_est - SP2) / dSP_dRtx
 
-    # This is the end of one full iteration of the modified Newton-Raphson 
-    # iterative equation solver.  The error in Rtx at this point is equivalent 
-    # to an error in SP of 9e-16 psu.  
-                                
+    # This is the end of one full iteration of the modified Newton-Raphson
+    # iterative equation solver.  The error in Rtx at this point is equivalent
+    # to an error in SP of 9e-16 psu.
+
     x = 400 * Rtx * Rtx
     sqrty = 10 * Rtx
-    part1 = 1 + x * (1.5 + x) 
+    part1 = 1 + x * (1.5 + x)
     part2 = 1 + sqrty * (1 + sqrty * (1 + sqrty))
     SP_Hill_raw_at_SP2 = SP2 - a0/part1 - b0*ft68/part2
 
     return 2. / SP_Hill_raw_at_SP2
+
+def _interp_S_T(S, T, z, znew, P=None):
+    """
+    Linear interpolation of ndarrays *S* and *T* from *z* to *znew*.
+    Optionally interpolate a third ndarray, *P*.
+
+    *z* must be strictly increasing or strictly decreasing.  It must
+    be a 1-D array, and its length must match the last dimension
+    of *S* and *T*.
+
+    *znew* may be a scalar or a sequence.
+
+    It is assumed, but not checked, that *S*, *T*, and *z* are
+    all plain ndarrays, not masked arrays or other sequences.
+
+    Out-of-range values of *znew*, and *nan* in *S* and *T*,
+    yield corresponding *nan* in the output.
+
+    The basic algorithm is from scipy.interpolate.
+
+
+
+    """
+
+    isscalar = False
+    if not np.iterable(znew):
+        isscalar = True
+        znew = [znew]
+    znew = np.asarray(znew)
+
+
+    inverted = False
+    if z[1] - z[0] < 0:
+        inverted = True
+        z = z[::-1]
+        S = S[..., ::-1]
+        T = T[..., ::-1]
+        if P is not None:
+            P = P[..., ::-1]
+
+    if (np.diff(z) <= 0).any():
+        raise ValueError("z must be strictly increasing or decreasing")
+
+    hi = np.searchsorted(z, znew)
+    hi = hi.clip(1, len(z)-1).astype(int)
+    lo = hi - 1
+
+    z_lo = z[lo]
+    z_hi = z[hi]
+    S_lo = S[lo]
+    S_hi = S[hi]
+    T_lo = T[lo]
+    T_hi = T[hi]
+    zratio = (znew - z_lo) / (z_hi - z_lo)
+
+    Si = S_lo + (S_hi - S_lo) * zratio
+    Ti = T_lo + (T_hi - T_lo) * zratio
+    if P is not None:
+        Pi = P[lo] + (P[hi] - P[lo]) * zratio
+
+    if inverted:
+        Si = Si[..., ::-1]
+        Ti = Ti[..., ::-1]
+        if P is not None:
+            Pi = Pi[..., ::-1]
+
+    outside = (znew < z.min()) | (znew > z.max())
+    if np.any(outside):
+        Si[..., outside] = np.nan
+        Ti[..., outside] = np.nan
+        if P is not None:
+            Pi[..., outside] = np.nan
+
+    if isscalar:
+        Si = Si[0]
+        Ti = Ti[0]
+        if P is not None:
+            Pi = Pi[0]
+
+    if P is None:
+        return Si, Ti
+    return Si, Ti, Pi
+
+def interp_SA_CT(SA, CT, p, p_i):
+    """
+    function [SA_i, CT_i] = gsw_interp_SA_CT(SA,CT,p,p_i)
+    % gsw_interp_SA_CT                    linear interpolation to p_i on a cast
+    %==========================================================================
+    % This function interpolates the cast with respect to the interpolating
+    % variable p. This function finds the values of SA, CT at p_i on this cast.
+    """
+    return _interp_S_T(SA, CT, p, p_i)
+
+def interp_ref_cast(spycnl, A="gn"):
+
+    """
+    Translation of:
+
+    function [SA_iref_cast, CT_iref_cast, p_iref_cast] = gsw_interp_ref_cast(spycnl,A)
+
+    % gsw_interp_ref_cast            linear interpolation of the reference cast
+    %==========================================================================
+    % This function interpolates the reference cast with respect to the
+    % interpolating variable "spycnl".  This reference cast is at the location
+    % 188E,4N from the reference data set which underlies the Jackett &
+    % McDougall (1997) Neutral Density computer code.  This function finds the
+    % values of SA, CT and p on this reference cast which correspond to the
+    % value of isopycnal which is passed to this function from the function
+    % "gsw_geo_strf_isopycnal_CT".  The isopycnal could be either gamma_n or
+    % sigma_2. If A is set to any of the following 's2','S2','sigma2','sigma_2'
+    % the interpolation will take place in sigma 2 space, any other input
+    % will result in the programme working in gamma_n space.
+    %
+    % VERSION NUMBER: 3.0 (14th April, 2011)
+    %
+    % REFERENCE:
+    %  Jackett, D. R. and T. J. McDougall, 1997: A neutral density variable
+    %   for the world<92>s oceans. Journal of Physical Oceanography, 27, 237-263.
+
+    FIXME? Do we need argument checking here to handle masked arrays,
+    etc.?  I suspect not, since I don't think this is intended to be
+    user-callable, but is instead used internally by user-callable
+    functions.
+
+    """
+
+    if A.lower() in ["s2", "sigma2", "sigma_2"]:
+        A = "s2"
+
+    gsw_data = read_data("gsw_data_v3_0.npz")
+
+    SA_ref = gsw_data.SA_ref_cast
+    CT_ref = gsw_data.CT_ref_cast
+    p_ref = gsw_data.p_ref_cast
+    if A == "s2":
+        zvar_ref = gsw_data.sigma_2_ref_cast
+    else:
+        zvar_ref = gsw_data.gamma_n_ref_cast
+
+    # Not sure why this is needed, but it is in the Matlab version,
+    # and presumably can't hurt.
+    cond = (spycnl >= 21.805) & (spycnl <= 28.3614)
+    zvar_new = spycnl[cond]
+
+    Si, Ci, Pi = _interp_S_T(SA_ref, CT_ref, zvar_ref, zvar_new, P=p_ref)
+
+    return Si, Ci, Pi
 
 
