@@ -78,56 +78,9 @@ def SP_from_C(C,t,p):
 
 """
 
-#--------------------------------------------------------------------------
-# Check variables and resize if necessary
-#--------------------------------------------------------------------------
-
-#mc,nc = np.shape(C)
-#[mt,nt] = np.shape(t)
-#[mp,np] = size(p)
-
-#if (mt == 1) & (nt == 1)              % t scalar - fill to size of C
-#    t = t*ones(size(C))
-#elseif (nc == nt) & (mt == 1)         % t is row vector,
-#    t = t(ones(1,mc), :)              % copy down each column.
-#elseif (mc == mt) & (nt == 1)         % t is column vector,
-#    t = t(:,ones(1,nc))               % copy across each row.
-#elseif (nc == mt) & (nt == 1)          % t is a transposed row vector,
-#    t = t.'                                         % transposed then#
-#    t = t(ones(1,mc), :)                    % copy down each column.
-#elseif (mc == mt) & (nc == nt)
-#    % ok
-#else
-#    error('gsw_SP_from_C: Inputs array dimensions arguments do not agree')
-#end %if
-
-#if (mp == 1) & (np == 1)              % p scalar - fill to size of C
-#    p = p*ones(size(C))
-#elseif (nc == np) & (mp == 1)         % p is row vector,
-#    p = p(ones(1,mc), :)              % copy down each column.
-#elseif (mc == mp) & (np == 1)         % p is column vector,
-#    p = p(:,ones(1,nc))               % copy across each row.
-#elseif (nc == mp) & (np == 1)          % p is a transposed row vector,
-#    p = p.'                                         % transposed then
-#    p = p(ones(1,mc), :)                    % copy down each column.
-#elseif (mc == mp) & (nc == np)
-#    % ok
-#else
-#    error('gsw_SP_from_C: Inputs array dimensions arguments do not agree')
-#end %if
-
-#if mc == 1
-#    C = C.'
-#    t = t.'
-#    p = p.'
-#    transposed = 1
-#else
-#    transposed = 0
-#end
-
-    #--------------------------------------------------------------------------
+    #---------------------------
     # Start of the calculation
-    #--------------------------------------------------------------------------
+    #---------------------------
 
     a0 =  0.0080
     a1 = -0.1692
@@ -185,10 +138,7 @@ def SP_from_C(C,t,p):
     # Hill et al. (1986) algorithm.  This algorithm is adjusted so that it is
     # exactly equal to the PSS-78 algorithm at SP = 2.
 
-    #[I2] = find(SP < 2)
     I2, = np.nonzero(np.ravel(SP) < 2)  # find
-    print "I2 = ", I2
-    #if I2:
     if len(I2) > 0:
         print "inside I2 = ", I2
         Hill_ratio = Hill_ratio_at_SP2(t[I2]) 
@@ -197,11 +147,9 @@ def SP_from_C(C,t,p):
         part1 = 1 + x * (1.5 + x) 
         part2 = 1 + sqrty * (1 + sqrty * (1 + sqrty))
         SP_Hill_raw = SP[I2] - a0/part1 - b0*ft68[I2]/part2
-        print Hill_ratio
-        print SP_Hill_raw
         SP[I2] = Hill_ratio * SP_Hill_raw
 
-    # These few lines ensure that SP is non-negative.
+    # Ensure that SP is non-negative.
     SP[SP < 0] = 0.0
 
     return SP
