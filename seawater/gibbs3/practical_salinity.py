@@ -78,9 +78,7 @@ def SP_from_C(C,t,p):
 
 """
 
-    #---------------------------
-    # Start of the calculation
-    #---------------------------
+    C, t, p = np.broadcast_arrays(C, t, p)
 
     a0 =  0.0080
     a1 = -0.1692
@@ -140,7 +138,6 @@ def SP_from_C(C,t,p):
 
     I2, = np.nonzero(np.ravel(SP) < 2)  # find
     if len(I2) > 0:
-        print "inside I2 = ", I2
         Hill_ratio = Hill_ratio_at_SP2(t[I2]) 
         x = 400 * Rt[I2]
         sqrty = 10 * Rtx[I2]
