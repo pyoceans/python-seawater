@@ -7,9 +7,10 @@ Python utilities for the Gibbs Seawater package
 
 from __future__ import division
 
-import numpy as np
-#from seawater import constants as cte
 import os
+
+import numpy as np
+
 
 class match_args_return(object):
     """
@@ -40,6 +41,7 @@ class match_args_return(object):
             ret = ret[0]
         return ret
 
+
 class Dict2Struc(object):
     r"""
     Open variables from a dictionary in a "matlab-like-structure"
@@ -47,6 +49,7 @@ class Dict2Struc(object):
     def __init__(self, adict):
         for k in adict.files:
             self.__dict__[k] = adict[k]
+
 
 class Cache_npz(object):
     def __init__(self):
@@ -67,6 +70,7 @@ class Cache_npz(object):
         return ret
 
 _npz_cache = Cache_npz()
+
 
 def read_data(fname, datadir=None):
     """
@@ -94,7 +98,7 @@ def strip_mask(*args):
     SA = args[0]
     if SA.shape:
         SA = np.ma.asarray(SA)
-        SA[ SA < 0] = np.ma.masked
+        SA[SA < 0] = np.ma.masked
         for a in args[:-1]:
             mask = np.ma.mask_or(mask, np.ma.getmask(a))
         newargs = [SA.filled(0)]
@@ -106,4 +110,3 @@ def strip_mask(*args):
     newargs.extend([np.ma.filled(a, 0) for a in args[1:]])
     newargs.append(mask)
     return newargs
-
