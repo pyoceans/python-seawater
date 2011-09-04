@@ -1,10 +1,11 @@
 syntax: glob
 *~
 _build
-.swp*
+.*-swp
 .directory
 *.pyc
+MANIFEST
 build/*
 dist/*
 seawater.egg-info/*
-MANIFEST
+seawater/gibbs3/MATLAB-TMP/*
