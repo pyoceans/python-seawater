@@ -58,25 +58,28 @@ Topic :: Education
 Topic :: Software Development :: Libraries :: Python Modules
 """
 
-setup(name='seawater',
-      version='2.0.2',
-      packages=['seawater', 'seawater/gibbs', 'seawater/csiro',
-                  'seawater/extras', 'seawater/extras/waves',
-                  'seawater/extras/sw_extras', 'seawater/test',
-                  'seawater/gibbs3'],
-      package_data={'': ['gibbs/data/*.npz']},
-      license='LICENSE.txt',
-      description='Seawater Libray for Python',
-      long_description=open('README.txt').read(),
-      author='Filipe Fernandes, Eric Firing, Ådlandsvik Bjørn',
-      author_email='ocefpaf@gmail.com',
-      maintainer='Filipe Fernandes',
-      maintainer_email='ocefpaf@gmail.com',
-      url='http://pypi.python.org/pypi/seawater/',
-      download_url='http://pypi.python.org/packages/source/s/seawater/',
-      classifiers=filter(None, classifiers.split("\n")),
-      platforms='any',
-      cmdclass={'build_py': build_py},
-      #cmdclass={'sdist': sdist_hg}, # NOTE: python setup.py sdist --dev
-      keywords=['oceanography', 'seawater'],
-     )
+config = dict(name='seawater',
+              version='2.0.2',
+              packages=['seawater', 'seawater/gibbs', 'seawater/csiro',
+                        'seawater/extras', 'seawater/extras/waves',
+                        'seawater/extras/sw_extras', 'seawater/test',
+                        'seawater/gibbs3'],
+              package_data={'': ['gibbs/data/*.npz']},
+              license=open('LICENSE.txt').read(),
+              description='Seawater Libray for Python',
+              long_description=open('README.txt').read(),
+              author='Filipe Fernandes, Eric Firing, Ådlandsvik Bjørn',
+              author_email='ocefpaf@gmail.com',
+              maintainer='Filipe Fernandes',
+              maintainer_email='ocefpaf@gmail.com',
+              url='http://pypi.python.org/pypi/seawater/',
+              download_url='http://pypi.python.org/packages/source/s/seawater/',
+              classifiers=filter(None, classifiers.split("\n")),
+              platforms='any',
+              cmdclass={'build_py': build_py},
+              #cmdclass={'sdist': sdist_hg}, # NOTE: python setup.py sdist --dev
+              keywords=['oceanography', 'seawater'],
+              install_requires=['numpy', 'nose']
+             )
+
+setup(**config)
