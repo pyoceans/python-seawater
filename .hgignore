@@ -9,3 +9,4 @@ build/*
 dist/*
 seawater.egg-info/*
 seawater/gibbs3/MATLAB-TMP/*
+seawater/gibbs3/GIBBS2-TMP/*
