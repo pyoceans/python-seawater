@@ -42,7 +42,7 @@ import os
 
 import numpy as np
 from utilities import match_args_return, read_data
-from constants import sfac, SSO, db2Pascal
+from seawater.constants import sfac, SSO, db2Pascal
 
 
 def gibbs(ns, nt, npr, SA, t, p):
