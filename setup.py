@@ -1,13 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from distutils.core import setup
-
-from distutils.command.sdist import sdist
 import os
 
-class sdist_hg(sdist):
+try:
+    from setuptools import setup
+    from setuptools.command.sdist import sdist
+except ImportError:
+    from distutils.core import setup
+    from distutils.command.sdist import sdist
 
+# TODO: find setuptools equivalent.
+try:  # Python 3
+    from distutils.command.build_py import build_py_2to3 as build_py
+except ImportError:  # Python 2
+    from distutils.command.build_py import build_py
+
+
+class sdist_hg(sdist):
+    """
+    Automatically generate the latest development version when creating a
+    source distribution.
+    """
     user_options = sdist.user_options + [
             ('dev', None, "Add a dev marker")
             ]
@@ -30,12 +44,6 @@ class sdist_hg(sdist):
         tip = repo.changelog.tip()
         return repo.changelog.rev(tip)
 
-
-try: # Python 3
-  from distutils.command.build_py import build_py_2to3 as build_py
-except ImportError: # Python 2
-  from distutils.command.build_py import build_py
-
 classifiers = """\
 Development Status :: 5 - Production/Stable
 Environment :: Console
@@ -50,25 +58,25 @@ Topic :: Education
 Topic :: Software Development :: Libraries :: Python Modules
 """
 
-setup(name = 'seawater',
-      version = '2.0.2',
-      packages = ['seawater', 'seawater/gibbs', 'seawater/csiro',
+setup(name='seawater',
+      version='2.0.2',
+      packages=['seawater', 'seawater/gibbs', 'seawater/csiro',
                   'seawater/extras', 'seawater/extras/waves',
                   'seawater/extras/sw_extras', 'seawater/test',
                   'seawater/gibbs3'],
-      package_data = {'':['gibbs/data/*.npz']},
-      license = 'LICENSE.txt',
-      description = 'Seawater Libray for Python',
-      long_description = open('README.txt').read(),
-      author = 'Filipe Fernandes, Eric Firing, Ådlandsvik Bjørn',
-      author_email = 'ocefpaf@gmail.com',
-      maintainer = 'Filipe Fernandes',
-      maintainer_email = 'ocefpaf@gmail.com',
-      url = 'http://pypi.python.org/pypi/seawater/',
-      download_url = 'http://pypi.python.org/packages/source/s/seawater/',
-      classifiers = filter(None, classifiers.split("\n")),
-      platforms = 'any',
-      cmdclass = {'build_py': build_py},
-      #cmdclass = {'sdist': sdist_hg}, # NOTE: python setup.py sdist --dev
-      keywords = ['oceanography', 'seawater'],
+      package_data={'': ['gibbs/data/*.npz']},
+      license='LICENSE.txt',
+      description='Seawater Libray for Python',
+      long_description=open('README.txt').read(),
+      author='Filipe Fernandes, Eric Firing, Ådlandsvik Bjørn',
+      author_email='ocefpaf@gmail.com',
+      maintainer='Filipe Fernandes',
+      maintainer_email='ocefpaf@gmail.com',
+      url='http://pypi.python.org/pypi/seawater/',
+      download_url='http://pypi.python.org/packages/source/s/seawater/',
+      classifiers=filter(None, classifiers.split("\n")),
+      platforms='any',
+      cmdclass={'build_py': build_py},
+      #cmdclass={'sdist': sdist_hg}, # NOTE: python setup.py sdist --dev
+      keywords=['oceanography', 'seawater'],
      )
