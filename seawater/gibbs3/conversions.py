@@ -44,24 +44,24 @@ from __future__ import division
 
 import numpy as np
 
-from seawater.constants import SSO, cp0, Kelvin, sfac
-from library import entropy_part, gibbs
+from seawater.constants import SSO, cp0, Kelvin, sfac, db2Pascal, gamma
+from library import entropy_part, gibbs, gibbs_pt0_pt0
 from utilities import match_args_return, strip_mask
 
 __all__ = ['t_from_CT',
            'pt_from_t',
            'CT_from_pt',
            'pot_enthalpy_from_pt',
-           #'pt0_from_t',
-           #'pt_from_CT',
-           #'SP_from_SA',
-           #'Sstar_from_SA',
-           #'SA_from_Sstar',
-           #'SP_from_Sstar',
-           #'z_from_p',
-           #'p_from_z',
-           #'t90_from_t48',
-           #'t90_from_t68'
+           'pt0_from_t',
+           'pt_from_CT',
+           #'SP_from_SA', # TODO: change, check gsw_SAAR.m
+           #'Sstar_from_SA', # TODO: change, check gsw_SAAR.m
+           #'SA_from_Sstar', # TODO: change, check gsw_SAAR.m
+           #'SP_from_Sstar', # TODO: change, check gsw_SAAR.m
+           'z_from_p',  # TODO: New test case with geo_strf_dyn_height != None
+           'p_from_z',
+           't90_from_t48',
+           't90_from_t68'
           ]
 
 rad = np.pi / 180.0
@@ -372,3 +372,421 @@ def pot_enthalpy_from_pt(SA, pt):
     """
 
     return np.ma.array(pot_enthalpy, mask=mask, copy=False)
+
+
+@match_args_return
+def pt0_from_t(SA, t, p):
+    r"""
+    Calculates potential temperature with reference pressure, pr = 0 dbar.
+    The present routine is computationally faster than the more general
+    function "pt_from_t(SA, t, p, pr)" which can be used for any reference
+    pressure value.
+
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+    t : array_like
+        in situ temperature [:math:`^\circ` C (ITS-90)]
+    p : array_like
+        pressure [dbar]
+
+    Returns
+    -------
+    pt0 : array_like
+          potential temperature relative to 0 dbar [:math:`^\circ` C (ITS-90)]
+
+    See Also
+    --------
+    entropy_part, gibbs_pt0_pt0, entropy_part_zerop
+
+    Notes
+    -----
+    pt_from_t  has the same result (only slower)
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> t = [28.7856, 28.4329, 22.8103, 10.2600, 6.8863, 4.4036]
+    >>> p = [10, 50, 125, 250, 600, 1000]
+    >>> gsw.pt0_from_t(SA, t, p)
+    array([ 28.78319682,  28.42098334,  22.7849304 ,  10.23052366,
+             6.82923022,   4.32451057])
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation
+    of seawater - 2010: Calculation and use of thermodynamic properties.
+    Intergovernmental Oceanographic Commission, Manuals and Guides No. 56,
+    UNESCO (English), 196 pp. See section 3.1.
+
+    .. [2] McDougall T. J., D. R. Jackett, P. M. Barker, C. Roberts-Thomson,
+    R. Feistel and R. W. Hallberg, 2010:  A computationally efficient 25-term
+    expression for the density of seawater in terms of Conservative
+    Temperature, and related properties of seawater.
+
+    Modifications:
+    2010-08-26. Trevor McDougall, David Jackett, Claire Roberts-Thomson and
+    Paul Barker.
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    s1 = SA * (35. / SSO)
+
+    pt0 = t + p * (8.65483913395442e-6  -
+             s1 *  1.41636299744881e-6  -
+              p *   7.38286467135737e-9 +
+              t * (-8.38241357039698e-6 +
+             s1 *   2.83933368585534e-8 +
+              t *   1.77803965218656e-8 +
+              p *   1.71155619208233e-10))
+
+    dentropy_dt = cp0 / ((Kelvin + pt0) * (1 - 0.05 *
+                                        (1 - SA / SSO)))
+
+    true_entropy_part = entropy_part(SA, t, p)
+
+    for Number_of_iterations in range(0, 2, 1):
+        pt0_old = pt0
+        dentropy = entropy_part_zerop(SA, pt0_old) - true_entropy_part
+        pt0 = pt0_old - dentropy / dentropy_dt  # Half way through mod. method.
+        pt0m = 0.5 * (pt0 + pt0_old)
+        dentropy_dt = -gibbs_pt0_pt0(SA, pt0m)
+        pt0 = pt0_old - dentropy / dentropy_dt
+
+    #maximum error of 6.3x10^-9 degrees C for one iteration.
+    #maximum error is 1.8x10^-14 degrees C for two iterations (two iterations
+    #is the default, "for Number_of_iterations = 1:2")
+
+    #These errors are over the full "oceanographic funnel" of McDougall et al.
+    #(2010), which reaches down to p = 8000 dbar.
+
+    return pt0
+
+
+@match_args_return
+def pt_from_CT(SA, CT):
+    r"""
+    Calculates potential temperature (with a reference sea pressure of zero
+    dbar) from Conservative Temperature.
+
+    Parameters
+    ----------
+    SA : array_like
+         Absolute salinity [g kg :sup:`-1`]
+    CT : array_like
+         Conservative Temperature [:math:`^\circ` C (TEOS-10)]
+
+    Returns
+    -------
+    pt : array_like
+         potential temperature referenced to a sea pressure of zero dbar
+         [:math:`^\circ` C (ITS-90)]
+
+    See Also
+    --------
+    specvol_anom
+
+    Notes
+    -----
+    This function uses 1.5 iterations through a modified Newton-Raphson (N-R)
+    iterative solution procedure, starting from a rational-function-based
+    initial condition for both pt and dCT_dpt.
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> SA = [34.7118, 34.8915, 35.0256, 34.8472, 34.7366, 34.7324]
+    >>> CT = [28.8099, 28.4392, 22.7862, 10.2262, 6.8272, 4.3236]
+    >>> gsw.pt_from_CT(SA, CT)
+    array([ 28.78317705,  28.4209556 ,  22.78495347,  10.23053439,
+             6.82921659,   4.32453484])
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation
+    of seawater - 2010: Calculation and use of thermodynamic properties.
+    Intergovernmental Oceanographic Commission, Manuals and Guides No. 56,
+    UNESCO (English), 196 pp. See sections 3.1 and 3.3.
+
+    .. [2] McDougall T. J., D. R. Jackett, P. M. Barker, C. Roberts-Thomson,
+    R. Feistel and R. W. Hallberg, 2010:  A computationally efficient 25-term
+    expression for the density of seawater in terms of Conservative
+    Temperature, and related properties of seawater.
+
+    Modifications:
+    2010-08-26. Trevor McDougall, David Jackett, Claire Roberts-Thomson and
+    Paul Barker.
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    SA, CT, mask = strip_mask(SA, CT)
+
+    s1 = SA * 35. / SSO
+
+    a0 = -1.446013646344788e-2
+    a1 = -3.305308995852924e-3
+    a2 =  1.062415929128982e-4
+    a3 =  9.477566673794488e-1
+    a4 =  2.166591947736613e-3
+    a5 =  3.828842955039902e-3
+
+    b0 =  1.000000000000000e+0
+    b1 =  6.506097115635800e-4
+    b2 =  3.830289486850898e-3
+    b3 =  1.247811760368034e-6
+
+    a5CT = a5 * CT
+    b3CT = b3 * CT
+    CT_factor = (a3 + a4 * s1 + a5CT)
+    pt_num = a0 + s1 * (a1 + a2 * s1) + CT * CT_factor
+    pt_den = b0 + b1 * s1 + CT * (b2 + b3CT)
+    pt = pt_num / pt_den
+
+    dCT_dpt = pt_den / (CT_factor + a5CT - (b2 + b3CT + b3CT) * pt)
+
+    # 1.5 iterations through the modified Newton-Rapshon iterative method
+    CT_diff = CT_from_pt(SA, pt) - CT
+    pt_old = pt
+    pt = pt_old - CT_diff / dCT_dpt  # 1/2-way through the 1st modified N-R.
+    ptm = 0.5 * (pt + pt_old)
+
+    # This routine calls gibbs_pt0_pt0(SA,pt0) to get the second derivative of
+    # the Gibbs function with respect to temperature at zero sea pressure.
+
+    dCT_dpt = -(ptm + Kelvin) * gibbs_pt0_pt0(SA, ptm) / cp0
+    pt = pt_old - CT_diff / dCT_dpt  # End of 1st full modified N-R iteration.
+    CT_diff = CT_from_pt(SA, pt) - CT
+    pt_old = pt
+    pt = pt_old - CT_diff / dCT_dpt  # 1.5 iterations of the modified N-R.
+
+    return np.ma.array(pt, mask=mask, copy=False)
+
+
+@match_args_return
+def  z_from_p(p, lat, geo_strf_dyn_height=None):
+    r"""
+    Calculates height from sea pressure using the computationally-efficient
+    48-term expression for density in terms of SA, CT and p (McDougall et
+    al., 2011).  Dynamic height anomaly, geo_strf_dyn_height, if provided, must
+    be computed with its pr=0 (the surface.)
+
+    Parameters
+    ----------
+    p : array_like
+        pressure [dbar]
+    lat : array_like
+          latitude in decimal degrees north [-90..+90]
+    geo_strf_dyn_height : float, optional
+                          dynamic height anomaly [ m :sup:`2` s :sup:`-2` ]
+
+    Returns
+    -------
+    z : array_like
+        height [m]
+
+    See Also
+    --------
+    # FIXME: enthalpy_SSO_0_CT25, changed!
+
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> p = [10, 50, 125, 250, 600, 1000]
+    >>> lat = 4
+    >>> gsw.z_from_p(p, lat)
+    array([  -9.94460074,  -49.71817465, -124.2728275 , -248.47044828,
+           -595.82618014, -992.0931748 ])
+
+    Notes
+    -----
+    At sea level z = 0, and since z (HEIGHT) is defined to be positive upwards,
+    it follows that while z is positive in the atmosphere, it is NEGATIVE in
+    the ocean.
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation
+    of seawater - 2010: Calculation and use of thermodynamic properties.
+    Intergovernmental Oceanographic Commission, Manuals and Guides No. 56,
+    UNESCO (English), 196 pp.
+
+    .. [2] McDougall T.J., P.M. Barker, R. Feistel and D.R. Jackett, 2011:  A
+    computationally efficient 48-term expression for the density of seawater
+    in terms of Conservative Temperature, and related properties of seawater.
+    To be submitted to Ocean Science Discussions.
+
+    .. [3] Moritz (2000) Goedetic reference system 1980. J. Geodesy, 74,
+    128-133.
+
+    Modifications:
+    2010-08-26. Trevor McDougall, Claire Roberts-Thomson & Paul Barker.
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    if not geo_strf_dyn_height:
+        geo_strf_dyn_height = np.zeros(p.shape)
+
+    X = np.sin(lat * rad)
+    sin2 = X**2
+    B = 9.780327 * (1.0 + (5.2792e-3 + (2.32e-5 * sin2)) * sin2)
+    A = -0.5 * gamma * B
+    # FIXME: Implement enthalpy_SSO_0_p.
+    C = enthalpy_SSO_0_p(p) - geo_strf_dyn_height
+    z = -2 * C / (B + np.sqrt(B**2 - 4 * A * C))
+
+    return z
+
+
+@match_args_return
+def  p_from_z(z, lat, geo_strf_dyn_height=None):
+    r"""
+    Calculates sea pressure from height using computationally-efficient 48-term
+    expression for density, in terms of SA, CT and p (McDougall et al., 2011).
+    Dynamic height anomaly, geo_strf_dyn_height, if provided, must be computed
+    with its pr=0 (the surface.)
+
+    Parameters
+    ----------
+    z : array_like
+        height [m]
+    lat : array_like
+          latitude in decimal degrees north [-90..+90]
+    geo_strf_dyn_height : float, optional
+                          dynamic height anomaly [ m :sup:`2` s :sup:`-2` ]
+
+    Returns
+    -------
+    p : array_like
+        pressure [dbar]
+
+    See Also
+    --------
+    #FIXME: specvol_SSO_0_CT25, enthalpy_SSO_0_CT25, changed!
+
+    Examples
+    --------
+    >>> import seawater.gibbs as gsw
+    >>> z = [10, 50, 125, 250, 600, 1000]
+    >>> lat = 4.
+    >>> gsw.p_from_z(z, lat)
+    array([  -10.05521794,   -50.2711751 ,  -125.6548857 ,  -251.23284504,
+            -602.44050752, -1003.07609807])
+    >>> z = [-9.94460074, -49.71817465, -124.2728275, -248.47044828, -595.82618014, -992.0931748]
+    >>> gsw.p_from_z(z, lat)
+    array([   10.,    50.,   125.,   250.,   600.,  1000.])
+
+    Notes
+    -----
+    Height (z) is NEGATIVE in the ocean. Depth is -z. Depth is not used in the
+    gibbs library.
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation
+    of seawater - 2010: Calculation and use of thermodynamic properties.
+    Intergovernmental Oceanographic Commission, Manuals and Guides No. 56,
+    UNESCO (English), 196 pp.
+
+    .. [2] McDougall T.J., P.M. Barker, R. Feistel and D.R. Jackett, 2011: A
+    computationally efficient 48-term expression for the density of seawater
+    in terms of Conservative Temperature, and related properties of seawater.
+    To be submitted to Ocean Science Discussions.
+
+    .. [3] Moritz (2000) Goedetic reference system 1980. J. Geodesy, 74,
+    128-133.
+
+    .. [4] Saunders, P. M., 1981: Practical conversion of pressure to depth.
+    Journal of Physical Oceanography, 11, 573-574.
+
+    Modifications:
+    2010-08-26. Trevor McDougall, Claire Roberts-Thomson and Paul Barker.
+    2010-12-09. Filipe Fernandes, Python translation from gsw toolbox.
+    """
+
+    X = np.sin(lat * rad)
+    sin2 = X**2
+    gs = 9.780327 * (1.0 + (5.2792e-3 + (2.32e-5 * sin2)) * sin2)
+
+    # get the first estimate of p from Saunders (1981)
+    c1 = 5.25e-3 * sin2 + 5.92e-3
+    p = -2 * z / ((1 - c1) + np.ma.sqrt((1 - c1) * (1 - c1) + 8.84e-6 * z))
+
+    # FIXME: Implement specvol_SSO_0_p.
+    df_dp = db2Pascal * specvol_SSO_0_p(p)  # Initial value for f derivative.
+
+    # FIXME: Implement enthalpy_SSO_0_p.
+    f = (enthalpy_SSO_0_p(p) + gs * (z - 0.5 * gamma * (z**2)) -
+                                                          geo_strf_dyn_height)
+    p_old = p
+    p = p_old - f / df_dp
+    p_mid = 0.5 * (p + p_old)
+    df_dp = db2Pascal * specvol_SSO_0_p(p_mid)
+    p = p_old - f / df_dp
+
+    # After this one iteration through this modified Newton-Raphson iterative
+    # procedure, the remaining error in p is at computer machine precision,
+    # being no more than 1.6e-10 dbar.
+
+    return p
+
+
+@match_args_return
+def t90_from_t48(t48):
+    """
+    Converts IPTS-48 temperature to International Temperature Scale 1990
+    (ITS-90) temperature. This conversion should be applied to all in-situ data
+    collected prior to 31/12/1967.
+
+    Parameters
+    ---------
+    t48 : array-like
+          in-situ temperature [:math:`^\circ` C (ITPS-48)]
+
+    Returns
+    -------
+    t90 : array-like
+          in-situ temperature [:math:`^\circ` C (ITS-90)]
+
+    References
+    ----------
+    International Temperature Scales of 1948, 1968 and 1990, an ICES note,
+    available from http://www.ices.dk/ocean/procedures/its.htm
+    """
+
+    return (t48 - (4.4e-6) * t48 * (100 - t48)) / 1.00024
+
+
+@match_args_return
+def t90_from_t68(t68):
+    """
+    Converts IPTS-68 temperature to International Temperature Scale 1990
+    (ITS-90) temperature. This conversion should be applied to all in-situ data
+    collected between 1/1/1968 and 31/12/1989.
+
+    Parameters
+    ---------
+    t68 : array-like
+          in-situ temperature [:math:`^\circ` C (ITPS-68)]
+
+    Returns
+    -------
+    t90 : array-like
+          in-situ temperature [:math:`^\circ` C (ITS-90)]
+
+    References
+    ----------
+    International Temperature Scales of 1948, 1968 and 1990, an ICES note,
+    available from http://www.ices.dk/ocean/procedures/its.htm
+    """
+
+    # t90 = t68 / 1.00024
+    return t68 * 0.999760057586179
+
+
+# -------------------
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
