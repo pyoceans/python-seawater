@@ -61,8 +61,7 @@ __all__ = ['t_from_CT',
            'z_from_p',  # TODO: New test case with geo_strf_dyn_height != None
            'p_from_z',
            't90_from_t48',
-           't90_from_t68'
-          ]
+           't90_from_t68']
 
 rad = np.pi / 180.0
 
