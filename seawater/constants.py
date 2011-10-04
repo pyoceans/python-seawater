@@ -3,6 +3,8 @@ Constants used
 ==============
 """
 
+from __future__ import division
+
 C3515 = 42.914 #NOTE: reference value, not used.
 """
 Conductivity of 42.914 [mmho cm :sup:`-1` == mS cm :sup:`-1`] at Salinity 35 psu, Temperature 15 :math:`^\\circ` C [ITPS 68] and Pressure 0 db.
@@ -91,4 +93,19 @@ the molar gas constant = 8.314472 m :sup:`2` kg s:sup:`-21 K :sup:`-1` mol :sup:
 r1 = 0.35
 """
 TODO
+"""
+
+uPS = 35.16504/35
+"""
+The unit conversion factor for salinities (35.16504/35) g/kg (Millero et
+al., 2008). Reference Salinity SR is uPS times Practical Salinity SP.
+
+Ratio, unit conversion factor for salinities [g kg :sup:`-1`]
+
+References
+----------
+Millero, F. J., R. Feistel, D. G. Wright, and T. J. McDougall, 2008: The
+composition of Standard Seawater and the definition of the
+Reference-Composition Salinity Scale, Deep-Sea Res. I, 55, 50-72. See
+section 6, Eqn.(6.1).
 """
