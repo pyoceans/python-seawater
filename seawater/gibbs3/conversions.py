@@ -76,7 +76,7 @@ def t_from_CT(SA, CT, p):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     CT : array_like
-         Conservative Temperature [:math:`^\circ` C (TEOS-10)]
+         Conservative Temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [dbar]
 
@@ -239,7 +239,7 @@ def CT_from_pt(SA, pt):
     Returns
     -------
     CT : array_like
-         Conservative Temperature [:math:`^\circ` C (TEOS-10)]
+         Conservative Temperature [:math:`^\circ` C (ITS-90)]
 
     See Also
     --------
@@ -475,7 +475,7 @@ def pt_from_CT(SA, CT):
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
     CT : array_like
-         Conservative Temperature [:math:`^\circ` C (TEOS-10)]
+         Conservative Temperature [:math:`^\circ` C (ITS-90)]
 
     Returns
     -------
