@@ -38,10 +38,9 @@
 
 from __future__ import division
 
-import os
-
 import numpy as np
-from utilities import match_args_return, read_data
+
+from utilities import match_args_return, strip_mask, read_data
 from seawater.constants import sfac, SSO, db2Pascal
 
 
@@ -164,7 +163,7 @@ def gibbs(ns, nt, npr, SA, t, p):
     mask = np.ma.mask_or(mask, SA < 0)
 
     ipos = (SA > 0)
-    inpos = ~ipos
+    # inpos = ~ipos  # FIXME: Assigned but never used.
     if np.all(ipos):
         ipos = slice(None)  # More efficient for usual case.
 
@@ -414,7 +413,8 @@ def gibbs(ns, nt, npr, SA, t, p):
 
             g08[ipos] = g08[ipos] + 1702.453469893412 * np.log(x[ipos])
             gibbs = 0.5 * sfac * 0.025 * g08
-            #mask[inpos] = True FIXME: commented by FF, g110 without nan didn't pass
+            # FIXME: commented by FF, g110 without nan did not pass
+            #mask[inpos] = True
         else:
             all_masked = True
 
@@ -970,7 +970,8 @@ def SP_from_SA_Baltic(SA, lon, lat):
 
     Notes
     -----
-    This program will only produce Practical Salinity values for the Baltic Sea.
+    This program will only produce Practical Salinity values for the Baltic
+    Sea.
 
     Examples
     --------
@@ -1048,7 +1049,8 @@ def SP_from_SA_Baltic_old(SA, lon, lat):
 
     Notes
     -----
-    This program will only produce Practical Salinity values for the Baltic Sea.
+    This program will only produce Practical Salinity values for the Baltic
+    Sea.
 
     Examples
     --------
@@ -1697,26 +1699,26 @@ def interp_ref_cast(spycnl, A="gn"):
     """
     Translation of:
 
-    function [SA_iref_cast, CT_iref_cast, p_iref_cast] = gsw_interp_ref_cast(spycnl,A)
+    [SA_iref_cast, CT_iref_cast, p_iref_cast] = gsw_interp_ref_cast(spycnl, A)
 
-    % gsw_interp_ref_cast            linear interpolation of the reference cast
-    %==========================================================================
-    % This function interpolates the reference cast with respect to the
-    % interpolating variable "spycnl".  This reference cast is at the location
-    % 188E,4N from the reference data set which underlies the Jackett &
-    % McDougall (1997) Neutral Density computer code.  This function finds the
-    % values of SA, CT and p on this reference cast which correspond to the
-    % value of isopycnal which is passed to this function from the function
-    % "gsw_geo_strf_isopycnal_CT".  The isopycnal could be either gamma_n or
-    % sigma_2. If A is set to any of the following 's2','S2','sigma2','sigma_2'
-    % the interpolation will take place in sigma 2 space, any other input
-    % will result in the programme working in gamma_n space.
-    %
-    % VERSION NUMBER: 3.0 (14th April, 2011)
-    %
-    % REFERENCE:
-    %  Jackett, D. R. and T. J. McDougall, 1997: A neutral density variable
-    %   for the world<92>s oceans. Journal of Physical Oceanography, 27, 237-263.
+    gsw_interp_ref_cast            linear interpolation of the reference cast
+    ==========================================================================
+    This function interpolates the reference cast with respect to the
+    interpolating variable "spycnl".  This reference cast is at the location
+    188E,4N from the reference data set which underlies the Jackett &
+    McDougall (1997) Neutral Density computer code.  This function finds the
+    values of SA, CT and p on this reference cast which correspond to the
+    value of isopycnal which is passed to this function from the function
+    "gsw_geo_strf_isopycnal_CT".  The isopycnal could be either gamma_n or
+    sigma_2. If A is set to any of the following 's2','S2','sigma2','sigma_2'
+    the interpolation will take place in sigma 2 space, any other input
+    will result in the programme working in gamma_n space.
+
+    VERSION NUMBER: 3.0 (14th April, 2011)
+
+    REFERENCE:
+    Jackett, D. R. and T. J. McDougall, 1997: A neutral density variable
+    for the world<92>s oceans. Journal of Physical Oceanography, 27, 237-263.
 
     FIXME? Do we need argument checking here to handle masked arrays,
     etc.?  I suspect not, since I don't think this is intended to be
