@@ -16,17 +16,13 @@ http://code.google.com/p/python-seawater/
 
 from __future__ import division
 
-import numpy as np
-
-#from seawater.constants import SSO, cp0, Kelvin, sfac, db2Pascal, gamma, P0, M_S
-#from library import entropy_part, gibbs, gibbs_pt0_pt0
 from utilities import match_args_return
 from conversions import CT_from_pt
 
 
 __all__ = [
-           'latentheat_melting',
-           'latentheat_evap_CT',
+           #'latentheat_melting',
+           #'latentheat_evap_CT',
            'latentheat_evap_t'
           ]
 
@@ -40,7 +36,6 @@ def latentheat_evap_t(SA, t):
     42 deg C. The errors range between -0.4 and 0.6 J/kg.
 
     Parameters
-    ----------
     ----------
     SA : array_like
          Absolute salinity [g kg :sup:`-1`]
