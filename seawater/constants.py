@@ -103,7 +103,7 @@ mol :sup:`-1`."""
 r1 = 0.35
 """ TODO """
 
-uPS = 35.16504 / 35
+uPS = SSO / 35
 """The unit conversion factor for salinities (35.16504/35) g/kg (Millero et
 al., 2008). Reference Salinity SR is uPS times Practical Salinity SP.
 
