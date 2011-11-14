@@ -2252,16 +2252,19 @@ def gpan(s, t, p):
     s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
     s, t, p = np.broadcast_arrays(s, t, p)
 
-    if (s.ndim != 2)  and (t.ndim != 2):
-        raise ValueError('Arguments must be 2D arrays: n_depths, n_profiles')
+    if p.ndim > 1:
+        m, n = p.shape
+    else:
+        m = p.size
 
     svn = svan(s, t, p)
-    mean_svan  = 0.5*(svn[1:,:] + svn[0:-1,:])
+    mean_svan  = 0.5 * (svn[1:m,] + svn[0:-1,])
 
-    top = svn[0,:] * p[0,:] * cte.db2Pascal
+    top = svn[0,] * p[0,] * cte.db2Pascal
 
-    delta_ga = ( mean_svan * np.diff(p, axis=0) ) * cte.db2Pascal
-    ga = np.cumsum( np.vstack( ( top, delta_ga ) ), axis=0 )
+    delta_ga = (mean_svan * np.diff(p, axis=0)) * cte.db2Pascal
+    delta_ga = np.c_[np.atleast_2d(top), delta_ga]
+    ga = np.cumsum(delta_ga, axis=0)
 
     return ga
 
