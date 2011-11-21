@@ -1703,6 +1703,194 @@ def osmotic_coefficient_t_exact(SA, t, p):
     return  (g000 - chem_potential_water_t_exact(SA, t, p)) / part
 
 
+@match_args_return
+def dynamic_enthalpy_t_exact(SA, t, p):
+    r"""
+    Calculates the dynamic enthalpy of seawater from Absolute Salinity, in situ
+    temperature and pressure.  Dynamic enthalpy was defined by Young (2010) as
+    the difference between enthalpy and potential enthalpy. Note that this
+    function uses the full TEOS-10 Gibbs function (i.e. the sum of the IAPWS-09
+    and IAPWS-08 Gibbs functions, see the TEOS-10 Manual, IOC et al. (2010)).
+
+    Parameters
+    ----------
+    SA : array_like
+        Absolute salinity [g kg :sup:`-1`]
+    t : array_like
+        in situ temperature [:math:`^\circ` C (ITS-90)]
+    p : array_like
+        pressure [dbar]
+
+    Returns
+    -------
+    dynamic_enthalpy_t_exact : array_like
+        dynamic enthalpy [J :sup:`-1`]
+
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    TODO
+
+    Examples
+    --------
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation
+    of seawater - 2010: Calculation and use of thermodynamic properties.
+    Intergovernmental Oceanographic Commission, Manuals and Guides No. 56,
+    UNESCO (English), 196 pp.
+
+    .. [2] Young, W.R., 2010: Dynamic enthalpy, Conservative Temperature, and
+    the seawater Boussinesq approximation. Journal of Physical Oceanography,
+    40, 394-400.
+
+    Modifications:
+    2011-04-11. Trevor McDougall and Paul Barker
+    """
+
+    CT = CT_from_t(SA, t, p)
+
+    return enthalpy_t_exact(SA, t, p) - cp0 * CT
+
+
+@match_args_return
+def t_maxdensity_exact(SA, p):
+    r"""
+    Calculates the in-situ temperature of maximum density of seawater. This
+    function returns the in-situ temperature at which the density of seawater
+    is a maximum, at given Absolute Salinity, SA, and sea pressure, p (in
+    dbar).
+
+    Parameters
+    ----------
+    SA : array_like
+        Absolute salinity [g kg :sup:`-1`]
+    p : array_like
+        pressure [dbar]
+
+    Returns
+    -------
+    t_maxdensity_exact : array_like
+        max in-situ temperature [:math:`^\circ` C]
+
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    TODO
+
+    Examples
+    --------
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation
+    of seawater - 2010: Calculation and use of thermodynamic properties.
+    Intergovernmental Oceanographic Commission, Manuals and Guides No. 56,
+    UNESCO (English), 196 pp. See section 3.42.
+
+    Modifications:
+    2011-04-03. Trevor McDougall and Paul Barker
+    """
+
+    n0, n1 = 0, 1
+    # The temperature increment for calculating the gibbs_PTT derivative.
+    dt = 0.001
+    t = 3.978 - 0.22072 * SA  # The initial guess of t_maxden.
+    gibbs_PTT = 1.1e-8  # The initial guess for g_PTT.
+
+    for Number_of_iterations in range(0, 3):
+        t_old = t
+        gibbs_PT = gibbs(n0, n1, n1, SA, t_old, p)
+        # This is half way through the modified method
+        t = t_old - gibbs_PT / gibbs_PTT
+        t_mean = 0.5 * (t + t_old)
+        gibbs_PTT = (gibbs(n0, n1, n1, SA, t_mean + dt, p) -
+                    gibbs(n0, n1, n1, SA, t_mean - dt, p)) / (dt + dt)
+        t = t_old - gibbs_PT / gibbs_PTT
+
+    # After three iterations of this modified Newton-Raphson iteration, the
+    # error in t_maxdensity_exact is typically no larger than 1x10^-15 deg C.
+
+    return t
+
+
+@match_args_return
+def osmotic_pressure_t_exact(SA, t, pw):
+    r"""
+    Calculates the osmotic pressure of seawater.
+
+    Parameters
+    ----------
+    SA : array_like
+        Absolute salinity [g kg :sup:`-1`]
+    t : array_like
+        in situ temperature [:math:`^\circ` C (ITS-90)]
+    pw : array_like
+        sea pressure of the pure water side [dbar]
+
+    Returns
+    -------
+    osmotic_pressure_t_exact : array_like
+        dynamic osmotic pressure of seawater [dbar]
+
+
+    See Also
+    --------
+    TODO
+
+    Notes
+    -----
+    TODO
+
+    Examples
+    --------
+
+    References
+    ----------
+    .. [1] IOC, SCOR and IAPSO, 2010: The international thermodynamic equation
+    of seawater - 2010: Calculation and use of thermodynamic properties.
+    Intergovernmental Oceanographic Commission, Manuals and Guides No. 56,
+    UNESCO (English), 196 pp. See section 3.41.
+
+    Modifications:
+    2011-05-26. Trevor McDougall and Paul Barker
+    """
+
+    gibbs_pure_water = gibbs(0, 0, 0, 0, t, pw)
+
+    # Initial guess of p, in dbar.
+    p = pw + 235.4684
+
+    # Initial guess of df/dp.
+    df_dp = -db2Pascal * (gibbs(0, 0, 1, SA, t, p) -
+                          SA * gibbs(1, 0, 1, SA, t, p))
+
+    for Number_of_iterations in range(0, 2):
+        p_old = p
+        f = gibbs_pure_water - chem_potential_water_t_exact(SA, t, p_old)
+        # This is half way through the modified N-R method.
+        p = p_old - f / df_dp
+        p_mean = 0.5 * (p + p_old)
+        df_dp = -db2Pascal * (gibbs(0, 0, 1, SA, t, p_mean) -
+                              SA * gibbs(1, 0, 1, SA, t, p_mean))
+        p = p_old - f / df_dp
+
+    # After two iterations though the modified Newton-Raphson technique the
+    # maximum error is 6x10^-12 dbar.
+
+    # Osmotic pressure of seawater, in dbar.
+    return p - pw
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
