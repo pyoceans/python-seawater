@@ -274,7 +274,7 @@ def cph(bvfr2):
 
     # Convert input to numpy arrays
     bvfr2 = np.asarray(bvfr2)
-    
+
     # root squared preserving the sign
     bvfr  = np.sqrt( np.abs( bvfr2 ) ) * np.sign( bvfr2 )
     cph = bvfr * 60 *60 / (2 * np.pi)
@@ -336,7 +336,7 @@ def shear(z, u, v=0):
     z_ave = (z[iup,:] + z[ilo,:])/2.
     vel = np.sqrt(u**2 + v**2)
     diff_vel = np.diff(vel, axis=0)
-    diff_z = np.diff(z, axis=0) 
+    diff_z = np.diff(z, axis=0)
     shr = diff_vel / diff_z
 
     return shr, z_ave
@@ -391,7 +391,7 @@ def richnumb(bvfr2, S2):
     # Convert input to numpy arrays
     bvfr2, S2 = map(np.asarray, (bvfr2,S2) )
     N2 = bvfr2 * (2*np.pi)**2 # NOTE: check this
-    ri = bvfr2 / S2 
+    ri = bvfr2 / S2
     return ri
 
 def cor_beta(lat):
@@ -566,7 +566,7 @@ def visc(s, t, p):
     # Convert input to numpy arrays
     s, t, p = np.asarray(s), np.asarray(t), np.asarray(p)
 
-    viscw = ( 1e-4 * (17.91 - 0.5381 * t + 0.00694 * t**2 + 0.02305*s) 
+    viscw = ( 1e-4 * (17.91 - 0.5381 * t + 0.00694 * t**2 + 0.02305*s)
     / sw.dens(s, t, p) )
     return viscw
 
@@ -622,7 +622,7 @@ def tcond(s, t, p):
 
     # 1) Caldwell's option # 2 - simplified formula, accurate to 0.5% (eqn. 9)
     # in [cal/cm/C/sec]
-    therm = 0.001365 * (1 + 0.003 * t - 1.025e-5 * t**2 + 0.0653 * (1e-4*p) 
+    therm = 0.001365 * (1 + 0.003 * t - 1.025e-5 * t**2 + 0.0653 * (1e-4*p)
                         - 0.00029 * s )
     therm = therm * 418.4 # [cal/cm/C/sec] ->[W/m/K]
     return therm
@@ -731,30 +731,16 @@ def spice(s,t,p):
     return sp
 
 
-def mld(SA, CT, p):
+def psu2ppt(psu):
+    r"""Converts salinity from PSU units to PPT
+    http://stommel.tamu.edu/~baum/paleo/ocean/node31.html
+    #PracticalSalinityScale
     """
-    get_mld Compute the mixed layer depth
-    """
-    SA, CT, p = map(np.asarray, (SA, CT, p))
 
-    pmin, idxp = p.min(), p.argmin()
-
-    SST = CT[idxp]
-    SSS = s[idxp]
-
-    SST08 = SST - 0.8 # NOTE: The temperature difference criteria for MLD
-    SS_rho08 = gsw.sigma0_CT(SSS, SST08)
-    rho = gsw.sigma0_CT(SA, CT)
-
-    idx_mld =  ( rho > SS_rho08 )
-    if idx_mld.all():
-        MLD = np.NaN  # MLD depth at surface
-    elif ~np.all(a):
-        MLD = np.NaN  # MLD depth below the given domain
-    else:
-        MLD = p[idx_mld].min()
-
-    return MLD
+    a = [0.008, -0.1692, 25.3851, 14.0941, -7.0261, 2.7081]
+    ppt = (a[1] + a[2] * psu ** 0.5 + a[3] * psu + a[4] * psu ** 1.5 + a[5] *
+                                                 psu ** 2 + a[6] * psu ** 2.5)
+    return ppt
 
 def mlife():
     r"""
