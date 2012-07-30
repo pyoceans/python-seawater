@@ -2249,21 +2249,24 @@ def gpan(s, t, p):
                    10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
+    s, t, p = map(np.asanyarray, (s, t, p))
     s, t, p = np.broadcast_arrays(s, t, p)
 
     if p.ndim > 1:
         m, n = p.shape
     else:
-        m = p.size
+        m, n = p.size, 1
 
     svn = svan(s, t, p)
     mean_svan  = 0.5 * (svn[1:m,] + svn[0:-1,])
 
-    top = svn[0,] * p[0,] * cte.db2Pascal
+    if n == 1:
+        top = svn[0, 0] * P[0, 0] * cte.db2Pascal
+    else:
+        top = svn[0, :] * p[0, :] * cte.db2Pascal
 
     delta_ga = (mean_svan * np.diff(p, axis=0)) * cte.db2Pascal
-    delta_ga = np.c_[np.atleast_2d(top), delta_ga]
+    delta_ga = np.r_[np.atleast_2d(top), delta_ga]
     ga = np.cumsum(delta_ga, axis=0)
 
     return ga
