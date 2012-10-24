@@ -22,9 +22,7 @@ class sdist_hg(sdist):
     Automatically generate the latest development version when creating a
     source distribution.
     """
-    user_options = sdist.user_options + [
-            ('dev', None, "Add a dev marker")
-            ]
+    user_options = sdist.user_options + [('dev', None, "Add a dev marker")]
 
     def initialize_options(self):
         sdist.initialize_options(self)
@@ -62,8 +60,7 @@ config = dict(name='seawater',
               version='2.0.2',
               packages=['seawater', 'seawater/gibbs', 'seawater/csiro',
                         'seawater/extras', 'seawater/extras/waves',
-                        'seawater/extras/sw_extras', 'seawater/test',
-                        'seawater/gibbs3'],
+                        'seawater/extras/sw_extras', 'seawater/test'],
               package_data={'': ['gibbs/data/*.npz']},
               license=open('LICENSE.txt').read(),
               description='Seawater Libray for Python',
@@ -77,9 +74,9 @@ config = dict(name='seawater',
               classifiers=filter(None, classifiers.split("\n")),
               platforms='any',
               cmdclass={'build_py': build_py},
-              #cmdclass={'sdist': sdist_hg}, # NOTE: python setup.py sdist --dev
+              #cmdclass={'sdist': sdist_hg}, # NOTE: setup.py sdist --dev
               keywords=['oceanography', 'seawater'],
               install_requires=['numpy', 'nose']
-             )
+              )
 
 setup(**config)
