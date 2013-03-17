@@ -685,7 +685,7 @@ def grav(lat, z=0):
     X = np.sin(lat * rad)
     sin2 = X * X
     grav = 9.780318 * (1.0 + (5.2788E-3 + 2.36E-5 * sin2) * sin2)
-    grav = grav / ((1 + z / cte.a) ** 2)  # From A.E.Gill p.597.
+    grav = grav / ((1 + z / cte.earth_radius) ** 2)  # From A.E.Gill p.597.
     return  grav
 
 

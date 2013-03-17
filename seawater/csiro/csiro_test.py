@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 
-# only used on the test routine
+# Only used on the test routine.
 import sys
 from platform import uname
-from time  import asctime, localtime
-
-__version__ = '3.3' # matlab version
+from time import asctime, localtime
 
 from csiro import *
 
+
 def test(fileout='python-test.txt'):
-    r"""
-    Copy of the matlab test.
+    r"""Copy of the Matlab test.
 
     Execute test routines to verify SEAWATER Library routines for your
     platform. Prints output to file.
@@ -25,7 +23,7 @@ def test(fileout='python-test.txt'):
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    10-01-14. Filipe Fernandes, Python translation.
     """
-    f = open(fileout,'w')
+    f = open(fileout, 'w')
 
     print >>f, '**********************************************'
     print >>f, '    TEST REPORT    '
@@ -35,14 +33,14 @@ def test(fileout='python-test.txt'):
     print >>f, ''
     # Show some info about this Python
     print >>f, 'python version:', sys.version
-    print >>f, ' on ', uname()[0],uname()[-1], ' computer'
+    print >>f, ' on ', uname()[0], uname()[-1], ' computer'
     print >>f, ''
-    print >>f,  asctime( localtime() )
+    print >>f,  asctime(localtime())
     print >>f, '**********************************************'
     print >>f, ''
 
-    # test MAIN MODULE  ptmp
-    module     = 'ptmp'
+    # Test MAIN MODULE  ptmp.
+    module = 'ptmp'
     submodules = 'adtg'
 
     print >>f, '*************************************'
@@ -51,7 +49,7 @@ def test(fileout='python-test.txt'):
     print >>f, '*************************************'
 
     # test 1 - data from Unesco 1983 p45
-    T = np.array([[ 0,  0,  0,  0,  0,  0],
+    T = np.array([[0,  0,  0,  0,  0,  0],
             [10, 10, 10, 10, 10, 10],
             [20, 20, 20, 20, 20, 20],
             [30, 30, 30, 30, 30, 30],
@@ -73,13 +71,13 @@ def test(fileout='python-test.txt'):
 
     Pr = np.array([0, 0, 0, 0, 0, 0])
 
-    UN_ptmp = np.array([[ 0, -0.3061, -0.9667,  0, -0.3856, -1.0974],
+    UN_ptmp = np.array([[0, -0.3061, -0.9667,  0, -0.3856, -1.0974],
                     [10,  9.3531,  8.4684, 10,  9.2906,  8.3643],
                     [20, 19.0438, 17.9426, 20, 18.9985, 17.8654],
                     [30, 28.7512, 27.4353, 30, 28.7231, 27.3851],
                     [40, 38.4607, 36.9254, 40, 38.4498, 36.9023]])
 
-    PT = ptmp(S, T, P, Pr)*1.00024
+    PT = ptmp(S, T, P, Pr) * 1.00024
 
     # DISPLAY RESULTS
     print >>f, ''
@@ -88,14 +86,14 @@ def test(fileout='python-test.txt'):
     print >>f, ' (Unesco Tech. Paper in Marine Sci. No. 44, p45)'
     print >>f, '********************************************************'
 
-    m,n = S.shape  # TODO: so many loops there must be a better way...
+    m, n = S.shape  # TODO: so many loops there must be a better way.
     for icol in range(0, n):
         print >>f, '   Sal  Temp  Press     PTMP       ptmp'
         print >>f, '  (psu)  (C)   (db)     (C)          (C)'
-        result = np.vstack( ( S[:,icol], T[:,icol], P[:,icol],
-        UN_ptmp[:,icol], PT[:,icol] ) )
+        result = np.vstack((S[:, icol], T[:, icol], P[:, icol],
+        UN_ptmp[:, icol], PT[:, icol]))
         for iline in range(0, m):
-            print >>f, " %4.0f  %4.0f   %5.0f   %8.4f  %11.5f" % tuple(result[:,iline])
+            print >>f, " %4.0f  %4.0f   %5.0f   %8.4f  %11.5f" % tuple(result[:, iline])
 
         print >>f, ''
 
@@ -323,29 +321,29 @@ def test(fileout='python-test.txt'):
 
     # test 1 -
     # DATA FROM POND AND PICKARD INTRO. DYNAMICAL OCEANOGRAPHY 2ND ED. 1986
-    T       = np.array([[  0,  0,  0,  0,  0,  0],
-                     [ 10, 10, 10, 10, 10, 10],
-                     [ 20, 20, 20, 20, 20, 20],
-                     [ 30, 30, 30, 30, 30, 30],
-                     [ 40, 40, 40, 40, 40, 40]]) / 1.00024
+    T = np.array([[0,  0,  0,  0,  0,  0],
+                  [10, 10, 10, 10, 10, 10],
+                  [20, 20, 20, 20, 20, 20],
+                  [30, 30, 30, 30, 30, 30],
+                  [40, 40, 40, 40, 40, 40]]) / 1.00024
 
-    S       = np.array([[ 25, 25, 25, 35, 35, 35],
-                     [ 25, 25, 25, 35, 35, 35],
-                     [ 25, 25, 25, 35, 35, 35],
-                     [ 25, 25, 25, 35, 35, 35],
-                     [ 25, 25, 25, 35, 35, 35]])
+    S = np.array([[25, 25, 25, 35, 35, 35],
+                  [25, 25, 25, 35, 35, 35],
+                  [25, 25, 25, 35, 35, 35],
+                  [25, 25, 25, 35, 35, 35],
+                  [25, 25, 25, 35, 35, 35]])
 
-    P       = np.array([[ 0, 5000, 10000, 0, 5000, 10000],
-                     [ 0, 5000, 10000, 0, 5000, 10000],
-                     [ 0, 5000, 10000, 0, 5000, 10000],
-                     [ 0, 5000, 10000, 0, 5000, 10000],
-                     [ 0, 5000, 10000, 0, 5000, 10000]])
+    P = np.array([[0, 5000, 10000, 0, 5000, 10000],
+                  [0, 5000, 10000, 0, 5000, 10000],
+                  [0, 5000, 10000, 0, 5000, 10000],
+                  [0, 5000, 10000, 0, 5000, 10000],
+                  [0, 5000, 10000, 0, 5000, 10000]])
 
     UN_svel = np.array([[ 1435.8, 1520.4, 1610.4, 1449.1, 1534.0, 1623.2],
-                     [ 1477.7, 1561.3, 1647.4, 1489.8, 1573.4, 1659.0],
-                     [ 1510.3, 1593.6, 1676.8, 1521.5, 1604.5, 1687.2],
-                     [ 1535.2, 1619.0, 1700.6, 1545.6, 1629.0, 1710.1],
-                     [ 1553.4, 1638.0, 1719.2, 1563.2, 1647.3, 1727.8]])
+                     [1477.7, 1561.3, 1647.4, 1489.8, 1573.4, 1659.0],
+                     [1510.3, 1593.6, 1676.8, 1521.5, 1604.5, 1687.2],
+                     [1535.2, 1619.0, 1700.6, 1545.6, 1629.0, 1710.1],
+                     [1553.4, 1638.0, 1719.2, 1563.2, 1647.3, 1727.8]])
 
     SVEL    = svel(S, T, P)
 

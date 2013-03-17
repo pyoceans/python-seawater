@@ -9,10 +9,8 @@ Filipe P. A. Fernandes
 e-mail:   ocefpaf@gmail.com
 web:      http://ocefpaf.tiddlyspot.com/
 date:     14-Jan-2010
-modified: Mon 21 Feb 2011 01:49:02 PM EST
-obs:      fixme (flags what needs attention)
-          some keywords and default values are hardcoded!!!
-          create proper docstrings
+modified: Sat 16 Mar 2013 10:33:18 PM BRT
+obs:
 
 SOFTWARE LICENCE AGREEMENT
 
@@ -129,7 +127,8 @@ SOFTWARE LICENCE AGREEMENT
      risk.
 
 3.4  The  Licencee hereby  releases and  indemnifies and  shall
-     continue to  release and  indemnify  CSIRO, its  officers,
+
+  Continue to  release and  indemnify  CSIRO, its  officers,
      employees  and  agents  from  and  against  all   actions,
      claims, proceedings  or demands  (including those  brought
      by third parties) which may be bought against  it or them,
@@ -151,7 +150,8 @@ SOFTWARE LICENCE AGREEMENT
      hereof   is   a   continuing   obligation   separate  from
      and independent of the Licencee's other obligations  under
      this  Agreement,  and  shall  survive  all  expiration  or
-     termination of this Agreement.
+     termination o
+     f this Agreement.
 
 4.0 Termination
 
@@ -180,10 +180,9 @@ DESCRIPTION:
    SEAWATER is a toolkit of PYTHON routines for calculating the
    properties of sea water. They are a self contained library and
    are extremely easy to use and will run on all computers that
-   support NUMPY.
+   support NumPy.
 """
 
-__version__ = '3.3' # matlab version
 
 from csiro import *
 from csiro_test import test
