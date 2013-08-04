@@ -1,25 +1,20 @@
 Python Seawater
 ===============
 
-csiro
------
+The CSIRO seawater toolbox ([SEAWATER-3.3](http://www.cmar.csiro.au/datacentre/ext_docs/seawater.htm))
+for calculating the properties of sea water.  The package uses the formulas
+from Unesco's joint panel on oceanographic tables and standards, UNESCO 1981
+and UNESCO 1983 (EOS-80) .
 
-The `CSIRO seawater toolbox <http://www.cmar.csiro.au/datacentre/ext_docs/seawater.htm>`_
-(SEAWATER-3.3) for calculating the properties of sea water. The package uses the
-formulas from Unesco's joint panel on oceanographic tables and standards, UNESCO
-1981 and UNESCO 1983 (EOS-80) .
-
-The EOS-80 library is considered now obsolete; it is provided here for
-compatibility with old scripts, and to allow a smooth transition to the
-new TEOS-10.
+The EOS-80 library is considered now obsolete;  it is provided here for
+compatibility with old scripts, and to allow a smooth transition to the new
+TEOS-10.
 
 gibbs vs. csiro
-^^^^^^^^^^^^^^^
+---------------
 
-.. role:: raw-math(raw)
-    :format: latex html
-
-This table shows some function names in the giibs library and the corresponding function names in the csiro library.
+This table shows some function names in the gibbs library and the corresponding
+function names in the csiro library.
 
 +---------------------------------------+-------------------------------+-------------------------------------------------------+
 | **Variable**                          | **SeaWater & ESO‐80**         | **Gibbs‐SeaWater (GSW) & TEOS‐10**                    |
@@ -37,13 +32,13 @@ This table shows some function names in the giibs library and the corresponding 
 | potential temperature                 |  sw.ptmp(SP,t,p,pr)           | gsw.pt_from_t(SA,t,p,pr)                              |
 +---------------------------------------+-------------------------------+-------------------------------------------------------+
 | $\sigma_0$, using                     |  sw.dens(SP, $\theta_o$, 0)   | gsw.sigma0_CT(SA,CT)                                  |
-|  $\theta_o$ = sw.ptmp(SP,t,p,0)       |  -1000 kg m :sup:`-3`         |                                                       |
+|  $\theta_o$ = sw.ptmp(SP,t,p,0)       |  -1000 kg m $^{-3}$           |                                                       |
 +---------------------------------------+-------------------------------+-------------------------------------------------------+
 | $\sigma_2$, using                     |  sw.dens(SP,$\theta_2$, 2000) | gsw.sigma2_CT(SA,CT)                                  |
-|  $\theta_2$ = sw.ptmp(SP,t,p,2000)    |  -1000 kg m :sup:`-3`         |                                                       |
+|  $\theta_2$ = sw.ptmp(SP,t,p,2000)    |  -1000 kg m $^{-3}$           |                                                       |
 +---------------------------------------+-------------------------------+-------------------------------------------------------+
 | $\sigma_4$, using                     |  sw.dens(SP,$\theta_4$, 4000) | gsw.sigma2_CT(SA,CT)                                  |
-|  $\theta_4$ = sw.ptmp(SP,t,p,2000)    |  -1000 kg m :sup:`-3`         |                                                       |
+|  $\theta_4$ = sw.ptmp(SP,t,p,2000)    |  -1000 kg m $^{-3}$           |                                                       |
 +---------------------------------------+-------------------------------+-------------------------------------------------------+
 | specific volume anomaly               |  sw.svan(SP,t,p)              | gsw.specvol_anom_CT(SA,CT,p)  or                      |
 |                                       |                               | gsw.specvol_anom_CT25(SA,CT,p)                        |
@@ -52,7 +47,7 @@ This table shows some function names in the giibs library and the corresponding 
 +---------------------------------------+-------------------------------+-------------------------------------------------------+
 | geostrophic velocity                  |  sw.gvel(ga,lat,long)         | gsw.geostrophic_velocity(geo_str,long,lat,p)          |
 +---------------------------------------+-------------------------------+-------------------------------------------------------+
-| N :sup:`2`                            |  sw.bfrq(SP,t,p,lat)          | gsw.Nsquared_CT25(SA,CT,p,lat)                        |
+| N $^2$                                |  sw.bfrq(SP,t,p,lat)          | gsw.Nsquared_CT25(SA,CT,p,lat)                        |
 +---------------------------------------+-------------------------------+-------------------------------------------------------+
 | pressure from height                  |  sw.pres(-z,lat)              | gsw.p_from_z(z,lat)                                   |
 | (SW uses depth, not height)           |                               |                                                       |
@@ -81,12 +76,8 @@ This table shows some function names in the giibs library and the corresponding 
 | testing of all functions              |  sw.test()                    | gsw.test()                                            |
 +---------------------------------------+-------------------------------+-------------------------------------------------------+
 
-\* The SW and GSW functions output the adiabatic lapse rate in different units, being  K (dbar) :sup:`-1`  and  K Pa :sup:`-1`  respectively.
-
-
-Acknowledgments
----------------
-* CSIRO. The csiro.py is a re-write of their seawater matlab toolbox.
+\* The sw and gsw functions output the adiabatic lapse rate in different units
+being  K (dbar) $^{-1}$  and  K Pa $^{-1}$  respectively.
 
 
 More information:
