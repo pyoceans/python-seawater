@@ -145,6 +145,7 @@ def test(fileout='python-test.txt'):
     f.write('\n(Unesco Tech. Paper in Marine Sci. No. 44, p9)')
     f.write('\n%s' % asterisks)
     f.write('\n')
+
     f.write('\n   Temp    Press       R              S           salt')
     f.write('\n   (C)     (db)    (no units)       (psu)          (psu)\n')
     table = np.vstack([T, P, R, UN_S, S])
@@ -174,6 +175,8 @@ def test(fileout='python-test.txt'):
     f.write('\n (Unesco Tech. Paper in Marine Sci. No. 44, p14)')
     f.write('\n%s' % asterisks)
     f.write('\n')
+    f.write('\n')
+
     f.write('\n   Temp    Press       S            cndr         cndr')
     f.write('\n   (C)     (db)      (psu)        (no units)    (no units)\n')
     table = np.vstack([T, P, S, UN_R, R])
@@ -205,9 +208,10 @@ def test(fileout='python-test.txt'):
     f.write('\nComparison of accepted values from Unesco 1983 ')
     f.write('\n(Unesco Tech. Paper in Marine Sci. No. 44, p28)')
     f.write('\n%s' % asterisks)
+    f.write('\n')
 
+    f.write('\n')
     for irow in range(0, 3):
-        f.write('\n')
         f.write('\n    Lat       Press     DPTH      dpth')
         f.write('\n  (degree)    (db)     (meter)    (meter)\n')
         table = np.vstack([lat, P[irow, :], UN_dpth[irow, :], dpth[irow, :]])
@@ -240,9 +244,10 @@ def test(fileout='python-test.txt'):
     f.write('\nComparison of accepted values from UNESCO 1983 ')
     f.write('\n (Unesco Tech. Paper in Marine Sci. No. 44, p30)')
     f.write('\n%s' % asterisks)
+    f.write('\n')
 
+    f.write('\n')
     for irow in range(0, 2):
-        f.write('\n')
         f.write('\n   Sal   Press      fp        fp')
         f.write('\n  (psu)   (db)      (C)        (C)\n')
         table = np.vstack([S[irow, :], P[irow, :], UN_fp[irow, :],
