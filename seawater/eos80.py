@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# seawater.py
+# eos80.py
 #
 # purpose:  Main seawater routines.
 # author:   Filipe P. A. Fernandes
