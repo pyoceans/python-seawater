@@ -1,8 +1,22 @@
 # -*- coding: utf-8 -*-
+#
+# seawater.py
+#
+# purpose:  Main seawater routines.
+# author:   Filipe P. A. Fernandes
+# e-mail:   ocefpaf@gmail
+# web:      http://ocefpaf.github.io/
+# created:  03-Aug-2013
+# modified: Sun 04 Aug 2013 11:45:35 AM BRT
+#
+# obs:
+#
+
 
 from __future__ import division
 
 import numpy as np
+
 from library import T90conv, T68conv, salrt, salrp, sals, seck
 
 # Constants.
@@ -14,11 +28,37 @@ gdef = 9.8  # Acceleration of gravity [m/s**2]
 Kelvin = 273.15  # The Celsius zero point.
 db2Pascal = 1e4  # dbar to pascal.
 
-__all__ = []
+__all__ = ['adtg',
+           'alpha',
+           'aonb',
+           'beta',
+           'bfrq',
+           'depth',
+           'grav',
+           'cor',
+           'salt',
+           'fp',
+           'svel',
+           'pres',
+           'dist',
+           'satAr',
+           'satN2',
+           'satO2',
+           'dens0',
+           'smow',
+           'dens',
+           'pden',
+           'svan',
+           'gpan',
+           'gvel',
+           'cp',
+           'ptmp',
+           'temp',
+           'swvel']
 
 
 def adtg(s, t, p):
-    r"""Calculates adiabatic temperature gradient as per UNESCO 1983 routines.
+    """Calculates adiabatic temperature gradient as per UNESCO 1983 routines.
 
     Parameters
     ----------
@@ -34,19 +74,10 @@ def adtg(s, t, p):
     adtg : array_like
            adiabatic temperature gradient [:math:`^\circ` C db :sup:`-1`]
 
-    See Also
-    --------
-    ptmp
-
-    Notes
-    -----
-
-
     Examples
     --------
-    Data from UNESCO 1983 p45
-
-    >>> import seawater.csiro as sw
+    Data from UNESCO 1983 p45.
+    >>> import seawater as sw
     >>> t = sw.T90conv([[ 0,  0,  0,  0,  0,  0],
     ...                 [10, 10, 10, 10, 10, 10],
     ...                 [20, 20, 20, 20, 20, 20],
@@ -84,46 +115,26 @@ def adtg(s, t, p):
     Modifications: 93-04-22. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-16. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
+    s, t, p = map(np.asanyarray, (s, t, p))
 
     T68 = T68conv(t)
 
-    a0 = 3.5803E-5
-    a1 = 8.5258E-6
-    a2 = -6.836E-8
-    a3 = 6.6228E-10
-
-    b0 = 1.8932E-6
-    b1 = -4.2393E-8
-
-    c0 = 1.8741E-8
-    c1 = -6.7795E-10
-    c2 = 8.733E-12
-    c3 = -5.4481E-14
-
-    d0 = -1.1351E-10
-    d1 = 2.7759E-12
-
-    e0 = -4.6206E-13
-    e1 = 1.8676E-14
-    e2 = -2.1687E-16
-
-    adtg = (a0 + (a1 + (a2 + a3 * T68) * T68) * T68 +
-            (b0 + b1 * T68) * (s - 35) +
-            ((c0 + (c1 + (c2 + c3 * T68) * T68) * T68) +
-             (d0 + d1 * T68) * (s - 35)) * p +
-            (e0 + (e1 + e2 * T68) * T68) * p * p)
-
-    return adtg
+    a = [3.5803e-5, 8.5258e-6, -6.836e-8, 6.6228e-10]
+    b = [1.8932e-6, -4.2393e-8]
+    c = [1.8741e-8, -6.7795e-10, 8.733e-12, -5.4481e-14]
+    d = [-1.1351e-10, 2.7759e-12]
+    e = [-4.6206e-13, 1.8676e-14, -2.1687e-16]
+    return (a[0] + (a[1] + (a[2] + a[3] * T68) * T68) * T68 +
+            (b[0] + b[1] * T68) * (s - 35) +
+            ((c[0] + (c[1] + (c[2] + c[3] * T68) * T68) * T68) +
+             (d[0] + d[1] * T68) * (s - 35)) * p +
+            (e[0] + (e[1] + e[2] * T68) * T68) * p * p)
 
 
 def alpha(s, t, p, pt=False):
-    r"""
-    Calculate the thermal expansion coefficient.
+    """Calculate the thermal expansion coefficient.
 
     Parameters
     ----------
@@ -141,19 +152,10 @@ def alpha(s, t, p, pt=False):
     alpha : array_like
             thermal expansion coeff :math:`\alpha` [:math:`^\circ` C :sup:`-1`]
 
-    See Also
-    --------
-    beta, aonb
-
-    Notes
-    -----
-
-
     Examples
     --------
     Data from McDougall 1987
-
-    >>> import seawater.csiro as sw
+    >>> import seawater as sw
     >>> s, t, p = 40, 10, 4000
     >>> sw.alpha(s, t, p, pt=True)
     0.00025061316481624323
@@ -169,19 +171,13 @@ def alpha(s, t, p, pt=False):
                    94-10-15. Phil Morgan, Pass S,T,P and keyword for 'ptmp'.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-16. Filipe Fernandes, Reformulated docstring.
     """
-    s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
-    pt = np.asanyarray(pt)
-
-    alpha = aonb(s, t, p, pt) * beta(s, t, p, pt)
-    return alpha
+    s, t, p, pt = map(np.asanyarray, (s, t, p, pt))
+    return aonb(s, t, p, pt) * beta(s, t, p, pt)
 
 
 def aonb(s, t, p, pt=False):
-    r"""
-    Calculate :math:`\alpha/\beta`.
+    """Calculate :math:`\alpha/\beta`.
 
     Parameters
     ----------
@@ -199,21 +195,10 @@ def aonb(s, t, p, pt=False):
     aonb : array_like
            :math:`\alpha/\beta` [psu :math:`^\circ` C :sup:`-1`]
 
-    See Also
-    --------
-    alpha, beta
-
-    Notes
-    -----
-
-
-    TODO: Test pt=False
-
     Examples
     --------
-    Data from McDouogall 1987
-
-    >>> import seawater.csiro as sw
+    Data from McDouogall 1987.
+    >>> import seawater as sw
     >>> s, t, p = 40, 10, 4000
     >>> sw.aonb(s, t, p, pt=True)
     0.347650567047807
@@ -229,13 +214,10 @@ def aonb(s, t, p, pt=False):
                    94-10-15. Phil Morgan, Pass S,T,P and keyword for 'ptmp'.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-16. Filipe Fernandes, Reformulated docstring.
     """
 
-    # Ensure we use ptmp in calculations
-    s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
-    pt = np.asanyarray(pt)
+    # Ensure we use ptmp in calculations.
+    s, t, p, pt = map(np.asanyarray, (s, t, p, pt))
 
     if not pt:
         t = ptmp(s, t, p, 0)  # Now we have ptmp.
@@ -252,20 +234,17 @@ def aonb(s, t, p, pt=False):
     c5 = 0.512857e-12
     c6 = -0.302285e-13
 
-    # Now calculate the thermal expansion saline contraction ratio aonb
+    # Now calculate the thermal expansion saline contraction ratio aonb.
     sm35 = s - 35.0
-    aonb = (np.polyval(c1, t) + sm35 *
+    return (np.polyval(c1, t) + sm35 *
             (np.polyval(c2, t) + np.polyval(c2a, p)) +
             sm35 ** 2 * c3 + p * np.polyval(c4, t) +
             c5 * (p ** 2) * (t ** 2) + c6 * p ** 3)
 
-    return aonb
-
 
 def beta(s, t, p, pt=False):
-    r"""
-    Calculate the saline contraction coefficient :math:`\beta` as defined by
-    T.J. McDougall.
+    """Calculate the saline contraction coefficient :math:`\beta` as defined
+    by T.J. McDougall.
 
     Parameters
     ----------
@@ -286,17 +265,10 @@ def beta(s, t, p, pt=False):
     Examples
     --------
     Data from McDouogall 1987
-
-    >>> import seawater.csiro as sw
+    >>> import seawater as sw
     >>> s, t, p = 40, 10, 4000
     >>> sw.beta(s, t, p, pt=True)
     0.00072087661741618932
-
-    Notes
-    -----
-
-
-    TODO: Test pt=False for alpha, beta and aonb.
 
     References
     ----------
@@ -309,12 +281,9 @@ def beta(s, t, p, pt=False):
                    94-10-15. Phil Morgan, Pass S,T,P and keyword for 'ptmp'.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-16. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t, p, = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
-    pt = np.asanyarray(pt)
+    s, t, p, pt = map(np.asanyarray, (s, t, p, pt))
 
     # Ensure we use ptmp in calculations
     if not pt:
@@ -333,18 +302,15 @@ def beta(s, t, p, pt=False):
 
     # Now calculate the thermal expansion saline contraction ratio adb
     sm35 = s - 35
-    beta = (np.polyval(c1, t) + sm35 *
+    return (np.polyval(c1, t) + sm35 *
             (np.polyval(c2, t) + np.polyval(c3, p)) +
             c4 * (sm35 ** 2) + p * np.polyval(c5, t) +
             (p ** 2) * np.polyval(c6, t) + c7 * (p ** 3))
 
-    return beta
-
 
 def bfrq(s, t, p, lat=None):
-    r"""
-    Calculates Brünt-Väisälä Frequency squared (N :sup:`2`) at the mid depths
-    from the equation:
+    """Calculates Brünt-Väisälä Frequency squared (N :sup:`2`) at the mid
+    depths from the equation:
 
     .. math::
         N^{2} = \frac{-g}{\sigma_{\theta}} \frac{d\sigma_{\theta}}{dz}
@@ -362,7 +328,6 @@ def bfrq(s, t, p, lat=None):
            temperature or potential temperature [:math:`^\circ` C (ITS-90)]
     p : array_like
         pressure [db].
-
     lat : number or array_like, optional
           latitude in decimal degrees north [-90..+90].
           Will grav instead of the default g = 9.8 m :sup:`2` s :sup:`-1`) and
@@ -377,19 +342,9 @@ def bfrq(s, t, p, lat=None):
     p_ave : array_like
             mid pressure between P grid (M-1xN) [db]
 
-    See Also
-    --------
-    pden, dens
-
-    Notes
-    -----
-    The value of gravity is a global constant if lat is not provided.
-
-
-
     Examples
     --------
-    >>> import seawater.csiro as sw
+    >>> import seawater as sw
     >>> s = [[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]]
     >>> t = [[15]*3]*4
     >>> p = [[0], [250], [500], [1000]]
@@ -401,7 +356,7 @@ def bfrq(s, t, p, lat=None):
 
     References
     ----------
-    .. [1] A.E. Gill 1982. p.54  eqn 3.7.15 "Atmosphere-Ocean Dynamics"
+    .. [1] A.E. Gill 1982. p.54  Eqn. 3.7.15 "Atmosphere-Ocean Dynamics"
     Academic Press: New York. ISBN: 0-12-283522-0
 
     .. [2] Jackett, David R., Trevor J. Mcdougall, 1995: Minimal Adjustment of
@@ -412,8 +367,6 @@ def bfrq(s, t, p, lat=None):
                    Greg Johnson (gjohnson@pmel.noaa.gov) pot. vort. calc.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    06-04-19. Lindsay Pender, Corrected sign of PV.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-17. Filipe Fernandes, Reformulated docstring.
     """
 
     s, t, p = map(np.asanyarray, (s, t, p))
@@ -450,8 +403,7 @@ def bfrq(s, t, p, lat=None):
 
 
 def depth(p, lat):
-    r"""
-    Calculates depth in meters from pressure in dbars.
+    """Calculates depth in meters from pressure in dbars.
 
     Parameters
     ----------
@@ -467,9 +419,8 @@ def depth(p, lat):
 
     Examples
     --------
-    UNESCO 1983 data p30
-
-    >>> import seawater.csiro as sw
+    UNESCO 1983 data p30.
+    >>> import seawater as sw
     >>> lat = [0, 30, 45, 90]
     >>> p = [[  500,   500,   500,  500],
     ...      [ 5000,  5000,  5000, 5000],
@@ -492,34 +443,25 @@ def depth(p, lat):
 
     Modifications: 92-04-06. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-19. Filipe Fernandes, Reformulated docstring.
     """
-
-    p, lat = np.asanyarray(p), np.asanyarray(lat)
+    p, lat = map(np.asanyarray, (p, lat))
 
     # Eqn 25, p26.  UNESCO 1983.
-    c1 = 9.72659
-    c2 = -2.2512E-5
-    c3 = 2.279E-10
-    c4 = -1.82E-15
-
+    c = [9.72659, -2.2512e-5, 2.279e-10, -1.82e-15]
     gam_dash = 2.184e-6
 
     lat = abs(lat)
     X = np.sin(lat * deg2rad)
     X = X * X
 
-    bot_line = (9.780318 * (1.0 + (5.2788E-3 + 2.36E-5 * X) * X) +
+    bot_line = (9.780318 * (1.0 + (5.2788e-3 + 2.36e-5 * X) * X) +
                 gam_dash * 0.5 * p)
-    top_line = (((c4 * p + c3) * p + c2) * p + c1) * p
-    depthm = top_line / bot_line
-    return depthm
+    top_line = (((c[3] * p + c[2]) * p + c[1]) * p + c[0]) * p
+    return top_line / bot_line
 
 
 def grav(lat, z=0):
-    r"""
-    Calculates acceleration due to gravity as function of latitude.
+    """Calculates acceleration due to gravity as function of latitude.
 
     Parameters
     ----------
@@ -534,17 +476,9 @@ def grav(lat, z=0):
     g : array_like
         gravity [m s :sup:`2`]
 
-    See Also
-    --------
-    bfrq
-
-    Notes
-    -----
-    Original matlab name is g and not grav.
-
     Examples
     --------
-    >>> import seawater.csiro as sw
+    >>> import seawater as sw
     >>> sw.grav(45, z=0)
     9.8061898752053995
 
@@ -555,28 +489,24 @@ def grav(lat, z=0):
     in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
     http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    .. [2] A.E. Gill 1982. p.54  eqn 3.7.15 "Atmosphere-Ocean Dynamics"
+    .. [2] A.E. Gill 1982. p.54  Eqn. 3.7.15 "Atmosphere-Ocean Dynamics"
     Academic Press: New York. ISBN: 0-12-283522-0
 
     Modifications: 93-04-20. Phil Morgan.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
-    lat, z = np.asanyarray(lat), np.asanyarray(z)
+    lat, z = map(np.asanyarray, (lat, z))
 
     # Eqn p27.  UNESCO 1983.
     lat = np.abs(lat)
     X = np.sin(lat * deg2rad)
     sin2 = X * X
-    grav = 9.780318 * (1.0 + (5.2788E-3 + 2.36E-5 * sin2) * sin2)
-    grav = grav / ((1 + z / earth_radius) ** 2)  # From A.E.Gill p.597.
-    return grav
+    grav = 9.780318 * (1.0 + (5.2788e-3 + 2.36e-5 * sin2) * sin2)
+    return grav / ((1 + z / earth_radius) ** 2)  # From A.E.Gill p.597.
 
 
 def cor(lat):
-    r"""
-    Calculates the Coriolis factor :math:`f` defined by:
+    """Calculates the Coriolis factor :math:`f` defined by:
 
     .. math::
         f = 2 \Omega \sin(lat)
@@ -598,17 +528,9 @@ def cor(lat):
     f : array_like
         Coriolis factor [s :sup:`-1`]
 
-    See Also
-    --------
-    inertial_period
-
-    Notes
-    -----
-    TODO
-
     Examples
     --------
-    >>> import seawater.csiro as sw
+    >>> import seawater as sw
     >>> sw.cor(45)
     0.00010312607931384281
 
@@ -617,7 +539,7 @@ def cor(lat):
     .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical
     Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
 
-    .. [2] A.E. Gill 1982. p.54  eqn 3.7.15 "Atmosphere-Ocean Dynamics"
+    .. [2] A.E. Gill 1982. p.54  Eqn. 3.7.15 "Atmosphere-Ocean Dynamics"
     Academic Press: New York. ISBN: 0-12-283522-0
 
     .. [3] Groten, E., 2004: Fundamental Parameters and Current (2004) Best
@@ -625,20 +547,14 @@ def cor(lat):
     and Geodynamics. Journal of Geodesy, 77, pp. 724-797.
 
     Modifications: 93-04-20. Phil Morgan.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-19. Filipe Fernandes, Reformulated docstring.
     """
-
     lat = np.asanyarray(lat)
-
     # Eqn p27.  UNESCO 1983.
-    f = 2 * OMEGA * np.sin(lat * deg2rad)
-    return f
+    return 2 * OMEGA * np.sin(lat * deg2rad)
 
 
 def salt(r, t, p):
-    r"""
-    Calculates Salinity from conductivity ratio. UNESCO 1983 polynomial.
+    """Calculates Salinity from conductivity ratio. UNESCO 1983 polynomial.
 
     Parameters
     ----------
@@ -654,19 +570,10 @@ def salt(r, t, p):
     s : array_like
         salinity [psu (PSS-78)]
 
-    See Also
-    --------
-    sals, salrt, salrp
-
-    Notes
-    -----
-    TODO
-
     Examples
     --------
-    Data from UNESCO 1983 p9
-
-    >>> import seawater.csiro as sw
+    Data from UNESCO 1983 p9.
+    >>> import seawater as sw
     >>> r = [1, 1.2, 0.65]
     >>> t = sw.T90conv([15, 20, 5])
     >>> p = [0, 2000, 1500]
@@ -682,10 +589,7 @@ def salt(r, t, p):
 
     Modifications: 93-04-17. Phil Morgan.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-19. Filipe Fernandes, Reformulated docstring.
     """
-
     r, t, p = map(np.asanyarray, (r, t, p))
 
     rt = salrt(t)
@@ -695,8 +599,7 @@ def salt(r, t, p):
 
 
 def fp(s, p):
-    r"""
-    Freezing point of Sea Water using UNESCO 1983 polynomial.
+    """Freezing point of Sea Water using UNESCO 1983 polynomial.
 
     Parameters
     ----------
@@ -710,19 +613,10 @@ def fp(s, p):
     fp : array_like
         freezing point temperature [:math:`^\circ` C (ITS-90)]
 
-    See Also
-    --------
-    TODO
-
-    Notes
-    -----
-    TODO
-
     Examples
     --------
-    UNESCO DATA p.30
-
-    >>> import seawater.csiro as sw
+    UNESCO DATA p.30.
+    >>> import seawater as sw
     >>> s = [[5, 10, 15, 20, 25, 30, 35, 40],
     ...      [5, 10, 15, 20, 25, 30, 35, 40]]
     >>> p = [[ 0, 0, 0, 0, 0, 0, 0, 0],
@@ -743,25 +637,19 @@ def fp(s, p):
     Modifications: 93-04-20. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, p = np.asanyarray(s), np.asanyarray(p)
+    s, p = map(np.asanyarray, (s, p))
 
     # NOTE: P = P/10 # to convert db to Bar as used in UNESCO routines.
     # Eqn  p.29.
-    a0 = -0.0575
-    a1 = 1.710523e-3
-    a2 = -2.154996e-4
+    a = [-0.0575, 1.710523e-3, -2.154996e-4]
     b = -7.53e-4
-
-    return T90conv(a0 * s + a1 * s * (s) ** 0.5 + a2 * s ** 2 + b * p)
+    return T90conv(a[0] * s + a[1] * s * s ** 0.5 + a[2] * s ** 2 + b * p)
 
 
 def svel(s, t, p):
-    r"""
-    Sound Velocity in sea water using UNESCO 1983 polynomial.
+    """Sound Velocity in sea water using UNESCO 1983 polynomial.
 
     Parameters
     ----------
@@ -777,22 +665,11 @@ def svel(s, t, p):
     svel : array_like
            sound velocity  [m/s]
 
-
-    See Also
-    --------
-    TODO
-
-    Notes
-    -----
-
-
-    TODO: Add equation to docstring.
-
     Examples
     --------
     Data from Pond and Pickard Intro. Dynamical Oceanography 2nd ed. 1986
 
-    >>> import seawater.csiro as sw
+    >>> import seawater as sw
     >>> t = T90conv([[  0,  0,  0,  0,  0,  0],
     ...              [ 10, 10, 10, 10, 10, 10],
     ...              [ 20, 20, 20, 20, 20, 20],
@@ -826,68 +703,34 @@ def svel(s, t, p):
     Modifications: 93-04-20. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-25. Filipe Fernandes, Reformulated docstring.
     """
+    s, t, p = map(np.asanyarray, (s, t, p))
 
-    s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
-
-    # UNESCO 1983. eqn.33  p.46.
+    # UNESCO 1983. Eqn..33  p.46.
     p = p / 10  # Convert db to bars as used in UNESCO routines.
     T68 = T68conv(t)
 
     # Eqn 34 p.46.
-    c00 = 1402.388
-    c01 = 5.03711
-    c02 = -5.80852e-2
-    c03 = 3.3420e-4
-    c04 = -1.47800e-6
-    c05 = 3.1464e-9
+    c00, c01, c02, c03, c04, c05 = (1402.388, 5.03711, -5.80852e-2, 3.3420e-4,
+                                    -1.47800e-6, 3.1464e-9)
+    c10, c11, c12, c13, c14 = (0.153563, 6.8982e-4, -8.1788e-6, 1.3621e-7,
+                               -6.1185e-10)
+    c20, c21, c22, c23, c24 = (3.1260e-5, -1.7107e-6, 2.5974e-8, -2.5335e-10,
+                               1.0405e-12)
+    c30, c31, c32 = (-9.7729e-9, 3.8504e-10, -2.3643e-12)
 
-    c10 = 0.153563
-    c11 = 6.8982e-4
-    c12 = -8.1788e-6
-    c13 = 1.3621e-7
-    c14 = -6.1185e-10
-
-    c20 = 3.1260e-5
-    c21 = -1.7107e-6
-    c22 = 2.5974e-8
-    c23 = -2.5335e-10
-    c24 = 1.0405e-12
-
-    c30 = -9.7729e-9
-    c31 = 3.8504e-10
-    c32 = -2.3643e-12
-
-    Cw = (((((c32 * T68 + c31) * T68 + c30) *
-            p + ((((c24 * T68 + c23) * T68 + c22) * T68 + c21) *
-                 T68 + c20)) * p +
+    Cw = (((((c32 * T68 + c31) * T68 + c30) * p +
+            ((((c24 * T68 + c23) * T68 + c22) * T68 + c21) * T68 + c20)) * p +
            ((((c14 * T68 + c13) * T68 + c12) * T68 + c11) * T68 + c10)) *
-          p + ((((c05 * T68 + c04) * T68 + c03) * T68 + c02) *
-               T68 + c01) * T68 + c00)
+          p + ((((c05 * T68 + c04) * T68 + c03) * T68 + c02) * T68 + c01) *
+          T68 + c00)
 
-    # eqn 35. p.47
-    a00 = 1.389
-    a01 = -1.262e-2
-    a02 = 7.164e-5
-    a03 = 2.006e-6
-    a04 = -3.21e-8
-
-    a10 = 9.4742e-5
-    a11 = -1.2580e-5
-    a12 = -6.4885e-8
-    a13 = 1.0507e-8
-    a14 = -2.0122e-10
-
-    a20 = -3.9064e-7
-    a21 = 9.1041e-9
-    a22 = -1.6002e-10
-    a23 = 7.988e-12
-
-    a30 = 1.100e-10
-    a31 = 6.649e-12
-    a32 = -3.389e-13
+    # Eqn. 35. p.47
+    a00, a01, a02, a03, a04 = (1.389, -1.262e-2, 7.164e-5, 2.006e-6, -3.21e-8)
+    a10, a11, a12, a13, a14 = (9.4742e-5, -1.2580e-5, -6.4885e-8, 1.0507e-8,
+                               -2.0122e-10)
+    a20, a21, a22, a23 = (-3.9064e-7, 9.1041e-9, -1.6002e-10, 7.988e-12)
+    a30, a31, a32 = (1.100e-10, 6.649e-12, -3.389e-13)
 
     A = (((((a32 * T68 + a31) * T68 + a30) * p +
            (((a23 * T68 + a22) * T68 + a21) * T68 + a20)) * p +
@@ -895,28 +738,19 @@ def svel(s, t, p):
          (((a04 * T68 + a03) * T68 + a02) * T68 + a01) * T68 + a00)
 
     # Eqn 36 p.47.
-    b00 = -1.922e-2
-    b01 = -4.42e-5
-    b10 = 7.3637e-5
-    b11 = 1.7945e-7
-
+    b00, b01, b10, b11 = -1.922e-2, -4.42e-5, 7.3637e-5, 1.7945e-7
     B = b00 + b01 * T68 + (b10 + b11 * T68) * p
 
     # Eqn 37 p.47.
-    d00 = 1.727e-3
-    d10 = -7.9836e-6
-
+    d00, d10 = 1.727e-3, -7.9836e-6
     D = d00 + d10 * p
 
     # Eqn 33 p.46.
-    svel = Cw + A * s + B * s * (s) ** 0.5 + D * s ** 2
-
-    return svel
+    return Cw + A * s + B * s * (s) ** 0.5 + D * s ** 2
 
 
 def pres(depth, lat):
-    r"""
-    Calculates pressure in dbars from depth in meters.
+    """Calculates pressure in dbars from depth in meters.
 
     Parameters
     ----------
@@ -925,24 +759,14 @@ def pres(depth, lat):
     lat : array_like
           latitude in decimal degrees north [-90..+90]
 
-
     Returns
     -------
     p : array_like
            pressure [db]
 
-    See Also
-    --------
-    pressure from depth (TODO)
-
-
-    Notes
-    -----
-
-
     Examples
     --------
-    >>> import seawater.csiro as sw
+    >>> import seawater as sw
     >>> depth, lat = 7321.45, 30
     >>> sw.pres(depth,lat)
     7500.0065130118019
@@ -955,21 +779,16 @@ def pres(depth, lat):
 
     Modifications: 93-06-25. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-25. Filipe Fernandes, Reformulated docstring.
     """
-
-    depth, lat = np.asanyarray(depth), np.asanyarray(lat)
+    depth, lat = map(np.asanyarray, (depth, lat))
 
     X = np.sin(np.abs(lat * deg2rad))
-    C1 = 5.92E-3 + X ** 2 * 5.25E-3
-    pres = ((1 - C1) - (((1 - C1) ** 2) - (8.84E-6 * depth)) ** 0.5) / 4.42E-6
-    return pres
+    C1 = 5.92e-3 + X ** 2 * 5.25e-3
+    return ((1 - C1) - (((1 - C1) ** 2) - (8.84e-6 * depth)) ** 0.5) / 4.42e-6
 
 
 def dist(lon, lat, units='km'):
-    r"""
-    Calculate distance between two positions on globe using the "Plane
+    """Calculate distance between two positions on globe using the "Plane
     Sailing" method. Also uses simple geometry to calculate the bearing of
     the path between position pairs.
 
@@ -990,28 +809,14 @@ def dist(lon, lat, units='km'):
                  angle of line between stations with x axis (East).
                  Range of values are -180..+180. (E=0, N=90, S=-90)
 
-    See Also
-    --------
-    TODO
-
-    Notes
-    -----
-    Usually used to create a distance vector to plot hydrographic data.
-    However, pay attention to the phaseangle to avoid apples and oranges!
-
-    Also not that the input order for the matlab version is lat,lon
-    (alphabetic order), while this version is lon,lat (geometric order).
-
     Examples
     --------
-    >>> import seawater.csiro as sw
+    >>> import seawater as sw
     >>> lon = [35, 35]
     >>> lat = [41, 40]
     >>> sw.dist(lon, lat)
     (array([ 111.12]), array([-90.]))
-
-    Create a distance vector
-
+    >>> # Create a distance vector.
     >>> lon = np.arange(30,40,1)
     >>> lat = 35
     >>> np.cumsum(np.append(0, sw.dist(lon, lat, units='km')[0]))
@@ -1027,11 +832,9 @@ def dist(lon, lat, units='km'):
     Modifications: 92-02-10. Phil Morgan and Steve Rintoul.
                    99-06-25. Lindsay Pender, name change distance to sw_dist.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    lon, lat = np.asanyarray(lon), np.asanyarray(lat)
+    lon, lat = map(np.asanyarray, (lon, lat))
 
     if lat.size == 1:
         lat = np.repeat(lat, lon.size)
@@ -1061,8 +864,7 @@ def dist(lon, lat, units='km'):
 
 
 def satAr(s, t):
-    r"""
-    Solubility (saturation) of Argon (Ar) in sea water.
+    """Solubility (saturation) of Argon (Ar) in sea water.
 
     Parameters
     ----------
@@ -1076,19 +878,10 @@ def satAr(s, t):
     satAr : array_like
             solubility of Ar [ml l :sup:`-1`]
 
-    See Also
-    --------
-    satO2, satN2
-
-    Notes
-    -----
-    TODO
-
     Examples
     --------
-    Data from Weiss 1970
-
-    >>> import seawater.csiro as sw
+    Data from Weiss 1970.
+    >>> import seawater as sw
     >>> t = T90conv([[ -1, -1], [ 10, 10], [ 20, 20], [ 40, 40]])
     >>> s = [[ 20, 40], [ 20, 40], [ 20, 40], [ 20, 40]]
     >>> sw.satAr(s, t)
@@ -1106,36 +899,26 @@ def satAr(s, t):
     Modifications: 97-11-05. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t = np.asanyarray(s), np.asanyarray(t)
+    s, t = map(np.asanyarray, (s, t))
 
     # Convert T to Kelvin.
     t = Kelvin + T68conv(t)
 
     # Constants for Eqn (4) of Weiss 1970.
-    a1 = -173.5146
-    a2 = 245.4510
-    a3 = 141.8222
-    a4 = -21.8020
-    b1 = -0.034474
-    b2 = 0.014934
-    b3 = -0.0017729
+    a = [-173.5146, 245.4510, 141.8222, -21.8020]
+    b = [-0.034474, 0.014934, -0.0017729]
 
     # Eqn (4) of Weiss 1970.
-    lnC = (a1 + a2 * (100 / t) + a3 * np.log(t / 100) + a4 * (t / 100) +
-           s * (b1 + b2 * (t / 100) + b3 * ((t / 100) ** 2)))
+    lnC = (a[0] + a[1] * (100 / t) + a[2] * np.log(t / 100) + a[3] *
+           (t / 100) + s * (b[0] + b[1] * (t / 100) + b[2] * ((t / 100) ** 2)))
 
-    c = np.exp(lnC)
-
-    return c
+    return np.exp(lnC)
 
 
 def satN2(s, t):
-    r"""
-    Solubility (saturation) of Nitrogen (N2) in sea water.
+    """Solubility (saturation) of Nitrogen (N2) in sea water.
 
     Parameters
     ----------
@@ -1149,19 +932,10 @@ def satN2(s, t):
     satN2 : array_like
             solubility of N2  [ml l :sup:`-1`]
 
-    See Also
-    --------
-    satO2, satAr
-
-    Notes
-    -----
-    TODO
-
     Examples
     --------
-    Data from Weiss 1970
-
-    >>> import seawater.csiro as sw
+    Data from Weiss 1970.
+    >>> import seawater as sw
     >>> t = T90conv([[ -1, -1], [ 10, 10], [ 20, 20], [ 40, 40]])
     >>> s = [[ 20, 40], [ 20, 40], [ 20, 40], [ 20, 40]]
     >>> sw.satN2(s, t)
@@ -1180,35 +954,26 @@ def satN2(s, t):
     Modifications: 97-11-05. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t = np.asanyarray(s), np.asanyarray(t)
+    s, t = map(np.asanyarray, (s, t))
 
     # Convert T to Kelvin.
     t = Kelvin + T68conv(t)
 
     # Constants for Eqn (4) of Weiss 1970.
-    a1 = -172.4965
-    a2 = 248.4262
-    a3 = 143.0738
-    a4 = -21.7120
-    b1 = -0.049781
-    b2 = 0.025018
-    b3 = -0.0034861
+    a = (-172.4965, 248.4262, 143.0738, -21.7120)
+    b = (-0.049781, 0.025018, -0.0034861)
 
     # Eqn (4) of Weiss 1970.
-    lnC = (a1 + a2 * (100 / t) + a3 * np.log(t / 100) + a4 * (t / 100) +
-           s * (b1 + b2 * (t / 100) + b3 * ((t / 100) ** 2)))
+    lnC = (a[0] + a[1] * (100 / t) + a[2] * np.log(t / 100) + a[3] *
+           (t / 100) + s * (b[0] + b[1] * (t / 100) + b[2] * ((t / 100) ** 2)))
 
-    c = np.exp(lnC)
-    return c
+    return np.exp(lnC)
 
 
 def satO2(s, t):
-    r"""
-    Solubility (saturation) of Oxygen (O2) in sea water.
+    """Solubility (saturation) of Oxygen (O2) in sea water.
 
     Parameters
     ----------
@@ -1222,15 +987,10 @@ def satO2(s, t):
     satO2 : array_like
             solubility of O2  [ml l :sup:`-1` ]
 
-    Notes
-    -----
-    TODO
-
     Examples
     --------
     Data from Weiss 1970
-
-    >>> import seawater.csiro as sw
+    >>> import seawater as sw
     >>> t = T90conv([[ -1, -1], [ 10, 10], [ 20, 20], [ 40, 40]])
     >>> s = [[ 20, 40], [ 20, 40], [ 20, 40], [ 20, 40]]
     >>> sw.satO2(s, t)
@@ -1248,35 +1008,26 @@ def satO2(s, t):
     Modifications: 97-11-05. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t = np.asanyarray(s), np.asanyarray(t)
+    s, t = map(np.asanyarray, (s, t))
 
     # Convert T to Kelvin.
     t = Kelvin + T68conv(t)
 
     # Constants for Eqn (4) of Weiss 1970.
-    a1 = -173.4292
-    a2 = 249.6339
-    a3 = 143.3483
-    a4 = -21.8492
-    b1 = -0.033096
-    b2 = 0.014259
-    b3 = -0.0017000
+    a = (-173.4292, 249.6339, 143.3483, -21.8492)
+    b = (-0.033096, 0.014259, -0.0017000)
 
     # Eqn (4) of Weiss 1970.
-    lnC = (a1 + a2 * (100 / t) + a3 * np.log(t / 100) + a4 * (t / 100) +
-           s * (b1 + b2 * (t / 100) + b3 * ((t / 100) ** 2)))
+    lnC = (a[0] + a[1] * (100 / t) + a[2] * np.log(t / 100) + a[3] *
+           (t / 100) + s * (b[0] + b[1] * (t / 100) + b[2] * ((t / 100) ** 2)))
 
-    c = np.exp(lnC)
-    return c
+    return np.exp(lnC)
 
 
 def dens0(s, t):
-    r"""
-    Density of Sea Water at atmospheric pressure.
+    """Density of Sea Water at atmospheric pressure.
 
     Parameters
     ----------
@@ -1291,19 +1042,10 @@ def dens0(s, t):
                   density  [kg m :sup:`3`] of salt water with properties
                   (s, t, p=0) 0 db gauge pressure
 
-    See Also
-    --------
-    svan, dens, smow, seck, pden
-
-    Notes
-    -----
-    TODO
-
     Examples
     --------
     Data from UNESCO Tech. Paper in Marine Sci. No. 44, p22
-
-    >>> import seawater.csiro as sw
+    >>> import seawater as sw
     >>> s = [0, 0, 0, 0, 35, 35, 35, 35]
     >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
     >>> sw.dens0(s, t)
@@ -1323,35 +1065,23 @@ def dens0(s, t):
 
     Modifications: 92-11-05. Phil Morgan.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t = np.asanyarray(s), np.asanyarray(t)
+    s, t = map(np.asanyarray, (s, t))
 
     T68 = T68conv(t)
 
-    # UNESCO 1983 eqn(13) p17.
-    b0 = 8.24493e-1
-    b1 = -4.0899e-3
-    b2 = 7.6438e-5
-    b3 = -8.2467e-7
-    b4 = 5.3875e-9
-
-    c0 = -5.72466e-3
-    c1 = 1.0227e-4
-    c2 = -1.6546e-6
-
-    d0 = 4.8314e-4
-    dens0 = (smow(t) + (b0 + (b1 + (b2 + (b3 + b4 * T68) * T68) * T68) * T68) *
-             s + (c0 + (c1 + c2 * T68) * T68) * s * (s) ** 0.5 + d0 * s ** 2)
-
-    return dens0
+    # UNESCO 1983 Eqn.(13) p17.
+    b = (8.24493e-1, -4.0899e-3, 7.6438e-5, -8.2467e-7, 5.3875e-9)
+    c = (-5.72466e-3, 1.0227e-4, -1.6546e-6)
+    d = 4.8314e-4
+    return (smow(t) + (b[0] + (b[1] + (b[2] + (b[3] + b[4] * T68) * T68) *
+            T68) * T68) * s + (c[0] + (c[1] + c[2] * T68) * T68) * s *
+            s ** 0.5 + d * s ** 2)
 
 
 def smow(t):
-    r"""
-    Density of Standard Mean Ocean Water (Pure Water) using EOS 1980.
+    """Density of Standard Mean Ocean Water (Pure Water) using EOS 1980.
 
     Parameters
     ----------
@@ -1363,20 +1093,10 @@ def smow(t):
     dens(t) : array_like
               density  [kg m :sup:`3`]
 
-    See Also
-    --------
-    svan, dens, dens0, seck, pden
-
-    Notes
-    -----
-    Standard Mean Ocean Water (SMOW) is the water collected in the deep ocean
-    used as a reference.
-
     Examples
     --------
-    Data from UNESCO Tech. Paper in Marine Sci. No. 44, p22
-
-    >>> import seawater.csiro as sw
+    Data from UNESCO Tech. Paper in Marine Sci. No. 44, p22.
+    >>> import seawater as sw
     >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
     >>> sw.smow(t)
     array([ 999.842594  ,  999.842594  ,  995.65113374,  995.65113374,
@@ -1396,28 +1116,20 @@ def smow(t):
     Modifications: 92-11-05. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
     t = np.asanyarray(t)
 
-    a0 = 999.842594
-    a1 = 6.793952e-2
-    a2 = -9.095290e-3
-    a3 = 1.001685e-4
-    a4 = -1.120083e-6
-    a5 = 6.536332e-9
+    a = (999.842594, 6.793952e-2, -9.095290e-3, 1.001685e-4, -1.120083e-6,
+         6.536332e-9)
 
     T68 = T68conv(t)
-    dens = (a0 + (a1 + (a2 + (a3 + (a4 + a5 * T68) * T68) * T68) * T68) * T68)
-
-    return dens
+    return (a[0] + (a[1] + (a[2] + (a[3] + (a[4] + a[5] * T68) * T68) * T68) *
+            T68) * T68)
 
 
 def dens(s, t, p):
-    r"""
-    Density of Sea Water using UNESCO 1983 (EOS 80) polynomial.
+    """Density of Sea Water using UNESCO 1983 (EOS 80) polynomial.
 
     Parameters
     ----------
@@ -1433,19 +1145,10 @@ def dens(s, t, p):
     dens : array_like
            density  [kg m :sup:`3`]
 
-    See Also
-    --------
-    dens0, seck
-
-    Notes
-    -----
-    TODO
-
     Examples
     --------
-    Data from Unesco Tech. Paper in Marine Sci. No. 44, p22
-
-    >>> import seawater.csiro as sw
+    Data from Unesco Tech. Paper in Marine Sci. No. 44, p22.
+    >>> import seawater as sw
     >>> s = [0, 0, 0, 0, 35, 35, 35, 35]
     >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
     >>> p = [0, 10000, 0, 10000, 0, 10000, 0, 10000]
@@ -1467,13 +1170,11 @@ def dens(s, t, p):
     Modifications: 92-11-05. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
+    s, t, p = map(np.asanyarray, (s, t, p))
 
-    # UNESCO 1983. eqn.7  p.15.
+    # UNESCO 1983. Eqn..7  p.15.
     densP0 = dens0(s, t)
     K = seck(s, t, p)
     p = p / 10.  # Convert from db to atm pressure units.
@@ -1481,8 +1182,7 @@ def dens(s, t, p):
 
 
 def pden(s, t, p, pr=0):
-    r"""
-    Calculates potential density of water mass relative to the specified
+    """Calculates potential density of water mass relative to the specified
     reference pressure by pden = dens(S, ptmp, PR).
 
     Parameters
@@ -1501,20 +1201,10 @@ def pden(s, t, p, pr=0):
     pden : array_like
            potential density relative to the ref. pressure [kg m :sup:3]
 
-    See Also
-    --------
-    ptmp, dens
-
-    Notes
-    -----
-    The reference pressure is in "oceanographic" standards, so 0 db means at
-    surface or 1 atm.
-
     Examples
     --------
-    Data from Unesco Tech. Paper in Marine Sci. No. 44, p22
-
-    >>> import seawater.csiro as sw
+    Data from Unesco Tech. Paper in Marine Sci. No. 44, p22.
+    >>> import seawater as sw
     >>> s = [0, 0, 0, 0, 35, 35, 35, 35]
     >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
     >>> p = [0, 10000, 0, 10000, 0, 10000, 0, 10000]
@@ -1530,29 +1220,24 @@ def pden(s, t, p, pr=0):
 
     References
     ----------
-    .. [1] A.E. Gill 1982. p.54  eqn 3.7.15 "Atmosphere-Ocean Dynamics"
+    .. [1] A.E. Gill 1982. p.54  Eqn. 3.7.15 "Atmosphere-Ocean Dynamics"
     Academic Press: New York. ISBN: 0-12-283522-0
 
     Modifications: 92-04-06. Phil Morgan.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
-    pr = np.asanyarray(pr)
+    s, t, p, pr = map(np.asanyarray, (s, t, p, pr))
 
     pt = ptmp(s, t, p, pr)
-    pden = dens(s, pt, pr)
-    return pden
+    return dens(s, pt, pr)
 
 
 def svan(s, t, p=0):
-    r"""
-    Specific Volume Anomaly calculated as
+    """Specific Volume Anomaly calculated as
     svan = 1 / dens(s, t, p) - 1 / dens(35, 0, p).
 
-    Note that it is often quoted in literature as 1e8*units.
+    Note that it is often quoted in literature as 1e8 * units.
 
     Parameters
     ----------
@@ -1568,19 +1253,10 @@ def svan(s, t, p=0):
     svan : array_like
            specific volume anomaly  [m :sup:`3` kg :sup:`-1`]
 
-    See Also
-    --------
-    dens
-
-    Notes
-    -----
-    TODO
-
     Examples
     --------
-    Data from Unesco Tech. Paper in Marine Sci. No. 44, p22
-
-    >>> import seawater.csiro as sw
+    Data from Unesco Tech. Paper in Marine Sci. No. 44, p22.
+    >>> import seawater as sw
     >>> s = [0, 0, 0, 0, 35, 35, 35, 35]
     >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
     >>> p = ([0, 10000, 0, 10000, 0, 10000, 0, 10000])
@@ -1602,20 +1278,21 @@ def svan(s, t, p=0):
     Modifications: 92-11-05. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
+    s, t, p = map(np.asanyarray, (s, t, p))
 
-    svan = 1 / dens(s, t, p) - 1 / dens(35, 0, p)
-    return svan
+    return 1 / dens(s, t, p) - 1 / dens(35, 0, p)
 
 
 def gpan(s, t, p):
-    r"""
-    Geopotential Anomaly calculated as the integral of svan from the
+    """Geopotential Anomaly calculated as the integral of svan from the
     the sea surface to the bottom. THUS RELATIVE TO SEA SURFACE.
+
+    Adapted method from Pond and Pickard (p76) to calculate gpan relative to
+    sea surface whereas P&P calculated relative to the deepest common depth.
+    Note that older literature may use units of "dynamic decimeter" for above.
+
 
     Parameters
     ----------
@@ -1633,25 +1310,10 @@ def gpan(s, t, p):
            [m :sup:`3` kg :sup:`-1`
             Pa = m :sup:`2` s :sup:`-2` = J kg :sup:`-1`]
 
-    See Also
-    --------
-    svan, gvel
-
-    Notes
-    -----
-    Adapted method from Pond and Pickard (p76) to calculate gpan relative to
-    sea surface whereas P&P calculated relative to the deepest common depth.
-    Note that older literature may use units of "dynamic decimeter" for above.
-
-    TODO: example with values that make some sense
-
-    TODO: pass axis as argument
-
     Examples
     --------
-    Data from Unesco Tech. Paper in Marine Sci. No. 44, p22
-
-    >>> import seawater.csiro as sw
+    Data from Unesco Tech. Paper in Marine Sci. No. 44, p22.
+    >>> import seawater as sw
     >>> s = [[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]]
     >>> t = [[15]*3]*4
     >>> p = [[0], [250], [500], [1000]]
@@ -1668,8 +1330,6 @@ def gpan(s, t, p):
 
     Modifications: 92-11-05. Phil Morgan.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
     s, t, p = map(np.asanyarray, (s, t, p))
@@ -1690,15 +1350,12 @@ def gpan(s, t, p):
 
     delta_ga = (mean_svan * np.diff(p, axis=0)) * db2Pascal
     delta_ga = np.r_[np.atleast_2d(top), delta_ga]
-    ga = np.cumsum(delta_ga, axis=0)
-
-    return ga
+    return np.cumsum(delta_ga, axis=0)
 
 
 def gvel(ga, distm, lat):
-    r"""
-    Calculates geostrophic velocity given the geopotential anomaly
-    and position of each station.
+    """Calculates geostrophic velocity given the geopotential anomaly and
+    position of each station.
 
     Parameters
     ----------
@@ -1715,23 +1372,10 @@ def gvel(ga, distm, lat):
            geostrophic velocity relative to the sea surface.
            dimension will be MxN-1 (N: stations)
 
-    See Also
-    --------
-    svan, gpan
-
-    Notes
-    -----
-    The original matlab version had gvel and gvel2 only, here the logic is
-    "gvel2", where one must compute the distance first.
-
-    TODO: dim(m, nstations-1) or pass axis?
-          add example with a reference level.
-          example with values that make some sense.
-
     Examples
     --------
     >>> import numpy as np
-    >>> import seawater.csiro as sw
+    >>> import seawater as sw
     >>> lon = [30, 30, 30]
     >>> lat = [30, 32, 35]
     >>> s = np.array([[0, 1, 2], [15, 16, 17], [30, 31, 32],[35,35,35]])
@@ -1751,22 +1395,17 @@ def gvel(ga, distm, lat):
     Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
 
     Modifications: 92-03-26. Phil Morgan.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
     ga, distm, lat = map(np.asanyarray, (ga, distm, lat))
 
     f = cor((lat[0:-1] + lat[1:]) / 2)
     lf = f * distm
-    vel = -np.diff(ga, axis=1) / lf
-
-    return vel
+    return -np.diff(ga, axis=1) / lf
 
 
 def cp(s, t, p):
-    r"""
-    Heat Capacity of Sea Water using UNESCO 1983 polynomial.
+    """Heat Capacity of Sea Water using UNESCO 1983 polynomial.
 
     Parameters
     ----------
@@ -1782,19 +1421,10 @@ def cp(s, t, p):
     cp : array_like
          specific heat capacity [J kg :sup:`-1` C :sup:`-1`]
 
-    See Also
-    --------
-    TODO
-
-    Notes
-    -----
-    TODO
-
     Examples
     --------
-    Data from Pond and Pickard Intro. Dynamical Oceanography 2nd ed. 1986
-
-    >>> import seawater.csiro as sw
+    Data from Pond and Pickard Intro. Dynamical Oceanography 2nd ed. 1986.
+    >>> import seawater as sw
     >>> t = T90conv([[0, 0, 0, 0, 0, 0],
     ...              [10, 10, 10, 10, 10, 10],
     ...              [20, 20, 20, 20, 20, 20],
@@ -1828,97 +1458,54 @@ def cp(s, t, p):
     Modifications: Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
+    s, t, p = map(np.asanyarray, (s, t, p))
 
     p = p / 10.  # To convert [db] to [bar] as used in UNESCO routines.
     T68 = T68conv(t)
 
-    # eqn 26 p.32
-    c0 = 4217.4
-    c1 = -3.720283
-    c2 = 0.1412855
-    c3 = -2.654387e-3
-    c4 = 2.093236e-5
+    # Eqn. 26 p.32.
+    a = (-7.64357, 0.1072763, -1.38385e-3)
+    b = (0.1770383, -4.07718e-3, 5.148e-5)
+    c = (4217.4, -3.720283, 0.1412855, -2.654387e-3, 2.093236e-5)
 
-    a0 = -7.64357
-    a1 = 0.1072763
-    a2 = -1.38385e-3
+    Cpst0 = ((((c[4] * T68 + c[3]) * T68 + c[2]) * T68 + c[1]) * T68 + c[0] +
+             (a[0] + a[1] * T68 + a[2] * T68 ** 2) * s +
+             (b[0] + b[1] * T68 + b[2] * T68 ** 2) * s * s ** 0.5)
 
-    b0 = 0.1770383
-    b1 = -4.07718e-3
-    b2 = 5.148e-5
+    # Eqn. 28 p.33.
+    a = (-4.9592e-1, 1.45747e-2, -3.13885e-4, 2.0357e-6, 1.7168e-8)
+    b = (2.4931e-4, -1.08645e-5, 2.87533e-7, -4.0027e-9, 2.2956e-11)
+    c = (-5.422e-8, 2.6380e-9, -6.5637e-11, 6.136e-13)
 
-    Cpst0 = ((((c4 * T68 + c3) * T68 + c2) * T68 + c1) * T68 + c0 +
-             (a0 + a1 * T68 + a2 * T68 ** 2) * s +
-             (b0 + b1 * T68 + b2 * T68 ** 2) * s * s ** 0.5)
-
-    # eqn 28 p.33
-    a0 = -4.9592e-1
-    a1 = 1.45747e-2
-    a2 = -3.13885e-4
-    a3 = 2.0357e-6
-    a4 = 1.7168e-8
-
-    b0 = 2.4931e-4
-    b1 = -1.08645e-5
-    b2 = 2.87533e-7
-    b3 = -4.0027e-9
-    b4 = 2.2956e-11
-
-    c0 = -5.422e-8
-    c1 = 2.6380e-9
-    c2 = -6.5637e-11
-    c3 = 6.136e-13
-
-    del_Cp0t0 = ((((((c3 * T68 + c2) * T68 + c1) * T68 + c0) * p +
-                   ((((b4 * T68 + b3) * T68 + b2) * T68 + b1) * T68 +
-                    b0)) * p + ((((a4 * T68 + a3) * T68 + a2) * T68 + a1) *
-                                T68 + a0)) * p)
+    del_Cp0t0 = ((((((c[3] * T68 + c[2]) * T68 + c[1]) * T68 + c[0]) * p +
+                   ((((b[4] * T68 + b[3]) * T68 + b[2]) * T68 + b[1]) *
+                    T68 + b[0])) * p + ((((a[4] * T68 + a[3]) * T68 + a[2]) *
+                                         T68 + a[1]) * T68 + a[0])) * p)
 
     # Eqn 29 p.34.
-    d0 = 4.9247e-3
-    d1 = -1.28315e-4
-    d2 = 9.802e-7
-    d3 = 2.5941e-8
-    d4 = -2.9179e-10
-
-    e0 = -1.2331e-4
-    e1 = -1.517e-6
-    e2 = 3.122e-8
-
-    f0 = -2.9558e-6
-    f1 = 1.17054e-7
-    f2 = -2.3905e-9
-    f3 = 1.8448e-11
-
+    d = (4.9247e-3, -1.28315e-4, 9.802e-7, 2.5941e-8, -2.9179e-10)
+    e = (-1.2331e-4, -1.517e-6, 3.122e-8)
+    f = (-2.9558e-6, 1.17054e-7, -2.3905e-9, 1.8448e-11)
     g0 = 9.971e-8
-
-    h0 = 5.540e-10
-    h1 = -1.7682e-11
-    h2 = 3.513e-13
-
+    h = (5.540e-10, -1.7682e-11, 3.513e-13)
     j1 = -1.4300e-12
 
     S3_2 = s * s ** 0.5
 
-    del_Cpstp = ((((((d4 * T68 + d3) * T68 + d2) * T68 + d1) * T68 + d0) * s +
-                  ((e2 * T68 + e1) * T68 + e0) * S3_2) * p +
-                 ((((f3 * T68 + f2) * T68 + f1) * T68 + f0) * s +
-                  g0 * S3_2) * p ** 2 + (((h2 * T68 + h1) * T68 + h0) * s +
-                                         j1 * T68 * S3_2) * p ** 3)
+    del_Cpstp = ((((((d[4] * T68 + d[3]) * T68 + d[2]) * T68 + d[1]) *
+                   T68 + d[0]) * s + ((e[2] * T68 + e[1]) * T68 + e[0]) *
+                  S3_2) * p +
+                 ((((f[3] * T68 + f[2]) * T68 + f[1]) * T68 + f[0]) * s +
+                  g0 * S3_2) * p ** 2 + (((h[2] * T68 + h[1]) * T68 + h[0]) *
+                                         s + j1 * T68 * S3_2) * p ** 3)
 
-    cp = Cpst0 + del_Cp0t0 + del_Cpstp
-
-    return cp
+    return Cpst0 + del_Cp0t0 + del_Cpstp
 
 
 def ptmp(s, t, p, pr=0):
-    r"""
-    Calculates potential temperature as per UNESCO 1983 report.
+    """Calculates potential temperature as per UNESCO 1983 report.
 
     Parameters
     ----------
@@ -1936,17 +1523,9 @@ def ptmp(s, t, p, pr=0):
     pt : array_like
          potential temperature relative to PR [:math:`^\circ` C (ITS-90)]
 
-    See Also
-    --------
-    adtg, pden
-
-    Notes
-    -----
-    TODO
-
     Examples
     --------
-    >>> import seawater.csiro as sw
+    >>> import seawater as sw
     >>> t = T90conv([[0, 0, 0, 0, 0, 0],
     ...              [10, 10, 10, 10, 10, 10],
     ...              [20, 20, 20, 20, 20, 20],
@@ -1984,12 +1563,9 @@ def ptmp(s, t, p, pr=0):
     Modifications: 92-04-06. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-25. Filipe Fernandes, Reformulated docstring.
     """
 
-    s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
-    pr = np.asanyarray(pr)
+    s, t, p, pr = map(np.asanyarray, (s, t, p, pr))
 
     # Theta1.
     del_P = pr - p
@@ -2009,14 +1585,12 @@ def ptmp(s, t, p, pr=0):
 
     # Theta4.
     del_th = del_P * adtg(s, T90conv(th), p + del_P)
-    pt = T90conv(th + (del_th - 2 * q) / 6)
-    return pt
+    return T90conv(th + (del_th - 2 * q) / 6)
 
 
 def temp(s, pt, p, pr=0):
-    r"""
-    Calculates temperature from potential temperature at the reference pressure
-    PR and in situ pressure P.
+    """Calculates temperature from potential temperature at the reference
+    pressure PR and in situ pressure P.
 
     Parameters
     ----------
@@ -2034,17 +1608,9 @@ def temp(s, pt, p, pr=0):
     temp : array_like
            temperature [:math:`^\circ` C (ITS-90)]
 
-    See Also
-    --------
-    ptmp
-
-    Notes
-    -----
-    TODO
-
     Examples
     --------
-    >>> import seawater.csiro as sw
+    >>> import seawater as sw
     >>> s, t, p = 35, 15, 100
     >>> sw.temp(s, sw.ptmp(s, t, p), p)
     15.0
@@ -2062,22 +1628,14 @@ def temp(s, pt, p, pr=0):
 
     Modifications: 92-04-06. Phil Morgan.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-19. Filipe Fernandes, Reformulated docstring.
     """
-
-    s, pt, p = np.asanyarray(s), np.asanyarray(pt), np.asanyarray(p)
-    pr = np.asanyarray(pr)
-
-    # Carry out inverse calculation by swapping p0 & pr
-    t = ptmp(s, pt, pr, p)
-
-    return t
+    s, pt, p, pr = map(np.asanyarray, (s, pt, p, pr))
+    # Carry out inverse calculation by swapping p0 & pr.
+    return ptmp(s, pt, pr, p)
 
 
 def swvel(length, depth):
-    r"""
-    Calculates surface wave velocity.
+    """Calculates surface wave velocity.
 
     length : array_like
             wave length
@@ -2089,30 +1647,17 @@ def swvel(length, depth):
     speed : array_like
             surface wave speed [m s :sup:`-1`]
 
-    See Also
-    --------
-    TODO
-
-    Notes
-    -----
-    TODO: add my wave function to extras
-
     Examples
     --------
-    >>> import seawater.csiro as sw
+    >>> import seawater as sw
     >>> sw.swvel(10, 100)
     3.9493270848342941
 
     Modifications: Lindsay Pender 2005
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-25. Filipe Fernandes, Reformulated docstring.
     """
-
     length, depth = map(np.asanyarray, (length, depth))
-
     k = 2.0 * np.pi / length
-    speed = (gdef * np.tanh(k * depth) / k) ** 0.5
-    return speed
+    return (gdef * np.tanh(k * depth) / k) ** 0.5
 
 
 if __name__ == '__main__':

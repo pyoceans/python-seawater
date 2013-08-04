@@ -7,7 +7,7 @@
 # e-mail:   ocefpaf@gmail
 # web:      http://ocefpaf.github.io/
 # created:  03-Aug-2013
-# modified: Sun 04 Aug 2013 10:15:51 AM BRT
+# modified: Sun 04 Aug 2013 10:36:27 AM BRT
 #
 # obs:
 #
@@ -55,7 +55,7 @@ def cndr(s, t, p):
 
     Examples
     --------
-    >>> # Data from UNESCO 1983 p9
+    Data from UNESCO 1983 p9
     >>> import seawater as sw
     >>> t = sw.T90conv([0, 10, 0, 10, 10, 30])
     >>> p = [0, 0, 1000, 1000, 0, 0]
@@ -110,7 +110,7 @@ def cndr(s, t, p):
 
 
 def salds(rtx, delt):
-    r"""Calculates Salinity differential (:math:`\frac{dS}{d(\sqrt{Rt})}`) at
+    """Calculates Salinity differential (:math:`\frac{dS}{d(\sqrt{Rt})}`) at
     constant temperature.
 
     Parameters
@@ -127,10 +127,10 @@ def salds(rtx, delt):
 
     Examples
     --------
-    >>> # Data from UNESCO 1983 p9
+    Data from UNESCO 1983 p9
     >>> import numpy as np
     >>> import seawater as sw
-    >>> delt = T90conv([15, 20, 5])  - 15
+    >>> delt = sw.T90conv([15, 20, 5]) - 15
     >>> rtx  = np.array([ 1, 1.0568875, 0.81705885]) ** 0.5
     >>> sw.salds(rtx, delt)
     array([ 78.31921607,  81.5689307 ,  68.19023687])
@@ -158,7 +158,7 @@ def salds(rtx, delt):
 
 
 def salrp(r, t, p):
-    r"""Equation for Rp used in calculating salinity. UNESCO 1983 polynomial.
+    """Equation for Rp used in calculating salinity. UNESCO 1983 polynomial.
 
     .. math::
         Rp(S,T,P) = \frac{C(S,T,P)}{C(S,T,0)}
@@ -182,7 +182,7 @@ def salrp(r, t, p):
     --------
     >>> import seawater as sw
     >>> r = [1, 1.2, 0.65]
-    >>> t = T90conv([15, 20, 5])
+    >>> t = sw.T90conv([15, 20, 5])
     >>> p = [0, 2000, 1500]
     >>> sw.salrp(r, t, p)
     array([ 1.        ,  1.01694294,  1.02048638])
@@ -198,7 +198,7 @@ def salrp(r, t, p):
                    03-12-12. Lindsay Pender, Converted to ITS-90.
     """
 
-    r, t, p = map(np.asanyarray(r, t, p))
+    r, t, p = map(np.asanyarray, (r, t, p))
 
     # Eqn(4) p.8 UNESCO.
     T68 = T68conv(t)
@@ -210,7 +210,7 @@ def salrp(r, t, p):
 
 
 def salrt(t):
-    r"""Equation for rt used in calculating salinity. UNESCO 1983 polynomial.
+    """Equation for rt used in calculating salinity. UNESCO 1983 polynomial.
 
     .. math::
         rt(t) = \frac{C(35,t,0)}{C(35,15(\textrm{IPTS-68}), 0)}
@@ -226,19 +226,11 @@ def salrt(t):
     rt : array_like
     conductivity ratio  [no units]
 
-    See Also
-    --------
-    salt
-
-    Notes
-    -----
-    TODO
-
     Examples
     --------
-    >>> # Data from UNESCO 1983 p9
-    >>> import seawater.csiro as sw
-    >>> t = T90conv([15, 20, 5])
+    Data from UNESCO 1983 p9
+    >>> import seawater as sw
+    >>> t = sw.T90conv([15, 20, 5])
     >>> sw.salrt(t)
     array([ 1.        ,  1.11649272,  0.77956585])
 
@@ -251,8 +243,6 @@ def salrt(t):
 
     Modifications: 93-04-17. Phil Morgan.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-19. Filipe Fernandes, Reformulated docstring.
     """
 
     t = np.asanyarray(t)
@@ -262,7 +252,7 @@ def salrt(t):
 
 
 def seck(s, t, p=0):
-    r"""Secant Bulk Modulus (K) of Sea Water using Equation of state 1980.
+    """Secant Bulk Modulus (K) of Sea Water using Equation of state 1980.
     UNESCO polynomial implementation.
 
     Parameters
@@ -281,10 +271,10 @@ def seck(s, t, p=0):
 
     Examples
     --------
-    >>> # Data from Unesco Tech. Paper in Marine Sci. No. 44, p22
+    Data from Unesco Tech. Paper in Marine Sci. No. 44, p22
     >>> import seawater as sw
     >>> s = [0, 0, 0, 0, 35, 35, 35, 35]
-    >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
+    >>> t = sw.T90conv([0, 0, 30, 30, 0, 0, 30, 30])
     >>> p = [0, 10000, 0, 10000, 0, 10000, 0, 10000]
     >>> sw.seck(s, t, p)
     array([ 19652.21      ,  22977.2115    ,  22336.0044572 ,  25656.8196222 ,
@@ -342,7 +332,7 @@ def seck(s, t, p=0):
 
 
 def sals(rt, t):
-    r"""Salinity of sea water as a function of Rt and T.
+    """Salinity of sea water as a function of Rt and T.
     UNESCO 1983 polynomial.
 
     Parameters
@@ -359,9 +349,9 @@ def sals(rt, t):
 
     Examples
     --------
-    >>> # Data from UNESCO 1983 p9
+    Data from UNESCO 1983 p9
     >>> import seawater as sw
-    >>> t = T90conv([15, 20, 5])
+    >>> t = sw.T90conv([15, 20, 5])
     >>> rt = [1, 1.0568875, 0.81705885]
     >>> sw.sals(rt, t)
     array([ 35.        ,  37.24562718,  27.99534701])
@@ -394,7 +384,7 @@ def sals(rt, t):
 
 
 def T68conv(T90):
-    r"""Convert ITS-90 temperature to IPTS-68
+    """Convert ITS-90 temperature to IPTS-68
 
     :math:`T68  = T90 * 1.00024`
 
@@ -432,7 +422,7 @@ def T68conv(T90):
 
 
 def T90conv(t, t_type='T68'):
-    r"""Convert IPTS-68 or IPTS-48 to temperature to ITS-90.
+    """Convert IPTS-68 or IPTS-48 to temperature to ITS-90.
 
     T48 apply to all data collected prior to 31/12/1967.
     T68 apply to all data collected between 01/10/1968 and 31/12/1989.
@@ -463,7 +453,7 @@ def T90conv(t, t_type='T68'):
 
     Examples
     --------
-    >>> import seawater.csiro as sw
+    >>> import seawater as sw
     >>> sw.T90conv(20.004799999999999)
     20.0
     >>> sw.T90conv(20., t_type='T48')
@@ -489,3 +479,7 @@ def T90conv(t, t_type='T68'):
         raise NameError("Unrecognized temperature type.  Try 'T68'' or 'T48'")
 
     return T90
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()

@@ -2,4 +2,5 @@
 
 __version__ = '3.3'
 
+from library import *
 from seawater import *
