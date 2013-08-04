@@ -3,136 +3,22 @@
 from __future__ import division
 
 import numpy as np
-from seawater import constants as cte
+from library import T90conv, T68conv, salrt, salrp, sals, seck
 
-rad = np.pi / 180.0
-deg = 180.0 / np.pi
+# Constants.
+deg2rad, rad2deg = np.pi / 180.0,  180.0 / np.pi  # Angle conversions.
+earth_radius = 6371000.  # Mean radius of earth [m] A.E. Gill.
+OMEGA = 7.292115e-5  # Sidereal day = 23.9344696 hours.
+DEG2NM, NM2KM = 60., 1.8520   # 1 nm = 1.8520 km
+gdef = 9.8  # Acceleration of gravity [m/s**2]
+Kelvin = 273.15  # The Celsius zero point.
+db2Pascal = 1e4  # dbar to pascal.
 
-
-def T68conv(T90):
-    r"""
-    Convert ITS-90 temperature to IPTS-68
-
-    :math:`T68  = T90 * 1.00024`
-
-    Parameters
-    ----------
-    t : array_like
-           temperature [:math:`^\circ` C (ITS-90)]
-
-    Returns
-    -------
-    t : array_like
-           temperature [:math:`^\circ` C (IPTS-68)]
-
-    See Also
-    --------
-    TODO
-
-    Notes
-    -----
-    The International Practical Temperature Scale of 1968 (IPTS-68) need to be
-    correct to the ITS-90. This linear transformation is accurate within
-    0.5 :math:`^\circ` C for conversion between IPTS-68 and ITS-90 over the
-    oceanographic temperature range.
-
-    Examples
-    --------
-    >>> import seawater.csiro as sw
-    >>> sw.T68conv(19.995201151723585)
-    20.0
-
-    References
-    ----------
-    .. [1] Saunders, P. M., 1991: The International Temperature Scale of 1990,
-    ITS-90. WOCE Newsletter, No. 10, WOCE International Project Office,
-    Southampton, United Kingdom, 10.
-
-    Modifications: Filipe Fernandes, 2010
-                   #10-11-24. Filipe Fernandes, first version.
-    """
-
-    T90 = np.asanyarray(T90)
-
-    T68 = T90 * 1.00024
-    return T68
+__all__ = []
 
 
-def T90conv(t, t_type='T68'):
-    r"""
-    Convert IPTS-68 or IPTS-48 to temperature to ITS-90.
-
-    T48 apply to all data collected prior to 31/12/1967.
-    T68 apply to all data collected between 01/10/1968 and 31/12/1989.
-
-
-    ..math:
-        T90 = T68 / 1.00024
-
-        T90 = T48 - (4.4e-6) * T48 * (100-T48) ) / 1.00024
-
-    Parameters
-    ----------
-    t : array_like
-           temperature [:math:`^\circ` C (IPTS-68) or (IPTS-48)]
-    t_type : string, optional
-            'T68' (default) or 'T48'
-
-    Returns
-    -------
-    T90 : array_like
-           temperature [:math:`^\circ` C (ITS-90)]
-
-    See Also
-    --------
-    TODO
-
-    Notes
-    -----
-    The International Practical Temperature Scale of 1968 (IPTS-68) need to be
-    correct to the ITS-90. This linear transformation is accurate within
-    0.5 :math:`^\circ` C for conversion between IPTS-68 and ITS-90 over the
-    oceanographic temperature range.
-
-    Examples
-    --------
-    >>> import seawater.csiro as sw
-    >>> sw.T90conv(20.004799999999999)
-    20.0
-    >>> sw.T90conv(20., t_type='T48')
-    19.988162840918179
-
-    References
-    ----------
-    .. [1] Saunders, P. M., 1991: The International Temperature Scale of 1990,
-    ITS-90. WOCE Newsletter, No. 10, WOCE International Project Office,
-    Southampton, United Kingdom, 10.
-
-    .. [2] International Temperature Scales of 1948, 1968 and 1990, an ICES
-    note, available from http://www.ices.dk/ocean/procedures/its.htm
-
-    Modifications: Filipe Fernandes, 2010
-                   2010-11-24. Filipe Fernandes, first version.
-                   2010-12-24. Filipe Fernandes, added T48.
-    """
-
-    t = np.asanyarray(t)
-
-    if t_type == 'T68':
-        #T90 = t * 0.999760057586179 #NOTE: gsw way is less precise
-        T90 = t / 1.00024
-    elif t_type == 'T48':
-        T90 = (t - 4.4e-6 * t * (100 - t)) / 1.00024
-    else:
-        raise NameError('Wrong t_type')
-
-    return T90
-
-
-# Original seawater functions
 def adtg(s, t, p):
-    r"""
-    Calculates adiabatic temperature gradient as per UNESCO 1983 routines.
+    r"""Calculates adiabatic temperature gradient as per UNESCO 1983 routines.
 
     Parameters
     ----------
@@ -539,7 +425,7 @@ def bfrq(s, t, p, lat=None):
     if lat is None:
         z = p
         f = np.nan
-        g = cte.gdef * np.ones(p.shape)
+        g = gdef * np.ones(p.shape)
     else:
         lat = np.asanyarray(lat)
         z = depth(p, lat)
@@ -621,7 +507,7 @@ def depth(p, lat):
     gam_dash = 2.184e-6
 
     lat = abs(lat)
-    X = np.sin(lat * rad)
+    X = np.sin(lat * deg2rad)
     X = X * X
 
     bot_line = (9.780318 * (1.0 + (5.2788E-3 + 2.36E-5 * X) * X) +
@@ -681,10 +567,10 @@ def grav(lat, z=0):
 
     # Eqn p27.  UNESCO 1983.
     lat = np.abs(lat)
-    X = np.sin(lat * rad)
+    X = np.sin(lat * deg2rad)
     sin2 = X * X
     grav = 9.780318 * (1.0 + (5.2788E-3 + 2.36E-5 * sin2) * sin2)
-    grav = grav / ((1 + z / cte.earth_radius) ** 2)  # From A.E.Gill p.597.
+    grav = grav / ((1 + z / earth_radius) ** 2)  # From A.E.Gill p.597.
     return grav
 
 
@@ -746,325 +632,8 @@ def cor(lat):
     lat = np.asanyarray(lat)
 
     # Eqn p27.  UNESCO 1983.
-    f = 2 * cte.OMEGA * np.sin(lat * rad)
+    f = 2 * OMEGA * np.sin(lat * deg2rad)
     return f
-
-
-def cndr(s, t, p):
-    r"""
-    Calculates conductivity ratio.
-
-    Parameters
-    ----------
-    s(p) : array_like
-           salinity [psu (PSS-78)]
-    t(p) : array_like
-           temperature [:math:`^\circ` C (ITS-90)]
-    p : array_like
-        pressure [db]. The shape can be "broadcasted"
-
-    Returns
-    -------
-    cndr : array_like
-           conductivity ratio. R = C(s,t,p)/C(35,15(IPTS-68),0) [no units]
-
-    See Also
-    --------
-    salds, sals, salrt
-
-    Notes
-    -----
-    TODO: Pressure broadcast feature need to be tested.
-
-    Examples
-    --------
-    Data from UNESCO 1983 p9
-
-    >>> import seawater.csiro as sw
-    >>> t = sw.T90conv([0, 10, 0, 10, 10, 30])
-    >>> p    = [0, 0, 1000, 1000, 0, 0]
-    >>> s    = [25, 25, 25, 25, 40, 40]
-    >>> sw.cndr(s, t, p)
-    array([ 0.49800825,  0.65499015,  0.50624434,  0.66297496,  1.00007311,
-            1.52996697])
-
-    Notes
-    -----
-    TODO: Pressure broadcast feature need to be tested.
-
-    References
-    ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
-    computation of fundamental properties of seawater. UNESCO Tech. Pap.
-    in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
-
-    Modifications: 93-04-21. Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-19. Filipe Fernandes, Reformulated docstring.
-    """
-
-    s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
-
-    T68 = T68conv(t)
-
-    # DO A NEWTON-RAPHSON ITERATION FOR INVERSE INTERPOLATION OF Rt FROM S.
-    Rx = np.sqrt(s / 35.0)  # First guess at Rx = sqrt(Rt).
-    SInc = sals(Rx ** 2, t)  # S increment (guess) from Rx.
-    iloop = 0
-    while True:
-        Rx = Rx + (s - SInc) / salds(Rx, t - 15)
-        SInc = sals(Rx ** 2, t)
-        iloop = iloop + 1
-        dels = np.abs(SInc - s)
-        if not (dels.all() > 1.0e-10) & (iloop < 100):
-            break
-
-    # ONCE Rt FOUND, CORRESPONDING TO EACH (S,T) EVALUATE R
-    # eqn(4) p.8 UNESCO 1983
-    d1 = 3.426e-2
-    d2 = 4.464e-4
-    d3 = 4.215e-1
-    d4 = -3.107e-3
-
-    e1 = 2.070e-5
-    e2 = -6.370e-10
-    e3 = 3.989e-15
-
-    A = (d3 + d4 * T68)
-    B = 1 + d1 * T68 + d2 * T68 ** 2
-    C = p * (e1 + e2 * p + e3 * p ** 2)
-
-    # Eqn(6) p.9 UNESCO 1983.
-    Rt = Rx ** 2
-    rt = salrt(t)
-    #Rtrt  = rt * Rt # NOTE: unused in the code, but present in the original
-    D = B - A * rt * Rt
-    E = rt * Rt * A * (B + C)
-    r = np.sqrt(np.abs(D ** 2 + 4 * E)) - D
-    r = 0.5 * r / A
-    return r
-
-
-def sals(rt, t):
-    r"""
-    Salinity of sea water as a function of Rt and T.
-    UNESCO 1983 polynomial.
-
-    Parameters
-    ----------
-    rt : array_like
-         :math:`rt(s,t) = \frac{C(s,t,0)}{C(35, t(\textrm{IPTS-68}), 0)}`
-    t : array_like
-        temperature [:math:`^\circ` C (ITS-90)]
-
-    Returns
-    -------
-    s : array_like
-        salinity [psu (PSS-78)]
-
-    See Also
-    --------
-    salt
-
-    Notes
-    -----
-    TODO
-
-    Examples
-    --------
-    Data from UNESCO 1983 p9
-
-    >>> import seawater.csiro as sw
-    >>> t = T90conv([15, 20, 5])
-    >>> rt   = [  1, 1.0568875, 0.81705885]
-    >>> sw.sals(rt, t)
-    array([ 35.        ,  37.24562718,  27.99534701])
-
-    References
-    ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
-    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
-    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
-
-    Modifications: 93-04-17. Phil Morgan.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-19. Filipe Fernandes, Reformulated docstring.
-    """
-
-    rt, t = np.asanyarray(rt), np.asanyarray(t)
-
-    # eqn (1) & (2) p6,7 unesco
-    del_T68 = T68conv(t) - 15
-
-    a0 = 0.0080
-    a1 = -0.1692
-    a2 = 25.3851
-    a3 = 14.0941
-    a4 = -7.0261
-    a5 = 2.7081
-
-    b0 = 0.0005
-    b1 = -0.0056
-    b2 = -0.0066
-    b3 = -0.0375
-    b4 = 0.0636
-    b5 = -0.0144
-
-    k = 0.0162
-
-    Rtx = (rt) ** 0.5
-    del_S = ((del_T68 / (1 + k * del_T68)) *
-             (b0 + (b1 + (b2 + (b3 + (b4 + b5 * Rtx) *
-                                Rtx) * Rtx) * Rtx) * Rtx))
-
-    s = a0 + (a1 + (a2 + (a3 + (a4 + a5 * Rtx) *
-                          Rtx) * Rtx) * Rtx) * Rtx
-
-    s = s + del_S
-
-    return s
-
-
-def salds(rtx, delt):
-    r"""
-    Calculates Salinity differential (:math:`\frac{dS}{d(\sqrt{Rt})}`) at
-    constant temperature.
-
-    Parameters
-    ----------
-    rtx : array_like
-          :math:`\sqrt{rt}`
-    delt : array_like
-           t-15 [:math:`^\circ` C (IPTS-68)]
-
-    Returns
-    -------
-    ds : array_like
-         :math:`\frac{dS}{d rtx}`
-
-    See Also
-    --------
-    cndr, salt
-
-    Notes
-    -----
-    TODO
-
-    Examples
-    --------
-    Data from UNESCO 1983 p9
-
-    >>> import numpy as np
-    >>> import seawater.csiro as sw
-    >>> delt = T90conv([15, 20, 5])  - 15
-    >>> rtx  = np.array([  1, 1.0568875, 0.81705885])**0.5
-    >>> sw.salds(rtx, delt)
-    array([ 78.31921607,  81.5689307 ,  68.19023687])
-
-    References
-    ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
-    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
-    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
-
-    Modifications: 93-04-21. Phil Morgan.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-19. Filipe Fernandes, Reformulated docstring.
-    """
-
-    rtx, delt = np.asanyarray(rtx), np.asanyarray(delt)
-
-    #a0 =  0.0080 #TODO: unused in the code, but present in the original
-    a1 = -0.1692
-    a2 = 25.3851
-    a3 = 14.0941
-    a4 = -7.0261
-    a5 = 2.7081
-
-    #b0 =  0.0005 #TODO: unused in the code, but present in the original
-    b1 = -0.0056
-    b2 = -0.0066
-    b3 = -0.0375
-    b4 = 0.0636
-    b5 = -0.0144
-
-    k = 0.0162
-
-    ds = (a1 + (2 * a2 + (3 * a3 + (4 * a4 + 5 * a5 * rtx) * rtx)
-          * rtx) * rtx + (delt / (1 + k * delt)) *
-          (b1 + (2 * b2 + (3 * b3 + (4 * b4 + 5 * b5 * rtx)
-                           * rtx) * rtx) * rtx))
-
-    return ds
-
-
-def salrt(t):
-    r"""
-    Equation for rt used in calculating salinity. UNESCO 1983 polynomial.
-
-    .. math::
-        rt(t) = \frac{C(35,t,0)}{C(35,15(\textrm{IPTS-68}), 0)}
-
-
-    Parameters
-    ----------
-      t : array_like
-          temperature [:math:`^\circ` C (ITS-90)]
-
-    Returns
-    -------
-    rt : array_like
-    conductivity ratio  [no units]
-
-    See Also
-    --------
-    salt
-
-    Notes
-    -----
-    TODO
-
-    Examples
-    --------
-    Data from UNESCO 1983 p9
-
-    >>> import seawater.csiro as sw
-    >>> t = T90conv([15, 20, 5])
-    >>> sw.salrt(t)
-    array([ 1.        ,  1.11649272,  0.77956585])
-
-    References
-    ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
-    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
-    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
-
-    Modifications: 93-04-17. Phil Morgan.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-19. Filipe Fernandes, Reformulated docstring.
-    """
-
-    t = np.asanyarray(t)
-
-    #Eqn (3) p.7 UNESCO.
-    T68 = T68conv(t)
-
-    c0 = 0.6766097
-    c1 = 2.00564e-2
-    c2 = 1.104259e-4
-    c3 = -6.9698e-7
-    c4 = 1.0031e-9
-
-    rt = c0 + (c1 + (c2 + (c3 + c4 * T68) * T68) * T68) * T68
-    return rt
 
 
 def salt(r, t, p):
@@ -1122,82 +691,7 @@ def salt(r, t, p):
     rt = salrt(t)
     rp = salrp(r, t, p)
     rt = r / (rp * rt)
-    s = sals(rt, t)
-
-    return s
-
-
-def salrp(r, t, p):
-    r"""
-    Equation for Rp used in calculating salinity. UNESCO 1983 polynomial.
-
-    .. math::
-        Rp(S,T,P) = \frac{C(S,T,P)}{C(S,T,0)}
-
-
-    Parameters
-    ----------
-    r : array_like
-        conductivity ratio :math:`R = \frac{C(S,T,P)}{C(35,15(IPTS-68),0)}`
-    t : array_like
-        temperature [:math:`^\circ` C (ITS-90)]
-    p : array_like
-        pressure [db]
-
-    Returns
-    -------
-    rp : array_like
-        conductivity ratio :math:`Rp(S,T,P) = \frac{C(S,T,P)}{C(S,T,0)}`
-
-    See Also
-    --------
-    salt
-
-    Notes
-    -----
-    TODO
-
-    Examples
-    --------
-
-    >>> import seawater.csiro as sw
-    >>> r = [1, 1.2, 0.65]
-    >>> t = T90conv([15, 20, 5])
-    >>> p = [0, 2000, 1500]
-    >>> sw.salrp(r, t, p)
-    array([ 1.        ,  1.01694294,  1.02048638])
-
-    References
-    ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
-    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
-    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
-
-    Modifications: 93-04-17. Phil Morgan.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-19. Filipe Fernandes, Reformulated docstring.
-    """
-
-    r, t, p = np.asanyarray(r), np.asanyarray(t), np.asanyarray(p)
-
-    # eqn (4) p.8 unesco.
-    T68 = T68conv(t)
-
-    d1 = 3.426e-2
-    d2 = 4.464e-4
-    d3 = 4.215e-1
-    d4 = -3.107e-3
-
-    e1 = 2.070e-5
-    e2 = -6.370e-10
-    e3 = 3.989e-15
-
-    rp = (1 + (p * (e1 + e2 * p + e3 * p ** 2)) /
-          (1 + d1 * T68 + d2 * T68 ** 2 + (d3 + d4 * T68) * r))
-
-    return rp
+    return sals(rt, t)
 
 
 def fp(s, p):
@@ -1262,9 +756,7 @@ def fp(s, p):
     a2 = -2.154996e-4
     b = -7.53e-4
 
-    fp = T90conv(a0 * s + a1 * s * (s) ** 0.5 + a2 * s ** 2 + b * p)
-
-    return fp
+    return T90conv(a0 * s + a1 * s * (s) ** 0.5 + a2 * s ** 2 + b * p)
 
 
 def svel(s, t, p):
@@ -1469,7 +961,7 @@ def pres(depth, lat):
 
     depth, lat = np.asanyarray(depth), np.asanyarray(lat)
 
-    X = np.sin(np.abs(lat * rad))
+    X = np.sin(np.abs(lat * deg2rad))
     C1 = 5.92E-3 + X ** 2 * 5.25E-3
     pres = ((1 - C1) - (((1 - C1) ** 2) - (8.84E-6 * depth)) ** 0.5) / 4.42E-6
     return pres
@@ -1555,16 +1047,16 @@ def dist(lon, lat, units='km'):
         flag = abs(dlon) > 180
         dlon[flag] = -np.sign(dlon[flag]) * (360 - np.abs(dlon[flag]))
 
-    latrad = np.abs(lat * rad)
+    latrad = np.abs(lat * deg2rad)
     dep = np.cos((latrad[ind + 1] + latrad[ind]) / 2) * dlon
     dlat = np.diff(lat, axis=0)
-    dist = cte.DEG2NM * (dlat ** 2 + dep ** 2) ** 0.5
+    dist = DEG2NM * (dlat ** 2 + dep ** 2) ** 0.5
 
     if units == 'km':
-        dist = dist * cte.NM2KM
+        dist = dist * NM2KM
 
     # Calculate angle to x axis.
-    phaseangle = np.angle(dep + dlat * 1j) * deg
+    phaseangle = np.angle(dep + dlat * 1j) * rad2deg
     return dist, phaseangle
 
 
@@ -1620,10 +1112,10 @@ def satAr(s, t):
 
     s, t = np.asanyarray(s), np.asanyarray(t)
 
-    # convert T to Kelvin
-    t = cte.Kelvin + T68conv(t)
+    # Convert T to Kelvin.
+    t = Kelvin + T68conv(t)
 
-    # constants for Eqn (4) of Weiss 1970
+    # Constants for Eqn (4) of Weiss 1970.
     a1 = -173.5146
     a2 = 245.4510
     a3 = 141.8222
@@ -1695,7 +1187,7 @@ def satN2(s, t):
     s, t = np.asanyarray(s), np.asanyarray(t)
 
     # Convert T to Kelvin.
-    t = cte.Kelvin + T68conv(t)
+    t = Kelvin + T68conv(t)
 
     # Constants for Eqn (4) of Weiss 1970.
     a1 = -172.4965
@@ -1763,7 +1255,7 @@ def satO2(s, t):
     s, t = np.asanyarray(s), np.asanyarray(t)
 
     # Convert T to Kelvin.
-    t = cte.Kelvin + T68conv(t)
+    t = Kelvin + T68conv(t)
 
     # Constants for Eqn (4) of Weiss 1970.
     a1 = -173.4292
@@ -1923,125 +1415,6 @@ def smow(t):
     return dens
 
 
-def seck(s, t, p=0):
-    r"""
-    Secant Bulk Modulus (K) of Sea Water using Equation of state 1980. UNESCO
-    polynomial implementation.
-
-    Parameters
-    ----------
-    s(p) : array_like
-           salinity [psu (PSS-78)]
-    t(p) : array_like
-           temperature [:math:`^\circ` C (ITS-90)]
-    p : array_like
-        pressure [db].
-
-    Returns
-    -------
-    k : array_like
-        secant bulk modulus [bars]
-
-    See Also
-    --------
-    dens
-
-    Notes
-    -----
-    TODO
-
-    Examples
-    --------
-    Data from Unesco Tech. Paper in Marine Sci. No. 44, p22
-
-    >>> import seawater.csiro as sw
-    >>> s = [0, 0, 0, 0, 35, 35, 35, 35]
-    >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
-    >>> p = [0, 10000, 0, 10000, 0, 10000, 0, 10000]
-    >>> sw.seck(s, t, p)
-    array([ 19652.21      ,  22977.2115    ,  22336.0044572 ,  25656.8196222 ,
-            21582.27006823,  24991.99729129,  23924.21823158,  27318.32472464])
-
-    References
-    ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
-    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
-    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
-
-    .. [2] Millero, F.J. and  Poisson, A. International one-atmosphere equation
-    of state of seawater. Deep-Sea Res. 1981. Vol28A(6) pp625-629.
-    doi:10.1016/0198-0149(81)90122-9
-
-    Modifications: 92-11-05. Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
-                   10-01-14. Filipe Fernandes, Python translation.
-                   10-08-19. Filipe Fernandes, Reformulated docstring.
-    """
-
-    s, t, p = np.asanyarray(s), np.asanyarray(t), np.asanyarray(p)
-
-    # Compute compression terms.
-    p = p / 10.0  # Convert from db to atmospheric pressure units.
-    T68 = T68conv(t)
-
-    # Pure water terms of the secant bulk modulus at atmos pressure.
-    # UNESCO eqn 19 p 18.
-    h3 = -5.77905E-7
-    h2 = 1.16092E-4
-    h1 = 1.43713E-3
-    h0 = 3.239908  # [-0.1194975]
-
-    AW = h0 + (h1 + (h2 + h3 * T68) * T68) * T68
-
-    k2 = 5.2787E-8
-    k1 = -6.12293E-6
-    k0 = 8.50935E-5  # [+3.47718E-5]
-
-    BW = k0 + (k1 + k2 * T68) * T68
-
-    e4 = -5.155288E-5
-    e3 = 1.360477E-2
-    e2 = -2.327105
-    e1 = 148.4206
-    e0 = 19652.21  # [-1930.06]
-
-    KW = e0 + (e1 + (e2 + (e3 + e4 * T68) * T68) * T68) * T68  # Eqn 19.
-
-    # Sea water terms of secant bulk modulus at atmos. pressure.
-    j0 = 1.91075E-4
-
-    i2 = -1.6078E-6
-    i1 = -1.0981E-5
-    i0 = 2.2838E-3
-
-    SR = (s) ** 0.5
-
-    A = AW + (i0 + (i1 + i2 * T68) * T68 + j0 * SR) * s
-
-    m2 = 9.1697E-10
-    m1 = 2.0816E-8
-    m0 = -9.9348E-7
-
-    B = BW + (m0 + (m1 + m2 * T68) * T68) * s  # Eqn 18.
-
-    f3 = -6.1670E-5
-    f2 = 1.09987E-2
-    f1 = -0.603459
-    f0 = 54.6746
-
-    g2 = -5.3009E-4
-    g1 = 1.6483E-2
-    g0 = 7.944E-2
-
-    K0 = (KW + (f0 + (f1 + (f2 + f3 * T68) * T68) * T68 +
-                (g0 + (g1 + g2 * T68) * T68) * SR) * s)  # Eqn 16.
-
-    K = K0 + (A + B * p) * p  # Eqn 15.
-    return K
-
-
 def dens(s, t, p):
     r"""
     Density of Sea Water using UNESCO 1983 (EOS 80) polynomial.
@@ -2103,9 +1476,8 @@ def dens(s, t, p):
     # UNESCO 1983. eqn.7  p.15.
     densP0 = dens0(s, t)
     K = seck(s, t, p)
-    p = p / 10.0  # Convert from db to atm pressure units.
-    dens = densP0 / (1 - p / K)
-    return dens
+    p = p / 10.  # Convert from db to atm pressure units.
+    return densP0 / (1 - p / K)
 
 
 def pden(s, t, p, pr=0):
@@ -2312,11 +1684,11 @@ def gpan(s, t, p):
     mean_svan = 0.5 * (svn[1:m, ] + svn[0:-1, ])
 
     if n == 1:
-        top = svn[0, 0] * p[0, 0] * cte.db2Pascal
+        top = svn[0, 0] * p[0, 0] * db2Pascal
     else:
-        top = svn[0, :] * p[0, :] * cte.db2Pascal
+        top = svn[0, :] * p[0, :] * db2Pascal
 
-    delta_ga = (mean_svan * np.diff(p, axis=0)) * cte.db2Pascal
+    delta_ga = (mean_svan * np.diff(p, axis=0)) * db2Pascal
     delta_ga = np.r_[np.atleast_2d(top), delta_ga]
     ga = np.cumsum(delta_ga, axis=0)
 
@@ -2739,7 +2111,7 @@ def swvel(length, depth):
     length, depth = map(np.asanyarray, (length, depth))
 
     k = 2.0 * np.pi / length
-    speed = (cte.gdef * np.tanh(k * depth) / k) ** 0.5
+    speed = (gdef * np.tanh(k * depth) / k) ** 0.5
     return speed
 
 

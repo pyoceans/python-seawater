@@ -1,3 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from csiro import *
+__version__ = '3.3'
+
+from seawater import *
