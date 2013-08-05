@@ -7,7 +7,7 @@
 # e-mail:   ocefpaf@gmail
 # web:      http://ocefpaf.github.io/
 # created:  05-Aug-2013
-# modified: Mon 05 Aug 2013 10:35:28 AM BRT
+# modified: Mon 05 Aug 2013 02:53:25 PM BRT
 #
 # obs:
 #
@@ -16,13 +16,108 @@ from __future__ import division
 
 import numpy as np
 
-from eos80 import dens
 from extras import dist, f
-from constants import db2Pascal
+from eos80 import dens, dpth, g, pden
+from constants import db2Pascal, gdef
 
-__all__ = ['svan',
+__all__ = ['bfrq',
+           'svan',
            'gpan',
            'gvel']
+
+
+def bfrq(s, t, p, lat=None):
+    """Calculates Brünt-Väisälä Frequency squared (N :sup:`2`) at the mid
+    depths from the equation:
+
+    .. math::
+        N^{2} = \frac{-g}{\sigma_{\theta}} \frac{d\sigma_{\theta}}{dz}
+
+    Also calculates Potential Vorticity from:
+
+    .. math::
+        q=f \frac{N^2}{g}
+
+    Parameters
+    ----------
+    s(p) : array_like
+           salinity [psu (PSS-78)]
+    t(p) : array_like
+           temperature or potential temperature [:math:`^\circ` C (ITS-90)]
+    p : array_like
+        pressure [db].
+    lat : number or array_like, optional
+          latitude in decimal degrees north [-90..+90].
+          Will grav instead of the default g = 9.8 m :sup:`2` s :sup:`-1`) and
+          d(z) instead of d(p)
+
+    Returns
+    -------
+    n2 : array_like
+           Brünt-Väisälä Frequency squared (M-1xN)  [rad s :sup:`-2`]
+    q : array_like
+           planetary potential vorticity (M-1xN)  [ m s :sup:`-1`]
+    p_ave : array_like
+            mid pressure between P grid (M-1xN) [db]
+
+    Examples
+    --------
+    >>> import seawater as sw
+    >>> s = [[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]]
+    >>> t = [[15]*3]*4
+    >>> p = [[0], [250], [500], [1000]]
+    >>> lat = [30,32,35]
+    >>> sw.bfrq(s, t, p, lat)[0]
+    array([[  4.51543648e-04,   4.51690708e-04,   4.51920753e-04],
+           [  4.45598092e-04,   4.45743207e-04,   4.45970207e-04],
+           [  7.40996788e-05,   7.41238078e-05,   7.41615525e-05]])
+
+    References
+    ----------
+    .. [1] A.E. Gill 1982. p.54  Eqn. 3.7.15 "Atmosphere-Ocean Dynamics"
+    Academic Press: New York. ISBN: 0-12-283522-0
+
+    .. [2] Jackett, David R., Trevor J. Mcdougall, 1995: Minimal Adjustment of
+    Hydrographic Profiles to Achieve Static Stability. J. Atmos. Oceanic
+    Technol., 12, 381-389. doi: 10.1175/1520-0426(1995)012<0381:MAOHPT>2.0.CO;2
+
+    Modifications: 93-06-24. Phil Morgan.
+                   Greg Johnson (gjohnson@pmel.noaa.gov) pot. vort. calc.
+                   03-12-12. Lindsay Pender, Converted to ITS-90.
+                   06-04-19. Lindsay Pender, Corrected sign of PV.
+    """
+
+    s, t, p = map(np.asanyarray, (s, t, p))
+    s, t, p = np.broadcast_arrays(s, t, p)
+    s, t, p = map(np.atleast_2d, (s, t, p))
+    if (s.ndim != 2) and (t.ndim != 2):
+        raise ValueError('Arguments must be 2D arrays: n_depths, n_profiles')
+
+    if lat is None:
+        z = p
+        cor = np.nan
+        grav = gdef * np.ones(p.shape)
+    else:
+        lat = np.asanyarray(lat)
+        z = dpth(p, lat)
+        grav = g(lat, -z)  # Note that grav expects height as argument.
+        cor = f(lat)
+
+    m = p.shape[0]
+    iup = np.arange(0, m - 1)
+    ilo = np.arange(1, m)
+
+    p_ave = (p[iup, :] + p[ilo, :]) / 2.
+    pden_up = pden(s[iup, :], t[iup, :], p[iup, :], p_ave)
+    pden_lo = pden(s[ilo, :], t[ilo, :], p[ilo, :], p_ave)
+    mid_pden = (pden_up + pden_lo) / 2.
+    dif_pden = pden_up - pden_lo
+    mid_g = (grav[iup, :] + grav[ilo, :]) / 2.
+    dif_z = np.diff(z, axis=0)
+    n2 = -mid_g * dif_pden / (dif_z * mid_pden)
+    q = -cor * dif_pden / (dif_z * mid_pden)
+
+    return n2, q, p_ave
 
 
 def svan(s, t, p=0):
@@ -143,7 +238,7 @@ def gpan(s, t, p):
     return np.cumsum(ga, axis=0)
 
 
-def gvel(ga, lon, lat):
+def gvel(ga, lat, lon):
     """Calculates geostrophic velocity given the geopotential anomaly and
     position of each station.
 
@@ -151,10 +246,10 @@ def gvel(ga, lon, lat):
     ----------
     ga : array_like
          geopotential anomaly relative to the sea surface.
-    lon : array_like
-          longitude of each station (+ve = E, -ve = W) [-180..+180]
     lat : array_like
           latitude  of each station (+ve = N, -ve = S) [ -90.. +90]
+    lon : array_like
+          longitude of each station (+ve = E, -ve = W) [-180..+180]
 
     Returns
     -------
@@ -185,7 +280,7 @@ def gvel(ga, lon, lat):
     ...               [0, 5000, 10000, 0, 5000, 10000]])
 
     >>> ga = sw.gpan(s, t, p)
-    >>> sw.gvel(ga, lon, lat)
+    >>> sw.gvel(ga, lat, lon)
     array([[-0.        , -0.        ],
            [ 0.11385677,  0.07154215],
            [ 0.22436555,  0.14112761],
@@ -200,6 +295,6 @@ def gvel(ga, lon, lat):
     """
 
     ga, lon, lat = map(np.asanyarray, (ga, lon, lat))
-    distm = dist(lon, lat, units='km')[0] * 1e3
+    distm = dist(lat, lon, units='km')[0] * 1e3
     lf = f((lat[0:-1] + lat[1:]) / 2) * distm
     return -np.diff(ga, axis=1) / lf
