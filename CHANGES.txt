@@ -1,0 +1,53 @@
+What's new in this version of seawater
+======================================
+
+19 April 2006  release 3.2
+--------------------------
+Corrected sign of potential vorticity in `bfrq`.
+
+24 November 2005  release 3.1
+-----------------------------
+Added `swvel` to compute surface wave velocity.
+
+12 December 2003  release 3.0
+-----------------------------
+Converted code so that temperature is now ITS-90 throughout.
+
+25 June 1999  release 2.0.2
+---------------------------
+Coding changes to enable functions to return the same shape vector as
+the input arguments.  In previous releases, some functions returned
+column vectors for row vector input.  Also some other tidying up.
+
+22 April 1998  release 2.0.1
+----------------------------
+`satAr`    New routine.  Solubility of Ar in seawater
+`satN2`    New routine.  Solubility of N2 in seawater
+`satO2`    New routine.  Solubility of O2 in seawater
+`test`     Updated to include tests for above
+
+April 1998  release 1.2e
+------------------------
+`alpha`    Fixed bug where temp used in calculations regardless of the keyword.
+
+15 November 1994 release 1.2d
+-----------------------------
+`bfrq`   Now also returns potential vorticity.  Thanks to Greg Johnson
+         (gjohnson@pmel.noaa.gov)
+
+`gvel`   OMEGA=7.29e-5 changed to OMEGA=7.292e-5 to be consistent with `f`
+
+IMPORTANT API CHANGE: The usage of `alpha`, `beta` and `aonb` routines has
+changed!  All these routines expect (S,T,P) to be passed instead of (S,PTMP,P)
+as in previous releases of seawater.  Fast execution can still be obtained by
+passing ptmp=True see help.
+
+19 October 1994 release 1.2c
+----------------------------
+`bfrq`   Fixed bug where LAT = [] was needed as argument when no latitude
+         values are being passed.  Now pass PRESSURE instead of DEPTH ->
+         more consistent though only a negligible change is answers.
+
+12 October 1994 release 1.2b
+----------------------------
+First official release and announcement on the networks.

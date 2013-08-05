@@ -7,7 +7,7 @@
 # e-mail:   ocefpaf@gmail
 # web:      http://ocefpaf.github.io/
 # created:  03-Aug-2013
-# modified: Sun 04 Aug 2013 11:45:35 AM BRT
+# modified: Mon 05 Aug 2013 10:26:39 AM BRT
 #
 # obs:
 #
@@ -17,44 +17,29 @@ from __future__ import division
 
 import numpy as np
 
+from extras import f
+from constants import gdef, deg2rad, earth_radius
 from library import T90conv, T68conv, salrt, salrp, sals, seck
 
-# Constants.
-deg2rad, rad2deg = np.pi / 180.0,  180.0 / np.pi  # Angle conversions.
-earth_radius = 6371000.  # Mean radius of earth [m] A.E. Gill.
-OMEGA = 7.292115e-5  # Sidereal day = 23.9344696 hours.
-DEG2NM, NM2KM = 60., 1.8520   # 1 nm = 1.8520 km
-gdef = 9.8  # Acceleration of gravity [m/s**2]
-Kelvin = 273.15  # The Celsius zero point.
-db2Pascal = 1e4  # dbar to pascal.
 
 __all__ = ['adtg',
            'alpha',
            'aonb',
            'beta',
            'bfrq',
-           'depth',
-           'grav',
-           'cor',
+           'dpth',
+           'g',
            'salt',
            'fp',
            'svel',
            'pres',
-           'dist',
-           'satAr',
-           'satN2',
-           'satO2',
            'dens0',
            'smow',
            'dens',
            'pden',
-           'svan',
-           'gpan',
-           'gvel',
            'cp',
            'ptmp',
-           'temp',
-           'swvel']
+           'temp']
 
 
 def adtg(s, t, p):
@@ -289,7 +274,6 @@ def beta(s, t, p, pt=False):
     if not pt:
         t = ptmp(s, t, p, 0)  # Now we have ptmp.
 
-    p = np.float32(p)
     t = T68conv(t)
 
     c1 = np.array([-0.415613e-9, 0.555579e-7, -0.301985e-5, 0.785567e-3])
@@ -377,13 +361,13 @@ def bfrq(s, t, p, lat=None):
 
     if lat is None:
         z = p
-        f = np.nan
-        g = gdef * np.ones(p.shape)
+        cor = np.nan
+        grav = gdef * np.ones(p.shape)
     else:
         lat = np.asanyarray(lat)
-        z = depth(p, lat)
-        g = grav(lat, -z)  # Note that grav expects height as argument.
-        f = cor(lat)
+        z = dpth(p, lat)
+        grav = g(lat, -z)  # Note that grav expects height as argument.
+        cor = f(lat)
 
     m = p.shape[0]
     iup = np.arange(0, m - 1)
@@ -394,1014 +378,12 @@ def bfrq(s, t, p, lat=None):
     pden_lo = pden(s[ilo, :], t[ilo, :], p[ilo, :], p_ave)
     mid_pden = (pden_up + pden_lo) / 2.
     dif_pden = pden_up - pden_lo
-    mid_g = (g[iup, :] + g[ilo, :]) / 2.
+    mid_g = (grav[iup, :] + grav[ilo, :]) / 2.
     dif_z = np.diff(z, axis=0)
     n2 = -mid_g * dif_pden / (dif_z * mid_pden)
-    q = -f * dif_pden / (dif_z * mid_pden)
+    q = -cor * dif_pden / (dif_z * mid_pden)
 
     return n2, q, p_ave
-
-
-def depth(p, lat):
-    """Calculates depth in meters from pressure in dbars.
-
-    Parameters
-    ----------
-    p : array_like
-        pressure [db].
-    lat : number or array_like
-          latitude in decimal degrees north [-90..+90].
-
-    Returns
-    -------
-    z : array_like
-        depth [meters]
-
-    Examples
-    --------
-    UNESCO 1983 data p30.
-    >>> import seawater as sw
-    >>> lat = [0, 30, 45, 90]
-    >>> p = [[  500,   500,   500,  500],
-    ...      [ 5000,  5000,  5000, 5000],
-    ...      [10000, 10000, 10000, 10000]]
-    >>> sw.depth(p, lat)
-    array([[  496.65299239,   495.99772917,   495.3427354 ,   494.03357499],
-           [ 4915.04099112,  4908.55954332,  4902.08075214,  4889.13132561],
-           [ 9725.47087508,  9712.6530721 ,  9699.84050403,  9674.23144056]])
-
-    Notes
-    -----
-    Original matlab seawater name is dpth and not depth.
-
-    References
-    ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
-    computation of fundamental properties of seawater. UNESCO Tech.
-    Pap. in Mar. Sci., No. 44, 53 pp.
-    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
-
-    Modifications: 92-04-06. Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-    """
-    p, lat = map(np.asanyarray, (p, lat))
-
-    # Eqn 25, p26.  UNESCO 1983.
-    c = [9.72659, -2.2512e-5, 2.279e-10, -1.82e-15]
-    gam_dash = 2.184e-6
-
-    lat = abs(lat)
-    X = np.sin(lat * deg2rad)
-    X = X * X
-
-    bot_line = (9.780318 * (1.0 + (5.2788e-3 + 2.36e-5 * X) * X) +
-                gam_dash * 0.5 * p)
-    top_line = (((c[3] * p + c[2]) * p + c[1]) * p + c[0]) * p
-    return top_line / bot_line
-
-
-def grav(lat, z=0):
-    """Calculates acceleration due to gravity as function of latitude.
-
-    Parameters
-    ----------
-    lat : array_like
-         latitude in decimal degrees north [-90..+90].
-
-    z : number or array_like. Default z = 0
-        height in meters (+ve above sea surface, -ve below).
-
-    Returns
-    -------
-    g : array_like
-        gravity [m s :sup:`2`]
-
-    Examples
-    --------
-    >>> import seawater as sw
-    >>> sw.grav(45, z=0)
-    9.8061898752053995
-
-    References
-    ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
-    computation of fundamental properties of seawater. UNESCO Tech. Pap.
-    in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
-
-    .. [2] A.E. Gill 1982. p.54  Eqn. 3.7.15 "Atmosphere-Ocean Dynamics"
-    Academic Press: New York. ISBN: 0-12-283522-0
-
-    Modifications: 93-04-20. Phil Morgan.
-    """
-
-    lat, z = map(np.asanyarray, (lat, z))
-
-    # Eqn p27.  UNESCO 1983.
-    lat = np.abs(lat)
-    X = np.sin(lat * deg2rad)
-    sin2 = X * X
-    grav = 9.780318 * (1.0 + (5.2788e-3 + 2.36e-5 * sin2) * sin2)
-    return grav / ((1 + z / earth_radius) ** 2)  # From A.E.Gill p.597.
-
-
-def cor(lat):
-    """Calculates the Coriolis factor :math:`f` defined by:
-
-    .. math::
-        f = 2 \Omega \sin(lat)
-
-    where:
-
-    .. math::
-        \Omega = \frac{2 \pi}{\textrm{sidereal day}} = 7.2921150e^{-5}
-        \textrm{ radians sec}^{-1}
-
-
-    Parameters
-    ----------
-    lat : array_like
-          latitude in decimal degrees north [-90..+90].
-
-    Returns
-    -------
-    f : array_like
-        Coriolis factor [s :sup:`-1`]
-
-    Examples
-    --------
-    >>> import seawater as sw
-    >>> sw.cor(45)
-    0.00010312607931384281
-
-    References
-    ----------
-    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical
-    Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
-
-    .. [2] A.E. Gill 1982. p.54  Eqn. 3.7.15 "Atmosphere-Ocean Dynamics"
-    Academic Press: New York. ISBN: 0-12-283522-0
-
-    .. [3] Groten, E., 2004: Fundamental Parameters and Current (2004) Best
-    Estimates of the Parameters of Common Relevance to Astronomy, Geodesy,
-    and Geodynamics. Journal of Geodesy, 77, pp. 724-797.
-
-    Modifications: 93-04-20. Phil Morgan.
-    """
-    lat = np.asanyarray(lat)
-    # Eqn p27.  UNESCO 1983.
-    return 2 * OMEGA * np.sin(lat * deg2rad)
-
-
-def salt(r, t, p):
-    """Calculates Salinity from conductivity ratio. UNESCO 1983 polynomial.
-
-    Parameters
-    ----------
-    r : array_like
-        conductivity ratio :math:`R = \frac{C(S,T,P)}{C(35,15(IPTS-68),0)}`
-    t : array_like
-        temperature [:math:`^\circ` C (ITS-90)]
-    p : array_like
-        pressure [db]
-
-    Returns
-    -------
-    s : array_like
-        salinity [psu (PSS-78)]
-
-    Examples
-    --------
-    Data from UNESCO 1983 p9.
-    >>> import seawater as sw
-    >>> r = [1, 1.2, 0.65]
-    >>> t = sw.T90conv([15, 20, 5])
-    >>> p = [0, 2000, 1500]
-    >>> sw.salt(r, t, p)
-    array([ 34.99999992,  37.24562765,  27.99534693])
-
-    References
-    ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
-    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
-    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
-
-    Modifications: 93-04-17. Phil Morgan.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
-    """
-    r, t, p = map(np.asanyarray, (r, t, p))
-
-    rt = salrt(t)
-    rp = salrp(r, t, p)
-    rt = r / (rp * rt)
-    return sals(rt, t)
-
-
-def fp(s, p):
-    """Freezing point of Sea Water using UNESCO 1983 polynomial.
-
-    Parameters
-    ----------
-    s : array_like
-        salinity [psu (PSS-78)]
-    p : array_like
-        pressure [db]
-
-    Returns
-    -------
-    fp : array_like
-        freezing point temperature [:math:`^\circ` C (ITS-90)]
-
-    Examples
-    --------
-    UNESCO DATA p.30.
-    >>> import seawater as sw
-    >>> s = [[5, 10, 15, 20, 25, 30, 35, 40],
-    ...      [5, 10, 15, 20, 25, 30, 35, 40]]
-    >>> p = [[ 0, 0, 0, 0, 0, 0, 0, 0],
-    ...      [500, 500, 500, 500, 500, 500, 500, 500]]
-    >>> sw.fp(s, p)
-    array([[-0.27369757, -0.54232831, -0.81142026, -1.0829461 , -1.35804594,
-            -1.63748903, -1.9218401 , -2.2115367 ],
-           [-0.65010724, -0.91873798, -1.18782992, -1.45935577, -1.73445561,
-            -2.01389869, -2.29824976, -2.58794636]])
-
-    References
-    ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
-    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
-    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
-
-    Modifications: 93-04-20. Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
-    """
-
-    s, p = map(np.asanyarray, (s, p))
-
-    # NOTE: P = P/10 # to convert db to Bar as used in UNESCO routines.
-    # Eqn  p.29.
-    a = [-0.0575, 1.710523e-3, -2.154996e-4]
-    b = -7.53e-4
-    return T90conv(a[0] * s + a[1] * s * s ** 0.5 + a[2] * s ** 2 + b * p)
-
-
-def svel(s, t, p):
-    """Sound Velocity in sea water using UNESCO 1983 polynomial.
-
-    Parameters
-    ----------
-    s(p) : array_like
-           salinity [psu (PSS-78)]
-    t(p) : array_like
-           temperature [:math:`^\circ` C (ITS-90)]
-    p : array_like
-        pressure [db].
-
-    Returns
-    -------
-    svel : array_like
-           sound velocity  [m/s]
-
-    Examples
-    --------
-    Data from Pond and Pickard Intro. Dynamical Oceanography 2nd ed. 1986
-
-    >>> import seawater as sw
-    >>> t = T90conv([[  0,  0,  0,  0,  0,  0],
-    ...              [ 10, 10, 10, 10, 10, 10],
-    ...              [ 20, 20, 20, 20, 20, 20],
-    ...              [ 30, 30, 30, 30, 30, 30],
-    ...              [ 40, 40, 40, 40, 40, 40]])
-    >>> s = [[ 25, 25, 25, 35, 35, 35],
-    ...      [ 25, 25, 25, 35, 35, 35],
-    ...      [ 25, 25, 25, 35, 35, 35],
-    ...      [ 25, 25, 25, 35, 35, 35],
-    ...      [ 25, 25, 25, 35, 35, 35]]
-    >>> p = [ 0, 5000, 10000, 0, 5000, 10000]
-    >>> sw.svel(s, t, p)
-    array([[ 1435.789875  ,  1520.358725  ,  1610.4074    ,  1449.13882813,
-             1533.96863705,  1623.15007097],
-           [ 1477.68316464,  1561.30635914,  1647.39267114,  1489.82233602,
-             1573.40946928,  1658.99115504],
-           [ 1510.31388348,  1593.59671798,  1676.80967748,  1521.4619731 ,
-             1604.4762822 ,  1687.18305631],
-           [ 1535.21434752,  1618.95631952,  1700.60547902,  1545.59485539,
-             1628.97322783,  1710.06294277],
-           [ 1553.44506636,  1638.02522336,  1719.15088536,  1563.20925247,
-             1647.29949576,  1727.83176404]])
-
-    References
-    ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
-    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
-    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
-
-    Modifications: 93-04-20. Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
-    """
-    s, t, p = map(np.asanyarray, (s, t, p))
-
-    # UNESCO 1983. Eqn..33  p.46.
-    p = p / 10  # Convert db to bars as used in UNESCO routines.
-    T68 = T68conv(t)
-
-    # Eqn 34 p.46.
-    c00, c01, c02, c03, c04, c05 = (1402.388, 5.03711, -5.80852e-2, 3.3420e-4,
-                                    -1.47800e-6, 3.1464e-9)
-    c10, c11, c12, c13, c14 = (0.153563, 6.8982e-4, -8.1788e-6, 1.3621e-7,
-                               -6.1185e-10)
-    c20, c21, c22, c23, c24 = (3.1260e-5, -1.7107e-6, 2.5974e-8, -2.5335e-10,
-                               1.0405e-12)
-    c30, c31, c32 = (-9.7729e-9, 3.8504e-10, -2.3643e-12)
-
-    Cw = (((((c32 * T68 + c31) * T68 + c30) * p +
-            ((((c24 * T68 + c23) * T68 + c22) * T68 + c21) * T68 + c20)) * p +
-           ((((c14 * T68 + c13) * T68 + c12) * T68 + c11) * T68 + c10)) *
-          p + ((((c05 * T68 + c04) * T68 + c03) * T68 + c02) * T68 + c01) *
-          T68 + c00)
-
-    # Eqn. 35. p.47
-    a00, a01, a02, a03, a04 = (1.389, -1.262e-2, 7.164e-5, 2.006e-6, -3.21e-8)
-    a10, a11, a12, a13, a14 = (9.4742e-5, -1.2580e-5, -6.4885e-8, 1.0507e-8,
-                               -2.0122e-10)
-    a20, a21, a22, a23 = (-3.9064e-7, 9.1041e-9, -1.6002e-10, 7.988e-12)
-    a30, a31, a32 = (1.100e-10, 6.649e-12, -3.389e-13)
-
-    A = (((((a32 * T68 + a31) * T68 + a30) * p +
-           (((a23 * T68 + a22) * T68 + a21) * T68 + a20)) * p +
-          ((((a14 * T68 + a13) * T68 + a12) * T68 + a11) * T68 + a10)) * p +
-         (((a04 * T68 + a03) * T68 + a02) * T68 + a01) * T68 + a00)
-
-    # Eqn 36 p.47.
-    b00, b01, b10, b11 = -1.922e-2, -4.42e-5, 7.3637e-5, 1.7945e-7
-    B = b00 + b01 * T68 + (b10 + b11 * T68) * p
-
-    # Eqn 37 p.47.
-    d00, d10 = 1.727e-3, -7.9836e-6
-    D = d00 + d10 * p
-
-    # Eqn 33 p.46.
-    return Cw + A * s + B * s * (s) ** 0.5 + D * s ** 2
-
-
-def pres(depth, lat):
-    """Calculates pressure in dbars from depth in meters.
-
-    Parameters
-    ----------
-    depth : array_like
-            depth [meters]
-    lat : array_like
-          latitude in decimal degrees north [-90..+90]
-
-    Returns
-    -------
-    p : array_like
-           pressure [db]
-
-    Examples
-    --------
-    >>> import seawater as sw
-    >>> depth, lat = 7321.45, 30
-    >>> sw.pres(depth,lat)
-    7500.0065130118019
-
-    References
-    ----------
-    .. [1] Saunders, Peter M., 1981: Practical Conversion of Pressure to Depth.
-    J. Phys. Oceanogr., 11, 573-574.
-    doi: 10.1175/1520-0485(1981)011<0573:PCOPTD>2.0.CO;2
-
-    Modifications: 93-06-25. Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-    """
-    depth, lat = map(np.asanyarray, (depth, lat))
-
-    X = np.sin(np.abs(lat * deg2rad))
-    C1 = 5.92e-3 + X ** 2 * 5.25e-3
-    return ((1 - C1) - (((1 - C1) ** 2) - (8.84e-6 * depth)) ** 0.5) / 4.42e-6
-
-
-def dist(lon, lat, units='km'):
-    """Calculate distance between two positions on globe using the "Plane
-    Sailing" method. Also uses simple geometry to calculate the bearing of
-    the path between position pairs.
-
-    Parameters
-    ----------
-    lon : array_like
-          decimal degrees (+ve E, -ve W) [-180..+180]
-    lat : array_like
-          decimal degrees (+ve N, -ve S) [- 90.. +90]
-    units : string, optional
-            default kilometers
-
-    Returns
-    -------
-    dist : array_like
-           distance between positions in units
-    phaseangle : array_like
-                 angle of line between stations with x axis (East).
-                 Range of values are -180..+180. (E=0, N=90, S=-90)
-
-    Examples
-    --------
-    >>> import seawater as sw
-    >>> lon = [35, 35]
-    >>> lat = [41, 40]
-    >>> sw.dist(lon, lat)
-    (array([ 111.12]), array([-90.]))
-    >>> # Create a distance vector.
-    >>> lon = np.arange(30,40,1)
-    >>> lat = 35
-    >>> np.cumsum(np.append(0, sw.dist(lon, lat, units='km')[0]))
-    array([   0.        ,   91.02417516,  182.04835032,  273.07252548,
-            364.09670065,  455.12087581,  546.14505097,  637.16922613,
-            728.19340129,  819.21757645])
-
-    References
-    ----------
-    .. [1] The PLANE SAILING method as described in "CELESTIAL NAVIGATION" 1989
-    by Dr. P. Gormley. The Australian Antarctic Division.
-
-    Modifications: 92-02-10. Phil Morgan and Steve Rintoul.
-                   99-06-25. Lindsay Pender, name change distance to sw_dist.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-    """
-
-    lon, lat = map(np.asanyarray, (lon, lat))
-
-    if lat.size == 1:
-        lat = np.repeat(lat, lon.size)
-    elif lon.size == 1:
-        lon = np.repeat(lon, lat.size)
-
-    npositions = max(lon.shape)
-
-    ind = np.arange(0, npositions - 1, 1)  # Index to first of position pairs.
-
-    dlon = np.diff(lon, axis=0)
-    if np.any(np.abs(dlon) > 180):
-        flag = abs(dlon) > 180
-        dlon[flag] = -np.sign(dlon[flag]) * (360 - np.abs(dlon[flag]))
-
-    latrad = np.abs(lat * deg2rad)
-    dep = np.cos((latrad[ind + 1] + latrad[ind]) / 2) * dlon
-    dlat = np.diff(lat, axis=0)
-    dist = DEG2NM * (dlat ** 2 + dep ** 2) ** 0.5
-
-    if units == 'km':
-        dist = dist * NM2KM
-
-    # Calculate angle to x axis.
-    phaseangle = np.angle(dep + dlat * 1j) * rad2deg
-    return dist, phaseangle
-
-
-def satAr(s, t):
-    """Solubility (saturation) of Argon (Ar) in sea water.
-
-    Parameters
-    ----------
-    s : array_like
-        salinity [psu (PSS-78)]
-    t : array_like
-        temperature [:math:`^\circ` C (ITS-90)]
-
-    Returns
-    -------
-    satAr : array_like
-            solubility of Ar [ml l :sup:`-1`]
-
-    Examples
-    --------
-    Data from Weiss 1970.
-    >>> import seawater as sw
-    >>> t = T90conv([[ -1, -1], [ 10, 10], [ 20, 20], [ 40, 40]])
-    >>> s = [[ 20, 40], [ 20, 40], [ 20, 40], [ 20, 40]]
-    >>> sw.satAr(s, t)
-    array([[ 0.4455784 ,  0.38766011],
-           [ 0.33970659,  0.29887756],
-           [ 0.27660227,  0.24566428],
-           [ 0.19861429,  0.17937698]])
-
-    References
-    ----------
-    .. [1] Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in
-    Water and Seawater Deep-Sea Research Vol. 17, p. 721-735.
-    doi:10.1016/0011-7471(70)90037-9
-
-    Modifications: 97-11-05. Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
-    """
-
-    s, t = map(np.asanyarray, (s, t))
-
-    # Convert T to Kelvin.
-    t = Kelvin + T68conv(t)
-
-    # Constants for Eqn (4) of Weiss 1970.
-    a = [-173.5146, 245.4510, 141.8222, -21.8020]
-    b = [-0.034474, 0.014934, -0.0017729]
-
-    # Eqn (4) of Weiss 1970.
-    lnC = (a[0] + a[1] * (100 / t) + a[2] * np.log(t / 100) + a[3] *
-           (t / 100) + s * (b[0] + b[1] * (t / 100) + b[2] * ((t / 100) ** 2)))
-
-    return np.exp(lnC)
-
-
-def satN2(s, t):
-    """Solubility (saturation) of Nitrogen (N2) in sea water.
-
-    Parameters
-    ----------
-    s : array_like
-        salinity [psu (PSS-78)]
-    t : array_like
-        temperature [:math:`^\circ` C (ITS-90)]
-
-    Returns
-    -------
-    satN2 : array_like
-            solubility of N2  [ml l :sup:`-1`]
-
-    Examples
-    --------
-    Data from Weiss 1970.
-    >>> import seawater as sw
-    >>> t = T90conv([[ -1, -1], [ 10, 10], [ 20, 20], [ 40, 40]])
-    >>> s = [[ 20, 40], [ 20, 40], [ 20, 40], [ 20, 40]]
-    >>> sw.satN2(s, t)
-    array([[ 16.27952432,  14.00784526],
-           [ 12.64036196,  11.01277257],
-           [ 10.46892822,   9.21126859],
-           [  7.78163876,   6.95395099]])
-
-
-    References
-    ----------
-    .. [1] Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in
-    Water and Seawater Deep-Sea Research Vol. 17, p. 721-735.
-    doi:10.1016/0011-7471(70)90037-9
-
-    Modifications: 97-11-05. Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
-    """
-
-    s, t = map(np.asanyarray, (s, t))
-
-    # Convert T to Kelvin.
-    t = Kelvin + T68conv(t)
-
-    # Constants for Eqn (4) of Weiss 1970.
-    a = (-172.4965, 248.4262, 143.0738, -21.7120)
-    b = (-0.049781, 0.025018, -0.0034861)
-
-    # Eqn (4) of Weiss 1970.
-    lnC = (a[0] + a[1] * (100 / t) + a[2] * np.log(t / 100) + a[3] *
-           (t / 100) + s * (b[0] + b[1] * (t / 100) + b[2] * ((t / 100) ** 2)))
-
-    return np.exp(lnC)
-
-
-def satO2(s, t):
-    """Solubility (saturation) of Oxygen (O2) in sea water.
-
-    Parameters
-    ----------
-    s : array_like
-        salinity [psu (PSS-78)]
-    t : array_like
-        temperature [:math:`^\circ` C (ITS-68)]
-
-    Returns
-    -------
-    satO2 : array_like
-            solubility of O2  [ml l :sup:`-1` ]
-
-    Examples
-    --------
-    Data from Weiss 1970
-    >>> import seawater as sw
-    >>> t = T90conv([[ -1, -1], [ 10, 10], [ 20, 20], [ 40, 40]])
-    >>> s = [[ 20, 40], [ 20, 40], [ 20, 40], [ 20, 40]]
-    >>> sw.satO2(s, t)
-    array([[ 9.162056  ,  7.98404249],
-           [ 6.95007741,  6.12101928],
-           [ 5.64401453,  5.01531004],
-           [ 4.0495115 ,  3.65575811]])
-
-    References
-    ----------
-    .. [1] Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in
-    Water and Seawater Deep-Sea Research Vol. 17, p. 721-735.
-    doi:10.1016/0011-7471(70)90037-9
-
-    Modifications: 97-11-05. Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
-    """
-
-    s, t = map(np.asanyarray, (s, t))
-
-    # Convert T to Kelvin.
-    t = Kelvin + T68conv(t)
-
-    # Constants for Eqn (4) of Weiss 1970.
-    a = (-173.4292, 249.6339, 143.3483, -21.8492)
-    b = (-0.033096, 0.014259, -0.0017000)
-
-    # Eqn (4) of Weiss 1970.
-    lnC = (a[0] + a[1] * (100 / t) + a[2] * np.log(t / 100) + a[3] *
-           (t / 100) + s * (b[0] + b[1] * (t / 100) + b[2] * ((t / 100) ** 2)))
-
-    return np.exp(lnC)
-
-
-def dens0(s, t):
-    """Density of Sea Water at atmospheric pressure.
-
-    Parameters
-    ----------
-    s(p=0) : array_like
-             salinity [psu (PSS-78)]
-    t(p=0) : array_like
-             temperature [:math:`^\circ` C (ITS-90)]
-
-    Returns
-    -------
-    dens0(s, t) : array_like
-                  density  [kg m :sup:`3`] of salt water with properties
-                  (s, t, p=0) 0 db gauge pressure
-
-    Examples
-    --------
-    Data from UNESCO Tech. Paper in Marine Sci. No. 44, p22
-    >>> import seawater as sw
-    >>> s = [0, 0, 0, 0, 35, 35, 35, 35]
-    >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
-    >>> sw.dens0(s, t)
-    array([  999.842594  ,   999.842594  ,   995.65113374,   995.65113374,
-            1028.10633141,  1028.10633141,  1021.72863949,  1021.72863949])
-
-    References
-    ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
-    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
-    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
-
-    .. [2] Millero, F.J. and  Poisson, A. International one-atmosphere equation
-    of state of seawater. Deep-Sea Res. 1981. Vol28A(6) pp625-629.
-    doi:10.1016/0198-0149(81)90122-9
-
-    Modifications: 92-11-05. Phil Morgan.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
-    """
-
-    s, t = map(np.asanyarray, (s, t))
-
-    T68 = T68conv(t)
-
-    # UNESCO 1983 Eqn.(13) p17.
-    b = (8.24493e-1, -4.0899e-3, 7.6438e-5, -8.2467e-7, 5.3875e-9)
-    c = (-5.72466e-3, 1.0227e-4, -1.6546e-6)
-    d = 4.8314e-4
-    return (smow(t) + (b[0] + (b[1] + (b[2] + (b[3] + b[4] * T68) * T68) *
-            T68) * T68) * s + (c[0] + (c[1] + c[2] * T68) * T68) * s *
-            s ** 0.5 + d * s ** 2)
-
-
-def smow(t):
-    """Density of Standard Mean Ocean Water (Pure Water) using EOS 1980.
-
-    Parameters
-    ----------
-    t : array_like
-        temperature [:math:`^\circ` C (ITS-90)]
-
-    Returns
-    -------
-    dens(t) : array_like
-              density  [kg m :sup:`3`]
-
-    Examples
-    --------
-    Data from UNESCO Tech. Paper in Marine Sci. No. 44, p22.
-    >>> import seawater as sw
-    >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
-    >>> sw.smow(t)
-    array([ 999.842594  ,  999.842594  ,  995.65113374,  995.65113374,
-            999.842594  ,  999.842594  ,  995.65113374,  995.65113374])
-
-    References
-    ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
-    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
-    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
-
-    .. [2] Millero, F.J. and  Poisson, A. International one-atmosphere equation
-    of state of seawater. Deep-Sea Res. 1981. Vol28A(6) pp625-629.
-    doi:10.1016/0198-0149(81)90122-9
-
-    Modifications: 92-11-05. Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
-    """
-
-    t = np.asanyarray(t)
-
-    a = (999.842594, 6.793952e-2, -9.095290e-3, 1.001685e-4, -1.120083e-6,
-         6.536332e-9)
-
-    T68 = T68conv(t)
-    return (a[0] + (a[1] + (a[2] + (a[3] + (a[4] + a[5] * T68) * T68) * T68) *
-            T68) * T68)
-
-
-def dens(s, t, p):
-    """Density of Sea Water using UNESCO 1983 (EOS 80) polynomial.
-
-    Parameters
-    ----------
-    s(p) : array_like
-           salinity [psu (PSS-78)]
-    t(p) : array_like
-           temperature [:math:`^\circ` C (ITS-90)]
-    p : array_like
-        pressure [db].
-
-    Returns
-    -------
-    dens : array_like
-           density  [kg m :sup:`3`]
-
-    Examples
-    --------
-    Data from Unesco Tech. Paper in Marine Sci. No. 44, p22.
-    >>> import seawater as sw
-    >>> s = [0, 0, 0, 0, 35, 35, 35, 35]
-    >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
-    >>> p = [0, 10000, 0, 10000, 0, 10000, 0, 10000]
-    >>> sw.dens(s, t, p)
-    array([  999.842594  ,  1045.33710972,   995.65113374,  1036.03148891,
-            1028.10633141,  1070.95838408,  1021.72863949,  1060.55058771])
-
-    References
-    ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
-    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
-    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
-
-    .. [2] Millero, F.J., Chen, C.T., Bradshaw, A., and Schleicher, K. A new
-    high pressure equation of state for seawater. Deap-Sea Research., 1980,
-    Vol27A, pp255-264. doi:10.1016/0198-0149(80)90016-3
-
-    Modifications: 92-11-05. Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
-    """
-
-    s, t, p = map(np.asanyarray, (s, t, p))
-
-    # UNESCO 1983. Eqn..7  p.15.
-    densP0 = dens0(s, t)
-    K = seck(s, t, p)
-    p = p / 10.  # Convert from db to atm pressure units.
-    return densP0 / (1 - p / K)
-
-
-def pden(s, t, p, pr=0):
-    """Calculates potential density of water mass relative to the specified
-    reference pressure by pden = dens(S, ptmp, PR).
-
-    Parameters
-    ----------
-    s(p) : array_like
-           salinity [psu (PSS-78)]
-    t(p) : array_like
-           temperature [:math:`^\circ` C (ITS-90)]
-    p : array_like
-        pressure [db].
-    pr : number
-         reference pressure [db], default = 0
-
-    Returns
-    -------
-    pden : array_like
-           potential density relative to the ref. pressure [kg m :sup:3]
-
-    Examples
-    --------
-    Data from Unesco Tech. Paper in Marine Sci. No. 44, p22.
-    >>> import seawater as sw
-    >>> s = [0, 0, 0, 0, 35, 35, 35, 35]
-    >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
-    >>> p = [0, 10000, 0, 10000, 0, 10000, 0, 10000]
-    >>> sw.pden(s, t, p)
-    array([  999.842594  ,   999.79523994,   995.65113374,   996.36115932,
-            1028.10633141,  1028.15738545,  1021.72863949,  1022.59634627])
-
-    :math:`\sigma_{4}` (at 4000 db)
-
-    >>> sw.pden(s, t, p, 4000) - 1000
-    array([ 19.2895493 ,  19.33422519,  12.43271053,  13.27563816,
-            46.30976432,  46.48818851,  37.76150878,  38.74500757])
-
-    References
-    ----------
-    .. [1] A.E. Gill 1982. p.54  Eqn. 3.7.15 "Atmosphere-Ocean Dynamics"
-    Academic Press: New York. ISBN: 0-12-283522-0
-
-    Modifications: 92-04-06. Phil Morgan.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
-    """
-
-    s, t, p, pr = map(np.asanyarray, (s, t, p, pr))
-
-    pt = ptmp(s, t, p, pr)
-    return dens(s, pt, pr)
-
-
-def svan(s, t, p=0):
-    """Specific Volume Anomaly calculated as
-    svan = 1 / dens(s, t, p) - 1 / dens(35, 0, p).
-
-    Note that it is often quoted in literature as 1e8 * units.
-
-    Parameters
-    ----------
-    s(p) : array_like
-           salinity [psu (PSS-78)]
-    t(p) : array_like
-           temperature [:math:`^\circ` C (ITS-90)]
-    p : array_like
-        pressure [db].
-
-    Returns
-    -------
-    svan : array_like
-           specific volume anomaly  [m :sup:`3` kg :sup:`-1`]
-
-    Examples
-    --------
-    Data from Unesco Tech. Paper in Marine Sci. No. 44, p22.
-    >>> import seawater as sw
-    >>> s = [0, 0, 0, 0, 35, 35, 35, 35]
-    >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
-    >>> p = ([0, 10000, 0, 10000, 0, 10000, 0, 10000])
-    >>> sw.svan(s, t, p)
-    array([  2.74953924e-05,   2.28860986e-05,   3.17058231e-05,
-             3.14785290e-05,   0.00000000e+00,   0.00000000e+00,
-             6.07141523e-06,   9.16336113e-06])
-
-    References
-    ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
-    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
-    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
-
-    .. [2] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical
-    Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
-
-    Modifications: 92-11-05. Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
-    """
-
-    s, t, p = map(np.asanyarray, (s, t, p))
-
-    return 1 / dens(s, t, p) - 1 / dens(35, 0, p)
-
-
-def gpan(s, t, p):
-    """Geopotential Anomaly calculated as the integral of svan from the
-    the sea surface to the bottom. THUS RELATIVE TO SEA SURFACE.
-
-    Adapted method from Pond and Pickard (p76) to calculate gpan relative to
-    sea surface whereas P&P calculated relative to the deepest common depth.
-    Note that older literature may use units of "dynamic decimeter" for above.
-
-
-    Parameters
-    ----------
-    s(p) : array_like
-           salinity [psu (PSS-78)]
-    t(p) : array_like
-           temperature [:math:`^\circ` C (ITS-90)]
-    p : array_like
-        pressure [db].
-
-    Returns
-    -------
-    gpan : array_like
-           geopotential anomaly
-           [m :sup:`3` kg :sup:`-1`
-            Pa = m :sup:`2` s :sup:`-2` = J kg :sup:`-1`]
-
-    Examples
-    --------
-    Data from Unesco Tech. Paper in Marine Sci. No. 44, p22.
-    >>> import seawater as sw
-    >>> s = [[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]]
-    >>> t = [[15]*3]*4
-    >>> p = [[0], [250], [500], [1000]]
-    >>> sw.gpan(s, t, p)
-    array([[   0.        ,    0.        ,    0.        ],
-           [  56.35465209,   56.35465209,   56.35465209],
-           [  84.67266947,   84.67266947,   84.67266947],
-           [ 104.95799186,  104.95799186,  104.95799186]])
-
-    References
-    ----------
-    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical
-    Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
-
-    Modifications: 92-11-05. Phil Morgan.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
-    """
-
-    s, t, p = map(np.asanyarray, (s, t, p))
-    s, t, p = np.broadcast_arrays(s, t, p)
-
-    if p.ndim > 1:
-        m, n = p.shape
-    else:
-        m, n = p.size, 1
-
-    svn = svan(s, t, p)
-    mean_svan = 0.5 * (svn[1:m, ] + svn[0:-1, ])
-
-    if n == 1:
-        top = svn[0, 0] * p[0, 0] * db2Pascal
-    else:
-        top = svn[0, :] * p[0, :] * db2Pascal
-
-    delta_ga = (mean_svan * np.diff(p, axis=0)) * db2Pascal
-    delta_ga = np.r_[np.atleast_2d(top), delta_ga]
-    return np.cumsum(delta_ga, axis=0)
-
-
-def gvel(ga, distm, lat):
-    """Calculates geostrophic velocity given the geopotential anomaly and
-    position of each station.
-
-    Parameters
-    ----------
-    ga : array_like
-         geopotential anomaly relative to the sea surface.
-    dist : array_like
-           distance between stations [meters]
-    lat : array_like
-          lat to use for constant f determination
-
-    Returns
-    -------
-    vel : array_like
-           geostrophic velocity relative to the sea surface.
-           dimension will be MxN-1 (N: stations)
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> import seawater as sw
-    >>> lon = [30, 30, 30]
-    >>> lat = [30, 32, 35]
-    >>> s = np.array([[0, 1, 2], [15, 16, 17], [30, 31, 32],[35,35,35]])
-    >>> t = np.repeat(15, s.size).reshape(s.shape)
-    >>> p = [[0], [250], [500], [1000]]
-    >>> ga = sw.gpan(s,t,p)
-    >>> distm = 1000.0 * sw.dist(lon, lat, units='km')[0]
-    >>> sw.gvel(ga, distm, lat)
-    array([[-0.        , -0.        ],
-           [ 0.11385677,  0.07154215],
-           [ 0.22436555,  0.14112761],
-           [ 0.33366412,  0.20996272]])
-
-    References
-    ----------
-    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical
-    Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
-
-    Modifications: 92-03-26. Phil Morgan.
-    """
-
-    ga, distm, lat = map(np.asanyarray, (ga, distm, lat))
-
-    f = cor((lat[0:-1] + lat[1:]) / 2)
-    lf = f * distm
-    return -np.diff(ga, axis=1) / lf
 
 
 def cp(s, t, p):
@@ -1504,6 +486,356 @@ def cp(s, t, p):
     return Cpst0 + del_Cp0t0 + del_Cpstp
 
 
+def dens0(s, t):
+    """Density of Sea Water at atmospheric pressure.
+
+    Parameters
+    ----------
+    s(p=0) : array_like
+             salinity [psu (PSS-78)]
+    t(p=0) : array_like
+             temperature [:math:`^\circ` C (ITS-90)]
+
+    Returns
+    -------
+    dens0(s, t) : array_like
+                  density  [kg m :sup:`3`] of salt water with properties
+                  (s, t, p=0) 0 db gauge pressure
+
+    Examples
+    --------
+    Data from UNESCO Tech. Paper in Marine Sci. No. 44, p22
+    >>> import seawater as sw
+    >>> s = [0, 0, 0, 0, 35, 35, 35, 35]
+    >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
+    >>> sw.dens0(s, t)
+    array([  999.842594  ,   999.842594  ,   995.65113374,   995.65113374,
+            1028.10633141,  1028.10633141,  1021.72863949,  1021.72863949])
+
+    References
+    ----------
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+
+    .. [2] Millero, F.J. and  Poisson, A. International one-atmosphere equation
+    of state of seawater. Deep-Sea Res. 1981. Vol28A(6) pp625-629.
+    doi:10.1016/0198-0149(81)90122-9
+
+    Modifications: 92-11-05. Phil Morgan.
+                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    """
+
+    s, t = map(np.asanyarray, (s, t))
+
+    T68 = T68conv(t)
+
+    # UNESCO 1983 Eqn.(13) p17.
+    b = (8.24493e-1, -4.0899e-3, 7.6438e-5, -8.2467e-7, 5.3875e-9)
+    c = (-5.72466e-3, 1.0227e-4, -1.6546e-6)
+    d = 4.8314e-4
+    return (smow(t) + (b[0] + (b[1] + (b[2] + (b[3] + b[4] * T68) * T68) *
+            T68) * T68) * s + (c[0] + (c[1] + c[2] * T68) * T68) * s *
+            s ** 0.5 + d * s ** 2)
+
+
+def dens(s, t, p):
+    """Density of Sea Water using UNESCO 1983 (EOS 80) polynomial.
+
+    Parameters
+    ----------
+    s(p) : array_like
+           salinity [psu (PSS-78)]
+    t(p) : array_like
+           temperature [:math:`^\circ` C (ITS-90)]
+    p : array_like
+        pressure [db].
+
+    Returns
+    -------
+    dens : array_like
+           density  [kg m :sup:`3`]
+
+    Examples
+    --------
+    Data from Unesco Tech. Paper in Marine Sci. No. 44, p22.
+    >>> import seawater as sw
+    >>> s = [0, 0, 0, 0, 35, 35, 35, 35]
+    >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
+    >>> p = [0, 10000, 0, 10000, 0, 10000, 0, 10000]
+    >>> sw.dens(s, t, p)
+    array([  999.842594  ,  1045.33710972,   995.65113374,  1036.03148891,
+            1028.10633141,  1070.95838408,  1021.72863949,  1060.55058771])
+
+    References
+    ----------
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+
+    .. [2] Millero, F.J., Chen, C.T., Bradshaw, A., and Schleicher, K. A new
+    high pressure equation of state for seawater. Deap-Sea Research., 1980,
+    Vol27A, pp255-264. doi:10.1016/0198-0149(80)90016-3
+
+    Modifications: 92-11-05. Phil Morgan.
+                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
+                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    """
+
+    s, t, p = map(np.asanyarray, (s, t, p))
+
+    # UNESCO 1983. Eqn..7  p.15.
+    densP0 = dens0(s, t)
+    K = seck(s, t, p)
+    p = p / 10.  # Convert from db to atm pressure units.
+    return densP0 / (1 - p / K)
+
+
+def dpth(p, lat):
+    """Calculates depth in meters from pressure in dbars.
+
+    Parameters
+    ----------
+    p : array_like
+        pressure [db].
+    lat : number or array_like
+          latitude in decimal degrees north [-90..+90].
+
+    Returns
+    -------
+    z : array_like
+        depth [meters]
+
+    Examples
+    --------
+    UNESCO 1983 data p30.
+    >>> import seawater as sw
+    >>> lat = [0, 30, 45, 90]
+    >>> p = [[  500,   500,   500,  500],
+    ...      [ 5000,  5000,  5000, 5000],
+    ...      [10000, 10000, 10000, 10000]]
+    >>> sw.dpth(p, lat)
+    array([[  496.65299239,   495.99772917,   495.3427354 ,   494.03357499],
+           [ 4915.04099112,  4908.55954332,  4902.08075214,  4889.13132561],
+           [ 9725.47087508,  9712.6530721 ,  9699.84050403,  9674.23144056]])
+
+    Notes
+    -----
+    Original matlab seawater name is dpth and not depth.
+
+    References
+    ----------
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech.
+    Pap. in Mar. Sci., No. 44, 53 pp.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+
+    Modifications: 92-04-06. Phil Morgan.
+                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
+    """
+    p, lat = map(np.asanyarray, (p, lat))
+
+    # Eqn 25, p26.  UNESCO 1983.
+    c = [9.72659, -2.2512e-5, 2.279e-10, -1.82e-15]
+    gam_dash = 2.184e-6
+
+    lat = abs(lat)
+    X = np.sin(lat * deg2rad)
+    X = X * X
+
+    bot_line = (9.780318 * (1.0 + (5.2788e-3 + 2.36e-5 * X) * X) +
+                gam_dash * 0.5 * p)
+    top_line = (((c[3] * p + c[2]) * p + c[1]) * p + c[0]) * p
+    return top_line / bot_line
+
+
+def fp(s, p):
+    """Freezing point of Sea Water using UNESCO 1983 polynomial.
+
+    Parameters
+    ----------
+    s : array_like
+        salinity [psu (PSS-78)]
+    p : array_like
+        pressure [db]
+
+    Returns
+    -------
+    fp : array_like
+        freezing point temperature [:math:`^\circ` C (ITS-90)]
+
+    Examples
+    --------
+    UNESCO DATA p.30.
+    >>> import seawater as sw
+    >>> s = [[5, 10, 15, 20, 25, 30, 35, 40],
+    ...      [5, 10, 15, 20, 25, 30, 35, 40]]
+    >>> p = [[ 0, 0, 0, 0, 0, 0, 0, 0],
+    ...      [500, 500, 500, 500, 500, 500, 500, 500]]
+    >>> sw.fp(s, p)
+    array([[-0.27369757, -0.54232831, -0.81142026, -1.0829461 , -1.35804594,
+            -1.63748903, -1.9218401 , -2.2115367 ],
+           [-0.65010724, -0.91873798, -1.18782992, -1.45935577, -1.73445561,
+            -2.01389869, -2.29824976, -2.58794636]])
+
+    References
+    ----------
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+
+    Modifications: 93-04-20. Phil Morgan.
+                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
+                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    """
+
+    s, p = map(np.asanyarray, (s, p))
+
+    # NOTE: P = P/10 # to convert db to Bar as used in UNESCO routines.
+    # Eqn  p.29.
+    a = [-0.0575, 1.710523e-3, -2.154996e-4]
+    b = -7.53e-4
+    return T90conv(a[0] * s + a[1] * s * s ** 0.5 + a[2] * s ** 2 + b * p)
+
+
+def g(lat, z=0):
+    """Calculates acceleration due to gravity as function of latitude.
+
+    Parameters
+    ----------
+    lat : array_like
+         latitude in decimal degrees north [-90..+90].
+
+    z : number or array_like. Default z = 0
+        height in meters (+ve above sea surface, -ve below).
+
+    Returns
+    -------
+    g : array_like
+        gravity [m s :sup:`2`]
+
+    Examples
+    --------
+    >>> import seawater as sw
+    >>> sw.g(45, z=0)
+    9.8061898752053995
+
+    References
+    ----------
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap.
+    in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+
+    .. [2] A.E. Gill 1982. p.54  Eqn. 3.7.15 "Atmosphere-Ocean Dynamics"
+    Academic Press: New York. ISBN: 0-12-283522-0
+
+    Modifications: 93-04-20. Phil Morgan.
+    """
+
+    lat, z = map(np.asanyarray, (lat, z))
+
+    # Eqn p27.  UNESCO 1983.
+    lat = np.abs(lat)
+    X = np.sin(lat * deg2rad)
+    sin2 = X * X
+    grav = 9.780318 * (1.0 + (5.2788e-3 + 2.36e-5 * sin2) * sin2)
+    return grav / ((1 + z / earth_radius) ** 2)  # From A.E.Gill p.597.
+
+
+def pden(s, t, p, pr=0):
+    """Calculates potential density of water mass relative to the specified
+    reference pressure by pden = dens(S, ptmp, PR).
+
+    Parameters
+    ----------
+    s(p) : array_like
+           salinity [psu (PSS-78)]
+    t(p) : array_like
+           temperature [:math:`^\circ` C (ITS-90)]
+    p : array_like
+        pressure [db].
+    pr : number
+         reference pressure [db], default = 0
+
+    Returns
+    -------
+    pden : array_like
+           potential density relative to the ref. pressure [kg m :sup:3]
+
+    Examples
+    --------
+    Data from Unesco Tech. Paper in Marine Sci. No. 44, p22.
+    >>> import seawater as sw
+    >>> s = [0, 0, 0, 0, 35, 35, 35, 35]
+    >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
+    >>> p = [0, 10000, 0, 10000, 0, 10000, 0, 10000]
+    >>> sw.pden(s, t, p)
+    array([  999.842594  ,   999.79523994,   995.65113374,   996.36115932,
+            1028.10633141,  1028.15738545,  1021.72863949,  1022.59634627])
+
+    :math:`\sigma_{4}` (at 4000 db)
+
+    >>> sw.pden(s, t, p, 4000) - 1000
+    array([ 19.2895493 ,  19.33422519,  12.43271053,  13.27563816,
+            46.30976432,  46.48818851,  37.76150878,  38.74500757])
+
+    References
+    ----------
+    .. [1] A.E. Gill 1982. p.54  Eqn. 3.7.15 "Atmosphere-Ocean Dynamics"
+    Academic Press: New York. ISBN: 0-12-283522-0
+
+    Modifications: 92-04-06. Phil Morgan.
+                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    """
+
+    s, t, p, pr = map(np.asanyarray, (s, t, p, pr))
+
+    pt = ptmp(s, t, p, pr)
+    return dens(s, pt, pr)
+
+
+def pres(depth, lat):
+    """Calculates pressure in dbars from depth in meters.
+
+    Parameters
+    ----------
+    depth : array_like
+            depth [meters]
+    lat : array_like
+          latitude in decimal degrees north [-90..+90]
+
+    Returns
+    -------
+    p : array_like
+           pressure [db]
+
+    Examples
+    --------
+    >>> import seawater as sw
+    >>> depth, lat = 7321.45, 30
+    >>> sw.pres(depth,lat)
+    7500.0065130118019
+
+    References
+    ----------
+    .. [1] Saunders, Peter M., 1981: Practical Conversion of Pressure to Depth.
+    J. Phys. Oceanogr., 11, 573-574.
+    doi: 10.1175/1520-0485(1981)011<0573:PCOPTD>2.0.CO;2
+
+    Modifications: 93-06-25. Phil Morgan.
+                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
+    """
+    depth, lat = map(np.asanyarray, (depth, lat))
+
+    X = np.sin(np.abs(lat * deg2rad))
+    C1 = 5.92e-3 + X ** 2 * 5.25e-3
+    return ((1 - C1) - (((1 - C1) ** 2) - (8.84e-6 * depth)) ** 0.5) / 4.42e-6
+
+
 def ptmp(s, t, p, pr=0):
     """Calculates potential temperature as per UNESCO 1983 report.
 
@@ -1588,6 +920,200 @@ def ptmp(s, t, p, pr=0):
     return T90conv(th + (del_th - 2 * q) / 6)
 
 
+def salt(r, t, p):
+    """Calculates Salinity from conductivity ratio. UNESCO 1983 polynomial.
+
+    Parameters
+    ----------
+    r : array_like
+        conductivity ratio :math:`R = \frac{C(S,T,P)}{C(35,15(IPTS-68),0)}`
+    t : array_like
+        temperature [:math:`^\circ` C (ITS-90)]
+    p : array_like
+        pressure [db]
+
+    Returns
+    -------
+    s : array_like
+        salinity [psu (PSS-78)]
+
+    Examples
+    --------
+    Data from UNESCO 1983 p9.
+    >>> import seawater as sw
+    >>> r = [1, 1.2, 0.65]
+    >>> t = sw.T90conv([15, 20, 5])
+    >>> p = [0, 2000, 1500]
+    >>> sw.salt(r, t, p)
+    array([ 34.99999992,  37.24562765,  27.99534693])
+
+    References
+    ----------
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+
+    Modifications: 93-04-17. Phil Morgan.
+                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    """
+    r, t, p = map(np.asanyarray, (r, t, p))
+
+    rt = salrt(t)
+    rp = salrp(r, t, p)
+    rt = r / (rp * rt)
+    return sals(rt, t)
+
+
+def smow(t):
+    """Density of Standard Mean Ocean Water (Pure Water) using EOS 1980.
+
+    Parameters
+    ----------
+    t : array_like
+        temperature [:math:`^\circ` C (ITS-90)]
+
+    Returns
+    -------
+    dens(t) : array_like
+              density  [kg m :sup:`3`]
+
+    Examples
+    --------
+    Data from UNESCO Tech. Paper in Marine Sci. No. 44, p22.
+    >>> import seawater as sw
+    >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
+    >>> sw.smow(t)
+    array([ 999.842594  ,  999.842594  ,  995.65113374,  995.65113374,
+            999.842594  ,  999.842594  ,  995.65113374,  995.65113374])
+
+    References
+    ----------
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+
+    .. [2] Millero, F.J. and  Poisson, A. International one-atmosphere equation
+    of state of seawater. Deep-Sea Res. 1981. Vol28A(6) pp625-629.
+    doi:10.1016/0198-0149(81)90122-9
+
+    Modifications: 92-11-05. Phil Morgan.
+                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
+                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    """
+
+    t = np.asanyarray(t)
+
+    a = (999.842594, 6.793952e-2, -9.095290e-3, 1.001685e-4, -1.120083e-6,
+         6.536332e-9)
+
+    T68 = T68conv(t)
+    return (a[0] + (a[1] + (a[2] + (a[3] + (a[4] + a[5] * T68) * T68) * T68) *
+            T68) * T68)
+
+
+def svel(s, t, p):
+    """Sound Velocity in sea water using UNESCO 1983 polynomial.
+
+    Parameters
+    ----------
+    s(p) : array_like
+           salinity [psu (PSS-78)]
+    t(p) : array_like
+           temperature [:math:`^\circ` C (ITS-90)]
+    p : array_like
+        pressure [db].
+
+    Returns
+    -------
+    svel : array_like
+           sound velocity  [m/s]
+
+    Examples
+    --------
+    Data from Pond and Pickard Intro. Dynamical Oceanography 2nd ed. 1986
+
+    >>> import seawater as sw
+    >>> t = T90conv([[  0,  0,  0,  0,  0,  0],
+    ...              [ 10, 10, 10, 10, 10, 10],
+    ...              [ 20, 20, 20, 20, 20, 20],
+    ...              [ 30, 30, 30, 30, 30, 30],
+    ...              [ 40, 40, 40, 40, 40, 40]])
+    >>> s = [[ 25, 25, 25, 35, 35, 35],
+    ...      [ 25, 25, 25, 35, 35, 35],
+    ...      [ 25, 25, 25, 35, 35, 35],
+    ...      [ 25, 25, 25, 35, 35, 35],
+    ...      [ 25, 25, 25, 35, 35, 35]]
+    >>> p = [ 0, 5000, 10000, 0, 5000, 10000]
+    >>> sw.svel(s, t, p)
+    array([[ 1435.789875  ,  1520.358725  ,  1610.4074    ,  1449.13882813,
+             1533.96863705,  1623.15007097],
+           [ 1477.68316464,  1561.30635914,  1647.39267114,  1489.82233602,
+             1573.40946928,  1658.99115504],
+           [ 1510.31388348,  1593.59671798,  1676.80967748,  1521.4619731 ,
+             1604.4762822 ,  1687.18305631],
+           [ 1535.21434752,  1618.95631952,  1700.60547902,  1545.59485539,
+             1628.97322783,  1710.06294277],
+           [ 1553.44506636,  1638.02522336,  1719.15088536,  1563.20925247,
+             1647.29949576,  1727.83176404]])
+
+    References
+    ----------
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+
+    Modifications: 93-04-20. Phil Morgan.
+                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
+                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    """
+    s, t, p = map(np.asanyarray, (s, t, p))
+
+    # UNESCO 1983. Eqn..33  p.46.
+    p = p / 10  # Convert db to bars as used in UNESCO routines.
+    T68 = T68conv(t)
+
+    # Eqn 34 p.46.
+    c00, c01, c02, c03, c04, c05 = (1402.388, 5.03711, -5.80852e-2, 3.3420e-4,
+                                    -1.47800e-6, 3.1464e-9)
+    c10, c11, c12, c13, c14 = (0.153563, 6.8982e-4, -8.1788e-6, 1.3621e-7,
+                               -6.1185e-10)
+    c20, c21, c22, c23, c24 = (3.1260e-5, -1.7107e-6, 2.5974e-8, -2.5335e-10,
+                               1.0405e-12)
+    c30, c31, c32 = (-9.7729e-9, 3.8504e-10, -2.3643e-12)
+
+    Cw = (((((c32 * T68 + c31) * T68 + c30) * p +
+            ((((c24 * T68 + c23) * T68 + c22) * T68 + c21) * T68 + c20)) * p +
+           ((((c14 * T68 + c13) * T68 + c12) * T68 + c11) * T68 + c10)) *
+          p + ((((c05 * T68 + c04) * T68 + c03) * T68 + c02) * T68 + c01) *
+          T68 + c00)
+
+    # Eqn. 35. p.47
+    a00, a01, a02, a03, a04 = (1.389, -1.262e-2, 7.164e-5, 2.006e-6, -3.21e-8)
+    a10, a11, a12, a13, a14 = (9.4742e-5, -1.2580e-5, -6.4885e-8, 1.0507e-8,
+                               -2.0122e-10)
+    a20, a21, a22, a23 = (-3.9064e-7, 9.1041e-9, -1.6002e-10, 7.988e-12)
+    a30, a31, a32 = (1.100e-10, 6.649e-12, -3.389e-13)
+
+    A = (((((a32 * T68 + a31) * T68 + a30) * p +
+           (((a23 * T68 + a22) * T68 + a21) * T68 + a20)) * p +
+          ((((a14 * T68 + a13) * T68 + a12) * T68 + a11) * T68 + a10)) * p +
+         (((a04 * T68 + a03) * T68 + a02) * T68 + a01) * T68 + a00)
+
+    # Eqn 36 p.47.
+    b00, b01, b10, b11 = -1.922e-2, -4.42e-5, 7.3637e-5, 1.7945e-7
+    B = b00 + b01 * T68 + (b10 + b11 * T68) * p
+
+    # Eqn 37 p.47.
+    d00, d10 = 1.727e-3, -7.9836e-6
+    D = d00 + d10 * p
+
+    # Eqn 33 p.46.
+    return Cw + A * s + B * s * s ** 0.5 + D * s ** 2
+
+
 def temp(s, pt, p, pr=0):
     """Calculates temperature from potential temperature at the reference
     pressure PR and in situ pressure P.
@@ -1632,32 +1158,6 @@ def temp(s, pt, p, pr=0):
     s, pt, p, pr = map(np.asanyarray, (s, pt, p, pr))
     # Carry out inverse calculation by swapping p0 & pr.
     return ptmp(s, pt, pr, p)
-
-
-def swvel(length, depth):
-    """Calculates surface wave velocity.
-
-    length : array_like
-            wave length
-    depth : array_like
-            water depth [meters]
-
-    Returns
-    -------
-    speed : array_like
-            surface wave speed [m s :sup:`-1`]
-
-    Examples
-    --------
-    >>> import seawater as sw
-    >>> sw.swvel(10, 100)
-    3.9493270848342941
-
-    Modifications: Lindsay Pender 2005
-    """
-    length, depth = map(np.asanyarray, (length, depth))
-    k = 2.0 * np.pi / length
-    return (gdef * np.tanh(k * depth) / k) ** 0.5
 
 
 if __name__ == '__main__':

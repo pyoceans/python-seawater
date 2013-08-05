@@ -24,6 +24,7 @@ Topic :: Software Development :: Libraries :: Python Modules
 """
 
 README = open('README.md').read()
+CHANGES = open('CHANGES.txt').read()
 LICENSE = open('LICENSE.txt').read()
 
 config = dict(name='seawater',
@@ -32,7 +33,7 @@ config = dict(name='seawater',
               test_suite='test',
               use_2to3=True,
               license=LICENSE,
-              long_description=README,
+              long_description='%s\n\n%s' % (README, CHANGES),
               classifiers=filter(None, classifiers.split("\n")),
               description='Seawater Libray for Python',
               author='Filipe Fernandes',

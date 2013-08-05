@@ -1,4 +1,17 @@
 # -*- coding: utf-8 -*-
+#
+# test_seawater.py
+#
+# purpose:  Test to mimic matlab sw_test.m function.
+# author:   Filipe P. A. Fernandes
+# e-mail:   ocefpaf@gmail
+# web:      http://ocefpaf.github.io/
+# created:  05-Aug-2013
+# modified: Mon 05 Aug 2013 09:57:15 AM BRT
+#
+# obs:  Check the unittest for a more thorough code testing.
+#
+
 
 from __future__ import division
 
@@ -15,7 +28,6 @@ def test(fileout='python-test.txt'):
 
     Modifications: Phil Morgan
                    03-12-12. Lindsay Pender, Converted to ITS-90.
-                   10-01-14. Filipe Fernandes, Python translation.
     """
     f = open(fileout, 'w')
     asterisks = '*' * 76
@@ -200,7 +212,7 @@ def test(fileout='python-test.txt'):
                         [4915.04, 4908.56, 4902.08, 4889.13],
                         [9725.47, 9712.65, 9699.84, 9674.23]])
 
-    dpth = sw.depth(P, lat)
+    dpth = sw.dpth(P, lat)
 
     # Display results.
     f.write('\n')
