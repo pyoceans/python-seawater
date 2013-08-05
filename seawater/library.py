@@ -7,7 +7,7 @@
 # e-mail:   ocefpaf@gmail
 # web:      http://ocefpaf.github.io/
 # created:  03-Aug-2013
-# modified: Sun 04 Aug 2013 10:36:27 AM BRT
+# modified: Mon 05 Aug 2013 02:53:44 PM BRT
 #
 # obs:
 #
@@ -23,6 +23,7 @@ __all__ = ['cndr',
            'salrt',
            'seck',
            'sals',
+           'smow',
            'T68conv',
            'T90conv']
 
@@ -381,6 +382,54 @@ def sals(rt, t):
     s += del_S
 
     return s
+
+
+def smow(t):
+    """Density of Standard Mean Ocean Water (Pure Water) using EOS 1980.
+
+    Parameters
+    ----------
+    t : array_like
+        temperature [:math:`^\circ` C (ITS-90)]
+
+    Returns
+    -------
+    dens(t) : array_like
+              density  [kg m :sup:`3`]
+
+    Examples
+    --------
+    Data from UNESCO Tech. Paper in Marine Sci. No. 44, p22.
+    >>> import seawater as sw
+    >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
+    >>> sw.smow(t)
+    array([ 999.842594  ,  999.842594  ,  995.65113374,  995.65113374,
+            999.842594  ,  999.842594  ,  995.65113374,  995.65113374])
+
+    References
+    ----------
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+
+    .. [2] Millero, F.J. and  Poisson, A. International one-atmosphere equation
+    of state of seawater. Deep-Sea Res. 1981. Vol28A(6) pp625-629.
+    doi:10.1016/0198-0149(81)90122-9
+
+    Modifications: 92-11-05. Phil Morgan.
+                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
+                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    """
+
+    t = np.asanyarray(t)
+
+    a = (999.842594, 6.793952e-2, -9.095290e-3, 1.001685e-4, -1.120083e-6,
+         6.536332e-9)
+
+    T68 = T68conv(t)
+    return (a[0] + (a[1] + (a[2] + (a[3] + (a[4] + a[5] * T68) * T68) * T68) *
+            T68) * T68)
 
 
 def T68conv(T90):
