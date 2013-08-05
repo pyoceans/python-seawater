@@ -7,7 +7,7 @@
 # e-mail:   ocefpaf@gmail
 # web:      http://ocefpaf.github.io/
 # created:  05-Aug-2013
-# modified: Mon 05 Aug 2013 09:57:15 AM BRT
+# modified: Mon 05 Aug 2013 06:48:54 PM BRT
 #
 # obs:
 #
@@ -64,7 +64,7 @@ def compare_results(name, function, args):
         res = res[0]
 
     try:  # Octave.
-        val = octave.call('sw_%s' % name, *args, verbose=True, nout=nout)
+        val = octave.call('sw_%s' % name, *args, verbose=False, nout=nout)
         if nout > 1:
             val = val[0]
     except Oct2PyError:
