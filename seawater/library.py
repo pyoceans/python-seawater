@@ -81,17 +81,30 @@ def cndr(s, t, p):
 
     T68 = T68conv(t)
 
+    shape = s.shape
+    s, t = map(np.ravel, (s, t))
     # Do a Newton-Raphson iteration for inverse interpolation of Rt from s.
-    Rx = np.sqrt(s / 35.0)  # First guess at Rx = sqrt(Rt).
-    SInc = sals(Rx ** 2, t)  # S increment (guess) from Rx.
-    iloop = 0
-    while True:
-        Rx = Rx + (s - SInc) / salds(Rx, t - 15)
-        SInc = sals(Rx ** 2, t)
-        iloop = iloop + 1
-        dels = np.abs(SInc - s)
-        if not (dels.all() > 1.0e-10) & (iloop < 100):
-            break
+    Rx = []
+    for S, T in zip(s, t):
+        Rx_loop = np.sqrt(S / 35.0)  # first guess at Rx = sqrt(Rt).
+        SInc = sals(Rx_loop * Rx_loop, T)  # S Increment (guess) from Rx.
+        iloop = 0
+        while True:
+            # FIXME: I believe that T / 1.00024 isn't correct here.  But I'm
+            # reproducing seawater up to its bugs!
+            Rx_loop = Rx_loop + (S - SInc) / salds(Rx_loop,
+                                                        T / 1.00024 - 15)
+            SInc = sals(Rx_loop * Rx_loop, T)
+            iloop += 1
+            dels = abs(SInc - S)
+            if (dels > 1.0e-10) and (iloop < 100):
+                pass
+            else:
+                break
+
+        Rx.append(Rx_loop)
+
+    Rx = np.array(Rx).reshape(shape)
 
     # Once Rt found, corresponding to each (s,t) evaluate r.
     # Eqn(4) p.8 UNESCO 1983.
