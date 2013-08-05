@@ -7,7 +7,7 @@
 # e-mail:   ocefpaf@gmail
 # web:      http://ocefpaf.github.io/
 # created:  03-Aug-2013
-# modified: Mon 05 Aug 2013 10:26:39 AM BRT
+# modified: Mon 05 Aug 2013 02:52:19 PM BRT
 #
 # obs:
 #
@@ -17,16 +17,14 @@ from __future__ import division
 
 import numpy as np
 
-from extras import f
-from constants import gdef, deg2rad, earth_radius
-from library import T90conv, T68conv, salrt, salrp, sals, seck
+from constants import deg2rad, earth_radius
+from library import T90conv, T68conv, salrt, salrp, sals, seck, smow
 
 
 __all__ = ['adtg',
            'alpha',
            'aonb',
            'beta',
-           'bfrq',
            'dpth',
            'g',
            'salt',
@@ -34,7 +32,6 @@ __all__ = ['adtg',
            'svel',
            'pres',
            'dens0',
-           'smow',
            'dens',
            'pden',
            'cp',
@@ -207,7 +204,7 @@ def aonb(s, t, p, pt=False):
     if not pt:
         t = ptmp(s, t, p, 0)  # Now we have ptmp.
 
-    p = np.float32(p)
+    p = np.float_(p)
     t = T68conv(t)
 
     c1 = np.array([-0.255019e-7, 0.298357e-5, -0.203814e-3,
@@ -290,100 +287,6 @@ def beta(s, t, p, pt=False):
             (np.polyval(c2, t) + np.polyval(c3, p)) +
             c4 * (sm35 ** 2) + p * np.polyval(c5, t) +
             (p ** 2) * np.polyval(c6, t) + c7 * (p ** 3))
-
-
-def bfrq(s, t, p, lat=None):
-    """Calculates Brünt-Väisälä Frequency squared (N :sup:`2`) at the mid
-    depths from the equation:
-
-    .. math::
-        N^{2} = \frac{-g}{\sigma_{\theta}} \frac{d\sigma_{\theta}}{dz}
-
-    Also calculates Potential Vorticity from:
-
-    .. math::
-        q=f \frac{N^2}{g}
-
-    Parameters
-    ----------
-    s(p) : array_like
-           salinity [psu (PSS-78)]
-    t(p) : array_like
-           temperature or potential temperature [:math:`^\circ` C (ITS-90)]
-    p : array_like
-        pressure [db].
-    lat : number or array_like, optional
-          latitude in decimal degrees north [-90..+90].
-          Will grav instead of the default g = 9.8 m :sup:`2` s :sup:`-1`) and
-          d(z) instead of d(p)
-
-    Returns
-    -------
-    n2 : array_like
-           Brünt-Väisälä Frequency squared (M-1xN)  [rad s :sup:`-2`]
-    q : array_like
-           planetary potential vorticity (M-1xN)  [ m s :sup:`-1`]
-    p_ave : array_like
-            mid pressure between P grid (M-1xN) [db]
-
-    Examples
-    --------
-    >>> import seawater as sw
-    >>> s = [[0, 0, 0], [15, 15, 15], [30, 30, 30],[35,35,35]]
-    >>> t = [[15]*3]*4
-    >>> p = [[0], [250], [500], [1000]]
-    >>> lat = [30,32,35]
-    >>> sw.bfrq(s, t, p, lat)[0]
-    array([[  4.51543648e-04,   4.51690708e-04,   4.51920753e-04],
-           [  4.45598092e-04,   4.45743207e-04,   4.45970207e-04],
-           [  7.40996788e-05,   7.41238078e-05,   7.41615525e-05]])
-
-    References
-    ----------
-    .. [1] A.E. Gill 1982. p.54  Eqn. 3.7.15 "Atmosphere-Ocean Dynamics"
-    Academic Press: New York. ISBN: 0-12-283522-0
-
-    .. [2] Jackett, David R., Trevor J. Mcdougall, 1995: Minimal Adjustment of
-    Hydrographic Profiles to Achieve Static Stability. J. Atmos. Oceanic
-    Technol., 12, 381-389. doi: 10.1175/1520-0426(1995)012<0381:MAOHPT>2.0.CO;2
-
-    Modifications: 93-06-24. Phil Morgan.
-                   Greg Johnson (gjohnson@pmel.noaa.gov) pot. vort. calc.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
-                   06-04-19. Lindsay Pender, Corrected sign of PV.
-    """
-
-    s, t, p = map(np.asanyarray, (s, t, p))
-    s, t, p = np.broadcast_arrays(s, t, p)
-    s, t, p = map(np.atleast_2d, (s, t, p))
-    if (s.ndim != 2) and (t.ndim != 2):
-        raise ValueError('Arguments must be 2D arrays: n_depths, n_profiles')
-
-    if lat is None:
-        z = p
-        cor = np.nan
-        grav = gdef * np.ones(p.shape)
-    else:
-        lat = np.asanyarray(lat)
-        z = dpth(p, lat)
-        grav = g(lat, -z)  # Note that grav expects height as argument.
-        cor = f(lat)
-
-    m = p.shape[0]
-    iup = np.arange(0, m - 1)
-    ilo = np.arange(1, m)
-
-    p_ave = (p[iup, :] + p[ilo, :]) / 2.
-    pden_up = pden(s[iup, :], t[iup, :], p[iup, :], p_ave)
-    pden_lo = pden(s[ilo, :], t[ilo, :], p[ilo, :], p_ave)
-    mid_pden = (pden_up + pden_lo) / 2.
-    dif_pden = pden_up - pden_lo
-    mid_g = (grav[iup, :] + grav[ilo, :]) / 2.
-    dif_z = np.diff(z, axis=0)
-    n2 = -mid_g * dif_pden / (dif_z * mid_pden)
-    q = -cor * dif_pden / (dif_z * mid_pden)
-
-    return n2, q, p_ave
 
 
 def cp(s, t, p):
@@ -963,54 +866,6 @@ def salt(r, t, p):
     rp = salrp(r, t, p)
     rt = r / (rp * rt)
     return sals(rt, t)
-
-
-def smow(t):
-    """Density of Standard Mean Ocean Water (Pure Water) using EOS 1980.
-
-    Parameters
-    ----------
-    t : array_like
-        temperature [:math:`^\circ` C (ITS-90)]
-
-    Returns
-    -------
-    dens(t) : array_like
-              density  [kg m :sup:`3`]
-
-    Examples
-    --------
-    Data from UNESCO Tech. Paper in Marine Sci. No. 44, p22.
-    >>> import seawater as sw
-    >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
-    >>> sw.smow(t)
-    array([ 999.842594  ,  999.842594  ,  995.65113374,  995.65113374,
-            999.842594  ,  999.842594  ,  995.65113374,  995.65113374])
-
-    References
-    ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
-    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
-    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
-
-    .. [2] Millero, F.J. and  Poisson, A. International one-atmosphere equation
-    of state of seawater. Deep-Sea Res. 1981. Vol28A(6) pp625-629.
-    doi:10.1016/0198-0149(81)90122-9
-
-    Modifications: 92-11-05. Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
-    """
-
-    t = np.asanyarray(t)
-
-    a = (999.842594, 6.793952e-2, -9.095290e-3, 1.001685e-4, -1.120083e-6,
-         6.536332e-9)
-
-    T68 = T68conv(t)
-    return (a[0] + (a[1] + (a[2] + (a[3] + (a[4] + a[5] * T68) * T68) * T68) *
-            T68) * T68)
 
 
 def svel(s, t, p):
