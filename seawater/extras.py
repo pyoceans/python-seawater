@@ -27,17 +27,17 @@ __all__ = ['dist',
            'swvel']
 
 
-def dist(lon, lat, units='km'):
+def dist(lat, lon, units='km'):
     """Calculate distance between two positions on globe using the "Plane
     Sailing" method. Also uses simple geometry to calculate the bearing of
     the path between position pairs.
 
     Parameters
     ----------
-    lon : array_like
-          decimal degrees (+ve E, -ve W) [-180..+180]
     lat : array_like
           decimal degrees (+ve N, -ve S) [- 90.. +90]
+    lon : array_like
+          decimal degrees (+ve E, -ve W) [-180..+180]
     units : string, optional
             default kilometers
 
@@ -54,12 +54,12 @@ def dist(lon, lat, units='km'):
     >>> import seawater as sw
     >>> lon = [35, 35]
     >>> lat = [41, 40]
-    >>> sw.dist(lon, lat)
+    >>> sw.dist(lat, lon)
     (array([ 111.12]), array([-90.]))
     >>> # Create a distance vector.
     >>> lon = np.arange(30,40,1)
     >>> lat = 35
-    >>> np.cumsum(np.append(0, sw.dist(lon, lat, units='km')[0]))
+    >>> np.cumsum(np.append(0, sw.dist(lat, lon, units='km')[0]))
     array([   0.        ,   91.02417516,  182.04835032,  273.07252548,
             364.09670065,  455.12087581,  546.14505097,  637.16922613,
             728.19340129,  819.21757645])
