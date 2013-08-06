@@ -10,14 +10,15 @@ The EOS-80 library is considered now obsolete;  it is provided here for
 compatibility with old scripts, and to allow a smooth transition to the new
 TEOS-10.
 
-Note
-----
-The Python version takes depth/pressure as the first dimension, i.e. M depths
-by N positions.  The MatlabTM version does some guessing at this that we simply
-ignore to avoid wrong computations.
+Notes
+-----
+The Python version default output unit for sw.dist is 'km' instead of  'nm'.
 
-Another difference is the default unit for sw.dist 'km' in the python version
-while MatlabTM uses 'nm'.
+Another difference is that the Python version takes pressure as the first
+dimension, i.e. M pressure by N positions.  The MatlabTM version does some
+guessing at this that we simply ignore to confusions.  That is because matlab
+have "two" types of 1D arrays (row or column), while python has just "1D"
+arrays.  To form a "column" array one must actually create a 2D array M by 1.
 
 |    P      |     S      |    T       |
 |:---------:|:----------:|:----------:|
@@ -27,7 +28,13 @@ while MatlabTM uses 'nm'.
 |   250     |   34.6810  |   10.2600  |
 |   600     |   34.5680  |    6.8863  |
 |  1000     |   34.5600  |    4.4036  |
+|     .     |         .  |         .  |
+|     .     |         .  |         .  |
+|     .     |         .  |         .  |
 
+There is a `test_octave.py` routine to test the Python library against an
+available MatlabTM library inside Python via the oct2py package.  This version
+was tested against seawater v3.3.
 
 gibbs vs. csiro
 ---------------

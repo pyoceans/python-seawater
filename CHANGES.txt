@@ -3,8 +3,10 @@ What's new in this version of seawater
 
 22 September 2010
 -----------------
-Fixed inconsistency in use of ITS-90 and increase convergence precision from
+Fixed inconsistency in use of ITS-90* and increase convergence precision from
 1e-4 to 1e-10 for `cndr`.
+
+* Note: Not sure if this fix is needed!  Check this!!
 
 19 April 2006  release 3.2
 --------------------------
