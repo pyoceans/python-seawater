@@ -17,6 +17,7 @@ from __future__ import division
 import numpy as np
 
 from extras import dist, f
+from library import atleast_2d
 from eos80 import dens, dpth, g, pden
 from constants import db2Pascal, gdef
 
@@ -89,32 +90,30 @@ def bfrq(s, t, p, lat=None):
 
     s, t, p = map(np.asanyarray, (s, t, p))
     s, t, p = np.broadcast_arrays(s, t, p)
-    s, t, p = map(np.atleast_2d, (s, t, p))
-    if (s.ndim != 2) and (t.ndim != 2):
-        raise ValueError('Arguments must be 2D arrays: n_depths, n_profiles')
+    s, t, p = map(atleast_2d, (s, t, p))
 
     if lat is None:
-        z = p
-        cor = np.nan
-        grav = gdef * np.ones(p.shape)
+        z, cor, grav = p, np.NaN, np.ones(p.shape) * gdef
     else:
         lat = np.asanyarray(lat)
         z = dpth(p, lat)
-        grav = g(lat, -z)  # Note that grav expects height as argument.
+        grav = g(lat, -z)  # -z because `grav` expects height as argument.
         cor = f(lat)
 
-    m = p.shape[0]
-    iup = np.arange(0, m - 1)
-    ilo = np.arange(1, m)
+    p_ave = (p[0:-1, ...] + p[1:, ...]) / 2.
 
-    p_ave = (p[iup, :] + p[ilo, :]) / 2.
-    pden_up = pden(s[iup, :], t[iup, :], p[iup, :], p_ave)
-    pden_lo = pden(s[ilo, :], t[ilo, :], p[ilo, :], p_ave)
+    pden_up = pden(s[0:-1, ...], t[0:-1, ...], p[0:-1, ...], p_ave)
+    pden_lo = pden(s[1:, ...], t[1:, ...], p[1:, ...], p_ave)
+
     mid_pden = (pden_up + pden_lo) / 2.
     dif_pden = pden_up - pden_lo
-    mid_g = (grav[iup, :] + grav[ilo, :]) / 2.
+
+    mid_g = (grav[0:-1, ...] + grav[1:, ...]) / 2.
+
     dif_z = np.diff(z, axis=0)
+
     n2 = -mid_g * dif_pden / (dif_z * mid_pden)
+
     q = -cor * dif_pden / (dif_z * mid_pden)
 
     return n2, q, p_ave
@@ -219,23 +218,16 @@ def gpan(s, t, p):
 
     s, t, p = map(np.asanyarray, (s, t, p))
     s, t, p = np.broadcast_arrays(s, t, p)
-
-    if p.ndim > 1:
-        m, n = p.shape
-    else:
-        m, n = p.size, 1
+    s, t, p = map(atleast_2d, (s, t, p))
 
     svn = svan(s, t, p)
-    mean_svan = 0.5 * (svn[1:m, ...] + svn[0:-1, ...])
 
-    if n == 1:
-        top = svn[0, 0] * p[0, 0] * db2Pascal
-    else:
-        top = svn[0, :] * p[0, :] * db2Pascal
-
-    delta_ga = (mean_svan * np.diff(p, axis=0)) * db2Pascal
-    ga = np.r_[np.atleast_2d(top), delta_ga]
-    return np.cumsum(ga, axis=0)
+    # NOTE: Assumes that pressure is the first dimension!
+    mean_svan = (svn[1:, ...] + svn[0:-1, ...]) / 2.
+    top = svn[0, ...] * p[0, ...] * db2Pascal
+    bottom = (mean_svan * np.diff(p, axis=0)) * db2Pascal
+    ga = np.concatenate((top[None, ...], bottom), axis=0)
+    return np.cumsum(ga, axis=0).squeeze()
 
 
 def gvel(ga, lat, lon):
