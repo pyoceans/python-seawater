@@ -1,6 +1,10 @@
 What's new in this version of seawater
 ======================================
 
+06 August 06 2013
+-----------------
+Both `gpan` and `bfrq` accepts 3D arrays now.
+
 22 September 2010
 -----------------
 Fixed inconsistency in use of ITS-90* and increase convergence precision from

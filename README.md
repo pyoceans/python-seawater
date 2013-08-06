@@ -1,24 +1,23 @@
 Python Seawater
 ===============
 
-The CSIRO seawater toolbox ([SEAWATER-3.3](http://www.cmar.csiro.au/datacentre/ext_docs/seawater.htm))
+This is a Python re-write of the CSIRO seawater toolbox
+([SEAWATER-3.3](http://www.cmar.csiro.au/datacentre/ext_docs/seawater.htm))
 for calculating the properties of sea water.  The package uses the formulas
 from Unesco's joint panel on oceanographic tables and standards, UNESCO 1981
 and UNESCO 1983 (EOS-80).
 
 The EOS-80 library is considered now obsolete;  it is provided here for
 compatibility with old scripts, and to allow a smooth transition to the new
-TEOS-10.
+[TEOS-10](http://www.teos-10.org/).
 
-Notes
------
+Notes and differences
+---------------------
 The Python version default output unit for sw.dist is 'km' instead of  'nm'.
 
-Another difference is that the Python version takes pressure as the first
-dimension, i.e. M pressure by N positions.  The MatlabTM version does some
-guessing at this that we simply ignore to confusions.  That is because matlab
-have "two" types of 1D arrays (row or column), while python has just "1D"
-arrays.  To form a "column" array one must actually create a 2D array M by 1.
+Here we assume pressure as the first dimension, i.e. M pressure by N
+positions (See the table below).  The MatlabTM version does some guessing at
+this that we simply ignore to avoid confusions.
 
 |    P      |     S      |    T       |
 |:---------:|:----------:|:----------:|
@@ -32,9 +31,12 @@ arrays.  To form a "column" array one must actually create a 2D array M by 1.
 |     .     |         .  |         .  |
 |     .     |         .  |         .  |
 
-Check out the `test_octave.py` routine to test the Python library against an
-available MatlabTM library inside Python via the oct2py package.  The current
-version was tested against seawater v3.3.
+Check out the [test_octave.py](https://github.com/ocefpaf/python-seawater/blob/master/test/test_octave.py)
+script to test the Python library against an available MatlabTM library (all
+inside Python via the oct2py package).  The current version was tested against
+seawater v3.3.
+
+>>> python test_octave.py ./path_to_sewater_toolbox
 
 More information:
     http://pythonhosted.org/seawater

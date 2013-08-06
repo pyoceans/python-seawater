@@ -7,7 +7,7 @@
 # e-mail:   ocefpaf@gmail
 # web:      http://ocefpaf.github.io/
 # created:  03-Aug-2013
-# modified: Mon 05 Aug 2013 02:53:44 PM BRT
+# modified: Tue 06 Aug 2013 10:14:46 AM BRT
 #
 # obs:
 #
@@ -92,8 +92,7 @@ def cndr(s, t, p):
         while True:
             # FIXME: I believe that T / 1.00024 isn't correct here.  But I'm
             # reproducing seawater up to its bugs!
-            Rx_loop = Rx_loop + (S - SInc) / salds(Rx_loop,
-                                                        T / 1.00024 - 15)
+            Rx_loop = Rx_loop + (S - SInc) / salds(Rx_loop, T / 1.00024 - 15)
             SInc = sals(Rx_loop * Rx_loop, T)
             iloop += 1
             dels = abs(SInc - S)
@@ -549,11 +548,11 @@ def atleast_2d(*arys):
     res = []
     for ary in arys:
         ary = np.asanyarray(ary)
-        if len(ary.shape) == 0 :
+        if len(ary.shape) == 0:
             result = ary.reshape(1, 1)
-        elif len(ary.shape) == 1 :
+        elif len(ary.shape) == 1:
             result = ary[:, np.newaxis]
-        else :
+        else:
             result = ary
         res.append(result)
     if len(res) == 1:
