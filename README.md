@@ -1,6 +1,13 @@
 Python Seawater
 ===============
 
+[![Build](https://badge.fury.io/py/seawater.png)](http://badge.fury.io/py/seawater)
+
+[![Build](https://api.travis-ci.org/ocefpaf/python-seawater.png?branch=master)](https://travis-ci.org/ocefpaf/python-seawater)
+
+[![Downloads](https://pypip.in/d/seawater/badge.png)](https://crate.io/packages/seawater/)
+
+
 This is a Python re-write of the CSIRO seawater toolbox
 ([SEAWATER-3.3](http://www.cmar.csiro.au/datacentre/ext_docs/seawater.htm))
 for calculating the properties of sea water.  The package uses the formulas
