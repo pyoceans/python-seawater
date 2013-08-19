@@ -7,7 +7,7 @@
 # e-mail:   ocefpaf@gmail
 # web:      http://ocefpaf.github.io/
 # created:  05-Aug-2013
-# modified: Mon 19 Aug 2013 08:21:02 PM BRT
+# modified: Mon 19 Aug 2013 08:39:17 PM BRT
 #
 # obs:
 #
@@ -26,7 +26,7 @@ import seawater as sw
 from seawater.constants import c3515
 
 path = os.path.join(os.path.dirname(__file__), 'seawater_v3_3')
-path = 'seawater_v3_3'
+path = './seawater_v3_3'
 _ = octave.addpath(octave.genpath(path))
 
 kw = dict(comment='#', header=5, index_col=0)
