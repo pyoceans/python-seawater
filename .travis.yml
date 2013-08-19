@@ -1,0 +1,20 @@
+language: python
+python:
+  - "2.6"
+  - "2.7"
+  - "3.2"
+  - "3.3"
+virtualenv:
+  system_site_packages: true
+before_install:
+    - sudo apt-get install -qq python-numpy
+    - sudo apt-get install -qq python3-numpy
+install:
+    - pip install numpy
+    - pip install oct2py
+script:
+    - cd tests
+    - nosetests --verbose --nocapture test_result_comparison.py
+branches:
+  only:
+    - master
