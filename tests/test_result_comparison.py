@@ -17,7 +17,6 @@ from __future__ import division
 
 import os
 import unittest
-from collections import OrderedDict
 
 import numpy as np
 from oct2py import octave
@@ -83,7 +82,7 @@ def compare_results(name, function, args):
 
 
 # All seawater functions to test.
-functions = OrderedDict({
+functions = dict({
     # library.py  # NOTE: Matlab does not have version of T68conv and T90conv.
     'cndr': (sw.cndr, ('s', 't', 'p')),  # FIXME: Diff. at 5th decimal place.
     'salds' : (sw.salds, ('rtx', 'delt')),  # Matlab version not vectorized.
