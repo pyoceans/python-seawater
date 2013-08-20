@@ -7,7 +7,7 @@
 # e-mail:   ocefpaf@gmail
 # web:      http://ocefpaf.github.io/
 # created:  05-Aug-2013
-# modified: Tue 20 Aug 2013 09:45:40 AM BRT
+# modified: Tue 20 Aug 2013 09:58:13 AM BRT
 #
 # obs:
 #
@@ -42,7 +42,7 @@ def compare_results(name, function, args, values):
     if nout > 1:
         val = val[0]
     val, res = val.squeeze(), res.squeeze()
-    np.testing.assert_equal(val, res)
+    np.testing.assert_allclose(val, res)
 
 
 class OctaveResultComparison(unittest.TestCase):
