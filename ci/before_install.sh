@@ -12,6 +12,5 @@ sudo apt-get install libhdf5-serial-dev hdf5-tools
 sudo apt-get install libatlas-base-dev liblapack-dev
 sudo apt-get install python-numpy
 sudo apt-get install python-scipy
-sudo apt-get install python-matplotlib
 sudo apt-get install octave
 sudo apt-get install octave-pkg-dev
