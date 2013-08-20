@@ -7,7 +7,7 @@
 # e-mail:   ocefpaf@gmail
 # web:      http://ocefpaf.github.io/
 # created:  05-Aug-2013
-# modified: Mon 05 Aug 2013 10:02:38 AM BRT
+# modified: Tue 20 Aug 2013 12:20:17 PM BRT
 #
 # obs:
 #
@@ -16,8 +16,8 @@
 from __future__ import division
 
 import numpy as np
-from library import T68conv
-from constants import OMEGA, DEG2NM, NM2KM, Kelvin, deg2rad, rad2deg, gdef
+from .library import T68conv
+from .constants import OMEGA, DEG2NM, NM2KM, Kelvin, deg2rad, rad2deg, gdef
 
 __all__ = ['dist',
            'f',

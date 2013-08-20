@@ -3,11 +3,11 @@
 
 from setuptools import setup
 
-from seawater import __version__ as version
+from seawater import __version__
 
 install_requires = ['numpy']
 source = 'http://pypi.python.org/packages/source'
-download_url = '%s/s/seawater/seawater-%s.tar.gz' % (source, version)
+download_url = '%s/s/seawater/seawater-%s.tar.gz' % (source, __version__)
 
 classifiers = """\
 Development Status :: 5 - Production/Stable
@@ -28,7 +28,7 @@ CHANGES = open('CHANGES.txt').read()
 LICENSE = open('LICENSE.txt').read()
 
 config = dict(name='seawater',
-              version=version,
+              version=__version__,
               packages=['seawater'],
               test_suite='test',
               use_2to3=True,

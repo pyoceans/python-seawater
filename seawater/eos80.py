@@ -7,7 +7,7 @@
 # e-mail:   ocefpaf@gmail
 # web:      http://ocefpaf.github.io/
 # created:  03-Aug-2013
-# modified: Mon 05 Aug 2013 02:52:19 PM BRT
+# modified: Tue 20 Aug 2013 12:20:41 PM BRT
 #
 # obs:
 #
@@ -17,8 +17,8 @@ from __future__ import division
 
 import numpy as np
 
-from constants import deg2rad, earth_radius
-from library import T90conv, T68conv, salrt, salrp, sals, seck, smow
+from .constants import deg2rad, earth_radius
+from .library import T90conv, T68conv, salrt, salrp, sals, seck, smow
 
 
 __all__ = ['adtg',

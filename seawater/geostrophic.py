@@ -7,7 +7,7 @@
 # e-mail:   ocefpaf@gmail
 # web:      http://ocefpaf.github.io/
 # created:  05-Aug-2013
-# modified: Mon 05 Aug 2013 02:53:25 PM BRT
+# modified: Tue 20 Aug 2013 12:19:59 PM BRT
 #
 # obs:
 #
@@ -16,10 +16,10 @@ from __future__ import division
 
 import numpy as np
 
-from extras import dist, f
-from library import atleast_2d
-from eos80 import dens, dpth, g, pden
-from constants import db2Pascal, gdef
+from .extras import dist, f
+from .library import atleast_2d
+from .eos80 import dens, dpth, g, pden
+from .constants import db2Pascal, gdef
 
 __all__ = ['bfrq',
            'svan',
