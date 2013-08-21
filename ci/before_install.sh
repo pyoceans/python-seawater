@@ -18,11 +18,9 @@ sudo apt-get update -qq
 
 sudo apt-get install -qq python-numpy
 sudo apt-get install -qq python-scipy
-sudo apt-get install -qq python-pandas
 
 sudo apt-get install -qq python3-numpy
 sudo apt-get install -qq python3-scipy
-sudo apt-get install -qq python3-pandas
 
 sudo apt-get install -qq octave
 sudo apt-get install -qq octave-pkg-dev

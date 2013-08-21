@@ -7,7 +7,7 @@
 # e-mail:   ocefpaf@gmail
 # web:      http://ocefpaf.github.io/
 # created:  05-Aug-2013
-# modified: Tue 20 Aug 2013 09:58:13 AM BRT
+# modified: Wed 21 Aug 2013 05:43:57 PM BRT
 #
 # obs:
 #
@@ -20,7 +20,7 @@ import unittest
 
 import numpy as np
 from oct2py import octave
-from pandas import read_csv
+#from pandas import read_csv
 
 import seawater as sw
 from seawater.constants import c3515
@@ -48,15 +48,18 @@ def compare_results(name, function, args, values):
 class OctaveResultComparison(unittest.TestCase):
     def setUp(self):
         # TODO: More tests with station data.
-        kw = dict(comment='#', header=5, index_col=0)
-        st61 = read_csv('Endeavor_Cruise-88_Station-61.csv', **kw)
-        st64 = read_csv('Endeavor_Cruise-88_Station-64.csv', **kw)
+        #kw = dict(comment='#', header=5, index_col=0)
+        #st61 = read_csv('Endeavor_Cruise-88_Station-61.csv', **kw)
+        #st64 = read_csv('Endeavor_Cruise-88_Station-64.csv', **kw)
+        kw = dict(comments='#', skiprows=6, delimiter=',')
+        st61 = np.loadtxt('Endeavor_Cruise-88_Station-61.csv', **kw)
+        st64 = np.loadtxt('Endeavor_Cruise-88_Station-64.csv', **kw)
+
         latst = 36. + 40.03 / 60., 37. + 39.93 / 60.
         lonst = -(70. + 59.59 / 60.), -71.
-        Sal = np.c_[st61['S'].values, st64['S'].values]
-        Temp = np.c_[st61['t'].values, st64['t'].values]
-        Pres = np.c_[st61.index.values.astype(float),
-                     st64.index.values.astype(float)]
+        Sal = np.c_[st61[:, 2], st64[:, 2]]
+        Temp = np.c_[st61[:, 1], st64[:, 1]]
+        Pres = np.c_[st61[:, 0], st61[:, 0]]
         Gpan = sw.gpan(Sal, Temp, Pres)
 
         self.values = dict(r=np.array([56.4125, 56.3161, 50.6703, 38.1345,
