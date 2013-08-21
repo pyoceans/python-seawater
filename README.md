@@ -2,9 +2,7 @@ Python Seawater
 ===============
 
 [![Build](https://badge.fury.io/py/seawater.png)](http://badge.fury.io/py/seawater)
-
 [![Build](https://api.travis-ci.org/ocefpaf/python-seawater.png?branch=master)](https://travis-ci.org/ocefpaf/python-seawater)
-
 [![Downloads](https://pypip.in/d/seawater/badge.png)](https://crate.io/packages/seawater/)
 
 
