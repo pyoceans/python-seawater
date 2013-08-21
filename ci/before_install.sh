@@ -13,14 +13,9 @@ sudo apt-get update -qq
 # sudo apt-get install -qq build-dep python-numpy
 # sudo apt-get install -qq build-dep python-pandas
 # sudo apt-get install -qq build-essential
-# sudo apt-get install -qq libhdf5-serial-dev hdf5-tools
-# sudo apt-get install -qq libatlas-base-dev liblapack-dev
 
 sudo apt-get install -qq python-numpy
 sudo apt-get install -qq python-scipy
-
-sudo apt-get install -qq python3-numpy
-sudo apt-get install -qq python3-scipy
 
 sudo apt-get install -qq octave
 sudo apt-get install -qq octave-pkg-dev
