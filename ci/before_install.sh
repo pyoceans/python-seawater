@@ -9,13 +9,10 @@ echo "Using SITE_PKG_DIR: $SITE_PKG_DIR"
 rm -f $VIRTUAL_ENV/lib/python$TRAVIS_PYTHON_VERSION/no-global-site-packages.txt
 
 sudo apt-get update -qq
-# sudo apt-get install -qq build-dep python-scipy
-# sudo apt-get install -qq build-dep python-numpy
-# sudo apt-get install -qq build-dep python-pandas
-# sudo apt-get install -qq build-essential
-
-sudo apt-get install -qq python-numpy
-sudo apt-get install -qq python-scipy
+sudo apt-get install -qq build-essential
+sudo apt-get install -qq build-dep python-scipy
+sudo apt-get install -qq build-dep python-numpy
+sudo apt-get install -qq build-dep python-pandas
 
 sudo apt-get install -qq octave
 sudo apt-get install -qq octave-pkg-dev
