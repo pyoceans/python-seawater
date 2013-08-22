@@ -16,8 +16,8 @@ The EOS-80 library is considered now obsolete;  it is provided here for
 compatibility with old scripts, and to allow a smooth transition to the new
 [TEOS-10](http://www.teos-10.org/).
 
-Notes and differences
----------------------
+Notes
+-----
 The Python version default output unit for sw.dist is 'km' instead of  'nm'.
 
 Here we assume pressure as the first dimension, i.e. M pressure by N
