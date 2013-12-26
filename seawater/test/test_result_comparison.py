@@ -20,7 +20,6 @@ import unittest
 
 import numpy as np
 from oct2py import octave
-#from pandas import read_csv
 
 import seawater as sw
 from seawater.constants import c3515
