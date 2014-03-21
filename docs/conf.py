@@ -22,7 +22,7 @@ import sys, os
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-#'matplotlib.sphinxext.mathmpl',
+
 extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.pngmath',
               'sphinx.ext.doctest',
@@ -50,6 +50,9 @@ copyright = u'2010, Filipe Fernandes'
 # built documents.
 #
 # The short X.Y version.
+from seawater import __version__
+version = '.'.join(str(d) for d in __version__[:2])
+release = '.'.join(str(d) for d in __version__)
 version = '3.3'
 # The full version, including alpha/beta/rc tags.
 release = '3.3.1'
