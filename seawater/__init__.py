@@ -9,3 +9,4 @@ from .extras import dist, f, satAr, satN2, satO2, swvel
 from .library import cndr, salds, salrp, salrt, seck, sals, smow
 from .eos80 import (adtg, alpha, aonb, beta, dpth, g, salt, fp, svel,
                     pres, dens0, dens, pden, cp, ptmp, temp)
+from .test import test_result_comparison
