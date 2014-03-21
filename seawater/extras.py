@@ -28,7 +28,8 @@ __all__ = ['dist',
 
 
 def dist(lat, lon, units='km'):
-    """Calculate distance between two positions on globe using the "Plane
+    """
+    Calculate distance between two positions on globe using the "Plane
     Sailing" method. Also uses simple geometry to calculate the bearing of
     the path between position pairs.
 
@@ -66,12 +67,14 @@ def dist(lat, lon, units='km'):
 
     References
     ----------
-    .. [1] The PLANE SAILING method as described in "CELESTIAL NAVIGATION" 1989
-    by Dr. P. Gormley. The Australian Antarctic Division.
+    .. [1] The PLANE SAILING method as described in "CELESTIAL NAVIGATION" 1989 by Dr. P. Gormley. The Australian Antarctic Division.
 
+    Notes
+    -----
     Modifications: 92-02-10. Phil Morgan and Steve Rintoul.
                    99-06-25. Lindsay Pender, name change distance to sw_dist.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
+
     """
 
     lon, lat = map(np.asanyarray, (lon, lat))
@@ -104,7 +107,8 @@ def dist(lat, lon, units='km'):
 
 
 def f(lat):
-    """Calculates the Coriolis factor :math:`f` defined by:
+    r"""
+    Calculates the Coriolis factor :math:`f` defined by:
 
     .. math::
         f = 2 \Omega \sin(lat)
@@ -134,17 +138,14 @@ def f(lat):
 
     References
     ----------
-    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical
-    Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
+    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
+    .. [2] A.E. Gill 1982. p.54  Eqn. 3.7.15 "Atmosphere-Ocean Dynamics" Academic Press: New York. ISBN: 0-12-283522-0
+    .. [3] Groten, E., 2004: Fundamental Parameters and Current (2004) Best Estimates of the Parameters of Common Relevance to Astronomy, Geodesy, and Geodynamics. Journal of Geodesy, 77, pp. 724-797.
 
-    .. [2] A.E. Gill 1982. p.54  Eqn. 3.7.15 "Atmosphere-Ocean Dynamics"
-    Academic Press: New York. ISBN: 0-12-283522-0
-
-    .. [3] Groten, E., 2004: Fundamental Parameters and Current (2004) Best
-    Estimates of the Parameters of Common Relevance to Astronomy, Geodesy,
-    and Geodynamics. Journal of Geodesy, 77, pp. 724-797.
-
+    Notes
+    -----
     Modifications: 93-04-20. Phil Morgan.
+
     """
     lat = np.asanyarray(lat)
     # Eqn p27.  UNESCO 1983.
@@ -152,14 +153,15 @@ def f(lat):
 
 
 def satAr(s, t):
-    """Solubility (saturation) of Argon (Ar) in sea water.
+    """
+    Solubility (saturation) of Argon (Ar) in sea water.
 
     Parameters
     ----------
     s : array_like
         salinity [psu (PSS-78)]
     t : array_like
-        temperature [:math:`^\circ` C (ITS-90)]
+        temperature [℃ (ITS-90)]
 
     Returns
     -------
@@ -168,7 +170,7 @@ def satAr(s, t):
 
     Examples
     --------
-    Data from Weiss 1970.
+    >>> # Data from Weiss 1970.
     >>> import seawater as sw
     >>> t = sw.T90conv([[ -1, -1], [ 10, 10], [ 20, 20], [ 40, 40]])
     >>> s = [[ 20, 40], [ 20, 40], [ 20, 40], [ 20, 40]]
@@ -180,13 +182,14 @@ def satAr(s, t):
 
     References
     ----------
-    .. [1] Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in
-    Water and Seawater Deep-Sea Research Vol. 17, p. 721-735.
-    doi:10.1016/0011-7471(70)90037-9
+    .. [1] Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in Water and Seawater Deep-Sea Research Vol. 17, p. 721-735. doi:10.1016/0011-7471(70)90037-9
 
+    Notes
+    -----
     Modifications: 97-11-05. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
+
     """
 
     s, t = map(np.asanyarray, (s, t))
@@ -206,14 +209,15 @@ def satAr(s, t):
 
 
 def satN2(s, t):
-    """Solubility (saturation) of Nitrogen (N2) in sea water.
+    """
+    Solubility (saturation) of Nitrogen (N2) in sea water.
 
     Parameters
     ----------
     s : array_like
         salinity [psu (PSS-78)]
     t : array_like
-        temperature [:math:`^\circ` C (ITS-90)]
+        temperature [℃ (ITS-90)]
 
     Returns
     -------
@@ -222,7 +226,7 @@ def satN2(s, t):
 
     Examples
     --------
-    Data from Weiss 1970.
+    >>> # Data from Weiss 1970.
     >>> import seawater as sw
     >>> t = sw.T90conv([[ -1, -1], [ 10, 10], [ 20, 20], [ 40, 40]])
     >>> s = [[ 20, 40], [ 20, 40], [ 20, 40], [ 20, 40]]
@@ -235,13 +239,14 @@ def satN2(s, t):
 
     References
     ----------
-    .. [1] Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in
-    Water and Seawater Deep-Sea Research Vol. 17, p. 721-735.
-    doi:10.1016/0011-7471(70)90037-9
+    .. [1] Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in Water and Seawater Deep-Sea Research Vol. 17, p. 721-735. doi:10.1016/0011-7471(70)90037-9
 
+    Notes
+    -----
     Modifications: 97-11-05. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
+
     """
 
     s, t = map(np.asanyarray, (s, t))
@@ -261,14 +266,15 @@ def satN2(s, t):
 
 
 def satO2(s, t):
-    """Solubility (saturation) of Oxygen (O2) in sea water.
+    """
+    Solubility (saturation) of Oxygen (O2) in sea water.
 
     Parameters
     ----------
     s : array_like
         salinity [psu (PSS-78)]
     t : array_like
-        temperature [:math:`^\circ` C (ITS-68)]
+        temperature [℃ (ITS-68)]
 
     Returns
     -------
@@ -277,7 +283,7 @@ def satO2(s, t):
 
     Examples
     --------
-    Data from Weiss 1970
+    >>> # Data from Weiss 1970.
     >>> import seawater as sw
     >>> t = sw.T90conv([[ -1, -1], [ 10, 10], [ 20, 20], [ 40, 40]])
     >>> s = [[ 20, 40], [ 20, 40], [ 20, 40], [ 20, 40]]
@@ -289,13 +295,14 @@ def satO2(s, t):
 
     References
     ----------
-    .. [1] Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in
-    Water and Seawater Deep-Sea Research Vol. 17, p. 721-735.
-    doi:10.1016/0011-7471(70)90037-9
+    .. [1] Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in Water and Seawater Deep-Sea Research Vol. 17, p. 721-735. doi:10.1016/0011-7471(70)90037-9
 
+    Notes
+    -----
     Modifications: 97-11-05. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
+
     """
 
     s, t = map(np.asanyarray, (s, t))
@@ -315,7 +322,8 @@ def satO2(s, t):
 
 
 def swvel(length, depth):
-    """Calculates surface wave velocity.
+    """
+    Calculates surface wave velocity.
 
     length : array_like
             wave length
@@ -333,7 +341,10 @@ def swvel(length, depth):
     >>> sw.swvel(10, 100)
     3.9493270848342941
 
+    Notes
+    -----
     Modifications: Lindsay Pender 2005
+
     """
     length, depth = map(np.asanyarray, (length, depth))
     k = 2.0 * np.pi / length

@@ -28,7 +28,8 @@ __all__ = ['bfrq',
 
 
 def bfrq(s, t, p, lat=None):
-    """Calculates Brünt-Väisälä Frequency squared (N :sup:`2`) at the mid
+    r"""
+    Calculates Brünt-Väisälä Frequency squared (N :sup:`2`) at the mid
     depths from the equation:
 
     .. math::
@@ -44,7 +45,7 @@ def bfrq(s, t, p, lat=None):
     s(p) : array_like
            salinity [psu (PSS-78)]
     t(p) : array_like
-           temperature or potential temperature [:math:`^\circ` C (ITS-90)]
+           temperature or potential temperature [℃ (ITS-90)]
     p : array_like
         pressure [db].
     lat : number or array_like, optional
@@ -75,17 +76,17 @@ def bfrq(s, t, p, lat=None):
 
     References
     ----------
-    .. [1] A.E. Gill 1982. p.54  Eqn. 3.7.15 "Atmosphere-Ocean Dynamics"
-    Academic Press: New York. ISBN: 0-12-283522-0
+    .. [1] A.E. Gill 1982. p.54  Eqn. 3.7.15 "Atmosphere-Ocean Dynamics" Academic Press: New York. ISBN: 0-12-283522-0
 
-    .. [2] Jackett, David R., Trevor J. Mcdougall, 1995: Minimal Adjustment of
-    Hydrographic Profiles to Achieve Static Stability. J. Atmos. Oceanic
-    Technol., 12, 381-389. doi: 10.1175/1520-0426(1995)012<0381:MAOHPT>2.0.CO;2
+    .. [2] Jackett, David R., Trevor J. Mcdougall, 1995: Minimal Adjustment of Hydrographic Profiles to Achieve Static Stability. J. Atmos. Oceanic Technol., 12, 381-389. doi: 10.1175/1520-0426(1995)012<0381:MAOHPT>2.0.CO;2
 
+    Notes
+    -----
     Modifications: 93-06-24. Phil Morgan.
                    Greg Johnson (gjohnson@pmel.noaa.gov) pot. vort. calc.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
                    06-04-19. Lindsay Pender, Corrected sign of PV.
+
     """
 
     s, t, p = map(np.asanyarray, (s, t, p))
@@ -120,7 +121,8 @@ def bfrq(s, t, p, lat=None):
 
 
 def svan(s, t, p=0):
-    """Specific Volume Anomaly calculated as
+    """
+    Specific Volume Anomaly calculated as
     svan = 1 / dens(s, t, p) - 1 / dens(35, 0, p).
 
     Note that it is often quoted in literature as 1e8 * units.
@@ -130,7 +132,7 @@ def svan(s, t, p=0):
     s(p) : array_like
            salinity [psu (PSS-78)]
     t(p) : array_like
-           temperature [:math:`^\circ` C (ITS-90)]
+           temperature [℃ (ITS-90)]
     p : array_like
         pressure [db].
 
@@ -141,7 +143,7 @@ def svan(s, t, p=0):
 
     Examples
     --------
-    Data from Unesco Tech. Paper in Marine Sci. No. 44, p22.
+    >>> # Data from Unesco Tech. Paper in Marine Sci. No. 44, p22.
     >>> import seawater as sw
     >>> s = [[0, 1, 2], [15, 16, 17], [30, 31, 32], [35, 35, 35]]
     >>> t = sw.T90conv([[15]*3]*4)
@@ -153,29 +155,30 @@ def svan(s, t, p=0):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
-    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
-    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    .. [2] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical
-    Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
+    .. [2] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
 
+    Notes
+    -----
     Modifications: 92-11-05. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
+
     """
     s, t, p = map(np.asanyarray, (s, t, p))
     return 1 / dens(s, t, p) - 1 / dens(35, 0, p)
 
 
 def gpan(s, t, p):
-    """Geopotential Anomaly calculated as the integral of svan from the
+    r"""
+    Geopotential Anomaly calculated as the integral of svan from the
     the sea surface to the bottom. THUS RELATIVE TO SEA SURFACE.
 
     Adapted method from Pond and Pickard (p76) to calculate gpan relative to
-    sea surface whereas P&P calculated relative to the deepest common depth.
-    Note that older literature may use units of "dynamic decimeter" for above.
+    sea surface whereas Pond and Pickard calculated relative to the deepest
+    common depth.  Note that older literature may use units of "dynamic
+    decimeter" for above.
 
 
     Parameters
@@ -183,7 +186,7 @@ def gpan(s, t, p):
     s(p) : array_like
            salinity [psu (PSS-78)]
     t(p) : array_like
-           temperature [:math:`^\circ` C (ITS-90)]
+           temperature [℃ (ITS-90)]
     p : array_like
         pressure [db].
 
@@ -192,28 +195,30 @@ def gpan(s, t, p):
     gpan : array_like
            geopotential anomaly
            [m :sup:`3` kg :sup:`-1`
-            Pa = m :sup:`2` s :sup:`-2` = J kg :sup:`-1`]
+           Pa = m :sup:`2` s :sup:`-2` = J kg :sup:`-1`]
 
     Examples
     --------
-    Data from Unesco Tech. Paper in Marine Sci. No. 44, p22.
+    >>> # Data from Unesco Tech. Paper in Marine Sci. No. 44, p22.
     >>> import seawater as sw
     >>> s = [[0, 1, 2], [15, 16, 17], [30, 31, 32], [35,35,35]]
     >>> t = [[15]*3]*4
     >>> p = [[0], [250], [500], [1000]]
     >>> sw.gpan(s, t, p)
     array([[   0.        ,    0.        ,    0.        ],
-           [  56.35465209,   56.35465209,   56.35465209],
-           [  84.67266947,   84.67266947,   84.67266947],
-           [ 104.95799186,  104.95799186,  104.95799186]])
+           [  56.35465209,   54.45399428,   52.55961152],
+           [  84.67266947,   80.92724333,   77.19028933],
+           [ 104.95799186,   99.38799979,   93.82834339]])
 
     References
     ----------
-    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical
-    Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
+    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
 
+    Notes
+    -----
     Modifications: 92-11-05. Phil Morgan.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
+
     """
 
     s, t, p = map(np.asanyarray, (s, t, p))
@@ -231,7 +236,8 @@ def gpan(s, t, p):
 
 
 def gvel(ga, lat, lon):
-    """Calculates geostrophic velocity given the geopotential anomaly and
+    """
+    Calculates geostrophic velocity given the geopotential anomaly and
     position of each station.
 
     Parameters
@@ -280,10 +286,12 @@ def gvel(ga, lat, lon):
 
     References
     ----------
-    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical
-    Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
+    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
 
+    Notes
+    -----
     Modifications: 92-03-26. Phil Morgan.
+
     """
 
     ga, lon, lat = map(np.asanyarray, (ga, lon, lat))

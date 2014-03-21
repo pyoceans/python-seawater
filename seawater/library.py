@@ -38,14 +38,15 @@ k = 0.0162
 
 
 def cndr(s, t, p):
-    """Calculates conductivity ratio.
+    """
+    Calculates conductivity ratio.
 
     Parameters
     ----------
     s(p) : array_like
            salinity [psu (PSS-78)]
     t(p) : array_like
-           temperature [:math:`^\circ` C (ITS-90)]
+           temperature [℃ (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -56,7 +57,7 @@ def cndr(s, t, p):
 
     Examples
     --------
-    Data from UNESCO 1983 p9
+    >>> # Data from UNESCO 1983 p9.
     >>> import seawater as sw
     >>> t = sw.T90conv([0, 10, 0, 10, 10, 30])
     >>> p = [0, 0, 1000, 1000, 0, 0]
@@ -67,14 +68,14 @@ def cndr(s, t, p):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
-    computation of fundamental properties of seawater. UNESCO Tech. Pap.
-    in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-    http://unesdoc.UNESCO.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.UNESCO.org/images/0005/000598/059832eb.pdf
 
+    Notes
+    -----
     Modifications: 93-04-21. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
+
     """
 
     s, t, p = map(np.asanyarray, (s, t, p))
@@ -123,7 +124,8 @@ def cndr(s, t, p):
 
 
 def salds(rtx, delt):
-    """Calculates Salinity differential (:math:`\frac{dS}{d(\sqrt{Rt})}`) at
+    r"""
+    Calculates Salinity differential (:math:`\frac{dS}{d(\sqrt{Rt})}`) at
     constant temperature.
 
     Parameters
@@ -131,7 +133,7 @@ def salds(rtx, delt):
     rtx : array_like
           :math:`\sqrt{rt}`
     delt : array_like
-           t-15 [:math:`^\circ` C (IPTS-68)]
+           t-15 [℃ (IPTS-68)]
 
     Returns
     -------
@@ -140,7 +142,7 @@ def salds(rtx, delt):
 
     Examples
     --------
-    Data from UNESCO 1983 p9
+    >>> # Data from UNESCO 1983 p9.
     >>> import numpy as np
     >>> import seawater as sw
     >>> delt = sw.T90conv([15, 20, 5]) - 15
@@ -150,12 +152,12 @@ def salds(rtx, delt):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
-    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
-    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-    http://unesdoc.UNESCO.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.UNESCO.org/images/0005/000598/059832eb.pdf
 
+    Notes
+    -----
     Modifications: 93-04-21. Phil Morgan.
+
     """
 
     rtx, delt = map(np.asanyarray, (rtx, delt))
@@ -171,7 +173,8 @@ def salds(rtx, delt):
 
 
 def salrp(r, t, p):
-    """Equation for Rp used in calculating salinity. UNESCO 1983 polynomial.
+    r"""
+    Equation for Rp used in calculating salinity. UNESCO 1983 polynomial.
 
     .. math::
         Rp(S,T,P) = \frac{C(S,T,P)}{C(S,T,0)}
@@ -182,7 +185,7 @@ def salrp(r, t, p):
     r : array_like
         conductivity ratio :math:`R = \frac{C(S,T,P)}{C(35,15(IPTS-68),0)}`
     t : array_like
-        temperature [:math:`^\circ` C (ITS-90)]
+        temperature [℃ (ITS-90)]
     p : array_like
         pressure [db]
 
@@ -202,13 +205,13 @@ def salrp(r, t, p):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
-    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
-    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
+    Notes
+    -----
     Modifications: 93-04-17. Phil Morgan.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
+
     """
 
     r, t, p = map(np.asanyarray, (r, t, p))
@@ -223,7 +226,8 @@ def salrp(r, t, p):
 
 
 def salrt(t):
-    """Equation for rt used in calculating salinity. UNESCO 1983 polynomial.
+    r"""
+    Equation for rt used in calculating salinity. UNESCO 1983 polynomial.
 
     .. math::
         rt(t) = \frac{C(35,t,0)}{C(35,15(\textrm{IPTS-68}), 0)}
@@ -232,7 +236,7 @@ def salrt(t):
     Parameters
     ----------
       t : array_like
-          temperature [:math:`^\circ` C (ITS-90)]
+          temperature [℃ (ITS-90)]
 
     Returns
     -------
@@ -241,7 +245,7 @@ def salrt(t):
 
     Examples
     --------
-    Data from UNESCO 1983 p9
+    >>> # Data from UNESCO 1983 p9.
     >>> import seawater as sw
     >>> t = sw.T90conv([15, 20, 5])
     >>> sw.salrt(t)
@@ -249,13 +253,13 @@ def salrt(t):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
-    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
-    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
+    Notes
+    -----
     Modifications: 93-04-17. Phil Morgan.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
+
     """
 
     t = np.asanyarray(t)
@@ -265,7 +269,8 @@ def salrt(t):
 
 
 def seck(s, t, p=0):
-    """Secant Bulk Modulus (K) of Sea Water using Equation of state 1980.
+    """
+    Secant Bulk Modulus (K) of Sea Water using Equation of state 1980.
     UNESCO polynomial implementation.
 
     Parameters
@@ -273,7 +278,7 @@ def seck(s, t, p=0):
     s(p) : array_like
            salinity [psu (PSS-78)]
     t(p) : array_like
-           temperature [:math:`^\circ` C (ITS-90)]
+           temperature [℃ (ITS-90)]
     p : array_like
         pressure [db].
 
@@ -284,7 +289,7 @@ def seck(s, t, p=0):
 
     Examples
     --------
-    Data from Unesco Tech. Paper in Marine Sci. No. 44, p22
+    >>> # Data from Unesco Tech. Paper in Marine Sci. No. 44, p22.
     >>> import seawater as sw
     >>> s = [0, 0, 0, 0, 35, 35, 35, 35]
     >>> t = sw.T90conv([0, 0, 30, 30, 0, 0, 30, 30])
@@ -295,18 +300,16 @@ def seck(s, t, p=0):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
-    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
-    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    .. [2] Millero, F.J. and  Poisson, A. International one-atmosphere equation
-    of state of seawater. Deep-Sea Res. 1981. Vol28A(6) pp625-629.
-    doi:10.1016/0198-0149(81)90122-9
+    .. [2] Millero, F.J. and  Poisson, A. International one-atmosphere equation of state of seawater. Deep-Sea Res. 1981. Vol28A(6) pp625-629. doi:10.1016/0198-0149(81)90122-9
 
+    Notes
+    -----
     Modifications: 92-11-05. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
+
     """
 
     s, t, p = map(np.asanyarray, (s, t, p))
@@ -345,15 +348,15 @@ def seck(s, t, p=0):
 
 
 def sals(rt, t):
-    """Salinity of sea water as a function of Rt and T.
-    UNESCO 1983 polynomial.
+    r"""
+    Salinity of sea water as a function of Rt and T.  UNESCO 1983 polynomial.
 
     Parameters
     ----------
     rt : array_like
          :math:`rt(s,t) = \frac{C(s,t,0)}{C(35, t(\textrm{IPTS-68}), 0)}`
     t : array_like
-        temperature [:math:`^\circ` C (ITS-90)]
+        temperature [℃ (ITS-90)]
 
     Returns
     -------
@@ -362,7 +365,7 @@ def sals(rt, t):
 
     Examples
     --------
-    Data from UNESCO 1983 p9
+    >>> # Data from UNESCO 1983 p9.
     >>> import seawater as sw
     >>> t = sw.T90conv([15, 20, 5])
     >>> rt = [1, 1.0568875, 0.81705885]
@@ -371,13 +374,13 @@ def sals(rt, t):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
-    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
-    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-    http://unesdoc.UNESCO.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.UNESCO.org/images/0005/000598/059832eb.pdf
 
+    Notes
+    -----
     Modifications: 93-04-17. Phil Morgan.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
+
     """
 
     rt, t = map(np.asanyarray, (rt, t))
@@ -397,12 +400,13 @@ def sals(rt, t):
 
 
 def smow(t):
-    """Density of Standard Mean Ocean Water (Pure Water) using EOS 1980.
+    """
+    Density of Standard Mean Ocean Water (Pure Water) using EOS 1980.
 
     Parameters
     ----------
     t : array_like
-        temperature [:math:`^\circ` C (ITS-90)]
+        temperature [℃ (ITS-90)]
 
     Returns
     -------
@@ -411,7 +415,7 @@ def smow(t):
 
     Examples
     --------
-    Data from UNESCO Tech. Paper in Marine Sci. No. 44, p22.
+    >>> # Data from UNESCO Tech. Paper in Marine Sci. No. 44, p22.
     >>> import seawater as sw
     >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
     >>> sw.smow(t)
@@ -420,18 +424,16 @@ def smow(t):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
-    computation of fundamental properties of seawater. UNESCO Tech. Pap. in
-    Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-    http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    .. [2] Millero, F.J. and  Poisson, A. International one-atmosphere equation
-    of state of seawater. Deep-Sea Res. 1981. Vol28A(6) pp625-629.
-    doi:10.1016/0198-0149(81)90122-9
+    .. [2] Millero, F.J. and  Poisson, A. International one-atmosphere equation of state of seawater. Deep-Sea Res. 1981. Vol28A(6) pp625-629. doi:10.1016/0198-0149(81)90122-9
 
+    Notes
+    -----
     Modifications: 92-11-05. Phil Morgan.
                    99-06-25. Lindsay Pender, Fixed transpose of row vectors.
                    03-12-12. Lindsay Pender, Converted to ITS-90.
+
     """
 
     t = np.asanyarray(t)
@@ -445,25 +447,26 @@ def smow(t):
 
 
 def T68conv(T90):
-    """Convert ITS-90 temperature to IPTS-68
+    """
+    Convert ITS-90 temperature to IPTS-68
 
     :math:`T68  = T90 * 1.00024`
 
     Parameters
     ----------
     t : array_like
-           temperature [:math:`^\circ` C (ITS-90)]
+           temperature [℃ (ITS-90)]
 
     Returns
     -------
     t : array_like
-           temperature [:math:`^\circ` C (IPTS-68)]
+           temperature [℃ (IPTS-68)]
 
     Notes
     -----
     The International Practical Temperature Scale of 1968 (IPTS-68) need to be
     correct to the ITS-90. This linear transformation is accurate within
-    0.5 :math:`^\circ` C for conversion between IPTS-68 and ITS-90 over the
+    0.5 ℃ for conversion between IPTS-68 and ITS-90 over the
     oceanographic temperature range.
 
     Examples
@@ -474,21 +477,21 @@ def T68conv(T90):
 
     References
     ----------
-    .. [1] Saunders, P. M., 1991: The International Temperature Scale of 1990,
-    ITS-90. WOCE Newsletter, No. 10, WOCE International Project Office,
-    Southampton, United Kingdom, 10.
+    .. [1] Saunders, P. M., 1991: The International Temperature Scale of 1990, ITS-90. WOCE Newsletter, No. 10, WOCE International Project Office, Southampton, United Kingdom, 10.
+
     """
     T90 = np.asanyarray(T90)
     return T90 * 1.00024
 
 
 def T90conv(t, t_type='T68'):
-    """Convert IPTS-68 or IPTS-48 to temperature to ITS-90.
+    r"""
+    Convert IPTS-68 or IPTS-48 to temperature to ITS-90.
 
     T48 apply to all data collected prior to 31/12/1967.
     T68 apply to all data collected between 01/10/1968 and 31/12/1989.
 
-    ..math:
+    .. math::
         T90 = T68 / 1.00024
 
         T90 = T48 - (4.4e-6) * T48 * (100-T48) ) / 1.00024
@@ -496,20 +499,20 @@ def T90conv(t, t_type='T68'):
     Parameters
     ----------
     t : array_like
-           temperature [:math:`^\circ` C (IPTS-68) or (IPTS-48)]
+           temperature [℃ (IPTS-68) or (IPTS-48)]
     t_type : string, optional
             'T68' (default) or 'T48'
 
     Returns
     -------
     T90 : array_like
-           temperature [:math:`^\circ` C (ITS-90)]
+           temperature [℃ (ITS-90)]
 
     Notes
     -----
     The International Practical Temperature Scale of 1968 (IPTS-68) need to be
     correct to the ITS-90. This linear transformation is accurate within
-    0.5 :math:`^\circ` C for conversion between IPTS-68 and ITS-90 over the
+    0.5 ℃ for conversion between IPTS-68 and ITS-90 over the
     oceanographic temperature range.
 
     Examples
@@ -522,12 +525,9 @@ def T90conv(t, t_type='T68'):
 
     References
     ----------
-    .. [1] Saunders, P. M., 1991: The International Temperature Scale of 1990,
-    ITS-90. WOCE Newsletter, No. 10, WOCE International Project Office,
-    Southampton, United Kingdom, 10.
+    .. [1] Saunders, P. M., 1991: The International Temperature Scale of 1990, ITS-90. WOCE Newsletter, No. 10, WOCE International Project Office, Southampton, United Kingdom, 10.
+    .. [2] International Temperature Scales of 1948, 1968 and 1990, an ICES note, available from http://www.ices.dk/ocean/procedures/its.htm
 
-    .. [2] International Temperature Scales of 1948, 1968 and 1990, an ICES
-    note, available from http://www.ices.dk/ocean/procedures/its.htm
     """
 
     t = np.asanyarray(t)
@@ -543,8 +543,11 @@ def T90conv(t, t_type='T68'):
 
 
 def atleast_2d(*arys):
-    """Same as numpy atleast_2d, but with the single dimension last,
-    instead of first."""
+    """
+    Same as numpy atleast_2d, but with the single dimension last, instead of
+    first.
+
+    """
     res = []
     for ary in arys:
         ary = np.asanyarray(ary)
