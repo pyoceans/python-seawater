@@ -19,13 +19,15 @@ import os
 import unittest
 
 import numpy as np
-from oct2py import octave
+try:
+    from oct2py import octave
+    path = os.path.join(os.path.dirname(__file__), 'seawater_v3_3')
+    _ = octave.addpath(octave.genpath(path))
+except ImportError:
+    pass
 
 import seawater as sw
 from seawater.constants import c3515
-
-path = os.path.join(os.path.dirname(__file__), 'seawater_v3_3')
-_ = octave.addpath(octave.genpath(path))
 
 
 def compare_results(name, function, args, values):
@@ -47,9 +49,6 @@ def compare_results(name, function, args, values):
 class OctaveResultComparison(unittest.TestCase):
     def setUp(self):
         # TODO: More tests with station data.
-        #kw = dict(comment='#', header=5, index_col=0)
-        #st61 = read_csv('Endeavor_Cruise-88_Station-61.csv', **kw)
-        #st64 = read_csv('Endeavor_Cruise-88_Station-64.csv', **kw)
         kw = dict(comments='#', skiprows=6, delimiter=',')
         st61 = np.loadtxt('Endeavor_Cruise-88_Station-61.csv', **kw)
         st64 = np.loadtxt('Endeavor_Cruise-88_Station-64.csv', **kw)
@@ -80,7 +79,8 @@ class OctaveResultComparison(unittest.TestCase):
                            lat=np.linspace(-22., -21., 6.),
                            length=np.array([100.] * 6),
                            latst=latst, lonst=lonst, Sal=Sal, Temp=Temp,
-                           Pres=Pres, Gpan=Gpan)
+                           Pres=Pres, Gpan=Gpan
+                           )
 
     def tearDown(self):
         unittest.TestCase.tearDown(self)
