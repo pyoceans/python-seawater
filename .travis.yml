@@ -15,7 +15,7 @@ install:
   - pip install --use-mirrors oct2py
   - python setup.py install
 script:
-  - cd seawater/tests
+  - cd seawater/test
   - nosetests --verbose --nocapture test_result_comparison.py
 
 branches:
