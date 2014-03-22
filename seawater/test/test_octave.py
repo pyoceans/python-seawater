@@ -163,7 +163,7 @@ if __name__ == '__main__':
     outcomes = ['passed', 'no_octave', 'no_python', 'failed', 'no_comparison']
     results = dict([(k, list()) for k in outcomes])
 
-    for name, (function, args) in library.iteritems():
+    for name, (function, args) in library.items():
         ret = compare_results(name=name, function=function, args=args)
         results[ret].append(name)
 
