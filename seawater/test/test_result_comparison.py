@@ -19,9 +19,11 @@ import os
 import unittest
 
 import numpy as np
+
+rootpath = os.path.dirname(__file__)
 try:
     from oct2py import octave
-    path = os.path.join(os.path.dirname(__file__), 'seawater_v3_3')
+    path = os.path.join(rootpath, 'seawater_v3_3')
     _ = octave.addpath(octave.genpath(path))
 except ImportError:
     pass
@@ -50,8 +52,10 @@ class OctaveResultComparison(unittest.TestCase):
     def setUp(self):
         # TODO: More tests with station data.
         kw = dict(comments='#', skiprows=6, delimiter=',')
-        st61 = np.loadtxt('Endeavor_Cruise-88_Station-61.csv', **kw)
-        st64 = np.loadtxt('Endeavor_Cruise-88_Station-64.csv', **kw)
+        st61 = np.loadtxt(os.path.join(rootpath,
+                                       'Endeavor_Cruise-88_Station-61.csv'), **kw)
+        st64 = np.loadtxt(os.path.join(rootpath,
+                                       'Endeavor_Cruise-88_Station-64.csv'), **kw)
 
         latst = 36. + 40.03 / 60., 37. + 39.93 / 60.
         lonst = -(70. + 59.59 / 60.), -71.

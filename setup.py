@@ -2,48 +2,72 @@
 # -*- coding: utf-8 -*-
 
 from setuptools import setup
+from setuptools.command.test import test as TestCommand
 
-from seawater import __version__
+import io
+import sys
 
-install_requires = ['numpy']
-source = 'http://pypi.python.org/packages/source'
-download_url = '%s/s/seawater/seawater-%s.tar.gz' % (source, __version__)
+import seawater
 
-classifiers = """\
-Development Status :: 5 - Production/Stable
-Environment :: Console
-Intended Audience :: Science/Research
-Intended Audience :: Developers
-Intended Audience :: Education
-License :: OSI Approved :: MIT License
-Operating System :: OS Independent
-Programming Language :: Python
-Topic :: Scientific/Engineering
-Topic :: Education
-Topic :: Software Development :: Libraries :: Python Modules
-"""
 
-README = open('README.md').read()
+def read(*filenames, **kwargs):
+    encoding = kwargs.get('encoding', 'utf-8')
+    sep = kwargs.get('sep', '\n')
+    buf = []
+    for filename in filenames:
+        with io.open(filename, encoding=encoding) as f:
+            buf.append(f.read())
+    return sep.join(buf)
+
+long_description = read('README.txt', 'CHANGES.txt')
+
+class PyTest(TestCommand):
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = ['--strict', '--verbose', '--tb=long', 'seawater/test']
+        self.test_suite = True
+
+    def run_tests(self):
+        import pytest
+        errcode = pytest.main(self.test_args)
+        sys.exit(errcode)
+
+source = 'http://pypi.python.org/packages/source/s/seawater'
+download_url = '%s/seawater-%s.tar.gz' % (source, seawater.__version__)
+
+
+README = open('README.txt').read()
 CHANGES = open('CHANGES.txt').read()
 LICENSE = open('LICENSE.txt').read()
 
-config = dict(name='seawater',
-              version=__version__,
-              packages=['seawater'],
-              test_suite='test',
+setup(
+    name='seawater',
+    version=seawater.__version__,
+    url='http://pypi.python.org/pypi/seawater/',
+    license='MIT',
+    author='Filipe Fernandes',
+    tests_require=['pytest'],
+    install_requires=['numpy'],
+    extras_require={'testing': ['pytest', 'scipy', 'oct2py']},
+    cmdclass={'test': PyTest},
+    author_email='ocefpaf@gmail.com',
+    description='Seawater Library for Python',
+    long_description=long_description,
+    packages=['seawater', 'seawater.test'],
+    platforms='any',
+    test_suite='seawater.test',
+    classifiers=['Development Status :: 5 - Production/Stable',
+                 'Programming Language :: Python',
+                 'Development Status :: 6 - Mature'
+                 'Environment :: Console',
+                 'Intended Audience :: Science/Research',
+                 'License :: OSI Approved :: MIT License',
+                 'Operating System :: OS Independent',
+                 'Topic :: Scientific/Engineering',
+                 ],
               use_2to3=True,
-              license=LICENSE,
-              long_description='%s\n\n%s' % (README, CHANGES),
-              classifiers=filter(None, classifiers.split("\n")),
-              description='Seawater Libray for Python',
-              author='Filipe Fernandes',
-              author_email='ocefpaf@gmail.com',
               maintainer='Filipe Fernandes',
               maintainer_email='ocefpaf@gmail.com',
-              url='http://pypi.python.org/pypi/seawater/',
               download_url=download_url,
-              platforms='any',
               keywords=['oceanography', 'seawater'],
-              install_requires=install_requires)
-
-setup(**config)
+              )
