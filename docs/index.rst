@@ -65,7 +65,7 @@ package). The current version was tested against seawater v3.3.
    :target: https://crate.io/packages/seawater/
 
 Documentation
--------------
+=============
 
 .. toctree::
    :maxdepth: 2
