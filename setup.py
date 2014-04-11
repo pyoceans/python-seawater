@@ -7,7 +7,15 @@ from setuptools.command.test import test as TestCommand
 import io
 import sys
 
-import seawater
+import re
+VERSIONFILE="ctd/__init__.py"
+verstrline = open(VERSIONFILE, "rt").read()
+VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]"
+mo = re.search(VSRE, verstrline, re.M)
+if mo:
+    verstr = mo.group(1)
+else:
+    raise RuntimeError("Unable to find version string in %s." % (VERSIONFILE,))
 
 
 def read(*filenames, **kwargs):
@@ -33,7 +41,7 @@ class PyTest(TestCommand):
         sys.exit(errcode)
 
 source = 'http://pypi.python.org/packages/source/s/seawater'
-download_url = '%s/seawater-%s.tar.gz' % (source, seawater.__version__)
+download_url = '%s/seawater-%s.tar.gz' % (source, verstr)
 
 
 README = open('README.txt').read()
@@ -42,7 +50,7 @@ LICENSE = open('LICENSE.txt').read()
 
 setup(
     name='seawater',
-    version=seawater.__version__,
+    version=verstr,
     url='http://pypi.python.org/pypi/seawater/',
     license='MIT',
     author='Filipe Fernandes',
@@ -65,9 +73,9 @@ setup(
                  'Operating System :: OS Independent',
                  'Topic :: Scientific/Engineering',
                  ],
-              use_2to3=True,
-              maintainer='Filipe Fernandes',
-              maintainer_email='ocefpaf@gmail.com',
-              download_url=download_url,
-              keywords=['oceanography', 'seawater'],
-              )
+    use_2to3=True,
+    maintainer='Filipe Fernandes',
+    maintainer_email='ocefpaf@gmail.com',
+    download_url=download_url,
+    keywords=['oceanography', 'seawater'],
+    )
