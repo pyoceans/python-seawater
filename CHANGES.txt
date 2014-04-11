@@ -1,64 +1,50 @@
-What's new in this version of seawater
-======================================
+Changelog
+---------
 
-06 August 06 2013
------------------
-Both `gpan` and `bfrq` accepts 3D arrays now.
+Version 3.3.1
 
-22 September 2010
------------------
-Fixed inconsistency in use of ITS-90* and increase convergence precision from
-1e-4 to 1e-10 for `cndr`.
+* Both `gpan` and `bfrq` accepts 3D arrays now.
+* Fixed inconsistency in use of ITS-90 and increased convergence precision from 1e-4 to 1e-10 for `cndr`. Note: Not sure if this fix is needed.  However, it is in the original version!
 
-* Note: Not sure if this fix is needed!  Check this!!
+Version 3.2
 
-19 April 2006  release 3.2
---------------------------
-Corrected sign of potential vorticity in `bfrq`.
+* Corrected sign of potential vorticity in `bfrq`.
 
-24 November 2005  release 3.1
------------------------------
-Added `swvel` to compute surface wave velocity.
+Version 3.1
 
-12 December 2003  release 3.0
------------------------------
-Converted code so that temperature is now ITS-90 throughout.
+* Added `swvel` to compute surface wave velocity.
 
-25 June 1999  release 2.0.2
----------------------------
-Coding changes to enable functions to return the same shape vector as
-the input arguments.  In previous releases, some functions returned
-column vectors for row vector input.  Also some other tidying up.
+Version 3.0
 
-22 April 1998  release 2.0.1
-----------------------------
-`satAr`    New routine.  Solubility of Ar in seawater
-`satN2`    New routine.  Solubility of N2 in seawater
-`satO2`    New routine.  Solubility of O2 in seawater
-`test`     Updated to include tests for above
+* Converted code so that temperature is now ITS-90 throughout.
 
-April 1998  release 1.2e
-------------------------
-`alpha`    Fixed bug where temp used in calculations regardless of the keyword.
+Version 2.0.2
 
-15 November 1994 release 1.2d
------------------------------
-`bfrq`   Now also returns potential vorticity.  Thanks to Greg Johnson
-         (gjohnson@pmel.noaa.gov)
+* Coding changes to enable functions to return the same shape vector as the input arguments.  In previous releases, some functions returned column vectors for row vector input.  Also some other tidying up.
 
-`gvel`   OMEGA=7.29e-5 changed to OMEGA=7.292e-5 to be consistent with `f`
+Version 2.0.1
 
-IMPORTANT API CHANGE: The usage of `alpha`, `beta` and `aonb` routines has
-changed!  All these routines expect (S,T,P) to be passed instead of (S,PTMP,P)
-as in previous releases of seawater.  Fast execution can still be obtained by
-passing ptmp=True see help.
+* New routine `satAr`.  Solubility of Ar in seawater.
+* New routine `satN2`.  Solubility of N2 in seawater.
+* New routine `satO2`.  Solubility of O2 in seawater.
+* Updated `test` to include tests for above.
 
-19 October 1994 release 1.2c
-----------------------------
-`bfrq`   Fixed bug where LAT = [] was needed as argument when no latitude
-         values are being passed.  Now pass PRESSURE instead of DEPTH ->
-         more consistent though only a negligible change is answers.
+Version 1.2e
 
-12 October 1994 release 1.2b
-----------------------------
-First official release and announcement on the networks.
+* Fixed bug in `alpha` where temp used in calculations regardless of the keyword.
+
+Version 1.2d
+
+* `bfrq` now also returns potential vorticity.  Thanks to Greg Johnson (gjohnson@pmel.noaa.gov).
+* OMEGA=7.29e-5 was changed to OMEGA=7.292e-5 in `gvel` to be consistent with `f`.
+* **Important API change**: The usage of `alpha`, `beta` and `aonb` routines has changed!  All these routines expect (S,T,P) to be passed instead of (S,PTMP,P) as in previous releases of seawater.  Fast execution can still be obtained by passing ptmp=True.
+
+
+Version 1.2c
+
+* Fixed a bug in `bfrq` where empty LAT was needed as argument when no latitude values are being passed.
+* Now pass PRESSURE instead of DEPTH, more consistent though only a negligible change is answers.
+
+Version 1.2b
+
+* First official release and announcement on the networks.
