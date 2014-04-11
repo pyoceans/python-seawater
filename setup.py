@@ -8,7 +8,7 @@ import io
 import sys
 
 import re
-VERSIONFILE="ctd/__init__.py"
+VERSIONFILE="seawater/__init__.py"
 verstrline = open(VERSIONFILE, "rt").read()
 VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]"
 mo = re.search(VSRE, verstrline, re.M)
@@ -66,7 +66,7 @@ setup(
     test_suite='seawater.test',
     classifiers=['Development Status :: 5 - Production/Stable',
                  'Programming Language :: Python',
-                 'Development Status :: 6 - Mature'
+                 'Development Status :: 6 - Mature',
                  'Environment :: Console',
                  'Intended Audience :: Science/Research',
                  'License :: OSI Approved :: MIT License',
