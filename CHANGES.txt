@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+Version 3.3.2
+
+* Fixed py3k bug that prevent installation.
+
 Version 3.3.1
 
 * Both `gpan` and `bfrq` accepts 3D arrays now.

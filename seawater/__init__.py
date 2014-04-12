@@ -2,7 +2,7 @@
 
 from __future__ import absolute_import
 
-__version__ = '3.3.1'
+__version__ = '3.3.2'
 
 from .geostrophic import bfrq, svan, gpan, gvel
 from .extras import dist, f, satAr, satN2, satO2, swvel
