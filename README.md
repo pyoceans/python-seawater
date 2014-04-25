@@ -1,9 +1,12 @@
 # python-seawater
 
-[![PyPI](https://badge.fury.io/py/seawater.png)](http://badge.fury.io/py/seawater)
-[![Build](https://api.travis-ci.org/ocefpaf/python-seawater.png?branch=master)](https://travis-ci.org/ocefpaf/python-seawater)
-[![Gittip](http://bottlepy.org/docs/dev/_static/Gittip.png)](https://www.gittip.com/ocefpaf/)
+[![PyPI](https://badge.fury.io/py/seawater.svg)](http://badge.fury.io/py/seawater)
+![Downloads](https://pypip.in/d/seawater/badge.svg)
+[![Build](https://api.travis-ci.org/ocefpaf/python-seawater.svg)](https://travis-ci.org/ocefpaf/python-seawater)
+[![Coverage Status](https://coveralls.io/repos/ocefpaf/python-seawater/badge.png)](https://coveralls.io/r/ocefpaf/python-seawater)
 
+
+[![Gittip](http://bottlepy.org/docs/dev/_static/Gittip.png)](https://www.gittip.com/ocefpaf/)
 
 
 This is a Python re-write of the CSIRO seawater toolbox
