@@ -7,7 +7,7 @@
 # e-mail:   ocefpaf@gmail
 # web:      http://ocefpaf.github.io/
 # created:  05-Aug-2013
-# modified: Mon 05 Aug 2013 09:57:15 AM BRT
+# modified: Wed 16 Jul 2014 10:15:04 AM BRT
 #
 # obs:  Check the unittest for a more thorough code testing.
 #
@@ -379,7 +379,7 @@ def test(fileout='python-test.txt'):
     f.write('\n**  and SUB-MODULE: alpha beta aonb')
     f.write('\n%s' % asterisks)
 
-    # Data from McDouogall 1987.
+    # Data from McDougall 1987.
     s = 40
     PT = 10
     p = 4000

@@ -7,7 +7,7 @@
 # e-mail:   ocefpaf@gmail
 # web:      http://ocefpaf.github.io/
 # created:  03-Aug-2013
-# modified: Tue 20 Aug 2013 12:20:41 PM BRT
+# modified: Wed 16 Jul 2014 10:14:55 AM BRT
 #
 # obs:
 #
@@ -181,7 +181,7 @@ def aonb(s, t, p, pt=False):
 
     Examples
     --------
-    >>> # Data from McDouogall 1987.
+    >>> # Data from McDougall 1987.
     >>> import seawater as sw
     >>> s, t, p = 40, 10, 4000
     >>> sw.aonb(s, t, p, pt=True)
@@ -251,7 +251,7 @@ def beta(s, t, p, pt=False):
 
     Examples
     --------
-    >>> # Data from McDouogall 1987
+    >>> # Data from McDougall 1987
     >>> import seawater as sw
     >>> s, t, p = 40, 10, 4000
     >>> sw.beta(s, t, p, pt=True)
