@@ -4,6 +4,11 @@ python:
     - "2.7"
     - "3.3"
     - "3.4"
+
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq octave octave-pkg-dev
+
 install:
     # Make sure system components are up to date:
     - sudo apt-get update
@@ -27,7 +32,6 @@ install:
     # Additional dependencies for Python 2.x:
     # Install the package:
     - python setup.py install
+
 script:
   - cd seawater/test  && nosetests --verbose --nocapture test_result_comparison.py
-notifications:
-    email: true
