@@ -21,7 +21,6 @@ from collections import OrderedDict
 
 import numpy as np
 from oct2py import octave
-from pandas import read_csv
 
 import seawater as sw
 from seawater.constants import c3515
@@ -29,22 +28,25 @@ from seawater.constants import c3515
 try:
     path = sys.argv[1]
 except IndexError:
-    path = "./seawater_v3_3"
+    rootpath = os.path.dirname(__file__)
+    path = os.path.join(rootpath, 'seawater_v3_3')
 
 if not os.path.exists(path):
-    raise ValueError("matlab seawater path %s not found" % path)
+    raise ValueError("Matlab seawater path %s not found" % path)
 
 _ = octave.addpath(octave.genpath(path))
 
-kw = dict(comment='#', header=5, index_col=0)
-st61 = read_csv('Endeavor_Cruise-88_Station-61.csv', **kw)
-st64 = read_csv('Endeavor_Cruise-88_Station-64.csv', **kw)
+kw = dict(comments='#', skiprows=6, delimiter=',')
+st61 = np.loadtxt(os.path.join(rootpath,
+                               'Endeavor_Cruise-88_Station-61.csv'), **kw)
+st64 = np.loadtxt(os.path.join(rootpath,
+                               'Endeavor_Cruise-88_Station-64.csv'), **kw)
 latst = 36. + 40.03 / 60., 37. + 39.93 / 60.
 lonst = -(70. + 59.59 / 60.), -71.
 
-Sal=np.c_[st61['S'].values, st64['S'].values]
-Temp=np.c_[st61['t'].values, st64['t'].values]
-Pres=np.c_[st61.index.values.astype(float), st64.index.values.astype(float)]
+Sal = np.c_[st61[:, 2], st64[:, 2]]
+Temp = np.c_[st61[:, 3], st64[:, 3]]
+Pres = np.c_[st61[:, 0], st64[:, 0]]
 Gpan = sw.gpan(Sal, Temp, Pres)
 
 def compare_results(name, function, args):

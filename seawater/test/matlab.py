@@ -24,11 +24,7 @@ import seawater as sw
 
 
 def test(fileout='python-test.txt'):
-    r"""Copy of the Matlab test.
-
-    Modifications: Phil Morgan
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
-    """
+    """Copy of the Matlab test."""
     f = open(fileout, 'w')
     asterisks = '*' * 76
 

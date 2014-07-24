@@ -12,8 +12,6 @@
 # obs:
 #
 
-import unittest
-
 import numpy as np
 import seawater as sw
 from scipy.io import loadmat
