@@ -21,12 +21,9 @@ import unittest
 import numpy as np
 
 rootpath = os.path.dirname(__file__)
-try:
-    from oct2py import octave
-    path = os.path.join(rootpath, 'seawater_v3_3')
-    _ = octave.addpath(octave.genpath(path))
-except ImportError:
-    pass
+from oct2py import octave
+path = os.path.join(rootpath, 'seawater_v3_3')
+_ = octave.addpath(octave.genpath(path))
 
 import seawater as sw
 from seawater.constants import c3515
