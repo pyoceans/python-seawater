@@ -8,7 +8,7 @@ import io
 import sys
 
 import re
-VERSIONFILE="seawater/__init__.py"
+VERSIONFILE = "seawater/__init__.py"
 verstrline = open(VERSIONFILE, "rt").read()
 VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]"
 mo = re.search(VSRE, verstrline, re.M)
@@ -29,10 +29,12 @@ def read(*filenames, **kwargs):
 
 long_description = read('README.txt', 'CHANGES.txt')
 
+
 class PyTest(TestCommand):
     def finalize_options(self):
         TestCommand.finalize_options(self)
-        self.test_args = ['--strict', '--verbose', '--tb=long', 'seawater/test']
+        self.test_args = ['--strict', '--verbose',
+                          '--tb=long', 'seawater/test']
         self.test_suite = True
 
     def run_tests(self):
@@ -62,8 +64,9 @@ setup(
     description='Seawater Library for Python',
     long_description=long_description,
     packages=['seawater', 'seawater.test'],
+    include_package_data=True,
     platforms='any',
-    test_suite='seawater.test',
+    test_suite='seawater.test.test_result_comparison',
     classifiers=['Development Status :: 5 - Production/Stable',
                  'Programming Language :: Python',
                  'Development Status :: 6 - Mature',
