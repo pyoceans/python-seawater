@@ -63,7 +63,7 @@ setup(
     author_email='ocefpaf@gmail.com',
     description='Seawater Library for Python',
     long_description=long_description,
-    packages=['seawater', 'seawater.test'],
+    packages=['seawater'],
     include_package_data=True,
     platforms='any',
     test_suite='seawater.test.test_result_comparison',
