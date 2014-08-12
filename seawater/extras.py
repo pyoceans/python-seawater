@@ -67,7 +67,8 @@ def dist(lat, lon, units='km'):
 
     References
     ----------
-    .. [1] The PLANE SAILING method as described in "CELESTIAL NAVIGATION" 1989 by Dr. P. Gormley. The Australian Antarctic Division.
+    .. [1] The PLANE SAILING method as described in "CELESTIAL NAVIGATION" 1989
+    by Dr. P. Gormley. The Australian Antarctic Division.
 
     Notes
     -----
@@ -138,9 +139,13 @@ def f(lat):
 
     References
     ----------
-    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
-    .. [2] A.E. Gill 1982. p.54  Eqn. 3.7.15 "Atmosphere-Ocean Dynamics" Academic Press: New York. ISBN: 0-12-283522-0
-    .. [3] Groten, E., 2004: Fundamental Parameters and Current (2004) Best Estimates of the Parameters of Common Relevance to Astronomy, Geodesy, and Geodynamics. Journal of Geodesy, 77, pp. 724-797.
+    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical
+            Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
+    .. [2] A.E. Gill 1982. p.54  Eqn. 3.7.15 "Atmosphere-Ocean Dynamics"
+            Academic Press: New York. ISBN: 0-12-283522-0
+    .. [3] Groten, E., 2004: Fundamental Parameters and Current (2004) Best
+            Estimates of the Parameters of Common Relevance to Astronomy,
+            Geodesy, and Geodynamics. Journal of Geodesy, 77, pp. 724-797.
 
     Notes
     -----
@@ -182,7 +187,9 @@ def satAr(s, t):
 
     References
     ----------
-    .. [1] Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in Water and Seawater Deep-Sea Research Vol. 17, p. 721-735. doi:10.1016/0011-7471(70)90037-9
+    .. [1] Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in
+            Water and Seawater Deep-Sea Research Vol. 17, p. 721-735.
+            doi:10.1016/0011-7471(70)90037-9
 
     Notes
     -----
@@ -239,7 +246,9 @@ def satN2(s, t):
 
     References
     ----------
-    .. [1] Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in Water and Seawater Deep-Sea Research Vol. 17, p. 721-735. doi:10.1016/0011-7471(70)90037-9
+    .. [1] Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in
+            Water and Seawater Deep-Sea Research Vol. 17, p. 721-735.
+            doi:10.1016/0011-7471(70)90037-9
 
     Notes
     -----
@@ -295,7 +304,9 @@ def satO2(s, t):
 
     References
     ----------
-    .. [1] Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in Water and Seawater Deep-Sea Research Vol. 17, p. 721-735. doi:10.1016/0011-7471(70)90037-9
+    .. [1] Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in
+            Water and Seawater Deep-Sea Research Vol. 17, p. 721-735.
+            doi:10.1016/0011-7471(70)90037-9
 
     Notes
     -----
@@ -349,7 +360,6 @@ def swvel(length, depth):
     length, depth = map(np.asanyarray, (length, depth))
     k = 2.0 * np.pi / length
     return np.sqrt(gdef * np.tanh(k * depth) / k)
-
 
 if __name__ == '__main__':
     import doctest
