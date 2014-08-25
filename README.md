@@ -4,7 +4,7 @@
 ![Downloads](https://pypip.in/d/seawater/badge.svg)
 [![Build](https://api.travis-ci.org/ocefpaf/python-seawater.svg)](https://travis-ci.org/ocefpaf/python-seawater)
 [![Coverage Status](https://coveralls.io/repos/ocefpaf/python-seawater/badge.png)](https://coveralls.io/r/ocefpaf/python-seawater)
-
+[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.11395.png)](http://dx.doi.org/10.5281/zenodo.11395)
 
 [![Gittip](http://bottlepy.org/docs/dev/_static/Gittip.png)](https://www.gittip.com/ocefpaf/)
 
