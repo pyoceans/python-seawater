@@ -28,6 +28,42 @@ _ = octave.addpath(octave.genpath(path))
 import seawater as sw
 from seawater.constants import c3515
 
+functions = dict({'adtg': octave.sw_adtg,
+                  'alpha': octave.sw_alpha,
+                  'aonb': octave.sw_aonb,
+                  'beta': octave.sw_beta,
+                  'bfrq': octave.sw_bfrq,
+                  'c3515': octave.sw_c3515,
+                  'cndr': octave.sw_cndr,
+                  'cp': octave.sw_cp,
+                  'dens0': octave.sw_dens0,
+                  'dens': octave.sw_dens,
+                  'dist': octave.sw_dist,
+                  'dpth': octave.sw_dpth,
+                  'f': octave.sw_f,
+                  'fp': octave.sw_fp,
+                  'g': octave.sw_g,
+                  'gpan': octave.sw_gpan,
+                  'gvel': octave.sw_gvel,
+                  'pden': octave.sw_pden,
+                  'pres': octave.sw_pres,
+                  'ptmp': octave.sw_ptmp,
+                  'salds': octave.sw_salds,
+                  'salrp': octave.sw_salrp,
+                  'salrpP': octave.sw_salrp,
+                  'salrt': octave.sw_salrt,
+                  'sals': octave.sw_sals,
+                  'salt': octave.sw_salt,
+                  'satAr': octave.sw_satAr,
+                  'satN2': octave.sw_satN2,
+                  'satO2': octave.sw_satO2,
+                  'seck': octave.sw_seck,
+                  'smow': octave.sw_smow,
+                  'svan': octave.sw_svan,
+                  'svel': octave.sw_svel,
+                  'swvel': octave.sw_swvel,
+                  'temp': octave.sw_temp,
+                  'test': octave.sw_test})
 
 def compare_results(name, function, args, values):
     args = [values.get(arg) for arg in args]
@@ -36,11 +72,7 @@ def compare_results(name, function, args, values):
     if isinstance(res, tuple):
         nout = len(res)
         res = res[0]
-    else:
-        nout = 1
-    val = octave.call('sw_%s' % name, *args, nout=nout)  # Octave call.
-    if nout > 1:
-        val = val[0]
+    val = functions[name](*args) # Octave call.
     val, res = val.squeeze(), res.squeeze()
     np.testing.assert_allclose(val, res)
 
