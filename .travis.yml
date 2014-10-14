@@ -1,35 +1,37 @@
 language: python
 
-python:
-    - "2.7"
-    - "3.3"
-    - "3.4"
+env:
+    - CONDA="python=2.7 numpy=1.7"
+    - CONDA="python=3.3 numpy"
+    - CONDA="python=3.4 numpy"
 
 before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq octave octave-pkg-dev
-
-install:
-    - sudo apt-get update
-    # Install Miniconda so we can use it to manage dependencies:
-    - if [[ "$TRAVIS_PYTHON_VERSION" == 2* ]]; then
-        wget http://repo.continuum.io/miniconda/Miniconda-3.4.2-Linux-x86_64.sh -O miniconda.sh;
-      else
-        wget http://repo.continuum.io/miniconda/Miniconda3-3.4.2-Linux-x86_64.sh -O miniconda.sh;
-      fi
+    - sudo apt-add-repository -y ppa:picaso/octave;
+    - sudo apt-get update -qq;
+    - sudo apt-get install -qq octave liboctave-dev;
+    - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
     - bash miniconda.sh -b -p $HOME/miniconda
     - export PATH="$HOME/miniconda/bin:$PATH"
     - hash -r
-    - conda config --set always_yes yes --set changeps1 no
+    - conda config --set always_yes yes
     - conda update conda
     - conda info -a
-    # Create a conda environment with the base dependencies:
-    - conda create -n test-environment python=$TRAVIS_PYTHON_VERSION
-    - source activate test-environment
-    - conda install setuptools nose matplotlib numpy scipy pip
-    - pip install oct2py
-    # Install the package:
+    - travis_retry conda create -n test $CONDA numpy pip nose scipy
+    - source activate test
+    - travis_retry pip install coveralls
+    - travis_retry pip install oct2py
+
+install:
+    - export PYTHONWARNINGS=all
     - python setup.py install
 
 script:
-  - cd seawater/test  && nosetests --verbose --nocapture test_result_comparison.py
+    # run coverage on py2.7, regular on others.
+    - if [[ $CONDA == python=2.7* ]]; then
+        nosetests --verbose --with-doctest --with-cov --cover-package seawater
+    else
+        nosetests --verbose seawater
+    fi
+
+after_success:
+    - coveralls
