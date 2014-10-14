@@ -7,7 +7,7 @@
 # e-mail:   ocefpaf@gmail
 # web:      http://ocefpaf.github.io/
 # created:  05-Aug-2013
-# modified: Tue 20 Aug 2013 12:19:59 PM BRT
+# modified: Tue 14 Oct 2014 03:12:29 PM BRT
 #
 # obs:
 #
@@ -76,16 +76,13 @@ def bfrq(s, t, p, lat=None):
 
     References
     ----------
-    .. [1] A.E. Gill 1982. p.54  Eqn. 3.7.15 "Atmosphere-Ocean Dynamics" Academic Press: New York. ISBN: 0-12-283522-0
+    .. [1] A.E. Gill 1982. p.54  Eqn. 3.7.15 "Atmosphere-Ocean Dynamics"
+       Academic Press: New York. ISBN: 0-12-283522-0
 
-    .. [2] Jackett, David R., Trevor J. Mcdougall, 1995: Minimal Adjustment of Hydrographic Profiles to Achieve Static Stability. J. Atmos. Oceanic Technol., 12, 381-389. doi: 10.1175/1520-0426(1995)012<0381:MAOHPT>2.0.CO;2
-
-    Notes
-    -----
-    Modifications: 93-06-24. Phil Morgan.
-                   Greg Johnson (gjohnson@pmel.noaa.gov) pot. vort. calc.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
-                   06-04-19. Lindsay Pender, Corrected sign of PV.
+    .. [2] Jackett, David R., Trevor J. Mcdougall, 1995: Minimal Adjustment of
+       Hydrographic Profiles to Achieve Static Stability. J. Atmos. Oceanic
+       Technol., 12, 381-389.
+       doi: 10.1175/1520-0426(1995)012<0381:MAOHPT>2.0.CO;2
 
     """
 
@@ -145,25 +142,25 @@ def svan(s, t, p=0):
     --------
     >>> # Data from Unesco Tech. Paper in Marine Sci. No. 44, p22.
     >>> import seawater as sw
+    >>> from seawater.library import T90conv
     >>> s = [[0, 1, 2], [15, 16, 17], [30, 31, 32], [35, 35, 35]]
-    >>> t = sw.T90conv([[15]*3]*4)
+    >>> t = T90conv([[15]*3]*4)
     >>> p = [[0], [250], [500], [1000]]
     >>> sw.svan(s, t, p)
-    array([  2.74953924e-05,   2.28860986e-05,   3.17058231e-05,
-             3.14785290e-05,   0.00000000e+00,   0.00000000e+00,
-             6.07141523e-06,   9.16336113e-06])
+    array([[  2.82371949e-05,   2.74626498e-05,   2.66921126e-05],
+           [  1.68453274e-05,   1.60993333e-05,   1.53543515e-05],
+           [  5.80768118e-06,   5.07784980e-06,   4.34876387e-06],
+           [  2.30490099e-06,   2.30490099e-06,   2.30490099e-06]])
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+       computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+       Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+       http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    .. [2] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
-
-    Notes
-    -----
-    Modifications: 92-11-05. Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    .. [2] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical
+       Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
 
     """
     s, t, p = map(np.asanyarray, (s, t, p))
@@ -212,12 +209,8 @@ def gpan(s, t, p):
 
     References
     ----------
-    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
-
-    Notes
-    -----
-    Modifications: 92-11-05. Phil Morgan.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical
+       Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
 
     """
 
@@ -259,37 +252,35 @@ def gvel(ga, lat, lon):
     --------
     >>> import numpy as np
     >>> import seawater as sw
-    >>> lon = np.array([-30, -30, -30, -30, -30, -30])
-    >>> lat = np.linspace(-22, -21, 6)
-    >>> t = np.array([[0,  0,  0,  0,  0,  0],
-    ...               [10, 10, 10, 10, 10, 10],
-    ...               [20, 20, 20, 20, 20, 20],
-    ...               [30, 30, 30, 30, 30, 30],
-    ...               [40, 40, 40, 40, 40, 40]])
-    >>> s = np.array([[25, 25, 25, 35, 35, 35],
-    ...               [25, 25, 25, 35, 35, 35],
-    ...               [25, 25, 25, 35, 35, 35],
-    ...               [25, 25, 25, 35, 35, 35],
-    ...               [25, 25, 25, 35, 35, 35]])
-    >>> p = np.array([[0, 5000, 10000, 0, 5000, 10000],
-    ...               [0, 5000, 10000, 0, 5000, 10000],
-    ...               [0, 5000, 10000, 0, 5000, 10000],
-    ...               [0, 5000, 10000, 0, 5000, 10000],
-    ...               [0, 5000, 10000, 0, 5000, 10000]])
+    >>> lon = np.array([-30, -30, -30, -30, -30])
+    >>> lat = np.linspace(-22, -21, 5)
+    >>> t = np.array([[0,  0,  0,  0,  0],
+    ...               [10, 10, 10, 10, 10],
+    ...               [20, 20, 20, 20, 20],
+    ...               [30, 30, 30, 30, 30],
+    ...               [40, 40, 40, 40, 40]])
+    >>> s = np.array([[25, 25, 25, 35, 35],
+    ...               [25, 25, 25, 35, 35],
+    ...               [25, 25, 25, 35, 35],
+    ...               [25, 25, 25, 35, 35],
+    ...               [25, 25, 25, 35, 35]])
+    >>> p = np.array([[0, 5000, 10000, 0, 5000],
+    ...               [0, 5000, 10000, 0, 5000],
+    ...               [0, 5000, 10000, 0, 5000],
+    ...               [0, 5000, 10000, 0, 5000],
+    ...               [0, 5000, 10000, 0, 5000]])
     >>> ga = sw.gpan(s, t, p)
     >>> sw.gvel(ga, lat, lon)
-    array([[-0.        , -0.        ],
-           [ 0.11385677,  0.07154215],
-           [ 0.22436555,  0.14112761],
-           [ 0.33366412,  0.20996272]])
+    array([[ 231.74785186,  197.54291221, -436.64938045,    0.        ],
+           [ 231.74785186,  197.54291221, -436.64938045,    0.        ],
+           [ 231.74785186,  197.54291221, -436.64938045,    0.        ],
+           [ 231.74785186,  197.54291221, -436.64938045,    0.        ],
+           [ 231.74785186,  197.54291221, -436.64938045,    0.        ]])
 
     References
     ----------
-    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
-
-    Notes
-    -----
-    Modifications: 92-03-26. Phil Morgan.
+    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical
+       Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
 
     """
 
