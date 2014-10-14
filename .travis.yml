@@ -28,9 +28,9 @@ install:
 script:
     # run coverage on py2.7, regular on others.
     - if [[ $CONDA == python=2.7* ]]; then
-        nosetests --verbose --with-doctest --with-cov --cover-package seawater
+        nosetests --verbose --with-doctest --with-cov --cover-package seawater;
       else
-        nosetests --verbose seawater
+        nosetests --verbose seawater;
       fi
 
 after_success:
