@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 #
-# test_seawater.py
+# sw_test.py
 #
 # purpose:  Test to mimic matlab sw_test.m function.
 # author:   Filipe P. A. Fernandes
 # e-mail:   ocefpaf@gmail
 # web:      http://ocefpaf.github.io/
 # created:  05-Aug-2013
-# modified: Wed 16 Jul 2014 10:15:04 AM BRT
+# modified: Tue 14 Oct 2014 01:10:21 PM BRT
 #
-# obs:  Check the unittest for a more thorough code testing.
+# obs:  Check the `test_result_comparison.py` for a more thorough code testing.
 #
 
 
@@ -141,7 +141,7 @@ def test(fileout='python-test.txt'):
     R = np.array([1, 1.2, 0.65])  # cndr = R.
     T = np.array([15, 20, 5]) / 1.00024
     P = np.array([0, 2000, 1500])
-    #Rt   = np.array([  1, 1.0568875, 0.81705885])
+    # Rt = np.array([  1, 1.0568875, 0.81705885])
     UN_S = np.array([35, 37.245628,  27.995347])
 
     S = sw.salt(R, T, P)
