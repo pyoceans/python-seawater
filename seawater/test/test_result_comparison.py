@@ -7,7 +7,7 @@
 # e-mail:   ocefpaf@gmail
 # web:      http://ocefpaf.github.io/
 # created:  05-Aug-2013
-# modified: Wed 21 Aug 2013 05:43:57 PM BRT
+# modified: Tue 14 Oct 2014 01:04:37 PM BRT
 #
 # obs:
 #
@@ -65,14 +65,14 @@ functions = dict({'adtg': octave.sw_adtg,
                   'temp': octave.sw_temp,
                   'test': octave.sw_test})
 
+
 def compare_results(name, function, args, values):
     args = [values.get(arg) for arg in args]
     res = function(*args)  # Python call.
     # FIXME: Test only the first output when multiple outputs are present.
     if isinstance(res, tuple):
-        nout = len(res)
         res = res[0]
-    val = functions[name](*args) # Octave call.
+    val = functions[name](*args)  # Octave call.
     val, res = val.squeeze(), res.squeeze()
     np.testing.assert_allclose(val, res)
 
@@ -81,10 +81,10 @@ class OctaveResultComparison(unittest.TestCase):
     def setUp(self):
         # TODO: More tests with station data.
         kw = dict(comments='#', skiprows=6, delimiter=',')
-        st61 = np.loadtxt(os.path.join(rootpath,
-                                       'Endeavor_Cruise-88_Station-61.csv'), **kw)
-        st64 = np.loadtxt(os.path.join(rootpath,
-                                       'Endeavor_Cruise-88_Station-64.csv'), **kw)
+        station_61 = 'Endeavor_Cruise-88_Station-61.csv'
+        station_64 = 'Endeavor_Cruise-88_Station-64.csv'
+        st61 = np.loadtxt(os.path.join(rootpath, station_61), **kw)
+        st64 = np.loadtxt(os.path.join(rootpath, station_64), **kw)
 
         latst = 36. + 40.03 / 60., 37. + 39.93 / 60.
         lonst = -(70. + 59.59 / 60.), -71.
@@ -118,7 +118,7 @@ class OctaveResultComparison(unittest.TestCase):
     def tearDown(self):
         unittest.TestCase.tearDown(self)
 
-    # library.py  # NOTE: Matlab does not have version of T68conv and T90conv.
+    # `library.py`
     def test_cndr(self):
         name = 'cndr'
         function, args = (sw.cndr, ('s', 't', 'p'))
@@ -155,7 +155,7 @@ class OctaveResultComparison(unittest.TestCase):
         compare_results(name=name, function=function, args=args,
                         values=self.values)
 
-    # extras.py
+    # `extras.py`
     def test_dist(self):
         name = 'dist'
         function, args = (sw.dist, ('lat', 'lon', 'units'))
@@ -192,7 +192,7 @@ class OctaveResultComparison(unittest.TestCase):
         compare_results(name=name, function=function, args=args,
                         values=self.values)
 
-    # eos80.py
+    # `eos80.py`
     def test_adtg(self):
         name = 'adtg'
         function, args = (sw.adtg, ('s', 't', 'p'))
@@ -301,7 +301,7 @@ class OctaveResultComparison(unittest.TestCase):
         compare_results(name=name, function=function, args=args,
                         values=self.values)
 
-    # geostrophic.py
+    # `geostrophic.py`
     def test_svan(self):
         name = 'svan'
         function, args = (sw.svan, ('s', 't', 'pref'))
