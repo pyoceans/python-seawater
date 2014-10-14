@@ -7,7 +7,7 @@
 # e-mail:   ocefpaf@gmail
 # web:      http://ocefpaf.github.io/
 # created:  03-Aug-2013
-# modified: Wed 16 Jul 2014 10:14:55 AM BRT
+# modified: Tue 14 Oct 2014 03:09:55 PM BRT
 #
 # obs:
 #
@@ -61,7 +61,8 @@ def adtg(s, t, p):
     --------
     >>> # Data from UNESCO 1983 p45.
     >>> import seawater as sw
-    >>> t = sw.T90conv([[ 0,  0,  0,  0,  0,  0],
+    >>> from seawater.library import T90conv
+    >>> t = T90conv([[ 0,  0,  0,  0,  0,  0],
     ...                 [10, 10, 10, 10, 10, 10],
     ...                 [20, 20, 20, 20, 20, 20],
     ...                 [30, 30, 30, 30, 30, 30],
@@ -86,14 +87,14 @@ def adtg(s, t, p):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
-    .. [2] Bryden, H. 1973. New Polynomials for thermal expansion, adiabatic temperature gradient and potential temperature of sea water. Deep-Sea Res. Vol20,401-408. doi:10.1016/0011-7471(73)90063-6
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+       computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+       Mar. Sci., No. 44, 53 pp.
+       http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    Notes
-    -----
-    Modifications: 93-04-22. Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    .. [2] Bryden, H. 1973. New Polynomials for thermal expansion, adiabatic
+       temperature gradient and potential temperature of sea water. Deep-Sea
+       Res. Vol20,401-408. doi:10.1016/0011-7471(73)90063-6
 
     """
 
@@ -143,16 +144,8 @@ def alpha(s, t, p, pt=False):
 
     References
     ----------
-    .. [1] McDougall, Trevor J., 1987: Neutral Surfaces. J. Phys. Oceanogr., 17, 1950-1964. doi: 10.1175/1520-0485(1987)017<1950:NS>2.0.CO;2
-
-    Notes
-    -----
-    Modifications: 93-xx-xx. N.L. Bindoff.
-                   93-04-22. Phil Morgan, Help display modified library.
-                   93-04-23. Phil Morgan, Input argument checking.
-                   94-10-15. Phil Morgan, Pass S,T,P and keyword for 'ptmp'.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    .. [1] McDougall, Trevor J., 1987: Neutral Surfaces. J. Phys. Oceanogr.,
+       17, 1950-1964. doi: 10.1175/1520-0485(1987)017<1950:NS>2.0.CO;2
 
     """
     s, t, p, pt = map(np.asanyarray, (s, t, p, pt))
@@ -189,16 +182,8 @@ def aonb(s, t, p, pt=False):
 
     References
     ----------
-    .. [1] McDougall, Trevor J., 1987: Neutral Surfaces. J. Phys. Oceanogr., 17, 1950-1964. doi: 10.1175/1520-0485(1987)017<1950:NS>2.0.CO;2
-
-    Notes
-    -----
-    Modifications: 93-xx-xx. N.L. Bindoff.
-                   93-04-22. Phil Morgan, Help display modified library.
-                   93-04-23. Phil Morgan, Input argument checking.
-                   94-10-15. Phil Morgan, Pass S,T,P and keyword for 'ptmp'.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    .. [1] McDougall, Trevor J., 1987: Neutral Surfaces. J. Phys. Oceanogr.,
+       17, 1950-1964. doi: 10.1175/1520-0485(1987)017<1950:NS>2.0.CO;2
 
     """
 
@@ -259,16 +244,8 @@ def beta(s, t, p, pt=False):
 
     References
     ----------
-    .. [1] McDougall, Trevor J., 1987: Neutral Surfaces. J. Phys. Oceanogr., 17, 1950-1964. doi: 10.1175/1520-0485(1987)017<1950:NS>2.0.CO;2
-
-    Notes
-    -----
-    Modifications: 93-xx-xx. N.L. Bindoff.
-                   93-04-22. Phil Morgan, Help display modified library.
-                   93-04-23. Phil Morgan, Input argument checking.
-                   94-10-15. Phil Morgan, Pass S,T,P and keyword for 'ptmp'.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    .. [1] McDougall, Trevor J., 1987: Neutral Surfaces. J. Phys. Oceanogr.,
+       17, 1950-1964. doi: 10.1175/1520-0485(1987)017<1950:NS>2.0.CO;2
 
     """
 
@@ -316,8 +293,9 @@ def cp(s, t, p):
 
     Examples
     --------
-    >>> # Data from Pond and Pickard Intro. Dynamical Oceanography 2nd ed. 1986.
+    >>> # Data from Pond and Pickard Intro. Dyn. Oceanography 2nd ed. 1986.
     >>> import seawater as sw
+    >>> from seawater.library import T90conv
     >>> t = T90conv([[0, 0, 0, 0, 0, 0],
     ...              [10, 10, 10, 10, 10, 10],
     ...              [20, 20, 20, 20, 20, 20],
@@ -343,13 +321,10 @@ def cp(s, t, p):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp. Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
-
-    Notes
-    -----
-    Modifications: Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+       computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+       Mar. Sci., No. 44, 53 pp. Eqn.(31) p.39.
+       http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
     """
 
@@ -418,6 +393,7 @@ def dens0(s, t):
     --------
     >>> # Data from UNESCO Tech. Paper in Marine Sci. No. 44, p22
     >>> import seawater as sw
+    >>> from seawater.library import T90conv
     >>> s = [0, 0, 0, 0, 35, 35, 35, 35]
     >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
     >>> sw.dens0(s, t)
@@ -426,14 +402,14 @@ def dens0(s, t):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+       computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+       Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+       http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    .. [2] Millero, F.J. and  Poisson, A. International one-atmosphere equation of state of seawater. Deep-Sea Res. 1981. Vol28A(6) pp625-629. doi:10.1016/0198-0149(81)90122-9
-
-    Notes
-    -----
-    Modifications: 92-11-05. Phil Morgan.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    .. [2] Millero, F.J. and  Poisson, A. International one-atmosphere
+       equation of state of seawater. Deep-Sea Res. 1981. Vol28A(6) pp625-629.
+       doi:10.1016/0198-0149(81)90122-9
 
     """
 
@@ -472,6 +448,7 @@ def dens(s, t, p):
     --------
     >>> # Data from Unesco Tech. Paper in Marine Sci. No. 44, p22.
     >>> import seawater as sw
+    >>> from seawater.library import T90conv
     >>> s = [0, 0, 0, 0, 35, 35, 35, 35]
     >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
     >>> p = [0, 10000, 0, 10000, 0, 10000, 0, 10000]
@@ -481,15 +458,14 @@ def dens(s, t, p):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+       computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+       Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+       http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    .. [2] Millero, F.J., Chen, C.T., Bradshaw, A., and Schleicher, K. A new high pressure equation of state for seawater. Deap-Sea Research., 1980, Vol27A, pp255-264. doi:10.1016/0198-0149(80)90016-3
-
-    Notes
-    -----
-    Modifications: 92-11-05. Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    .. [2] Millero, F.J., Chen, C.T., Bradshaw, A., and Schleicher, K. A new
+       high pressure equation of state for seawater. Deap-Sea Research., 1980,
+       Vol27A, pp255-264. doi:10.1016/0198-0149(80)90016-3
 
     """
 
@@ -533,12 +509,10 @@ def dpth(p, lat):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
-
-    Notes
-    -----
-    Modifications: 92-04-06. Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+       computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+       Mar. Sci., No. 44, 53 pp.
+       http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
     """
     p, lat = map(np.asanyarray, (p, lat))
@@ -589,13 +563,10 @@ def fp(s, p):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
-
-    Notes
-    -----
-    Modifications: 93-04-20. Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+       computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+       Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+       http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
     """
 
@@ -633,13 +604,13 @@ def g(lat, z=0):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+       computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+       Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+       http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    .. [2] A.E. Gill 1982. p.54  Eqn. 3.7.15 "Atmosphere-Ocean Dynamics" Academic Press: New York. ISBN: 0-12-283522-0
-
-    Notes
-    -----
-    Modifications: 93-04-20. Phil Morgan.
+    .. [2] A.E. Gill 1982. p.54  Eqn. 3.7.15 "Atmosphere-Ocean Dynamics"
+       Academic Press: New York. ISBN: 0-12-283522-0
 
     """
 
@@ -678,6 +649,7 @@ def pden(s, t, p, pr=0):
     --------
     >>> # Data from Unesco Tech. Paper in Marine Sci. No. 44, p22.
     >>> import seawater as sw
+    >>> from seawater.library import T90conv
     >>> s = [0, 0, 0, 0, 35, 35, 35, 35]
     >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
     >>> p = [0, 10000, 0, 10000, 0, 10000, 0, 10000]
@@ -693,12 +665,8 @@ def pden(s, t, p, pr=0):
 
     References
     ----------
-    .. [1] A.E. Gill 1982. p.54  Eqn. 3.7.15 "Atmosphere-Ocean Dynamics" Academic Press: New York. ISBN: 0-12-283522-0
-
-    Notes
-    -----
-    Modifications: 92-04-06. Phil Morgan.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    .. [1] A.E. Gill 1982. p.54  Eqn. 3.7.15 "Atmosphere-Ocean Dynamics"
+       Academic Press: New York. ISBN: 0-12-283522-0
 
     """
 
@@ -733,12 +701,9 @@ def pres(depth, lat):
 
     References
     ----------
-    .. [1] Saunders, Peter M., 1981: Practical Conversion of Pressure to Depth. J. Phys. Oceanogr., 11, 573-574. doi: 10.1175/1520-0485(1981)011<0573:PCOPTD>2.0.CO;2
-
-    Notes
-    -----
-    Modifications: 93-06-25. Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
+    .. [1] Saunders, Peter M., 1981: Practical Conversion of Pressure to Depth.
+       J. Phys. Oceanogr., 11, 573-574.
+       doi: 10.1175/1520-0485(1981)011<0573:PCOPTD>2.0.CO;2
 
     """
     depth, lat = map(np.asanyarray, (depth, lat))
@@ -771,6 +736,7 @@ def ptmp(s, t, p, pr=0):
     Examples
     --------
     >>> import seawater as sw
+    >>> from seawater.library import T90conv, T68conv
     >>> t = T90conv([[0, 0, 0, 0, 0, 0],
     ...              [10, 10, 10, 10, 10, 10],
     ...              [20, 20, 20, 20, 20, 20],
@@ -782,7 +748,7 @@ def ptmp(s, t, p, pr=0):
     ...      [25, 25, 25, 35, 35, 35],
     ...      [25, 25, 25, 35, 35, 35]]
     >>> p = [0, 5000, 10000, 0, 5000, 10000]
-    >>> sw.T68conv(sw.ptmp(s, t, p, pr=0))
+    >>> T68conv(sw.ptmp(s, t, p, pr=0))
     array([[  0.        ,  -0.30614418,  -0.96669485,   0.        ,
              -0.3855565 ,  -1.09741136],
            [ 10.        ,   9.35306331,   8.46840949,  10.        ,
@@ -796,15 +762,14 @@ def ptmp(s, t, p, pr=0):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+       computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+       Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+       http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    .. [2] Bryden, H. 1973. New Polynomials for thermal expansion, adiabatic temperature gradient and potential temperature of sea water. Deep-Sea Res. Vol20,401-408. doi:10.1016/0011-7471(73)90063-6
-
-    Notes
-    -----
-    Modifications: 92-04-06. Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    .. [2] Bryden, H. 1973. New Polynomials for thermal expansion, adiabatic
+       temperature gradient and potential temperature of sea water. Deep-Sea
+       Res. Vol20,401-408. doi:10.1016/0011-7471(73)90063-6
 
     """
 
@@ -853,20 +818,19 @@ def salt(r, t, p):
     --------
     Data from UNESCO 1983 p9.
     >>> import seawater as sw
+    >>> from seawater.library import T90conv
     >>> r = [1, 1.2, 0.65]
-    >>> t = sw.T90conv([15, 20, 5])
+    >>> t = T90conv([15, 20, 5])
     >>> p = [0, 2000, 1500]
     >>> sw.salt(r, t, p)
     array([ 34.99999992,  37.24562765,  27.99534693])
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp. Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
-
-    Notes
-    -----
-    Modifications: 93-04-17. Phil Morgan.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+       computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+       Mar. Sci., No. 44, 53 pp. Eqn.(31) p.39.
+       http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
     """
     r, t, p = map(np.asanyarray, (r, t, p))
@@ -900,6 +864,7 @@ def svel(s, t, p):
     Data from Pond and Pickard Intro. Dynamical Oceanography 2nd ed. 1986
 
     >>> import seawater as sw
+    >>> from seawater.library import T90conv
     >>> t = T90conv([[  0,  0,  0,  0,  0,  0],
     ...              [ 10, 10, 10, 10, 10, 10],
     ...              [ 20, 20, 20, 20, 20, 20],
@@ -925,13 +890,10 @@ def svel(s, t, p):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
-
-    Notes
-    -----
-    Modifications: 93-04-20. Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+       computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+       Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+       http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
     """
     s, t, p = map(np.asanyarray, (s, t, p))
@@ -1009,20 +971,16 @@ def temp(s, pt, p, pr=0):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.  http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
-    .. [2] Bryden, H. 1973. New Polynomials for thermal expansion, adiabatic temperature gradient and potential temperature of sea water. Deep-Sea Res.  Vol20,401-408. doi:10.1016/0011-7471(73)90063-6
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+       computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+       Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+       http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    Notes
-    -----
-    Modifications: 92-04-06. Phil Morgan.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    .. [2] Bryden, H. 1973. New Polynomials for thermal expansion, adiabatic
+       temperature gradient and potential temperature of sea water. Deep-Sea
+       Res.  Vol20,401-408. doi:10.1016/0011-7471(73)90063-6
 
     """
     s, pt, p, pr = map(np.asanyarray, (s, pt, p, pr))
     # Carry out inverse calculation by swapping p0 & pr.
     return ptmp(s, pt, pr, p)
-
-
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()

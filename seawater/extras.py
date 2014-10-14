@@ -7,7 +7,7 @@
 # e-mail:   ocefpaf@gmail
 # web:      http://ocefpaf.github.io/
 # created:  05-Aug-2013
-# modified: Tue 20 Aug 2013 12:20:17 PM BRT
+# modified: Tue 14 Oct 2014 03:11:22 PM BRT
 #
 # obs:
 #
@@ -53,6 +53,8 @@ def dist(lat, lon, units='km'):
     Examples
     --------
     >>> import seawater as sw
+    >>> sw.dist(0, [-179, 180])
+    (array([ 111.12]), array([ 180.]))
     >>> lon = [35, 35]
     >>> lat = [41, 40]
     >>> sw.dist(lat, lon)
@@ -67,22 +69,13 @@ def dist(lat, lon, units='km'):
 
     References
     ----------
-    .. [1] The PLANE SAILING method as described in "CELESTIAL NAVIGATION" 1989 by Dr. P. Gormley. The Australian Antarctic Division.
-
-    Notes
-    -----
-    Modifications: 92-02-10. Phil Morgan and Steve Rintoul.
-                   99-06-25. Lindsay Pender, name change distance to sw_dist.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
+    .. [1] The PLANE SAILING method as described in "CELESTIAL NAVIGATION" 1989
+       by Dr. P. Gormley. The Australian Antarctic Division.
 
     """
 
     lon, lat = map(np.asanyarray, (lon, lat))
-
-    if lat.size == 1:
-        lat = np.repeat(lat, lon.size)
-    elif lon.size == 1:
-        lon = np.repeat(lon, lat.size)
+    lon, lat = np.broadcast_arrays(lon, lat)
 
     npositions = max(lon.shape)
 
@@ -134,17 +127,19 @@ def f(lat):
     --------
     >>> import seawater as sw
     >>> sw.f(45)
-    0.00010312607931384281
+    0.00010312445296824608
 
     References
     ----------
-    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
-    .. [2] A.E. Gill 1982. p.54  Eqn. 3.7.15 "Atmosphere-Ocean Dynamics" Academic Press: New York. ISBN: 0-12-283522-0
-    .. [3] Groten, E., 2004: Fundamental Parameters and Current (2004) Best Estimates of the Parameters of Common Relevance to Astronomy, Geodesy, and Geodynamics. Journal of Geodesy, 77, pp. 724-797.
+    .. [1] S. Pond & G.Pickard 2nd Edition 1986 Introductory Dynamical
+       Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
 
-    Notes
-    -----
-    Modifications: 93-04-20. Phil Morgan.
+    .. [2] A.E. Gill 1982. p.54  Eqn. 3.7.15 "Atmosphere-Ocean Dynamics"
+       Academic Press: New York. ISBN: 0-12-283522-0
+
+    .. [3] Groten, E., 2004: Fundamental Parameters and Current (2004) Best
+       Estimates of the Parameters of Common Relevance to Astronomy, Geodesy,
+       and Geodynamics. Journal of Geodesy, 77, pp. 724-797.
 
     """
     lat = np.asanyarray(lat)
@@ -172,7 +167,8 @@ def satAr(s, t):
     --------
     >>> # Data from Weiss 1970.
     >>> import seawater as sw
-    >>> t = sw.T90conv([[ -1, -1], [ 10, 10], [ 20, 20], [ 40, 40]])
+    >>> from seawater.library import T90conv
+    >>> t = T90conv([[ -1, -1], [ 10, 10], [ 20, 20], [ 40, 40]])
     >>> s = [[ 20, 40], [ 20, 40], [ 20, 40], [ 20, 40]]
     >>> sw.satAr(s, t)
     array([[ 0.4455784 ,  0.38766011],
@@ -182,13 +178,9 @@ def satAr(s, t):
 
     References
     ----------
-    .. [1] Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in Water and Seawater Deep-Sea Research Vol. 17, p. 721-735. doi:10.1016/0011-7471(70)90037-9
-
-    Notes
-    -----
-    Modifications: 97-11-05. Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    .. [1] Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in
+       Water and Seawater Deep-Sea Research Vol. 17, p. 721-735.
+       doi:10.1016/0011-7471(70)90037-9
 
     """
 
@@ -228,7 +220,8 @@ def satN2(s, t):
     --------
     >>> # Data from Weiss 1970.
     >>> import seawater as sw
-    >>> t = sw.T90conv([[ -1, -1], [ 10, 10], [ 20, 20], [ 40, 40]])
+    >>> from seawater.library import T90conv
+    >>> t = T90conv([[ -1, -1], [ 10, 10], [ 20, 20], [ 40, 40]])
     >>> s = [[ 20, 40], [ 20, 40], [ 20, 40], [ 20, 40]]
     >>> sw.satN2(s, t)
     array([[ 16.27952432,  14.00784526],
@@ -239,13 +232,9 @@ def satN2(s, t):
 
     References
     ----------
-    .. [1] Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in Water and Seawater Deep-Sea Research Vol. 17, p. 721-735. doi:10.1016/0011-7471(70)90037-9
-
-    Notes
-    -----
-    Modifications: 97-11-05. Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    .. [1] Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in
+       Water and Seawater Deep-Sea Research Vol. 17, p. 721-735.
+       doi:10.1016/0011-7471(70)90037-9
 
     """
 
@@ -285,7 +274,8 @@ def satO2(s, t):
     --------
     >>> # Data from Weiss 1970.
     >>> import seawater as sw
-    >>> t = sw.T90conv([[ -1, -1], [ 10, 10], [ 20, 20], [ 40, 40]])
+    >>> from seawater.library import T90conv
+    >>> t = T90conv([[ -1, -1], [ 10, 10], [ 20, 20], [ 40, 40]])
     >>> s = [[ 20, 40], [ 20, 40], [ 20, 40], [ 20, 40]]
     >>> sw.satO2(s, t)
     array([[ 9.162056  ,  7.98404249],
@@ -295,13 +285,9 @@ def satO2(s, t):
 
     References
     ----------
-    .. [1] Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in Water and Seawater Deep-Sea Research Vol. 17, p. 721-735. doi:10.1016/0011-7471(70)90037-9
-
-    Notes
-    -----
-    Modifications: 97-11-05. Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    .. [1] Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in
+       Water and Seawater Deep-Sea Research Vol. 17, p. 721-735.
+       doi:10.1016/0011-7471(70)90037-9
 
     """
 
@@ -341,16 +327,7 @@ def swvel(length, depth):
     >>> sw.swvel(10, 100)
     3.9493270848342941
 
-    Notes
-    -----
-    Modifications: Lindsay Pender 2005
-
     """
     length, depth = map(np.asanyarray, (length, depth))
     k = 2.0 * np.pi / length
     return np.sqrt(gdef * np.tanh(k * depth) / k)
-
-
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()

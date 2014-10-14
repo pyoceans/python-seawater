@@ -7,7 +7,7 @@
 # e-mail:   ocefpaf@gmail
 # web:      http://ocefpaf.github.io/
 # created:  03-Aug-2013
-# modified: Tue 06 Aug 2013 10:14:46 AM BRT
+# modified: Tue 14 Oct 2014 03:14:56 PM BRT
 #
 # obs:
 #
@@ -59,7 +59,7 @@ def cndr(s, t, p):
     --------
     >>> # Data from UNESCO 1983 p9.
     >>> import seawater as sw
-    >>> t = sw.T90conv([0, 10, 0, 10, 10, 30])
+    >>> t = T90conv([0, 10, 0, 10, 10, 30])
     >>> p = [0, 0, 1000, 1000, 0, 0]
     >>> s = [25, 25, 25, 25, 40, 40]
     >>> sw.cndr(s, t, p)
@@ -68,13 +68,10 @@ def cndr(s, t, p):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.UNESCO.org/images/0005/000598/059832eb.pdf
-
-    Notes
-    -----
-    Modifications: 93-04-21. Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+       computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+       Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+       http://unesdoc.UNESCO.org/images/0005/000598/059832eb.pdf
 
     """
 
@@ -115,7 +112,7 @@ def cndr(s, t, p):
     # Eqn(6) p.9 UNESCO 1983.
     Rt = Rx ** 2
     rt = salrt(t)
-    #Rtrt  = rt * Rt # NOTE: unused in the code, but present in the original
+    # Rtrt  = rt * Rt # NOTE: unused in the code, but present in the original.
     D = B - A * rt * Rt
     E = rt * Rt * A * (B + C)
     r = np.sqrt(np.abs(D ** 2 + 4 * E)) - D
@@ -145,18 +142,17 @@ def salds(rtx, delt):
     >>> # Data from UNESCO 1983 p9.
     >>> import numpy as np
     >>> import seawater as sw
-    >>> delt = sw.T90conv([15, 20, 5]) - 15
+    >>> delt = T90conv([15, 20, 5]) - 15
     >>> rtx  = np.array([ 1, 1.0568875, 0.81705885]) ** 0.5
     >>> sw.salds(rtx, delt)
     array([ 78.31921607,  81.5689307 ,  68.19023687])
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.UNESCO.org/images/0005/000598/059832eb.pdf
-
-    Notes
-    -----
-    Modifications: 93-04-21. Phil Morgan.
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+       computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+       Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+       http://unesdoc.UNESCO.org/images/0005/000598/059832eb.pdf
 
     """
 
@@ -198,19 +194,17 @@ def salrp(r, t, p):
     --------
     >>> import seawater as sw
     >>> r = [1, 1.2, 0.65]
-    >>> t = sw.T90conv([15, 20, 5])
+    >>> t = T90conv([15, 20, 5])
     >>> p = [0, 2000, 1500]
     >>> sw.salrp(r, t, p)
     array([ 1.        ,  1.01694294,  1.02048638])
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
-
-    Notes
-    -----
-    Modifications: 93-04-17. Phil Morgan.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+       computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+       Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+       http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
     """
 
@@ -247,18 +241,16 @@ def salrt(t):
     --------
     >>> # Data from UNESCO 1983 p9.
     >>> import seawater as sw
-    >>> t = sw.T90conv([15, 20, 5])
+    >>> t = T90conv([15, 20, 5])
     >>> sw.salrt(t)
     array([ 1.        ,  1.11649272,  0.77956585])
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
-
-    Notes
-    -----
-    Modifications: 93-04-17. Phil Morgan.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+       computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+       Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+       http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
     """
 
@@ -292,7 +284,7 @@ def seck(s, t, p=0):
     >>> # Data from Unesco Tech. Paper in Marine Sci. No. 44, p22.
     >>> import seawater as sw
     >>> s = [0, 0, 0, 0, 35, 35, 35, 35]
-    >>> t = sw.T90conv([0, 0, 30, 30, 0, 0, 30, 30])
+    >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
     >>> p = [0, 10000, 0, 10000, 0, 10000, 0, 10000]
     >>> sw.seck(s, t, p)
     array([ 19652.21      ,  22977.2115    ,  22336.0044572 ,  25656.8196222 ,
@@ -300,15 +292,14 @@ def seck(s, t, p=0):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+       computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+       Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+       http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    .. [2] Millero, F.J. and  Poisson, A. International one-atmosphere equation of state of seawater. Deep-Sea Res. 1981. Vol28A(6) pp625-629. doi:10.1016/0198-0149(81)90122-9
-
-    Notes
-    -----
-    Modifications: 92-11-05. Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    .. [2] Millero, F.J. and  Poisson, A. International one-atmosphere equation
+       of state of seawater. Deep-Sea Res. 1981. Vol28A(6) pp625-629.
+       doi:10.1016/0198-0149(81)90122-9
 
     """
 
@@ -367,19 +358,17 @@ def sals(rt, t):
     --------
     >>> # Data from UNESCO 1983 p9.
     >>> import seawater as sw
-    >>> t = sw.T90conv([15, 20, 5])
+    >>> t = T90conv([15, 20, 5])
     >>> rt = [1, 1.0568875, 0.81705885]
     >>> sw.sals(rt, t)
     array([ 35.        ,  37.24562718,  27.99534701])
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.UNESCO.org/images/0005/000598/059832eb.pdf
-
-    Notes
-    -----
-    Modifications: 93-04-17. Phil Morgan.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+       computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+       Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+       http://unesdoc.UNESCO.org/images/0005/000598/059832eb.pdf
 
     """
 
@@ -424,15 +413,14 @@ def smow(t):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for computation of fundamental properties of seawater. UNESCO Tech. Pap. in Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39. http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+       computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+       Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+       http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
-    .. [2] Millero, F.J. and  Poisson, A. International one-atmosphere equation of state of seawater. Deep-Sea Res. 1981. Vol28A(6) pp625-629. doi:10.1016/0198-0149(81)90122-9
-
-    Notes
-    -----
-    Modifications: 92-11-05. Phil Morgan.
-                   99-06-25. Lindsay Pender, Fixed transpose of row vectors.
-                   03-12-12. Lindsay Pender, Converted to ITS-90.
+    .. [2] Millero, F.J. and  Poisson, A. International one-atmosphere equation
+       of state of seawater. Deep-Sea Res. 1981. Vol28A(6) pp625-629.
+       doi:10.1016/0198-0149(81)90122-9
 
     """
 
@@ -472,12 +460,14 @@ def T68conv(T90):
     Examples
     --------
     >>> import seawater as sw
-    >>> sw.T68conv(19.995201151723585)
+    >>> T68conv(19.995201151723585)
     20.0
 
     References
     ----------
-    .. [1] Saunders, P. M., 1991: The International Temperature Scale of 1990, ITS-90. WOCE Newsletter, No. 10, WOCE International Project Office, Southampton, United Kingdom, 10.
+    .. [1] Saunders, P. M., 1991: The International Temperature Scale of 1990,
+       ITS-90. WOCE Newsletter, No. 10, WOCE International Project Office,
+       Southampton, United Kingdom, 10.
 
     """
     T90 = np.asanyarray(T90)
@@ -517,16 +507,19 @@ def T90conv(t, t_type='T68'):
 
     Examples
     --------
-    >>> import seawater as sw
-    >>> sw.T90conv(20.004799999999999)
+    >>> T90conv(20.004799999999999)
     20.0
-    >>> sw.T90conv(20., t_type='T48')
+    >>> T90conv(20., t_type='T48')
     19.988162840918179
 
     References
     ----------
-    .. [1] Saunders, P. M., 1991: The International Temperature Scale of 1990, ITS-90. WOCE Newsletter, No. 10, WOCE International Project Office, Southampton, United Kingdom, 10.
-    .. [2] International Temperature Scales of 1948, 1968 and 1990, an ICES note, available from http://www.ices.dk/ocean/procedures/its.htm
+    .. [1] Saunders, P. M., 1991: The International Temperature Scale of 1990,
+       ITS-90. WOCE Newsletter, No. 10, WOCE International Project Office,
+       Southampton, United Kingdom, 10.
+
+    .. [2] International Temperature Scales of 1948, 1968 and 1990, an ICES
+       note, available from http://www.ices.dk/ocean/procedures/its.htm
 
     """
 
