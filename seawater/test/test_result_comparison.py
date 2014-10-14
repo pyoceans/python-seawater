@@ -7,7 +7,7 @@
 # e-mail:   ocefpaf@gmail
 # web:      http://ocefpaf.github.io/
 # created:  05-Aug-2013
-# modified: Tue 14 Oct 2014 01:04:37 PM BRT
+# modified: Tue 14 Oct 2014 03:55:32 PM BRT
 #
 # obs:
 #
@@ -19,14 +19,15 @@ import os
 import unittest
 
 import numpy as np
+import seawater as sw
+from oct2py import octave
+from seawater.constants import c3515
+from seawater.library import T90conv, T68conv, atleast_2d
 
 rootpath = os.path.dirname(__file__)
-from oct2py import octave
 path = os.path.join(rootpath, 'seawater_v3_3')
 _ = octave.addpath(octave.genpath(path))
 
-import seawater as sw
-from seawater.constants import c3515
 
 functions = dict({'adtg': octave.sw_adtg,
                   'alpha': octave.sw_alpha,
@@ -325,6 +326,47 @@ class OctaveResultComparison(unittest.TestCase):
         function, args = (sw.gvel, ('Gpan', 'latst', 'lonst'))
         compare_results(name=name, function=function, args=args,
                         values=self.values)
+
+
+class TConv(unittest.TestCase):
+    def setUp(self):
+        self.temp = np.arange(-4., 45.)
+
+    def tearDown(self):
+        unittest.TestCase.tearDown(self)
+
+    def test_roundtrip(self):
+        T68 = T68conv(self.temp)
+        T90 = T90conv(T68, t_type='T68')
+        np.testing.assert_array_almost_equal(T90, self.temp)
+
+    def test_raise(self):
+        with self.assertRaises(NameError):
+            T90conv(self.temp, t_type='T10')
+
+
+class Arrays(unittest.TestCase):
+    def setUp(self):
+        self.res = np.array([[1],
+                             [2],
+                             [3]])
+
+    def tearDown(self):
+        unittest.TestCase.tearDown(self)
+
+    def test_atleast_0d(self):
+        np.testing.assert_equal(atleast_2d(1),
+                                np.array([[1]]))
+
+    def test_atleast_1d(self):
+        np.testing.assert_equal(atleast_2d([1, 2, 3]),
+                                self.res)
+
+    def test_atleast_2d(self):
+        np.testing.assert_equal(atleast_2d([[1], [2], [3]]),
+                                self.res)
+
+        atleast_2d([[1], [2], [3]])
 
 
 if __name__ == '__main__':
