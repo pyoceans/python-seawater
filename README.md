@@ -37,9 +37,9 @@ this that we simply ignore to avoid confusions.
 | 1000   | 34.5600   | 4.4036    |
 
 
-Check out the [test_octave.py](https://github.com/ocefpaf/python-seawater/blob/master/test/test_octave.py)
-script to test the Python library against an available MatlabTM library (all
-inside Python via the oct2py package).  The current version was tested against
+Check [test_octave.py](https://github.com/ocefpaf/python-seawater/blob/master/test/test_octave.py)
+out to test the Python library against an available MatlabTM library (all
+inside Python using the oct2py package).  The current version was tested against
 seawater v3.3.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.bash}
