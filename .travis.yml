@@ -1,38 +1,21 @@
 language: python
 
 env:
-    # oct2py hangs on py2.7
-    #- CONDA="python=2.7 numpy=1.7"
-    - CONDA="python=3.3 numpy"
-    - CONDA="python=3.4 numpy"
+    #- CONDA="python=2.7"
+    - CONDA="python=3.4"
 
 before_install:
     - sudo apt-add-repository -y ppa:picaso/octave
     - sudo apt-get update -qq
     - sudo apt-get install -qq octave liboctave-dev
-    - URL=http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh
-    - wget $URL -O miniconda.sh
+    - wget http://bit.ly/miniconda -O miniconda.sh
     - bash miniconda.sh -b -p $HOME/miniconda
     - export PATH="$HOME/miniconda/bin:$PATH"
-    - hash -r
-    - conda config --set always_yes yes
-    - conda update conda
-    - conda info -a
-    - travis_retry conda create -n test $CONDA numpy pip nose scipy
+    - conda update --yes conda
+    - travis_retry conda create --yes -n test $CONDA --file requirements.txt
     - source activate test
-    - travis_retry pip install coveralls
-    - travis_retry pip install oct2py
-
-install:
-    - export PYTHONWARNINGS=all
-    - python setup.py install
+    - travis_retry conda install --yes pip
+    - travis_retry pip install -r requirements-dev.txt
 
 script:
-    - if [[ $CONDA == python=2.7* ]]; then
-        nosetests --verbose seawater;
-      else
-        nosetests --verbose --with-doctest --with-cov --cover-package seawater;
-      fi
-
-after_success:
-    - coveralls
+    - python setup.py test
