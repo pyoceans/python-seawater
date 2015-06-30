@@ -3,8 +3,10 @@ python-seawater
 
 .. image:: https://badge.fury.io/py/seawater.png
    :target: http://badge.fury.io/py/seawater
-.. image:: https://api.travis-ci.org/ocefpaf/python-seawater.png?branch=master
-   :target: https://travis-ci.org/ocefpaf/python-seawater
+.. image:: https://api.travis-ci.org/pyoceans/python-seawater.png?branch=master
+   :target: https://travis-ci.org/pyoceans/python-seawater
+.. image:: https://zenodo.org/badge/doi/10.5281/zenodo.11395.png
+   :target: http://dx.doi.org/10.5281/zenodo.11395
 .. image:: http://bottlepy.org/docs/dev/_static/Gittip.png
    :target: https://www.gittip.com/ocefpaf/
 
@@ -44,10 +46,9 @@ at this that we simply ignore to avoid confusions.
 | 1000    | 34.5600   | 4.4036    |
 +---------+-----------+-----------+
 
-Check out the
-`test\_octave.py <https://github.com/ocefpaf/python-seawater/blob/master/test/test_octave.py>`__
-script to test the Python library against an available MatlabTM library
-(all inside Python via the oct2py package). The current version was
+Check `test\_octave.py <https://github.com/ocefpaf/python-seawater/blob/master/test/test_octave.py>`__
+out to test the Python library against an available MatlabTM library
+(all inside Python using the oct2py package). The current version was
 tested against seawater v3.3.
 
 .. code-block:: bash
