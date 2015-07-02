@@ -3,6 +3,3 @@ include LICENSE.txt
 include CHANGES.txt
 include LICENSE.CSIRO
 include seawater/*.py
-include seawater/test/*.csv
-include seawater/test/*.py
-include seawater/test/seawater_v3_3/*

@@ -1,18 +1,7 @@
 # -*- coding: utf-8 -*-
-#
-# geostrophic.py
-#
-# purpose:  Geostrophic velocity calculation.
-# author:   Filipe P. A. Fernandes
-# e-mail:   ocefpaf@gmail
-# web:      http://ocefpaf.github.io/
-# created:  05-Aug-2013
-# modified: Tue 14 Oct 2014 03:12:29 PM BRT
-#
-# obs:
-#
 
-from __future__ import division
+
+from __future__ import division, absolute_import
 
 import numpy as np
 
@@ -28,7 +17,7 @@ __all__ = ['bfrq',
 
 
 def bfrq(s, t, p, lat=None):
-    r"""
+    """
     Calculates Brünt-Väisälä Frequency squared (N :sup:`2`) at the mid
     depths from the equation:
 
@@ -86,9 +75,9 @@ def bfrq(s, t, p, lat=None):
 
     """
 
-    s, t, p = map(np.asanyarray, (s, t, p))
+    s, t, p = list(map(np.asanyarray, (s, t, p)))
     s, t, p = np.broadcast_arrays(s, t, p)
-    s, t, p = map(atleast_2d, (s, t, p))
+    s, t, p = list(map(atleast_2d, (s, t, p)))
 
     if lat is None:
         z, cor, grav = p, np.NaN, np.ones(p.shape) * gdef
@@ -163,12 +152,12 @@ def svan(s, t, p=0):
        Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X
 
     """
-    s, t, p = map(np.asanyarray, (s, t, p))
+    s, t, p = list(map(np.asanyarray, (s, t, p)))
     return 1 / dens(s, t, p) - 1 / dens(35, 0, p)
 
 
 def gpan(s, t, p):
-    r"""
+    """
     Geopotential Anomaly calculated as the integral of svan from the
     the sea surface to the bottom. THUS RELATIVE TO SEA SURFACE.
 
@@ -214,9 +203,9 @@ def gpan(s, t, p):
 
     """
 
-    s, t, p = map(np.asanyarray, (s, t, p))
+    s, t, p = list(map(np.asanyarray, (s, t, p)))
     s, t, p = np.broadcast_arrays(s, t, p)
-    s, t, p = map(atleast_2d, (s, t, p))
+    s, t, p = list(map(atleast_2d, (s, t, p)))
 
     svn = svan(s, t, p)
 
@@ -284,7 +273,7 @@ def gvel(ga, lat, lon):
 
     """
 
-    ga, lon, lat = map(np.asanyarray, (ga, lon, lat))
+    ga, lon, lat = list(map(np.asanyarray, (ga, lon, lat)))
     distm = dist(lat, lon, units='km')[0] * 1e3
     lf = f((lat[0:-1] + lat[1:]) / 2) * distm
     return -np.diff(ga, axis=1) / lf

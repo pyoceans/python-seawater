@@ -27,7 +27,7 @@ The Python version default output unit for sw.dist is 'km' instead of
 'nm'.
 
 Here we assume pressure as the first dimension, i.e. M pressure by N
-positions (See the table below). The MatlabTM version does some guessing
+positions (See the table below).  The MatlabTM version does some guessing
 at this that we simply ignore to avoid confusions.
 
 +---------+-----------+-----------+
@@ -46,13 +46,7 @@ at this that we simply ignore to avoid confusions.
 | 1000    | 34.5600   | 4.4036    |
 +---------+-----------+-----------+
 
-Check `test\_octave.py <https://github.com/ocefpaf/python-seawater/blob/master/test/test_octave.py>`__
-out to test the Python library against an available MatlabTM library
-(all inside Python using the oct2py package). The current version was
-tested against seawater v3.3.
-
-.. code-block:: bash
-
-    python test_octave.py ./path_to_sewater_toolbox
+The current version was tested against the MatlabTM seawater v3.3 reproducing
+all functions and results from that release.
 
 More information at http://pythonhosted.org/seawater

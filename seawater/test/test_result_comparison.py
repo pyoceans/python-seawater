@@ -1,30 +1,16 @@
-# -*- coding: utf-8 -*-
-#
-# test_result_comparison.py
-#
-# purpose:  Compare a dataset from python vs matlab (run on octave).
-# author:   Filipe P. A. Fernandes
-# e-mail:   ocefpaf@gmail
-# web:      http://ocefpaf.github.io/
-# created:  05-Aug-2013
-# modified: Tue 14 Oct 2014 03:55:32 PM BRT
-#
-# obs:
-#
-
-
-from __future__ import division
+from __future__ import division, absolute_import
 
 import os
 import unittest
 
 import numpy as np
 import seawater as sw
-from oct2py import octave
+from oct2py import Oct2Py
 from seawater.constants import c3515
 from seawater.library import T90conv, T68conv, atleast_2d
 
 rootpath = os.path.dirname(__file__)
+octave = Oct2Py(timeout=3)
 path = os.path.join(rootpath, 'seawater_v3_3')
 _ = octave.addpath(octave.genpath(path))
 
@@ -80,12 +66,11 @@ def compare_results(name, function, args, values):
 
 class OctaveResultComparison(unittest.TestCase):
     def setUp(self):
-        # TODO: More tests with station data.
         kw = dict(comments='#', skiprows=6, delimiter=',')
         station_61 = 'Endeavor_Cruise-88_Station-61.csv'
         station_64 = 'Endeavor_Cruise-88_Station-64.csv'
-        st61 = np.loadtxt(os.path.join(rootpath, station_61), **kw)
-        st64 = np.loadtxt(os.path.join(rootpath, station_64), **kw)
+        st61 = np.loadtxt(os.path.join(rootpath, 'data', station_61), **kw)
+        st64 = np.loadtxt(os.path.join(rootpath, 'data', station_64), **kw)
 
         latst = 36. + 40.03 / 60., 37. + 39.93 / 60.
         lonst = -(70. + 59.59 / 60.), -71.

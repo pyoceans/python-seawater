@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+Version 3.3.3
+
+* Unified code base for python 2 and 3, we no longer use 2to3 to convert.
+
 Version 3.3.2
 
 * Fixed py3k bug that prevent installation.

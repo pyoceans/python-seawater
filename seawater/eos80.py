@@ -1,19 +1,7 @@
 # -*- coding: utf-8 -*-
-#
-# eos80.py
-#
-# purpose:  Main seawater routines.
-# author:   Filipe P. A. Fernandes
-# e-mail:   ocefpaf@gmail
-# web:      http://ocefpaf.github.io/
-# created:  03-Aug-2013
-# modified: Tue 14 Oct 2014 03:09:55 PM BRT
-#
-# obs:
-#
 
 
-from __future__ import division
+from __future__ import division, absolute_import
 
 import numpy as np
 
@@ -97,8 +85,7 @@ def adtg(s, t, p):
        Res. Vol20,401-408. doi:10.1016/0011-7471(73)90063-6
 
     """
-
-    s, t, p = map(np.asanyarray, (s, t, p))
+    s, t, p = list(map(np.asanyarray, (s, t, p)))
 
     T68 = T68conv(t)
 
@@ -115,7 +102,7 @@ def adtg(s, t, p):
 
 
 def alpha(s, t, p, pt=False):
-    r"""
+    """
     Calculate the thermal expansion coefficient.
 
     Parameters
@@ -148,12 +135,12 @@ def alpha(s, t, p, pt=False):
        17, 1950-1964. doi: 10.1175/1520-0485(1987)017<1950:NS>2.0.CO;2
 
     """
-    s, t, p, pt = map(np.asanyarray, (s, t, p, pt))
+    s, t, p, pt = list(map(np.asanyarray, (s, t, p, pt)))
     return aonb(s, t, p, pt) * beta(s, t, p, pt)
 
 
 def aonb(s, t, p, pt=False):
-    r"""
+    """
     Calculate :math:`\alpha/\beta`.
 
     Parameters
@@ -188,7 +175,7 @@ def aonb(s, t, p, pt=False):
     """
 
     # Ensure we use ptmp in calculations.
-    s, t, p, pt = map(np.asanyarray, (s, t, p, pt))
+    s, t, p, pt = list(map(np.asanyarray, (s, t, p, pt)))
 
     if not pt:
         t = ptmp(s, t, p, 0)  # Now we have ptmp.
@@ -214,7 +201,7 @@ def aonb(s, t, p, pt=False):
 
 
 def beta(s, t, p, pt=False):
-    r"""
+    """
     Calculate the saline contraction coefficient :math:`\beta` as defined
     by T.J. McDougall.
 
@@ -249,7 +236,7 @@ def beta(s, t, p, pt=False):
 
     """
 
-    s, t, p, pt = map(np.asanyarray, (s, t, p, pt))
+    s, t, p, pt = list(map(np.asanyarray, (s, t, p, pt)))
 
     # Ensure we use ptmp in calculations
     if not pt:
@@ -328,7 +315,7 @@ def cp(s, t, p):
 
     """
 
-    s, t, p = map(np.asanyarray, (s, t, p))
+    s, t, p = list(map(np.asanyarray, (s, t, p)))
 
     p = p / 10.  # To convert [db] to [bar] as used in UNESCO routines.
     T68 = T68conv(t)
@@ -413,7 +400,7 @@ def dens0(s, t):
 
     """
 
-    s, t = map(np.asanyarray, (s, t))
+    s, t = list(map(np.asanyarray, (s, t)))
 
     T68 = T68conv(t)
 
@@ -469,7 +456,7 @@ def dens(s, t, p):
 
     """
 
-    s, t, p = map(np.asanyarray, (s, t, p))
+    s, t, p = list(map(np.asanyarray, (s, t, p)))
 
     # UNESCO 1983. Eqn..7  p.15.
     densP0 = dens0(s, t)
@@ -515,7 +502,7 @@ def dpth(p, lat):
        http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
     """
-    p, lat = map(np.asanyarray, (p, lat))
+    p, lat = list(map(np.asanyarray, (p, lat)))
 
     # Eqn 25, p26.  UNESCO 1983.
     c = [9.72659, -2.2512e-5, 2.279e-10, -1.82e-15]
@@ -570,7 +557,7 @@ def fp(s, p):
 
     """
 
-    s, p = map(np.asanyarray, (s, p))
+    s, p = list(map(np.asanyarray, (s, p)))
 
     # NOTE: P = P/10 # to convert db to Bar as used in UNESCO routines.
     # Eqn  p.29.
@@ -614,7 +601,7 @@ def g(lat, z=0):
 
     """
 
-    lat, z = map(np.asanyarray, (lat, z))
+    lat, z = list(map(np.asanyarray, (lat, z)))
 
     # Eqn p27.  UNESCO 1983.
     lat = np.abs(lat)
@@ -670,7 +657,7 @@ def pden(s, t, p, pr=0):
 
     """
 
-    s, t, p, pr = map(np.asanyarray, (s, t, p, pr))
+    s, t, p, pr = list(map(np.asanyarray, (s, t, p, pr)))
 
     pt = ptmp(s, t, p, pr)
     return dens(s, pt, pr)
@@ -706,7 +693,7 @@ def pres(depth, lat):
        doi: 10.1175/1520-0485(1981)011<0573:PCOPTD>2.0.CO;2
 
     """
-    depth, lat = map(np.asanyarray, (depth, lat))
+    depth, lat = list(map(np.asanyarray, (depth, lat)))
 
     X = np.sin(np.abs(lat * deg2rad))
     C1 = 5.92e-3 + X ** 2 * 5.25e-3
@@ -773,7 +760,7 @@ def ptmp(s, t, p, pr=0):
 
     """
 
-    s, t, p, pr = map(np.asanyarray, (s, t, p, pr))
+    s, t, p, pr = list(map(np.asanyarray, (s, t, p, pr)))
 
     # Theta1.
     del_P = pr - p
@@ -797,7 +784,7 @@ def ptmp(s, t, p, pr=0):
 
 
 def salt(r, t, p):
-    r"""
+    """
     Calculates Salinity from conductivity ratio. UNESCO 1983 polynomial.
 
     Parameters
@@ -833,7 +820,7 @@ def salt(r, t, p):
        http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
     """
-    r, t, p = map(np.asanyarray, (r, t, p))
+    r, t, p = list(map(np.asanyarray, (r, t, p)))
 
     rt = salrt(t)
     rp = salrp(r, t, p)
@@ -896,7 +883,7 @@ def svel(s, t, p):
        http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
     """
-    s, t, p = map(np.asanyarray, (s, t, p))
+    s, t, p = list(map(np.asanyarray, (s, t, p)))
 
     # UNESCO 1983. Eqn..33  p.46.
     p = p / 10  # Convert db to bars as used in UNESCO routines.
@@ -981,6 +968,6 @@ def temp(s, pt, p, pr=0):
        Res.  Vol20,401-408. doi:10.1016/0011-7471(73)90063-6
 
     """
-    s, pt, p, pr = map(np.asanyarray, (s, pt, p, pr))
+    s, pt, p, pr = list(map(np.asanyarray, (s, pt, p, pr)))
     # Carry out inverse calculation by swapping p0 & pr.
     return ptmp(s, pt, pr, p)
