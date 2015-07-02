@@ -119,7 +119,7 @@ def alpha(s, t, p, pt=False):
     Returns
     -------
     alpha : array_like
-            thermal expansion coeff :math:`\alpha` [℃ :sup:`-1`]
+            thermal expansion coeff :math:`\\alpha` [℃ :sup:`-1`]
 
     Examples
     --------
@@ -141,7 +141,7 @@ def alpha(s, t, p, pt=False):
 
 def aonb(s, t, p, pt=False):
     """
-    Calculate :math:`\alpha/\beta`.
+    Calculate :math:`\\alpha/\\beta`.
 
     Parameters
     ----------
@@ -157,7 +157,7 @@ def aonb(s, t, p, pt=False):
     Returns
     -------
     aonb : array_like
-           :math:`\alpha/\beta` [psu ℃ :sup:`-1`]
+           :math:`\\alpha/\\beta` [psu ℃ :sup:`-1`]
 
     Examples
     --------
@@ -202,7 +202,7 @@ def aonb(s, t, p, pt=False):
 
 def beta(s, t, p, pt=False):
     """
-    Calculate the saline contraction coefficient :math:`\beta` as defined
+    Calculate the saline contraction coefficient :math:`\\beta` as defined
     by T.J. McDougall.
 
     Parameters
@@ -644,7 +644,7 @@ def pden(s, t, p, pr=0):
     array([  999.842594  ,   999.79523994,   995.65113374,   996.36115932,
             1028.10633141,  1028.15738545,  1021.72863949,  1022.59634627])
 
-    :math:`\sigma_{4}` (at 4000 db)
+    :math:`\\sigma_{4}` (at 4000 db)
 
     >>> sw.pden(s, t, p, 4000) - 1000
     array([ 19.2895493 ,  19.33422519,  12.43271053,  13.27563816,
@@ -790,7 +790,7 @@ def salt(r, t, p):
     Parameters
     ----------
     r : array_like
-        conductivity ratio :math:`R = \frac{C(S,T,P)}{C(35,15(IPTS-68),0)}`
+        conductivity ratio :math:`R = \\frac{C(S,T,P)}{C(35,15(IPTS-68),0)}`
     t : array_like
         temperature [℃ (ITS-90)]
     p : array_like
@@ -814,9 +814,9 @@ def salt(r, t, p):
 
     References
     ----------
-    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
-       computation of fundamental properties of seawater. UNESCO Tech. Pap. in
-       Mar. Sci., No. 44, 53 pp. Eqn.(31) p.39.
+    .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983.  Algorithms for
+       computation of fundamental properties of seawater. UNESCO Tech. Pap.
+       in Mar. Sci., No. 44, 53 pp. Eqn.(31) p.39.
        http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
     """

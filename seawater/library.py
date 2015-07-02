@@ -110,20 +110,20 @@ def cndr(s, t, p):
 
 def salds(rtx, delt):
     """
-    Calculates Salinity differential (:math:`\frac{dS}{d(\sqrt{Rt})}`) at
+    Calculates Salinity differential (:math:`\\frac{dS}{d(\\sqrt{Rt})}`) at
     constant temperature.
 
     Parameters
     ----------
     rtx : array_like
-          :math:`\sqrt{rt}`
+          :math:`\\sqrt{rt}`
     delt : array_like
            t-15 [℃ (IPTS-68)]
 
     Returns
     -------
     ds : array_like
-         :math:`\frac{dS}{d rtx}`
+         :math:`\\frac{dS}{d rtx}`
 
     Examples
     --------
@@ -160,13 +160,13 @@ def salrp(r, t, p):
     Equation for Rp used in calculating salinity. UNESCO 1983 polynomial.
 
     .. math::
-        Rp(S,T,P) = \frac{C(S,T,P)}{C(S,T,0)}
+        Rp(S,T,P) = \\frac{C(S,T,P)}{C(S,T,0)}
 
 
     Parameters
     ----------
     r : array_like
-        conductivity ratio :math:`R = \frac{C(S,T,P)}{C(35,15(IPTS-68),0)}`
+        conductivity ratio :math:`R = \\frac{C(S,T,P)}{C(35,15(IPTS-68),0)}`
     t : array_like
         temperature [℃ (ITS-90)]
     p : array_like
@@ -175,7 +175,7 @@ def salrp(r, t, p):
     Returns
     -------
     rp : array_like
-        conductivity ratio :math:`Rp(S,T,P) = \frac{C(S,T,P)}{C(S,T,0)}`
+        conductivity ratio :math:`Rp(S,T,P) = \\frac{C(S,T,P)}{C(S,T,0)}`
 
     Examples
     --------
@@ -210,7 +210,7 @@ def salrt(t):
     Equation for rt used in calculating salinity. UNESCO 1983 polynomial.
 
     .. math::
-        rt(t) = \frac{C(35,t,0)}{C(35,15(\textrm{IPTS-68}), 0)}
+        rt(t) = \\frac{C(35,t,0)}{C(35,15(\\textrm{IPTS-68}), 0)}
 
 
     Parameters
@@ -329,7 +329,7 @@ def sals(rt, t):
     Parameters
     ----------
     rt : array_like
-         :math:`rt(s,t) = \frac{C(s,t,0)}{C(35, t(\textrm{IPTS-68}), 0)}`
+         :math:`rt(s,t) = \\frac{C(s,t,0)}{C(35, t(\\textrm{IPTS-68}), 0)}`
     t : array_like
         temperature [℃ (ITS-90)]
 
