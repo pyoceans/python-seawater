@@ -1,19 +1,7 @@
 # -*- coding: utf-8 -*-
-#
-# extras.py
-#
-# purpose:  Non EOS-08 functions.
-# author:   Filipe P. A. Fernandes
-# e-mail:   ocefpaf@gmail
-# web:      http://ocefpaf.github.io/
-# created:  05-Aug-2013
-# modified: Tue 14 Oct 2014 03:11:22 PM BRT
-#
-# obs:
-#
 
 
-from __future__ import division
+from __future__ import division, absolute_import
 
 import numpy as np
 from .library import T68conv
@@ -74,7 +62,7 @@ def dist(lat, lon, units='km'):
 
     """
 
-    lon, lat = map(np.asanyarray, (lon, lat))
+    lon, lat = list(map(np.asanyarray, (lon, lat)))
     lon, lat = np.broadcast_arrays(lon, lat)
 
     npositions = max(lon.shape)
@@ -100,7 +88,7 @@ def dist(lat, lon, units='km'):
 
 
 def f(lat):
-    r"""
+    """
     Calculates the Coriolis factor :math:`f` defined by:
 
     .. math::
@@ -184,7 +172,7 @@ def satAr(s, t):
 
     """
 
-    s, t = map(np.asanyarray, (s, t))
+    s, t = list(map(np.asanyarray, (s, t)))
 
     # Convert T to Kelvin.
     t = Kelvin + T68conv(t)
@@ -238,7 +226,7 @@ def satN2(s, t):
 
     """
 
-    s, t = map(np.asanyarray, (s, t))
+    s, t = list(map(np.asanyarray, (s, t)))
 
     # Convert T to Kelvin.
     t = Kelvin + T68conv(t)
@@ -291,7 +279,7 @@ def satO2(s, t):
 
     """
 
-    s, t = map(np.asanyarray, (s, t))
+    s, t = list(map(np.asanyarray, (s, t)))
 
     # Convert T to Kelvin.
     t = Kelvin + T68conv(t)
@@ -328,6 +316,6 @@ def swvel(length, depth):
     3.9493270848342941
 
     """
-    length, depth = map(np.asanyarray, (length, depth))
+    length, depth = list(map(np.asanyarray, (length, depth)))
     k = 2.0 * np.pi / length
     return np.sqrt(gdef * np.tanh(k * depth) / k)

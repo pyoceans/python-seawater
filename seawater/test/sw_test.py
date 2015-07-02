@@ -1,19 +1,4 @@
-# -*- coding: utf-8 -*-
-#
-# sw_test.py
-#
-# purpose:  Test to mimic matlab sw_test.m function.
-# author:   Filipe P. A. Fernandes
-# e-mail:   ocefpaf@gmail
-# web:      http://ocefpaf.github.io/
-# created:  05-Aug-2013
-# modified: Tue 14 Oct 2014 01:10:21 PM BRT
-#
-# obs:  Check the `test_result_comparison.py` for a more thorough code testing.
-#
-
-
-from __future__ import division
+from __future__ import division, absolute_import
 
 import sys
 from platform import uname
@@ -24,7 +9,10 @@ import seawater as sw
 
 
 def test(fileout='python-test.txt'):
-    """Copy of the Matlab test."""
+    """
+    Copy of the Matlab test.
+
+    """
     f = open(fileout, 'w')
     asterisks = '*' * 76
 

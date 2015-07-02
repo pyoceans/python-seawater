@@ -1,7 +1,7 @@
 language: python
 
 env:
-    #- CONDA="python=2.7"
+    - CONDA="python=2.7"
     - CONDA="python=3.4"
 
 before_install:

@@ -1,18 +1,7 @@
 # -*- coding: utf-8 -*-
-#
-# library.py
-#
-# purpose:  Low level routines.
-# author:   Filipe P. A. Fernandes
-# e-mail:   ocefpaf@gmail
-# web:      http://ocefpaf.github.io/
-# created:  03-Aug-2013
-# modified: Tue 14 Oct 2014 03:14:56 PM BRT
-#
-# obs:
-#
 
-from __future__ import division
+
+from __future__ import division, absolute_import
 
 import numpy as np
 
@@ -74,13 +63,12 @@ def cndr(s, t, p):
        http://unesdoc.UNESCO.org/images/0005/000598/059832eb.pdf
 
     """
-
-    s, t, p = map(np.asanyarray, (s, t, p))
+    s, t, p = list(map(np.asanyarray, (s, t, p)))
 
     T68 = T68conv(t)
 
     shape = s.shape
-    s, t = map(np.ravel, (s, t))
+    s, t = list(map(np.ravel, (s, t)))
     # Do a Newton-Raphson iteration for inverse interpolation of Rt from s.
     Rx = []
     for S, T in zip(s, t):
@@ -121,7 +109,7 @@ def cndr(s, t, p):
 
 
 def salds(rtx, delt):
-    r"""
+    """
     Calculates Salinity differential (:math:`\frac{dS}{d(\sqrt{Rt})}`) at
     constant temperature.
 
@@ -155,8 +143,7 @@ def salds(rtx, delt):
        http://unesdoc.UNESCO.org/images/0005/000598/059832eb.pdf
 
     """
-
-    rtx, delt = map(np.asanyarray, (rtx, delt))
+    rtx, delt = list(map(np.asanyarray, (rtx, delt)))
 
     ds = (a[1] +
           (2 * a[2] + (3 * a[3] + (4 * a[4] + 5 * a[5] * rtx) * rtx) * rtx) *
@@ -169,7 +156,7 @@ def salds(rtx, delt):
 
 
 def salrp(r, t, p):
-    r"""
+    """
     Equation for Rp used in calculating salinity. UNESCO 1983 polynomial.
 
     .. math::
@@ -207,8 +194,7 @@ def salrp(r, t, p):
        http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
     """
-
-    r, t, p = map(np.asanyarray, (r, t, p))
+    r, t, p = list(map(np.asanyarray, (r, t, p)))
 
     # Eqn(4) p.8 UNESCO.
     T68 = T68conv(t)
@@ -220,7 +206,7 @@ def salrp(r, t, p):
 
 
 def salrt(t):
-    r"""
+    """
     Equation for rt used in calculating salinity. UNESCO 1983 polynomial.
 
     .. math::
@@ -253,7 +239,6 @@ def salrt(t):
        http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
 
     """
-
     t = np.asanyarray(t)
     T68 = T68conv(t)
     # Eqn (3) p.7 UNESCO.
@@ -302,8 +287,7 @@ def seck(s, t, p=0):
        doi:10.1016/0198-0149(81)90122-9
 
     """
-
-    s, t, p = map(np.asanyarray, (s, t, p))
+    s, t, p = list(map(np.asanyarray, (s, t, p)))
 
     # Compute compression terms.
     p = p / 10.0  # Convert from db to atmospheric pressure units.
@@ -339,7 +323,7 @@ def seck(s, t, p=0):
 
 
 def sals(rt, t):
-    r"""
+    """
     Salinity of sea water as a function of Rt and T.  UNESCO 1983 polynomial.
 
     Parameters
@@ -371,8 +355,7 @@ def sals(rt, t):
        http://unesdoc.UNESCO.org/images/0005/000598/059832eb.pdf
 
     """
-
-    rt, t = map(np.asanyarray, (rt, t))
+    rt, t = list(map(np.asanyarray, (rt, t)))
 
     # Eqn (1) & (2) p6,7 UNESCO.
     del_T68 = T68conv(t) - 15
@@ -423,7 +406,6 @@ def smow(t):
        doi:10.1016/0198-0149(81)90122-9
 
     """
-
     t = np.asanyarray(t)
 
     a = (999.842594, 6.793952e-2, -9.095290e-3, 1.001685e-4, -1.120083e-6,
@@ -475,7 +457,7 @@ def T68conv(T90):
 
 
 def T90conv(t, t_type='T68'):
-    r"""
+    """
     Convert IPTS-68 or IPTS-48 to temperature to ITS-90.
 
     T48 apply to all data collected prior to 31/12/1967.
@@ -522,7 +504,6 @@ def T90conv(t, t_type='T68'):
        note, available from http://www.ices.dk/ocean/procedures/its.htm
 
     """
-
     t = np.asanyarray(t)
 
     if t_type == 'T68':

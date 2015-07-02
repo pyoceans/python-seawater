@@ -1,18 +1,4 @@
-# -*- coding: utf-8 -*-
-#
-# test_input_shapes.py
-#
-# purpose:  Test gpan with various input shapes.
-# author:   Filipe P. A. Fernandes
-# e-mail:   ocefpaf@gmail
-# web:      http://ocefpaf.github.io/
-# created:  06-Aug-2013
-# modified: Tue 14 Oct 2014 01:49:09 PM BRT
-#
-# obs:
-#
-
-from __future__ import division
+from __future__ import division, absolute_import
 
 import os
 import unittest
@@ -21,7 +7,7 @@ import numpy as np
 import seawater as sw
 
 rootpath = os.path.dirname(__file__)
-fname = os.path.join(rootpath, 'shapes.npz')
+fname = os.path.join(rootpath, 'data', 'shapes.npz')
 
 
 class InputShapes(unittest.TestCase):
