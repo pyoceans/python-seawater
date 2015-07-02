@@ -92,13 +92,13 @@ def f(lat):
     Calculates the Coriolis factor :math:`f` defined by:
 
     .. math::
-        f = 2 \Omega \sin(lat)
+        f = 2 \\Omega \\sin(lat)
 
     where:
 
     .. math::
-        \Omega = \frac{2 \pi}{\textrm{sidereal day}} = 7.2921150e^{-5}
-        \textrm{ radians sec}^{-1}
+        \\Omega = \\frac{2 \\pi}{\\textrm{sidereal day}} = 7.2921150e^{-5}
+        \\textrm{ radians sec}^{-1}
 
 
     Parameters

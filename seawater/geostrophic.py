@@ -22,12 +22,12 @@ def bfrq(s, t, p, lat=None):
     depths from the equation:
 
     .. math::
-        N^{2} = \frac{-g}{\sigma_{\theta}} \frac{d\sigma_{\theta}}{dz}
+        N^{2} = \\frac{-g}{\\sigma_{\\theta}} \\frac{d\\sigma_{\\theta}}{dz}
 
     Also calculates Potential Vorticity from:
 
     .. math::
-        q=f \frac{N^2}{g}
+        q = f \\frac{N^2}{g}
 
     Parameters
     ----------
