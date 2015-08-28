@@ -1,6 +1,6 @@
 from __future__ import division, absolute_import
 
-__version__ = '3.3.3'
+__version__ = '3.3.4'
 
 from .geostrophic import bfrq, svan, gpan, gvel
 from .extras import dist, f, satAr, satN2, satO2, swvel
