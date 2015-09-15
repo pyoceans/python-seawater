@@ -1,14 +1,26 @@
 python-seawater
 ===============
 
-.. image:: https://badge.fury.io/py/seawater.png
-   :target: http://badge.fury.io/py/seawater
-.. image:: https://api.travis-ci.org/pyoceans/python-seawater.png?branch=master
-   :target: https://travis-ci.org/pyoceans/python-seawater
+
 .. image:: https://zenodo.org/badge/doi/10.5281/zenodo.11395.png
    :target: http://dx.doi.org/10.5281/zenodo.11395
+   :alt: DOI
+.. image:: http://img.shields.io/pypi/v/seawater.svg?style=flat
+   :target: https://pypi.python.org/pypi/seawater
+   :alt: Version_status
+.. image:: http://img.shields.io/pypi/dm/seawater.svg?style=flat
+   :target: https://pypi.python.org/pypi/seawater
+   :alt: Downloads
+.. image:: http://img.shields.io/travis/pyoceans/python-seawater/master.svg?style=flat
+   :target: https://travis-ci.org/pyoceans/python-seawater
+   :alt: Build_status
+.. image:: http://img.shields.io/badge/license-MIT-blue.svg?style=flat
+   :target: https://github.com/pyoceans/python-seawater/blob/master/LICENSE.txt
+   :alt: license
 .. image:: http://bottlepy.org/docs/dev/_static/Gittip.png
-   :target: https://www.gittip.com/ocefpaf/
+   :target: https://gratipay.com/~ocefpaf/
+   :alt: Gittip
+
 
 This is a Python re-write of the CSIRO seawater toolbox
 (`SEAWATER-3.3 <http://www.cmar.csiro.au/datacentre/ext_docs/seawater.htm>`__)
