@@ -1,23 +1,20 @@
-# -*- coding: utf-8 -*-
-
-
-from __future__ import division, absolute_import
-
 import numpy as np
+
+from .constants import DEG2NM, NM2KM, OMEGA, Kelvin, deg2rad, gdef, rad2deg
 from .library import T68conv
-from .constants import OMEGA, DEG2NM, NM2KM, Kelvin, deg2rad, rad2deg, gdef
 
-__all__ = ['dist',
-           'f',
-           'satAr',
-           'satN2',
-           'satO2',
-           'swvel']
+__all__ = [
+    "dist",
+    "f",
+    "satAr",
+    "satN2",
+    "satO2",
+    "swvel",
+]
 
 
-def dist(lat, lon, units='km'):
-    """
-    Calculate distance between two positions on globe using the "Plane
+def dist(lat, lon, units="km"):
+    """Calculate distance between two positions on globe using the "Plane
     Sailing" method. Also uses simple geometry to calculate the bearing of
     the path between position pairs.
 
@@ -42,18 +39,18 @@ def dist(lat, lon, units='km'):
     --------
     >>> import seawater as sw
     >>> sw.dist(0, [-179, 180])
-    (array([ 111.12]), array([ 180.]))
+    (array([111.12]), array([180.]))
     >>> lon = [35, 35]
     >>> lat = [41, 40]
     >>> sw.dist(lat, lon)
-    (array([ 111.12]), array([-90.]))
+    (array([111.12]), array([-90.]))
     >>> # Create a distance vector.
-    >>> lon = np.arange(30,40,1)
+    >>> lon = np.arange(30, 40, 1)
     >>> lat = 35
-    >>> np.cumsum(np.append(0, sw.dist(lat, lon, units='km')[0]))
-    array([   0.        ,   91.02417516,  182.04835032,  273.07252548,
-            364.09670065,  455.12087581,  546.14505097,  637.16922613,
-            728.19340129,  819.21757645])
+    >>> np.cumsum(np.append(0, sw.dist(lat, lon, units="km")[0]))
+    array([  0.        ,  91.02417516, 182.04835032, 273.07252548,
+           364.09670065, 455.12087581, 546.14505097, 637.16922613,
+           728.19340129, 819.21757645])
 
     References
     ----------
@@ -61,7 +58,6 @@ def dist(lat, lon, units='km'):
        by Dr. P. Gormley. The Australian Antarctic Division.
 
     """
-
     lon, lat = list(map(np.asanyarray, (lon, lat)))
     lon, lat = np.broadcast_arrays(lon, lat)
 
@@ -70,16 +66,17 @@ def dist(lat, lon, units='km'):
     ind = np.arange(0, npositions - 1, 1)  # Index to first of position pairs.
 
     dlon = np.diff(lon, axis=0)
-    if np.any(np.abs(dlon) > 180):
-        flag = abs(dlon) > 180
-        dlon[flag] = -np.sign(dlon[flag]) * (360 - np.abs(dlon[flag]))
+    lon180, lon360 = 180, 360
+    if np.any(np.abs(dlon) > lon180):
+        flag = abs(dlon) > lon180
+        dlon[flag] = -np.sign(dlon[flag]) * (lon360 - np.abs(dlon[flag]))
 
     latrad = np.abs(lat * deg2rad)
     dep = np.cos((latrad[ind + 1] + latrad[ind]) / 2) * dlon
     dlat = np.diff(lat, axis=0)
-    dist = DEG2NM * (dlat ** 2 + dep ** 2) ** 0.5
+    dist = DEG2NM * (dlat**2 + dep**2) ** 0.5
 
-    if units == 'km':
+    if units == "km":
         dist = dist * NM2KM
 
     # Calculate angle to x axis.
@@ -88,8 +85,7 @@ def dist(lat, lon, units='km'):
 
 
 def f(lat):
-    """
-    Calculates the Coriolis factor :math:`f` defined by:
+    r"""Calculates the Coriolis factor :math:`f` defined by:
 
     .. math::
         f = 2 \\Omega \\sin(lat)
@@ -136,8 +132,7 @@ def f(lat):
 
 
 def satAr(s, t):
-    """
-    Solubility (saturation) of Argon (Ar) in sea water.
+    """Solubility (saturation) of Argon (Ar) in sea water.
 
     Parameters
     ----------
@@ -156,13 +151,13 @@ def satAr(s, t):
     >>> # Data from Weiss 1970.
     >>> import seawater as sw
     >>> from seawater.library import T90conv
-    >>> t = T90conv([[ -1, -1], [ 10, 10], [ 20, 20], [ 40, 40]])
-    >>> s = [[ 20, 40], [ 20, 40], [ 20, 40], [ 20, 40]]
+    >>> t = T90conv([[-1, -1], [10, 10], [20, 20], [40, 40]])
+    >>> s = [[20, 40], [20, 40], [20, 40], [20, 40]]
     >>> sw.satAr(s, t)
-    array([[ 0.4455784 ,  0.38766011],
-           [ 0.33970659,  0.29887756],
-           [ 0.27660227,  0.24566428],
-           [ 0.19861429,  0.17937698]])
+    array([[0.4455784 , 0.38766011],
+           [0.33970659, 0.29887756],
+           [0.27660227, 0.24566428],
+           [0.19861429, 0.17937698]])
 
     References
     ----------
@@ -171,7 +166,6 @@ def satAr(s, t):
        doi:10.1016/0011-7471(70)90037-9
 
     """
-
     s, t = list(map(np.asanyarray, (s, t)))
 
     # Convert T to Kelvin.
@@ -182,15 +176,19 @@ def satAr(s, t):
     b = [-0.034474, 0.014934, -0.0017729]
 
     # Eqn (4) of Weiss 1970.
-    lnC = (a[0] + a[1] * (100 / t) + a[2] * np.log(t / 100) + a[3] *
-           (t / 100) + s * (b[0] + b[1] * (t / 100) + b[2] * ((t / 100) ** 2)))
+    lnC = (
+        a[0]
+        + a[1] * (100 / t)
+        + a[2] * np.log(t / 100)
+        + a[3] * (t / 100)
+        + s * (b[0] + b[1] * (t / 100) + b[2] * ((t / 100) ** 2))
+    )
 
     return np.exp(lnC)
 
 
 def satN2(s, t):
-    """
-    Solubility (saturation) of Nitrogen (N2) in sea water.
+    """Solubility (saturation) of Nitrogen (N2) in sea water.
 
     Parameters
     ----------
@@ -209,14 +207,13 @@ def satN2(s, t):
     >>> # Data from Weiss 1970.
     >>> import seawater as sw
     >>> from seawater.library import T90conv
-    >>> t = T90conv([[ -1, -1], [ 10, 10], [ 20, 20], [ 40, 40]])
-    >>> s = [[ 20, 40], [ 20, 40], [ 20, 40], [ 20, 40]]
+    >>> t = T90conv([[-1, -1], [10, 10], [20, 20], [40, 40]])
+    >>> s = [[20, 40], [20, 40], [20, 40], [20, 40]]
     >>> sw.satN2(s, t)
-    array([[ 16.27952432,  14.00784526],
-           [ 12.64036196,  11.01277257],
-           [ 10.46892822,   9.21126859],
-           [  7.78163876,   6.95395099]])
-
+    array([[16.27952432, 14.00784526],
+           [12.64036196, 11.01277257],
+           [10.46892822,  9.21126859],
+           [ 7.78163876,  6.95395099]])
 
     References
     ----------
@@ -225,7 +222,6 @@ def satN2(s, t):
        doi:10.1016/0011-7471(70)90037-9
 
     """
-
     s, t = list(map(np.asanyarray, (s, t)))
 
     # Convert T to Kelvin.
@@ -236,15 +232,19 @@ def satN2(s, t):
     b = (-0.049781, 0.025018, -0.0034861)
 
     # Eqn (4) of Weiss 1970.
-    lnC = (a[0] + a[1] * (100 / t) + a[2] * np.log(t / 100) + a[3] *
-           (t / 100) + s * (b[0] + b[1] * (t / 100) + b[2] * ((t / 100) ** 2)))
+    lnC = (
+        a[0]
+        + a[1] * (100 / t)
+        + a[2] * np.log(t / 100)
+        + a[3] * (t / 100)
+        + s * (b[0] + b[1] * (t / 100) + b[2] * ((t / 100) ** 2))
+    )
 
     return np.exp(lnC)
 
 
 def satO2(s, t):
-    """
-    Solubility (saturation) of Oxygen (O2) in sea water.
+    """Solubility (saturation) of Oxygen (O2) in sea water.
 
     Parameters
     ----------
@@ -263,13 +263,13 @@ def satO2(s, t):
     >>> # Data from Weiss 1970.
     >>> import seawater as sw
     >>> from seawater.library import T90conv
-    >>> t = T90conv([[ -1, -1], [ 10, 10], [ 20, 20], [ 40, 40]])
-    >>> s = [[ 20, 40], [ 20, 40], [ 20, 40], [ 20, 40]]
+    >>> t = T90conv([[-1, -1], [10, 10], [20, 20], [40, 40]])
+    >>> s = [[20, 40], [20, 40], [20, 40], [20, 40]]
     >>> sw.satO2(s, t)
-    array([[ 9.162056  ,  7.98404249],
-           [ 6.95007741,  6.12101928],
-           [ 5.64401453,  5.01531004],
-           [ 4.0495115 ,  3.65575811]])
+    array([[9.162056  , 7.98404249],
+           [6.95007741, 6.12101928],
+           [5.64401453, 5.01531004],
+           [4.0495115 , 3.65575811]])
 
     References
     ----------
@@ -278,7 +278,6 @@ def satO2(s, t):
        doi:10.1016/0011-7471(70)90037-9
 
     """
-
     s, t = list(map(np.asanyarray, (s, t)))
 
     # Convert T to Kelvin.
@@ -289,15 +288,19 @@ def satO2(s, t):
     b = (-0.033096, 0.014259, -0.0017000)
 
     # Eqn (4) of Weiss 1970.
-    lnC = (a[0] + a[1] * (100 / t) + a[2] * np.log(t / 100) + a[3] *
-           (t / 100) + s * (b[0] + b[1] * (t / 100) + b[2] * ((t / 100) ** 2)))
+    lnC = (
+        a[0]
+        + a[1] * (100 / t)
+        + a[2] * np.log(t / 100)
+        + a[3] * (t / 100)
+        + s * (b[0] + b[1] * (t / 100) + b[2] * ((t / 100) ** 2))
+    )
 
     return np.exp(lnC)
 
 
 def swvel(length, depth):
-    """
-    Calculates surface wave velocity.
+    """Calculates surface wave velocity.
 
     length : array_like
             wave length
@@ -313,7 +316,7 @@ def swvel(length, depth):
     --------
     >>> import seawater as sw
     >>> sw.swvel(10, 100)
-    3.9493270848342941
+    3.949327084834294
 
     """
     length, depth = list(map(np.asanyarray, (length, depth)))

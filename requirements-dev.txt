@@ -1,3 +1,5 @@
-coveralls
-nose
+matplotlib
+numpydoc
 oct2py
+pytest
+sphinx

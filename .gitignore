@@ -1,0 +1,5 @@
+build/
+docs/_build/
+python-test.txt
+seawater.egg-info/
+seawater/_version.py

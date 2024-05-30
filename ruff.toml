@@ -1,0 +1,76 @@
+line-length = 90
+
+lint.select = ["ALL"]
+
+lint.ignore = [
+  "ANN001",  # Missing type annotation for function argument
+  "ANN002",  # Missing type annotation for `*arys`
+  "ANN101",  # Missing type annotation for `self` in method
+  "ANN201",  # Missing return type annotation for public function
+  "ANN202",  # Missing return type annotation for private function
+  "D100",  # Missing docstring in public module
+  "D101",  # Missing docstring in public class
+  "D102",  # Missing docstring in public method
+  "D203",  # 1 blank line required before class docstring
+  "D205",  # 1 blank line required between summary line and description
+  "D213",  # incompatible. Ignoring `multi-line-summary-second-line`
+  "D400",  # First line should end with a period
+  "D401",  # First line of docstring should be in imperative mood
+  "D415",  # First line should end with a period, question mark, or exclamation point
+  "D417",  # Missing argument descriptions in the docstring
+  "ERA001",  # Found commented-out code
+  "N802",  # Function name `test_satAr` should be lowercase
+  "N803",  # Argument name should be lowercase
+  "N806",  # Variable should be lowercase
+  "N816",  # Variable `db2Pascal` in global scope should not be mixedCase
+  "PLR2004",  # Magic value used in comparison
+  "TRY003",  # Avoid specifying long messages outside the exception class
+  "UP031",  # Use format specifiers instead of percent format
+]
+
+[lint.extend-per-file-ignores]
+"docs/conf.py" = [
+  "A001",  # builtin-variable-shadowing
+  "D100",  # Missing docstring in public module
+  "E402",  # Module level import not at top of file
+  "E501",  # Line too long
+  "ERA001",  # Found commented-out code
+  "ERA001",  # Found commented-out code
+  "EXE001",  # Shebang is present but file is not executable
+  "INP001"  #  File `docs/conf.py` is part of an implicit namespace package. Add an `__init__.py`.
+]
+"test_*.py" = [
+  "ANN001",  # Missing type annotation for function argument
+  "ANN201",  # Missing return type annotation for public function
+  "ANN202",  # Missing return type annotation for private function
+  "INP001",  # File is part of an implicit namespace package
+  "PD901",  # Avoid using the generic variable name `df` for DataFrames
+  "S101",  # Use of assert detected
+]
+"sw_test.py" = [
+  "INP001",  # File `seawater/test/sw_test.py` is part of an implicit namespace package. Add an `__init__.py`.
+  "C901",  # `test` is too complex (20 > 10)
+  "PLR0912",  # Too many branches (19 > 12)
+  "PLR0915",  # Too many statements (242 > 50)
+  "SIM115",  # Use context handler for opening files
+  "PTH123",  # `open()` should be replaced by `Path.open()`
+  "TD002",  # Missing author in TODO; try: `# TODO(<author_name>): ...` or `# TODO @<author_name>: ...`
+  "TD003",  # Missing issue link on the line following this TODO
+  "FIX002",  # Line contains TODO, consider resolving the issue
+]
+# nbqa-ruff acts on converted .py so we cannot glob .ipynb :-/
+# https://github.com/nbQA-dev/nbQA/issues/823
+"notebooks/*" = [
+  "ANN001",  # Missing type annotation for function argument
+  "ANN201",  # Missing return type annotation for public function
+  "B018",  # Found useless expression. Either assign it to a variable or remove it
+  "D100",  # Missing docstring in public module
+  "D103",  # Missing docstring in public function
+  "E402",  # Module level import not at top of file
+  "FBT003",  # Boolean positional value in function call
+  "INP001",  # File is part of an implicit namespace package
+  "PD901",  # Avoid using the generic variable name `df` for DataFrames
+  "T201",  # `print` found"
+]
+[lint.pycodestyle]
+max-doc-length = 180

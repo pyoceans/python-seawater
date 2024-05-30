@@ -1,5 +1,19 @@
-include README.rst
-include LICENSE.txt
-include CHANGES.txt
+include *.txt
+include README.md
+include pyproject.toml
 include LICENSE.CSIRO
-include seawater/*.py
+
+graft seawater
+
+prune .github
+prune *.egg-info
+prune docs
+prune seawater/tests
+
+exclude .coveragerc
+exclude ruff.toml
+exclude .gitignore
+exclude .isort.cfg
+exclude .pre-commit-config.yaml
+exclude *.yml
+exclude seawater/_version.py
