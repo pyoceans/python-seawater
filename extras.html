@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>extras &#8212; seawater 3.3.5 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css?v=87629129" />
+    <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+    <script src="_static/documentation_options.js?v=66b10fa0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="library" href="library.html" />
+    <link rel="prev" title="geostrophic" href="geostrophic.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="library.html" title="library"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="geostrophic.html" title="geostrophic"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">seawater 3.3.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><code class="xref py py-mod docutils literal notranslate"><span class="pre">extras</span></code></a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-seawater.extras">
+<span id="extras"></span><h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">extras</span></code><a class="headerlink" href="#module-seawater.extras" title="Link to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="seawater.extras.dist">
+<span class="sig-prename descclassname"><span class="pre">seawater.extras.</span></span><span class="sig-name descname"><span class="pre">dist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'km'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seawater.extras.dist" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate distance between two positions on globe using the “Plane
+Sailing” method. Also uses simple geometry to calculate the bearing of
+the path between position pairs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>lat</strong><span class="classifier">array_like</span></dt><dd><p>decimal degrees (+ve N, -ve S) [- 90.. +90]</p>
+</dd>
+<dt><strong>lon</strong><span class="classifier">array_like</span></dt><dd><p>decimal degrees (+ve E, -ve W) [-180..+180]</p>
+</dd>
+<dt><strong>units</strong><span class="classifier">string, optional</span></dt><dd><p>default kilometers</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>dist</strong><span class="classifier">array_like</span></dt><dd><p>distance between positions in units</p>
+</dd>
+<dt><strong>phaseangle</strong><span class="classifier">array_like</span></dt><dd><p>angle of line between stations with x axis (East).
+Range of values are -180..+180. (E=0, N=90, S=-90)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r90578ce7d61f-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>The PLANE SAILING method as described in “CELESTIAL NAVIGATION” 1989
+by Dr. P. Gormley. The Australian Antarctic Division.</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">seawater</span> <span class="k">as</span> <span class="nn">sw</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sw</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">179</span><span class="p">,</span> <span class="mi">180</span><span class="p">])</span>
+<span class="go">(array([111.12]), array([180.]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lon</span> <span class="o">=</span> <span class="p">[</span><span class="mi">35</span><span class="p">,</span> <span class="mi">35</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lat</span> <span class="o">=</span> <span class="p">[</span><span class="mi">41</span><span class="p">,</span> <span class="mi">40</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sw</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span>
+<span class="go">(array([111.12]), array([-90.]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create a distance vector.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lat</span> <span class="o">=</span> <span class="mi">35</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">sw</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;km&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="go">array([  0.        ,  91.02417516, 182.04835032, 273.07252548,</span>
+<span class="go">       364.09670065, 455.12087581, 546.14505097, 637.16922613,</span>
+<span class="go">       728.19340129, 819.21757645])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="seawater.extras.f">
+<span class="sig-prename descclassname"><span class="pre">seawater.extras.</span></span><span class="sig-name descname"><span class="pre">f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seawater.extras.f" title="Link to this definition">¶</a></dt>
+<dd><p>Calculates the Coriolis factor <span class="math notranslate nohighlight">\(f\)</span> defined by:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}f = 2 \\Omega \\sin(lat)\end{split}\]</div>
+<p>where:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\\Omega = \\frac{2 \\pi}{\\textrm{sidereal day}} = 7.2921150e^{-5}
+\\textrm{ radians sec}^{-1}\end{split}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>lat</strong><span class="classifier">array_like</span></dt><dd><p>latitude in decimal degrees north [-90..+90].</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>f</strong><span class="classifier">array_like</span></dt><dd><p>Coriolis factor [s <sup>-1</sup>]</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r8ecac899e1b2-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>S. Pond &amp; G.Pickard 2nd Edition 1986 Introductory Dynamical
+Oceanography Pergamon Press Sydney. ISBN 0-08-028728-X</p>
+</div>
+<div class="citation" id="r8ecac899e1b2-2" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>A.E. Gill 1982. p.54  Eqn. 3.7.15 “Atmosphere-Ocean Dynamics”
+Academic Press: New York. ISBN: 0-12-283522-0</p>
+</div>
+<div class="citation" id="r8ecac899e1b2-3" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
+<p>Groten, E., 2004: Fundamental Parameters and Current (2004) Best
+Estimates of the Parameters of Common Relevance to Astronomy, Geodesy,
+and Geodynamics. Journal of Geodesy, 77, pp. 724-797.</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">seawater</span> <span class="k">as</span> <span class="nn">sw</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sw</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="mi">45</span><span class="p">)</span>
+<span class="go">0.00010312445296824608</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="seawater.extras.satAr">
+<span class="sig-prename descclassname"><span class="pre">seawater.extras.</span></span><span class="sig-name descname"><span class="pre">satAr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seawater.extras.satAr" title="Link to this definition">¶</a></dt>
+<dd><p>Solubility (saturation) of Argon (Ar) in sea water.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>s</strong><span class="classifier">array_like</span></dt><dd><p>salinity [psu (PSS-78)]</p>
+</dd>
+<dt><strong>t</strong><span class="classifier">array_like</span></dt><dd><p>temperature [℃ (ITS-90)]</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>satAr</strong><span class="classifier">array_like</span></dt><dd><p>solubility of Ar [ml l <sup>-1</sup>]</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r97b8111fb19d-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in
+Water and Seawater Deep-Sea Research Vol. 17, p. 721-735.
+doi:10.1016/0011-7471(70)90037-9</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Data from Weiss 1970.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">seawater</span> <span class="k">as</span> <span class="nn">sw</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">seawater.library</span> <span class="kn">import</span> <span class="n">T90conv</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">T90conv</span><span class="p">([[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">40</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">40</span><span class="p">],</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">40</span><span class="p">],</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">40</span><span class="p">],</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">40</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sw</span><span class="o">.</span><span class="n">satAr</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+<span class="go">array([[0.4455784 , 0.38766011],</span>
+<span class="go">       [0.33970659, 0.29887756],</span>
+<span class="go">       [0.27660227, 0.24566428],</span>
+<span class="go">       [0.19861429, 0.17937698]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="seawater.extras.satN2">
+<span class="sig-prename descclassname"><span class="pre">seawater.extras.</span></span><span class="sig-name descname"><span class="pre">satN2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seawater.extras.satN2" title="Link to this definition">¶</a></dt>
+<dd><p>Solubility (saturation) of Nitrogen (N2) in sea water.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>s</strong><span class="classifier">array_like</span></dt><dd><p>salinity [psu (PSS-78)]</p>
+</dd>
+<dt><strong>t</strong><span class="classifier">array_like</span></dt><dd><p>temperature [℃ (ITS-90)]</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>satN2</strong><span class="classifier">array_like</span></dt><dd><p>solubility of N2  [ml l <sup>-1</sup>]</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="rc48bc3e194c9-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in
+Water and Seawater Deep-Sea Research Vol. 17, p. 721-735.
+doi:10.1016/0011-7471(70)90037-9</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Data from Weiss 1970.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">seawater</span> <span class="k">as</span> <span class="nn">sw</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">seawater.library</span> <span class="kn">import</span> <span class="n">T90conv</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">T90conv</span><span class="p">([[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">40</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">40</span><span class="p">],</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">40</span><span class="p">],</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">40</span><span class="p">],</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">40</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sw</span><span class="o">.</span><span class="n">satN2</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+<span class="go">array([[16.27952432, 14.00784526],</span>
+<span class="go">       [12.64036196, 11.01277257],</span>
+<span class="go">       [10.46892822,  9.21126859],</span>
+<span class="go">       [ 7.78163876,  6.95395099]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="seawater.extras.satO2">
+<span class="sig-prename descclassname"><span class="pre">seawater.extras.</span></span><span class="sig-name descname"><span class="pre">satO2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seawater.extras.satO2" title="Link to this definition">¶</a></dt>
+<dd><p>Solubility (saturation) of Oxygen (O2) in sea water.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>s</strong><span class="classifier">array_like</span></dt><dd><p>salinity [psu (PSS-78)]</p>
+</dd>
+<dt><strong>t</strong><span class="classifier">array_like</span></dt><dd><p>temperature [℃ (ITS-68)]</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>satO2</strong><span class="classifier">array_like</span></dt><dd><p>solubility of O2  [ml l <sup>-1</sup> ]</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="ra88d7b430341-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Weiss, R. F. 1970. The Solubility of Nitrogen, Oxygen and Argon in
+Water and Seawater Deep-Sea Research Vol. 17, p. 721-735.
+doi:10.1016/0011-7471(70)90037-9</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Data from Weiss 1970.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">seawater</span> <span class="k">as</span> <span class="nn">sw</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">seawater.library</span> <span class="kn">import</span> <span class="n">T90conv</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">T90conv</span><span class="p">([[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">40</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">40</span><span class="p">],</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">40</span><span class="p">],</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">40</span><span class="p">],</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">40</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sw</span><span class="o">.</span><span class="n">satO2</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+<span class="go">array([[9.162056  , 7.98404249],</span>
+<span class="go">       [6.95007741, 6.12101928],</span>
+<span class="go">       [5.64401453, 5.01531004],</span>
+<span class="go">       [4.0495115 , 3.65575811]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="seawater.extras.swvel">
+<span class="sig-prename descclassname"><span class="pre">seawater.extras.</span></span><span class="sig-name descname"><span class="pre">swvel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seawater.extras.swvel" title="Link to this definition">¶</a></dt>
+<dd><p>Calculates surface wave velocity.</p>
+<dl class="simple">
+<dt>length<span class="classifier">array_like</span></dt><dd><p>wave length</p>
+</dd>
+<dt>depth<span class="classifier">array_like</span></dt><dd><p>water depth [meters]</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>speed</strong><span class="classifier">array_like</span></dt><dd><p>surface wave speed [m s <sup>-1</sup>]</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">seawater</span> <span class="k">as</span> <span class="nn">sw</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sw</span><span class="o">.</span><span class="n">swvel</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="go">3.949327084834294</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">extras</span></code></a><ul>
+<li><a class="reference internal" href="#seawater.extras.dist"><code class="docutils literal notranslate"><span class="pre">dist()</span></code></a></li>
+<li><a class="reference internal" href="#seawater.extras.f"><code class="docutils literal notranslate"><span class="pre">f()</span></code></a></li>
+<li><a class="reference internal" href="#seawater.extras.satAr"><code class="docutils literal notranslate"><span class="pre">satAr()</span></code></a></li>
+<li><a class="reference internal" href="#seawater.extras.satN2"><code class="docutils literal notranslate"><span class="pre">satN2()</span></code></a></li>
+<li><a class="reference internal" href="#seawater.extras.satO2"><code class="docutils literal notranslate"><span class="pre">satO2()</span></code></a></li>
+<li><a class="reference internal" href="#seawater.extras.swvel"><code class="docutils literal notranslate"><span class="pre">swvel()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="geostrophic.html"
+                          title="previous chapter"><code class="xref py py-mod docutils literal notranslate"><span class="pre">geostrophic</span></code></a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="library.html"
+                          title="next chapter"><code class="xref py py-mod docutils literal notranslate"><span class="pre">library</span></code></a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/extras.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="library.html" title="library"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="geostrophic.html" title="geostrophic"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">seawater 3.3.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><code class="xref py py-mod docutils literal notranslate"><span class="pre">extras</span></code></a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2010-2024, Filipe Fernandes.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>library &#8212; seawater 3.3.5 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css?v=87629129" />
+    <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+    <script src="_static/documentation_options.js?v=66b10fa0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="extras" href="extras.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="extras.html" title="extras"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">seawater 3.3.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><code class="xref py py-mod docutils literal notranslate"><span class="pre">library</span></code></a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-seawater.library">
+<span id="library"></span><h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">library</span></code><a class="headerlink" href="#module-seawater.library" title="Link to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="seawater.library.T68conv">
+<span class="sig-prename descclassname"><span class="pre">seawater.library.</span></span><span class="sig-name descname"><span class="pre">T68conv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T90</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seawater.library.T68conv" title="Link to this definition">¶</a></dt>
+<dd><p>Convert ITS-90 temperature to IPTS-68.</p>
+<p><span class="math notranslate nohighlight">\(T68  = T90 * 1.00024\)</span></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>t</strong><span class="classifier">array_like</span></dt><dd><p>temperature [℃ (ITS-90)]</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>t</strong><span class="classifier">array_like</span></dt><dd><p>temperature [℃ (IPTS-68)]</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The International Practical Temperature Scale of 1968 (IPTS-68) need to be
+correct to the ITS-90. This linear transformation is accurate within
+0.5 ℃ for conversion between IPTS-68 and ITS-90 over the
+oceanographic temperature range.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r47560733db95-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Saunders, P. M., 1991: The International Temperature Scale of 1990,
+ITS-90. WOCE Newsletter, No. 10, WOCE International Project Office,
+Southampton, United Kingdom, 10.</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">seawater</span> <span class="k">as</span> <span class="nn">sw</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">T68conv</span><span class="p">(</span><span class="mf">19.995201151723585</span><span class="p">)</span>
+<span class="go">20.0</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="seawater.library.T90conv">
+<span class="sig-prename descclassname"><span class="pre">seawater.library.</span></span><span class="sig-name descname"><span class="pre">T90conv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'T68'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seawater.library.T90conv" title="Link to this definition">¶</a></dt>
+<dd><p>Convert IPTS-68 or IPTS-48 to temperature to ITS-90.</p>
+<p>T48 apply to all data collected prior to 31/12/1967.
+T68 apply to all data collected between 01/10/1968 and 31/12/1989.</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}T90 = T68 / 1.00024\\T90 = T48 - (4.4e-6) * T48 * (100-T48) ) / 1.00024\end{aligned}\end{align} \]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>t</strong><span class="classifier">array_like</span></dt><dd><p>temperature [℃ (IPTS-68) or (IPTS-48)]</p>
+</dd>
+<dt><strong>t_type</strong><span class="classifier">string, optional</span></dt><dd><p>‘T68’ (default) or ‘T48’</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>T90</strong><span class="classifier">array_like</span></dt><dd><p>temperature [℃ (ITS-90)]</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The International Practical Temperature Scale of 1968 (IPTS-68) need to be
+correct to the ITS-90. This linear transformation is accurate within
+0.5 ℃ for conversion between IPTS-68 and ITS-90 over the
+oceanographic temperature range.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="re9391c731eed-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Saunders, P. M., 1991: The International Temperature Scale of 1990,
+ITS-90. WOCE Newsletter, No. 10, WOCE International Project Office,
+Southampton, United Kingdom, 10.</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">T90conv</span><span class="p">(</span><span class="mf">20.004799999999999</span><span class="p">)</span>
+<span class="go">20.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">T90conv</span><span class="p">(</span><span class="mf">20.0</span><span class="p">,</span> <span class="n">t_type</span><span class="o">=</span><span class="s2">&quot;T48&quot;</span><span class="p">)</span>
+<span class="go">19.98816284091818</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="seawater.library.cndr">
+<span class="sig-prename descclassname"><span class="pre">seawater.library.</span></span><span class="sig-name descname"><span class="pre">cndr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seawater.library.cndr" title="Link to this definition">¶</a></dt>
+<dd><p>Calculates conductivity ratio.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>s(p)</strong><span class="classifier">array_like</span></dt><dd><p>salinity [psu (PSS-78)]</p>
+</dd>
+<dt><strong>t(p)</strong><span class="classifier">array_like</span></dt><dd><p>temperature [℃ (ITS-90)]</p>
+</dd>
+<dt><strong>p</strong><span class="classifier">array_like</span></dt><dd><p>pressure [db]</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>cndr</strong><span class="classifier">array_like</span></dt><dd><p>conductivity ratio. R = C(s,t,p) / C(35,15(IPTS-68),0) [no units]</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r8c4cfcf262f1-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+<a class="reference external" href="https://unesdoc.unesco.org/ark:/48223/pf0000059832_eng">https://unesdoc.unesco.org/ark:/48223/pf0000059832_eng</a></p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Data from UNESCO 1983 p9.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">seawater</span> <span class="k">as</span> <span class="nn">sw</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">T90conv</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">40</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sw</span><span class="o">.</span><span class="n">cndr</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+<span class="go">array([0.49800825, 0.65499015, 0.50624434, 0.66297496, 1.00007311,</span>
+<span class="go">       1.52996697])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="seawater.library.salds">
+<span class="sig-prename descclassname"><span class="pre">seawater.library.</span></span><span class="sig-name descname"><span class="pre">salds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rtx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seawater.library.salds" title="Link to this definition">¶</a></dt>
+<dd><p>Calculates Salinity differential (<span class="math notranslate nohighlight">\(\\frac{dS}{d(\\sqrt{Rt})}\)</span>) at
+constant temperature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>rtx</strong><span class="classifier">array_like</span></dt><dd><p><span class="math notranslate nohighlight">\(\\sqrt{rt}\)</span></p>
+</dd>
+<dt><strong>delt</strong><span class="classifier">array_like</span></dt><dd><p>t-15 [℃ (IPTS-68)]</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>ds</strong><span class="classifier">array_like</span></dt><dd><p><span class="math notranslate nohighlight">\(\\frac{dS}{d rtx}\)</span></p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="ra67bded3708d-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+<a class="reference external" href="https://unesdoc.unesco.org/ark:/48223/pf0000059832_eng">https://unesdoc.unesco.org/ark:/48223/pf0000059832_eng</a></p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Data from UNESCO 1983 p9.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">seawater</span> <span class="k">as</span> <span class="nn">sw</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">delt</span> <span class="o">=</span> <span class="n">T90conv</span><span class="p">([</span><span class="mi">15</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span> <span class="o">-</span> <span class="mi">15</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rtx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.0568875</span><span class="p">,</span> <span class="mf">0.81705885</span><span class="p">])</span> <span class="o">**</span> <span class="mf">0.5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sw</span><span class="o">.</span><span class="n">salds</span><span class="p">(</span><span class="n">rtx</span><span class="p">,</span> <span class="n">delt</span><span class="p">)</span>
+<span class="go">array([78.31921607, 81.5689307 , 68.19023687])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="seawater.library.salrp">
+<span class="sig-prename descclassname"><span class="pre">seawater.library.</span></span><span class="sig-name descname"><span class="pre">salrp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seawater.library.salrp" title="Link to this definition">¶</a></dt>
+<dd><p>Equation for Rp used in calculating salinity. UNESCO 1983 polynomial.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}Rp(S,T,P) = \\frac{C(S,T,P)}{C(S,T,0)}\end{split}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>r</strong><span class="classifier">array_like</span></dt><dd><p>conductivity ratio <span class="math notranslate nohighlight">\(R = \\frac{C(S,T,P)}{C(35,15(IPTS-68),0)}\)</span></p>
+</dd>
+<dt><strong>t</strong><span class="classifier">array_like</span></dt><dd><p>temperature [℃ (ITS-90)]</p>
+</dd>
+<dt><strong>p</strong><span class="classifier">array_like</span></dt><dd><p>pressure [db]</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>rp</strong><span class="classifier">array_like</span></dt><dd><p>conductivity ratio <span class="math notranslate nohighlight">\(Rp(S,T,P) = \\frac{C(S,T,P)}{C(S,T,0)}\)</span></p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r05c6769de150-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+<a class="reference external" href="https://unesdoc.unesco.org/ark:/48223/pf0000059832_eng">https://unesdoc.unesco.org/ark:/48223/pf0000059832_eng</a></p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">seawater</span> <span class="k">as</span> <span class="nn">sw</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="mf">0.65</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">T90conv</span><span class="p">([</span><span class="mi">15</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">1500</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sw</span><span class="o">.</span><span class="n">salrp</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+<span class="go">array([1.        , 1.01694294, 1.02048638])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="seawater.library.salrt">
+<span class="sig-prename descclassname"><span class="pre">seawater.library.</span></span><span class="sig-name descname"><span class="pre">salrt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seawater.library.salrt" title="Link to this definition">¶</a></dt>
+<dd><p>Equation for rt used in calculating salinity. UNESCO 1983 polynomial.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}rt(t) = \\frac{C(35,t,0)}{C(35,15(\\textrm{IPTS-68}), 0)}\end{split}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>t</strong><span class="classifier">array_like</span></dt><dd><p>temperature [℃ (ITS-90)]</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>rt</strong><span class="classifier">array_like</span></dt><dd></dd>
+<dt>conductivity ratio  [no units]</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r9b5e42ecbdf0-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+<a class="reference external" href="https://unesdoc.unesco.org/ark:/48223/pf0000059832_eng">https://unesdoc.unesco.org/ark:/48223/pf0000059832_eng</a></p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Data from UNESCO 1983 p9.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">seawater</span> <span class="k">as</span> <span class="nn">sw</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">T90conv</span><span class="p">([</span><span class="mi">15</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sw</span><span class="o">.</span><span class="n">salrt</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+<span class="go">array([1.        , 1.11649272, 0.77956585])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="seawater.library.sals">
+<span class="sig-prename descclassname"><span class="pre">seawater.library.</span></span><span class="sig-name descname"><span class="pre">sals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seawater.library.sals" title="Link to this definition">¶</a></dt>
+<dd><p>Salinity of sea water as a function of Rt and T.  UNESCO 1983 polynomial.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>rt</strong><span class="classifier">array_like</span></dt><dd><p><span class="math notranslate nohighlight">\(rt(s,t) = \\frac{C(s,t,0)}{C(35, t(\\textrm{IPTS-68}), 0)}\)</span></p>
+</dd>
+<dt><strong>t</strong><span class="classifier">array_like</span></dt><dd><p>temperature [℃ (ITS-90)]</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>s</strong><span class="classifier">array_like</span></dt><dd><p>salinity [psu (PSS-78)]</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="rbeef6f71076c-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+<a class="reference external" href="https://unesdoc.unesco.org/ark:/48223/pf0000059832_eng">https://unesdoc.unesco.org/ark:/48223/pf0000059832_eng</a></p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Data from UNESCO 1983 p9.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">seawater</span> <span class="k">as</span> <span class="nn">sw</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">T90conv</span><span class="p">([</span><span class="mi">15</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rt</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.0568875</span><span class="p">,</span> <span class="mf">0.81705885</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sw</span><span class="o">.</span><span class="n">sals</span><span class="p">(</span><span class="n">rt</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+<span class="go">array([35.        , 37.24562718, 27.99534701])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="seawater.library.seck">
+<span class="sig-prename descclassname"><span class="pre">seawater.library.</span></span><span class="sig-name descname"><span class="pre">seck</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seawater.library.seck" title="Link to this definition">¶</a></dt>
+<dd><p>Secant Bulk Modulus (K) of Sea Water using Equation of state 1980.
+UNESCO polynomial implementation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>s(p)</strong><span class="classifier">array_like</span></dt><dd><p>salinity [psu (PSS-78)]</p>
+</dd>
+<dt><strong>t(p)</strong><span class="classifier">array_like</span></dt><dd><p>temperature [℃ (ITS-90)]</p>
+</dd>
+<dt><strong>p</strong><span class="classifier">array_like</span></dt><dd><p>pressure [db].</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>k</strong><span class="classifier">array_like</span></dt><dd><p>secant bulk modulus [bars]</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r92196bacf44c-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+<a class="reference external" href="https://unesdoc.unesco.org/ark:/48223/pf0000059832_eng">https://unesdoc.unesco.org/ark:/48223/pf0000059832_eng</a></p>
+</div>
+<div class="citation" id="r92196bacf44c-2" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>Millero, F.J. and  Poisson, A. International one-atmosphere equation
+of state of seawater. Deep-Sea Res. 1981. Vol28A(6) pp625-629.
+doi:10.1016/0198-0149(81)90122-9</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Data from Unesco Tech. Paper in Marine Sci. No. 44, p22.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">seawater</span> <span class="k">as</span> <span class="nn">sw</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">35</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">T90conv</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10000</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10000</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10000</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10000</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sw</span><span class="o">.</span><span class="n">seck</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+<span class="go">array([19652.21      , 22977.2115    , 22336.0044572 , 25656.8196222 ,</span>
+<span class="go">       21582.27006823, 24991.99729129, 23924.21823158, 27318.32472464])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="seawater.library.smow">
+<span class="sig-prename descclassname"><span class="pre">seawater.library.</span></span><span class="sig-name descname"><span class="pre">smow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#seawater.library.smow" title="Link to this definition">¶</a></dt>
+<dd><p>Density of Standard Mean Ocean Water (Pure Water) using EOS 1980.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>t</strong><span class="classifier">array_like</span></dt><dd><p>temperature [℃ (ITS-90)]</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>dens(t)</strong><span class="classifier">array_like</span></dt><dd><p>density  [kg m <sup>3</sup>]</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="rfc4a19747d47-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
+computation of fundamental properties of seawater. UNESCO Tech. Pap. in
+Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
+<a class="reference external" href="https://unesdoc.unesco.org/ark:/48223/pf0000059832_eng">https://unesdoc.unesco.org/ark:/48223/pf0000059832_eng</a></p>
+</div>
+<div class="citation" id="rfc4a19747d47-2" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>Millero, F.J. and  Poisson, A. International one-atmosphere equation
+of state of seawater. Deep-Sea Res. 1981. Vol28A(6) pp625-629.
+doi:10.1016/0198-0149(81)90122-9</p>
+</div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Data from UNESCO Tech. Paper in Marine Sci. No. 44, p22.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">seawater</span> <span class="k">as</span> <span class="nn">sw</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">T90conv</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sw</span><span class="o">.</span><span class="n">smow</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+<span class="go">array([999.842594  , 999.842594  , 995.65113374, 995.65113374,</span>
+<span class="go">       999.842594  , 999.842594  , 995.65113374, 995.65113374])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">library</span></code></a><ul>
+<li><a class="reference internal" href="#seawater.library.T68conv"><code class="docutils literal notranslate"><span class="pre">T68conv()</span></code></a></li>
+<li><a class="reference internal" href="#seawater.library.T90conv"><code class="docutils literal notranslate"><span class="pre">T90conv()</span></code></a></li>
+<li><a class="reference internal" href="#seawater.library.cndr"><code class="docutils literal notranslate"><span class="pre">cndr()</span></code></a></li>
+<li><a class="reference internal" href="#seawater.library.salds"><code class="docutils literal notranslate"><span class="pre">salds()</span></code></a></li>
+<li><a class="reference internal" href="#seawater.library.salrp"><code class="docutils literal notranslate"><span class="pre">salrp()</span></code></a></li>
+<li><a class="reference internal" href="#seawater.library.salrt"><code class="docutils literal notranslate"><span class="pre">salrt()</span></code></a></li>
+<li><a class="reference internal" href="#seawater.library.sals"><code class="docutils literal notranslate"><span class="pre">sals()</span></code></a></li>
+<li><a class="reference internal" href="#seawater.library.seck"><code class="docutils literal notranslate"><span class="pre">seck()</span></code></a></li>
+<li><a class="reference internal" href="#seawater.library.smow"><code class="docutils literal notranslate"><span class="pre">smow()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="extras.html"
+                          title="previous chapter"><code class="xref py py-mod docutils literal notranslate"><span class="pre">extras</span></code></a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/library.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="extras.html" title="extras"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">seawater 3.3.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><code class="xref py py-mod docutils literal notranslate"><span class="pre">library</span></code></a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2010-2024, Filipe Fernandes.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+    </div>
+  </body>
+</html>
