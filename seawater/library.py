@@ -1,20 +1,16 @@
-# -*- coding: utf-8 -*-
-
-
-from __future__ import division, absolute_import
-
 import numpy as np
 
-
-__all__ = ['cndr',
-           'salds',
-           'salrp',
-           'salrt',
-           'seck',
-           'sals',
-           'smow',
-           'T68conv',
-           'T90conv']
+__all__ = [
+    "cndr",
+    "salds",
+    "salrp",
+    "salrt",
+    "seck",
+    "sals",
+    "smow",
+    "T68conv",
+    "T90conv",
+]
 
 
 # Constants.
@@ -27,8 +23,7 @@ k = 0.0162
 
 
 def cndr(s, t, p):
-    """
-    Calculates conductivity ratio.
+    """Calculates conductivity ratio.
 
     Parameters
     ----------
@@ -52,15 +47,15 @@ def cndr(s, t, p):
     >>> p = [0, 0, 1000, 1000, 0, 0]
     >>> s = [25, 25, 25, 25, 40, 40]
     >>> sw.cndr(s, t, p)
-    array([ 0.49800825,  0.65499015,  0.50624434,  0.66297496,  1.00007311,
-            1.52996697])
+    array([0.49800825, 0.65499015, 0.50624434, 0.66297496, 1.00007311,
+           1.52996697])
 
     References
     ----------
     .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
        computation of fundamental properties of seawater. UNESCO Tech. Pap. in
        Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-       http://unesdoc.UNESCO.org/images/0005/000598/059832eb.pdf
+       https://unesdoc.unesco.org/ark:/48223/pf0000059832_eng
 
     """
     s, t, p = list(map(np.asanyarray, (s, t, p)))
@@ -76,8 +71,7 @@ def cndr(s, t, p):
         SInc = sals(Rx_loop * Rx_loop, T)  # S Increment (guess) from Rx.
         iloop = 0
         while True:
-            # FIXME: I believe that T / 1.00024 isn't correct here.  But I'm
-            # reproducing seawater up to its bugs!
+            # NOTE: I believe that T / 1.00024 isn't correct here.
             Rx_loop = Rx_loop + (S - SInc) / salds(Rx_loop, T / 1.00024 - 15)
             SInc = sals(Rx_loop * Rx_loop, T)
             iloop += 1
@@ -93,24 +87,22 @@ def cndr(s, t, p):
 
     # Once Rt found, corresponding to each (s,t) evaluate r.
     # Eqn(4) p.8 UNESCO 1983.
-    A = (d[2] + d[3] * T68)
-    B = 1 + d[0] * T68 + d[1] * T68 ** 2
-    C = p * (e[0] + e[1] * p + e[2] * p ** 2)
+    A = d[2] + d[3] * T68
+    B = 1 + d[0] * T68 + d[1] * T68**2
+    C = p * (e[0] + e[1] * p + e[2] * p**2)
 
     # Eqn(6) p.9 UNESCO 1983.
-    Rt = Rx ** 2
+    Rt = Rx**2
     rt = salrt(t)
     # Rtrt  = rt * Rt # NOTE: unused in the code, but present in the original.
     D = B - A * rt * Rt
     E = rt * Rt * A * (B + C)
-    r = np.sqrt(np.abs(D ** 2 + 4 * E)) - D
-    r = 0.5 * r / A
-    return r
+    r = np.sqrt(np.abs(D**2 + 4 * E)) - D
+    return 0.5 * r / A
 
 
 def salds(rtx, delt):
-    """
-    Calculates Salinity differential (:math:`\\frac{dS}{d(\\sqrt{Rt})}`) at
+    r"""Calculates Salinity differential (:math:`\\frac{dS}{d(\\sqrt{Rt})}`) at
     constant temperature.
 
     Parameters
@@ -131,33 +123,30 @@ def salds(rtx, delt):
     >>> import numpy as np
     >>> import seawater as sw
     >>> delt = T90conv([15, 20, 5]) - 15
-    >>> rtx  = np.array([ 1, 1.0568875, 0.81705885]) ** 0.5
+    >>> rtx = np.array([1, 1.0568875, 0.81705885]) ** 0.5
     >>> sw.salds(rtx, delt)
-    array([ 78.31921607,  81.5689307 ,  68.19023687])
+    array([78.31921607, 81.5689307 , 68.19023687])
 
     References
     ----------
     .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
        computation of fundamental properties of seawater. UNESCO Tech. Pap. in
        Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-       http://unesdoc.UNESCO.org/images/0005/000598/059832eb.pdf
+       https://unesdoc.unesco.org/ark:/48223/pf0000059832_eng
 
     """
     rtx, delt = list(map(np.asanyarray, (rtx, delt)))
 
-    ds = (a[1] +
-          (2 * a[2] + (3 * a[3] + (4 * a[4] + 5 * a[5] * rtx) * rtx) * rtx) *
-          rtx + (delt / (1 + k * delt)) *
-          (b[1] +
-           (2 * b[2] + (3 * b[3] + (4 * b[4] + 5 * b[5] * rtx) * rtx) * rtx) *
-           rtx))
-
-    return ds
+    return (
+        a[1]
+        + (2 * a[2] + (3 * a[3] + (4 * a[4] + 5 * a[5] * rtx) * rtx) * rtx) * rtx
+        + (delt / (1 + k * delt))
+        * (b[1] + (2 * b[2] + (3 * b[3] + (4 * b[4] + 5 * b[5] * rtx) * rtx) * rtx) * rtx)
+    )
 
 
 def salrp(r, t, p):
-    """
-    Equation for Rp used in calculating salinity. UNESCO 1983 polynomial.
+    r"""Equation for Rp used in calculating salinity. UNESCO 1983 polynomial.
 
     .. math::
         Rp(S,T,P) = \\frac{C(S,T,P)}{C(S,T,0)}
@@ -184,14 +173,14 @@ def salrp(r, t, p):
     >>> t = T90conv([15, 20, 5])
     >>> p = [0, 2000, 1500]
     >>> sw.salrp(r, t, p)
-    array([ 1.        ,  1.01694294,  1.02048638])
+    array([1.        , 1.01694294, 1.02048638])
 
     References
     ----------
     .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
        computation of fundamental properties of seawater. UNESCO Tech. Pap. in
        Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-       http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+       https://unesdoc.unesco.org/ark:/48223/pf0000059832_eng
 
     """
     r, t, p = list(map(np.asanyarray, (r, t, p)))
@@ -199,15 +188,13 @@ def salrp(r, t, p):
     # Eqn(4) p.8 UNESCO.
     T68 = T68conv(t)
 
-    rp = (1 + (p * (e[0] + e[1] * p + e[2] * p ** 2)) /
-          (1 + d[0] * T68 + d[1] * T68 ** 2 + (d[2] + d[3] * T68) * r))
-
-    return rp
+    return 1 + (p * (e[0] + e[1] * p + e[2] * p**2)) / (
+        1 + d[0] * T68 + d[1] * T68**2 + (d[2] + d[3] * T68) * r
+    )
 
 
 def salrt(t):
-    """
-    Equation for rt used in calculating salinity. UNESCO 1983 polynomial.
+    r"""Equation for rt used in calculating salinity. UNESCO 1983 polynomial.
 
     .. math::
         rt(t) = \\frac{C(35,t,0)}{C(35,15(\\textrm{IPTS-68}), 0)}
@@ -229,14 +216,14 @@ def salrt(t):
     >>> import seawater as sw
     >>> t = T90conv([15, 20, 5])
     >>> sw.salrt(t)
-    array([ 1.        ,  1.11649272,  0.77956585])
+    array([1.        , 1.11649272, 0.77956585])
 
     References
     ----------
     .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
        computation of fundamental properties of seawater. UNESCO Tech. Pap. in
        Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-       http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+       https://unesdoc.unesco.org/ark:/48223/pf0000059832_eng
 
     """
     t = np.asanyarray(t)
@@ -246,8 +233,7 @@ def salrt(t):
 
 
 def seck(s, t, p=0):
-    """
-    Secant Bulk Modulus (K) of Sea Water using Equation of state 1980.
+    """Secant Bulk Modulus (K) of Sea Water using Equation of state 1980.
     UNESCO polynomial implementation.
 
     Parameters
@@ -272,15 +258,15 @@ def seck(s, t, p=0):
     >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
     >>> p = [0, 10000, 0, 10000, 0, 10000, 0, 10000]
     >>> sw.seck(s, t, p)
-    array([ 19652.21      ,  22977.2115    ,  22336.0044572 ,  25656.8196222 ,
-            21582.27006823,  24991.99729129,  23924.21823158,  27318.32472464])
+    array([19652.21      , 22977.2115    , 22336.0044572 , 25656.8196222 ,
+           21582.27006823, 24991.99729129, 23924.21823158, 27318.32472464])
 
     References
     ----------
     .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
        computation of fundamental properties of seawater. UNESCO Tech. Pap. in
        Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-       http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+       https://unesdoc.unesco.org/ark:/48223/pf0000059832_eng
 
     .. [2] Millero, F.J. and  Poisson, A. International one-atmosphere equation
        of state of seawater. Deep-Sea Res. 1981. Vol28A(6) pp625-629.
@@ -310,21 +296,27 @@ def seck(s, t, p=0):
     # Sea water terms of secant bulk modulus at atmos. pressure.
     j0 = 1.91075e-4
     i = [2.2838e-3, -1.0981e-5, -1.6078e-6]
-    A = AW + (i[0] + (i[1] + i[2] * T68) * T68 + j0 * s ** 0.5) * s
+    A = AW + (i[0] + (i[1] + i[2] * T68) * T68 + j0 * s**0.5) * s
 
     m = [-9.9348e-7, 2.0816e-8, 9.1697e-10]
     B = BW + (m[0] + (m[1] + m[2] * T68) * T68) * s  # Eqn 18.
 
     f = [54.6746, -0.603459, 1.09987e-2, -6.1670e-5]
     g = [7.944e-2, 1.6483e-2, -5.3009e-4]
-    K0 = (KW + (f[0] + (f[1] + (f[2] + f[3] * T68) * T68) * T68 +
-                (g[0] + (g[1] + g[2] * T68) * T68) * s ** 0.5) * s)  # Eqn 16.
+    K0 = (
+        KW
+        + (
+            f[0]
+            + (f[1] + (f[2] + f[3] * T68) * T68) * T68
+            + (g[0] + (g[1] + g[2] * T68) * T68) * s**0.5
+        )
+        * s
+    )  # Eqn 16.
     return K0 + (A + B * p) * p  # Eqn 15.
 
 
 def sals(rt, t):
-    """
-    Salinity of sea water as a function of Rt and T.  UNESCO 1983 polynomial.
+    r"""Salinity of sea water as a function of Rt and T.  UNESCO 1983 polynomial.
 
     Parameters
     ----------
@@ -345,14 +337,14 @@ def sals(rt, t):
     >>> t = T90conv([15, 20, 5])
     >>> rt = [1, 1.0568875, 0.81705885]
     >>> sw.sals(rt, t)
-    array([ 35.        ,  37.24562718,  27.99534701])
+    array([35.        , 37.24562718, 27.99534701])
 
     References
     ----------
     .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
        computation of fundamental properties of seawater. UNESCO Tech. Pap. in
        Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-       http://unesdoc.UNESCO.org/images/0005/000598/059832eb.pdf
+       https://unesdoc.unesco.org/ark:/48223/pf0000059832_eng
 
     """
     rt, t = list(map(np.asanyarray, (rt, t)))
@@ -361,19 +353,17 @@ def sals(rt, t):
     del_T68 = T68conv(t) - 15
 
     Rtx = (rt) ** 0.5
-    del_S = ((del_T68 / (1 + k * del_T68)) *
-             (b[0] + (b[1] + (b[2] + (b[3] + (b[4] + b[5] * Rtx) *
-                                      Rtx) * Rtx) * Rtx) * Rtx))
-    s = a[0] + (a[1] + (a[2] + (a[3] + (a[4] + a[5] * Rtx) *
-                                Rtx) * Rtx) * Rtx) * Rtx
+    del_S = (del_T68 / (1 + k * del_T68)) * (
+        b[0] + (b[1] + (b[2] + (b[3] + (b[4] + b[5] * Rtx) * Rtx) * Rtx) * Rtx) * Rtx
+    )
+    s = a[0] + (a[1] + (a[2] + (a[3] + (a[4] + a[5] * Rtx) * Rtx) * Rtx) * Rtx) * Rtx
     s += del_S
 
     return s
 
 
 def smow(t):
-    """
-    Density of Standard Mean Ocean Water (Pure Water) using EOS 1980.
+    """Density of Standard Mean Ocean Water (Pure Water) using EOS 1980.
 
     Parameters
     ----------
@@ -391,15 +381,15 @@ def smow(t):
     >>> import seawater as sw
     >>> t = T90conv([0, 0, 30, 30, 0, 0, 30, 30])
     >>> sw.smow(t)
-    array([ 999.842594  ,  999.842594  ,  995.65113374,  995.65113374,
-            999.842594  ,  999.842594  ,  995.65113374,  995.65113374])
+    array([999.842594  , 999.842594  , 995.65113374, 995.65113374,
+           999.842594  , 999.842594  , 995.65113374, 995.65113374])
 
     References
     ----------
     .. [1] Fofonoff, P. and Millard, R.C. Jr UNESCO 1983. Algorithms for
        computation of fundamental properties of seawater. UNESCO Tech. Pap. in
        Mar. Sci., No. 44, 53 pp.  Eqn.(31) p.39.
-       http://unesdoc.unesco.org/images/0005/000598/059832eb.pdf
+       https://unesdoc.unesco.org/ark:/48223/pf0000059832_eng
 
     .. [2] Millero, F.J. and  Poisson, A. International one-atmosphere equation
        of state of seawater. Deep-Sea Res. 1981. Vol28A(6) pp625-629.
@@ -408,17 +398,21 @@ def smow(t):
     """
     t = np.asanyarray(t)
 
-    a = (999.842594, 6.793952e-2, -9.095290e-3, 1.001685e-4, -1.120083e-6,
-         6.536332e-9)
+    a = (
+        999.842594,
+        6.793952e-2,
+        -9.095290e-3,
+        1.001685e-4,
+        -1.120083e-6,
+        6.536332e-9,
+    )
 
     T68 = T68conv(t)
-    return (a[0] + (a[1] + (a[2] + (a[3] + (a[4] + a[5] * T68) * T68) * T68) *
-            T68) * T68)
+    return a[0] + (a[1] + (a[2] + (a[3] + (a[4] + a[5] * T68) * T68) * T68) * T68) * T68
 
 
 def T68conv(T90):
-    """
-    Convert ITS-90 temperature to IPTS-68
+    """Convert ITS-90 temperature to IPTS-68.
 
     :math:`T68  = T90 * 1.00024`
 
@@ -456,9 +450,8 @@ def T68conv(T90):
     return T90 * 1.00024
 
 
-def T90conv(t, t_type='T68'):
-    """
-    Convert IPTS-68 or IPTS-48 to temperature to ITS-90.
+def T90conv(t, t_type="T68"):
+    """Convert IPTS-68 or IPTS-48 to temperature to ITS-90.
 
     T48 apply to all data collected prior to 31/12/1967.
     T68 apply to all data collected between 01/10/1968 and 31/12/1989.
@@ -491,8 +484,8 @@ def T90conv(t, t_type='T68'):
     --------
     >>> T90conv(20.004799999999999)
     20.0
-    >>> T90conv(20., t_type='T48')
-    19.988162840918179
+    >>> T90conv(20.0, t_type="T48")
+    19.98816284091818
 
     References
     ----------
@@ -500,44 +493,35 @@ def T90conv(t, t_type='T68'):
        ITS-90. WOCE Newsletter, No. 10, WOCE International Project Office,
        Southampton, United Kingdom, 10.
 
-    .. [2] International Temperature Scales of 1948, 1968 and 1990, an ICES
-       note, available from http://www.ices.dk/ocean/procedures/its.htm
-
     """
     t = np.asanyarray(t)
 
-    if t_type == 'T68':
+    if t_type == "T68":
         T90 = t / 1.00024
-    elif t_type == 'T48':
+    elif t_type == "T48":
         T90 = (t - 4.4e-6 * t * (100 - t)) / 1.00024
     else:
-        raise NameError("Unrecognized temperature type.  Try 'T68'' or 'T48'")
+        msg = "Unrecognized temperature type.  Try 'T68'' or 'T48'"
+        raise NameError(msg)
 
     return T90
 
 
 def atleast_2d(*arys):
-    """
-    Same as numpy atleast_2d, but with the single dimension last, instead of
+    """Same as numpy atleast_2d, but with the single dimension last, instead of
     first.
 
     """
     res = []
     for ary in arys:
-        ary = np.asanyarray(ary)
-        if len(ary.shape) == 0:
-            result = ary.reshape(1, 1)
-        elif len(ary.shape) == 1:
-            result = ary[:, np.newaxis]
+        arry = np.asanyarray(ary)
+        if len(arry.shape) == 0:
+            result = arry.reshape(1, 1)
+        elif len(arry.shape) == 1:
+            result = arry[:, np.newaxis]
         else:
-            result = ary
+            result = arry
         res.append(result)
     if len(res) == 1:
         return res[0]
-    else:
-        return res
-
-
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
+    return res

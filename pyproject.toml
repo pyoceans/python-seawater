@@ -1,0 +1,57 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = [
+  "setuptools>=42",
+  "setuptools-scm",
+  "wheel",
+]
+
+[project]
+name = "seawater"
+description = "Seawater Library for Python"
+readme = "README.md"
+license = { file = "LICENSE.txt" }
+maintainers = [
+  { name = "Filipe Fernandes", email = "ocefpaf+seawater@gmail.com" },
+]
+requires-python = ">=3.8"
+classifiers = [
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
+dynamic = [
+  "dependencies",
+  "version",
+]
+urls.documentation = "https://pyoceans.github.io/python-seawater"
+urls.homepage = "https://pypi.org/project/seawater/"
+urls.repository = "https://github.com/pyoceans/python-seawater"
+
+[tool.setuptools]
+packages = [
+  "seawater",
+]
+# include-package-data = true
+
+[tool.setuptools.dynamic]
+dependencies = { file = [
+  "requirements.txt",
+] }
+
+[tool.setuptools_scm]
+write_to = "seawater/_version.py"
+write_to_template = "__version__ = '{version}'"
+tag_regex = "^(?P<prefix>v)?(?P<version>[^\\+]+)(?P<suffix>.*)?$"
+
+[tool.check-manifest]
+ignore = [
+  "*.yml",
+  "docs",
+  "docs/*",
+  "seawater/tests",
+  "seawater/tests/*",
+]
