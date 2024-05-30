@@ -23,7 +23,7 @@ jobs:
         environment-name: TEST
         init-shell: bash
         create-args: >-
-          python=${{ matrix.python-version }} --file requirements.txt --file requirements-dev.txt --channel conda-forge
+          python=${{ matrix.python-version }} --file requirements.txt --file requirements-dev.txt octave --channel conda-forge
 
     - name: Install seawater
       shell: bash -l {0}
