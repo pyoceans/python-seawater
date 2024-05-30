@@ -1,4 +1,4 @@
-exclude: seawater/test/seawater_v3_3/
+exclude: seawater/tests/seawater_v3_3/
 
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
