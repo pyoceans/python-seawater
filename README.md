@@ -1,6 +1,6 @@
 # python-seawater
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.11395.svg)](https://doi.org/10.5281/zenodo.11395)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.11395.svg)](https://zenodo.org/records/11395)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/seawater)
 [![Tests](https://github.com/pyoceans/python-seawater/actions/workflows/tests.yml/badge.svg)](https://github.com/pyoceans/python-seawater/actions/workflows/tests.yml)
 ![PyPI - License](https://img.shields.io/pypi/l/seawater)
@@ -37,6 +37,3 @@ at this that we simply ignore to avoid confusions.
 
 The current version was tested against the Matlab seawater v3.3
 reproducing all functions and results from that release.
-
-More information at
-[http://pythonhosted.org/seawater](http://pythonhosted.org/seawater).
