@@ -1,5 +1,7 @@
 """Seawater: EOS-80 equation of state."""
 
+import warnings
+
 try:
     from ._version import __version__
 except ImportError:
@@ -62,3 +64,8 @@ __all__ = [
     "swvel",
     "temp",
 ]
+
+warnings.warn(
+    "The seawater library is deprecated! Please use gsw instead.",
+    stacklevel=2,
+)
