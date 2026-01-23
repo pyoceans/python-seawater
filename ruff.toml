@@ -3,6 +3,7 @@ line-length = 90
 lint.select = ["ALL"]
 
 lint.ignore = [
+  "COM812",  # missing-trailing-comma
   "ANN001",  # Missing type annotation for function argument
   "ANN002",  # Missing type annotation for `*arys`
   "ANN101",  # Missing type annotation for `self` in method

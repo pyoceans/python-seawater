@@ -3,59 +3,27 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from oct2py import Oct2Py
 
 import seawater as sw
 from seawater.constants import c3515
 from seawater.library import T68conv, T90conv, atleast_2d
 
 rootpath = Path(__file__).parent
-octave = Oct2Py(timeout=3)
-path = rootpath.joinpath("seawater_v3_3")
-_ = octave.addpath(octave.genpath(str(path)))
 
 
-functions = {
-    "adtg": octave.sw_adtg,
-    "alpha": octave.sw_alpha,
-    "aonb": octave.sw_aonb,
-    "beta": octave.sw_beta,
-    "bfrq": octave.sw_bfrq,
-    "c3515": octave.sw_c3515,
-    "cndr": octave.sw_cndr,
-    "cp": octave.sw_cp,
-    "dens0": octave.sw_dens0,
-    "dens": octave.sw_dens,
-    "dist": octave.sw_dist,
-    "dpth": octave.sw_dpth,
-    "f": octave.sw_f,
-    "fp": octave.sw_fp,
-    "g": octave.sw_g,
-    "gpan": octave.sw_gpan,
-    "gvel": octave.sw_gvel,
-    "pden": octave.sw_pden,
-    "pres": octave.sw_pres,
-    "ptmp": octave.sw_ptmp,
-    "salds": octave.sw_salds,
-    "salrp": octave.sw_salrp,
-    "salrpP": octave.sw_salrp,
-    "salrt": octave.sw_salrt,
-    "sals": octave.sw_sals,
-    "salt": octave.sw_salt,
-    "satAr": octave.sw_satAr,
-    "satN2": octave.sw_satN2,
-    "satO2": octave.sw_satO2,
-    "seck": octave.sw_seck,
-    "smow": octave.sw_smow,
-    "svan": octave.sw_svan,
-    "svel": octave.sw_svel,
-    "swvel": octave.sw_swvel,
-    "temp": octave.sw_temp,
-    "test": octave.sw_test,
-}
+def initiate_octave():
+    """Start the octave instance.
+    Note that this import hangs on conda-forge's octave>6.
+    """
+    from oct2py import Oct2Py  # noqa: PLC0415
+
+    octave = Oct2Py(timeout=3)
+    path = rootpath.joinpath("seawater_v3_3")
+    _ = octave.addpath(octave.genpath(str(path)))
+    return octave
 
 
-def compare_results(name, function, args, values):
+def compare_results(name, function, args, values, functions):
     """Compare Python and Matlab results."""
     args = [values.get(arg) for arg in args]
     res = function(*args)  # Python call.
@@ -68,8 +36,50 @@ def compare_results(name, function, args, values):
     np.testing.assert_allclose(val, res)
 
 
+@pytest.mark.octave
 class OctaveResultComparison(unittest.TestCase):
     def setUp(self):
+        octave = initiate_octave()
+
+        self.functions = {
+            "adtg": octave.sw_adtg,
+            "alpha": octave.sw_alpha,
+            "aonb": octave.sw_aonb,
+            "beta": octave.sw_beta,
+            "bfrq": octave.sw_bfrq,
+            "c3515": octave.sw_c3515,
+            "cndr": octave.sw_cndr,
+            "cp": octave.sw_cp,
+            "dens0": octave.sw_dens0,
+            "dens": octave.sw_dens,
+            "dist": octave.sw_dist,
+            "dpth": octave.sw_dpth,
+            "f": octave.sw_f,
+            "fp": octave.sw_fp,
+            "g": octave.sw_g,
+            "gpan": octave.sw_gpan,
+            "gvel": octave.sw_gvel,
+            "pden": octave.sw_pden,
+            "pres": octave.sw_pres,
+            "ptmp": octave.sw_ptmp,
+            "salds": octave.sw_salds,
+            "salrp": octave.sw_salrp,
+            "salrpP": octave.sw_salrp,
+            "salrt": octave.sw_salrt,
+            "sals": octave.sw_sals,
+            "salt": octave.sw_salt,
+            "satAr": octave.sw_satAr,
+            "satN2": octave.sw_satN2,
+            "satO2": octave.sw_satO2,
+            "seck": octave.sw_seck,
+            "smow": octave.sw_smow,
+            "svan": octave.sw_svan,
+            "svel": octave.sw_svel,
+            "swvel": octave.sw_swvel,
+            "temp": octave.sw_temp,
+            "test": octave.sw_test,
+        }
+
         kw = {"comments": "#", "skiprows": 6, "delimiter": ","}
         station_61 = "Endeavor_Cruise-88_Station-61.csv"
         station_64 = "Endeavor_Cruise-88_Station-64.csv"
@@ -163,6 +173,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_salds(self):
@@ -173,6 +184,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_salrp(self):
@@ -183,6 +195,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_salrt(self):
@@ -193,6 +206,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_seck(self):
@@ -203,6 +217,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_sals(self):
@@ -213,6 +228,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     # `extras.py`
@@ -224,6 +240,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_f(self):
@@ -234,6 +251,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_satAr(self):
@@ -244,6 +262,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_satN2(self):
@@ -254,6 +273,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_satO2(self):
@@ -264,6 +284,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_swvel(self):
@@ -274,6 +295,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     # `eos80.py`
@@ -285,6 +307,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_alpha(self):
@@ -295,6 +318,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_aonb(self):
@@ -305,6 +329,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_beta(self):
@@ -315,6 +340,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_bfrq1d(self):
@@ -325,6 +351,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_dpth(self):
@@ -335,6 +362,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_g(self):
@@ -345,6 +373,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_salt(self):
@@ -355,6 +384,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_fp(self):
@@ -365,6 +395,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_svel(self):
@@ -375,6 +406,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_pres(self):
@@ -385,6 +417,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_dens0(self):
@@ -395,6 +428,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_smow(self):
@@ -405,6 +439,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_dens(self):
@@ -415,6 +450,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_pden(self):
@@ -425,6 +461,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_cp(self):
@@ -435,6 +472,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_ptmp(self):
@@ -445,6 +483,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_temp(self):
@@ -455,6 +494,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     # `geostrophic.py`
@@ -466,6 +506,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_bfrq(self):
@@ -476,6 +517,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_gpan(self):
@@ -486,6 +528,7 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
     def test_gvel(self):
@@ -496,9 +539,11 @@ class OctaveResultComparison(unittest.TestCase):
             function=function,
             args=args,
             values=self.values,
+            functions=self.functions,
         )
 
 
+@pytest.mark.octave
 class TConv(unittest.TestCase):
     def setUp(self):
         self.temp = np.arange(-4.0, 45.0)
@@ -516,6 +561,7 @@ class TConv(unittest.TestCase):
             T90conv(self.temp, t_type="T10")
 
 
+@pytest.mark.octave
 class Arrays(unittest.TestCase):
     def setUp(self):
         self.res = np.array(
