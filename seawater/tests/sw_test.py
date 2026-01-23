@@ -7,8 +7,9 @@ import numpy as np
 import seawater as sw
 
 
-def test(fileout="python-test.txt"):
+def test():
     """Copy of the Matlab test."""
+    fileout = "python-test.txt"
     f = open(fileout, "w")
     asterisks = "*" * 76
 
