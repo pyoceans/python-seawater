@@ -13,7 +13,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: [ "3.10", "3.11", "3.12", "3.13" , "3.14" ]
+        python-version: [ "3.10" ]
         os: [ ubuntu-latest ]
       fail-fast: false
 
@@ -29,7 +29,7 @@ jobs:
         environment-name: TEST
         init-shell: bash
         create-args: >-
-          python=${{ matrix.python-version }} --file requirements.txt --file requirements-dev.txt --channel conda-forge
+          python=${{ matrix.python-version }} octave=6 --file requirements.txt --file requirements-dev.txt --channel conda-forge
 
     - name: Install seawater
       shell: bash -l {0}
@@ -39,4 +39,4 @@ jobs:
     - name: Full Tests
       shell: bash -l {0}
       run: |
-        python -m pytest -rxs -m "not octave" --doctest-modules --pyargs seawater
+        python -m pytest -rxs -m "octave" --doctest-modules --pyargs seawater

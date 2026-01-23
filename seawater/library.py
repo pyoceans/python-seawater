@@ -66,7 +66,7 @@ def cndr(s, t, p):
     s, t = list(map(np.ravel, (s, t)))
     # Do a Newton-Raphson iteration for inverse interpolation of Rt from s.
     Rx = []
-    for S, T in zip(s, t):
+    for S, T in zip(s, t, strict=True):
         Rx_loop = np.sqrt(S / 35.0)  # first guess at Rx = sqrt(Rt).
         SInc = sals(Rx_loop * Rx_loop, T)  # S Increment (guess) from Rx.
         iloop = 0
