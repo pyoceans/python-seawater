@@ -102,10 +102,10 @@ def test(fileout="python-test.txt"):
                 PT[:, icol],
             ),
         )
-        for iline in range(m):
-            f.write(
-                " %4.0f  %4.0f   %5.0f   %8.4f  %11.5f\n" % tuple(result[:, iline]),
-            )
+        f.writelines(
+            " %4.0f  %4.0f   %5.0f   %8.4f  %11.5f\n" % tuple(result[:, iline])
+            for iline in range(m)
+        )
 
     # Test main module svan.
     f.write("\n%s" % asterisks)
@@ -144,10 +144,10 @@ def test(fileout="python-test.txt"):
     f.write("\n   Sal  Temp  Press        SVAN        svan")
     f.write("\n  (psu)  (C)   (db)    (1e-8*m3/kg)  (1e-8*m3/kg)\n")
     result = np.vstack([s, t, p, UN_svan, 1e8 * SVAN])
-    for iline in range(len(SVAN)):
-        f.write(
-            " %4.0f  %4.0f   %5.0f   %11.2f    %11.3f\n" % tuple(result[:, iline]),
-        )
+    f.writelines(
+        " %4.0f  %4.0f   %5.0f   %11.2f    %11.3f\n" % tuple(result[:, iline])
+        for iline in range(len(SVAN))
+    )
 
     # Test main module salt.
     f.write("\n%s" % asterisks)
@@ -177,10 +177,10 @@ def test(fileout="python-test.txt"):
     f.write("\n   (C)     (db)    (no units)       (psu)          (psu)\n")
     table = np.vstack([T, P, R, UN_S, S])
     m, n = table.shape
-    for iline in range(n):
-        f.write(
-            " %4.0f       %4.0f  %8.2f      %11.6f  %14.7f\n" % tuple(table[:, iline]),
-        )
+    f.writelines(
+        " %4.0f       %4.0f  %8.2f      %11.6f  %14.7f\n" % tuple(table[:, iline])
+        for iline in range(n)
+    )
 
     # Test main module cndr.
     f.write("\n%s" % asterisks)
@@ -217,10 +217,10 @@ def test(fileout="python-test.txt"):
     f.write("\n   (C)     (db)      (psu)        (no units)    (no units)\n")
     table = np.vstack([T, P, S, UN_R, R])
     m, n = table.shape
-    for iline in range(n):
-        f.write(
-            " %4.0f       %4.0f   %8.6f   %11.6f  %14.8f\n" % tuple(table[:, iline]),
-        )
+    f.writelines(
+        " %4.0f       %4.0f   %8.6f   %11.6f  %14.8f\n" % tuple(table[:, iline])
+        for iline in range(n)
+    )
 
     # Test main module depth.
     f.write("\n%s" % asterisks)
@@ -261,10 +261,10 @@ def test(fileout="python-test.txt"):
         f.write("\n  (degree)    (db)     (meter)    (meter)\n")
         table = np.vstack([lat, P[irow, :], UN_dpth[irow, :], dpth[irow, :]])
         m, n = table.shape
-        for iline in range(n):
-            f.write(
-                "  %6.3f     %6.0f   %8.2f   %8.3f\n" % tuple(table[:, iline]),
-            )
+        f.writelines(
+            "  %6.3f     %6.0f   %8.2f   %8.3f\n" % tuple(table[:, iline])
+            for iline in range(n)
+        )
 
     # Test main module fp.
     f.write("\n%s" % asterisks)
@@ -334,10 +334,10 @@ def test(fileout="python-test.txt"):
             ],
         )
         m, n = table.shape
-        for iline in range(n):
-            f.write(
-                " %4.0f   %5.0f   %8.3f  %11.4f\n" % tuple(table[:, iline]),
-            )
+        f.writelines(
+            " %4.0f   %5.0f   %8.3f  %11.4f\n" % tuple(table[:, iline])
+            for iline in range(n)
+        )
 
     # Test main module cp.
     f.write("\n%s" % asterisks)
@@ -413,10 +413,10 @@ def test(fileout="python-test.txt"):
                 CP[:, icol],
             ],
         )
-        for iline in range(m):
-            f.write(
-                " %4.0f  %4.0f   %5.0f   %8.1f  %11.2f\n" % tuple(result[:, iline]),
-            )
+        f.writelines(
+            " %4.0f  %4.0f   %5.0f   %8.1f  %11.2f\n" % tuple(result[:, iline])
+            for iline in range(m)
+        )
 
     # Test main module svel.
     f.write("\n%s" % asterisks)
@@ -493,10 +493,10 @@ def test(fileout="python-test.txt"):
                 SVEL[:, icol],
             ],
         )
-        for iline in range(m):
-            f.write(
-                " %4.0f  %4.0f   %5.0f   %8.1f  %11.3f\n" % tuple(result[:, iline]),
-            )
+        f.writelines(
+            " %4.0f  %4.0f   %5.0f   %8.1f  %11.3f\n" % tuple(result[:, iline])
+            for iline in range(m)
+        )
 
     # Test submodules alpha beta aonb.
     f.write("\n%s" % asterisks)
@@ -625,10 +625,10 @@ def test(fileout="python-test.txt"):
                 O2[:, icol],
             ],
         )
-        for iline in range(m):
-            f.write(
-                " %4.0f  %4.0f    %8.2f   %9.3f\n" % tuple(result[:, iline]),
-            )
+        f.writelines(
+            " %4.0f  %4.0f    %8.2f   %9.3f\n" % tuple(result[:, iline])
+            for iline in range(m)
+        )
 
     for icol in range(n):
         f.write("\n   Sal  Temp      N2         satN2")
@@ -641,10 +641,10 @@ def test(fileout="python-test.txt"):
                 N2[:, icol],
             ],
         )
-        for iline in range(m):
-            f.write(
-                " %4.0f  %4.0f    %8.2f  %9.3f\n" % tuple(result[:, iline]),
-            )
+        f.writelines(
+            " %4.0f  %4.0f    %8.2f  %9.3f\n" % tuple(result[:, iline])
+            for iline in range(m)
+        )
 
     for icol in range(n):
         f.write("\n   Sal  Temp      Ar         satAr")
@@ -657,10 +657,10 @@ def test(fileout="python-test.txt"):
                 Ar[:, icol],
             ],
         )
-        for iline in range(m):
-            f.write(
-                " %4.0f  %4.0f     %8.4f  %9.4f\n" % tuple(result[:, iline]),
-            )
+        f.writelines(
+            " %4.0f  %4.0f     %8.4f  %9.4f\n" % tuple(result[:, iline])
+            for iline in range(m)
+        )
 
 
 if __name__ == "__main__":

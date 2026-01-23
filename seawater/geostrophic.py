@@ -7,9 +7,9 @@ from .library import atleast_2d
 
 __all__ = [
     "bfrq",
-    "svan",
     "gpan",
     "gvel",
+    "svan",
 ]
 
 
