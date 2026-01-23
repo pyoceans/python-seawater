@@ -133,7 +133,7 @@ def alpha(s, t, p, *, pt=False):
     >>> import seawater as sw
     >>> s, t, p = 40, 10, 4000
     >>> sw.alpha(s, t, p, pt=True)
-    0.00025061316481624323
+    np.float64(0.00025061316481624323)
 
     References
     ----------
@@ -170,7 +170,7 @@ def aonb(s, t, p, *, pt=False):
     >>> import seawater as sw
     >>> s, t, p = 40, 10, 4000
     >>> sw.aonb(s, t, p, pt=True)
-    0.347650567047807
+    np.float64(0.347650567047807)
 
     References
     ----------
@@ -241,7 +241,7 @@ def beta(s, t, p, *, pt=False):
     >>> import seawater as sw
     >>> s, t, p = 40, 10, 4000
     >>> sw.beta(s, t, p, pt=True)
-    0.0007208766174161893
+    np.float64(0.0007208766174161893)
 
     References
     ----------
@@ -612,7 +612,7 @@ def g(lat, z=0):
     --------
     >>> import seawater as sw
     >>> sw.g(45, z=0)
-    9.8061898752054
+    np.float64(9.8061898752054)
 
     References
     ----------
@@ -705,7 +705,7 @@ def pres(depth, lat):
     >>> import seawater as sw
     >>> depth, lat = 7321.45, 30
     >>> sw.pres(depth, lat)
-    7500.006513011802
+    np.float64(7500.006513011802)
 
     References
     ----------
@@ -1020,7 +1020,7 @@ def temp(s, pt, p, pr=0):
     >>> import seawater as sw
     >>> s, t, p = 35, 15, 100
     >>> sw.temp(s, sw.ptmp(s, t, p), p)
-    15.0
+    np.float64(15.0)
 
     References
     ----------

@@ -437,7 +437,7 @@ def T68conv(T90):
     --------
     >>> import seawater as sw
     >>> T68conv(19.995201151723585)
-    20.0
+    np.float64(20.0)
 
     References
     ----------
@@ -483,9 +483,9 @@ def T90conv(t, t_type="T68"):
     Examples
     --------
     >>> T90conv(20.004799999999999)
-    20.0
+    np.float64(20.0)
     >>> T90conv(20.0, t_type="T48")
-    19.98816284091818
+    np.float64(19.98816284091818)
 
     References
     ----------

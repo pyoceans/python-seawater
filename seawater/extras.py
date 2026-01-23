@@ -111,7 +111,7 @@ def f(lat):
     --------
     >>> import seawater as sw
     >>> sw.f(45)
-    0.00010312445296824608
+    np.float64(0.00010312445296824608)
 
     References
     ----------
@@ -316,7 +316,7 @@ def swvel(length, depth):
     --------
     >>> import seawater as sw
     >>> sw.swvel(10, 100)
-    3.949327084834294
+    np.float64(3.949327084834294)
 
     """
     length, depth = list(map(np.asanyarray, (length, depth)))
